@@ -14,15 +14,24 @@
         "SLOGAN": ""
     },
     "COMMENTS": {
+        "ANSWERS": "",
+        "EXPLAIN_WHY_AGREE": "",
+        "EXPLAIN_WHY_DISAGREE": "",
         "HIDE_ALL": "",
         "HIDE_ALL_FLAGGED": "",
+        "IS_AGREED": "",
+        "IS_DISAGREED": "",
         "NO_MESSAGES": "",
+        "TAG_ANSWER": "",
         "TAG_COMMENT": "",
         "TITLE": "",
-        "TYPE": ""
+        "TYPE": "",
+        "YOU_ANSWERED_ALREADY": "",
+        "YOU_ARE_THE_OWNER": ""
     },
     "COMMON": {
         "ADD": "",
+        "AGREE": "",
         "ALL": "",
         "APPLY": "",
         "ASSIGN": "",
@@ -38,6 +47,7 @@
         "CREATE": "",
         "CURRENT_VALUE": "",
         "DELETE": "",
+        "DISAGREE": "",
         "EDIT": "",
         "FURTHER": "",
         "GLOBALLY": "",
@@ -168,6 +178,8 @@
     },
     "FORMS": {
         "FIELD_REQUIRED": "",
+        "INVALID_EMAIL": "",
+        "INVALID_UNIQUE": "",
         "MUST_BE_INT": "",
         "MUST_BE_NUMBER": "",
         "WRONG_DATE_FORMAT": ""
@@ -459,6 +471,7 @@
             "POLICIES": "",
             "POLICY": "",
             "PRODUCT": "",
+            "SELECT_SURVEY": "",
             "SETTINGS": "",
             "START_PRODUCT": "",
             "STATUS": "",
@@ -505,13 +518,13 @@
             "DESCRIPTION": "",
             "DESCRIPTION_REQUIRED": "",
             "LOAD_FROM_WORKFLOW_TEMPLATE": "",
-            "SAVE_AS_TEMPLATE": "",
             "STEPS": {
                 "ADD_GROUP": "",
                 "ALLOW_EDIT": "",
                 "ALLOW_TRANSLATE": "",
                 "ANSWERS_ACCESS": "",
                 "BLIND_REVIEW": "",
+                "DATES_ORDER_ERROR": "",
                 "DISCUSSION_PARTICIPATION": "",
                 "END_DATE": "",
                 "GROUPS": "",
@@ -520,6 +533,7 @@
                 "PRODUCT_WORKFLOW_STEPS": "",
                 "PROVIDE_RESPONSES": "",
                 "ROLE": "",
+                "SAVE_AS_TEMPLATE": "",
                 "SEE_OTHERS_RESPONSES": "",
                 "SORT_DISABLED": "",
                 "SORT_ENABLED": "",
@@ -530,8 +544,11 @@
             },
             "STEPS_FOR": "",
             "TITLE": "",
+            "TITLE_IN_USE": "",
             "TITLE_REQUIRED": "",
-            "WORKFLOW_TEMPLATES": ""
+            "WORKFLOW_TEMPLATE": "",
+            "WORKFLOW_TEMPLATES": "",
+            "WORKFLOW_TEMPLATE_SAVED": ""
         }
     },
     "PRODUCT_TASKS": {

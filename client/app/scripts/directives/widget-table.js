@@ -33,6 +33,8 @@ angular.module('greyscaleApp')
                 disabled: true
             };
 
+            _normalizeAddButtons(model);
+
             _translateParams(model);
 
             if (!model.tableParams || !(model.tableParams instanceof NgTableParams)) {
@@ -97,6 +99,11 @@ angular.module('greyscaleApp')
                     handle: '.action-drag-sortable',
                     start: function (e, ui) {
                         ui.placeholder.height(ui.item.height());
+                    },
+                    stop: function (e, ui) {
+                        if (typeof model.dragSortable.onChange === 'function') {
+                            model.dragSortable.onChange(e, ui);
+                        }
                     }
                 };
             }
@@ -149,6 +156,28 @@ angular.module('greyscaleApp')
                 }
             };
 
+        }
+
+        function _normalizeAddButtons(table) {
+            table.add = table.add || [];
+            if (!angular.isArray(table.add)) {
+                table.add = [table.add];
+            }
+
+            var showFn = function (showVal) {
+                return function () {
+                    if (showVal === undefined) {
+                        return true;
+                    }
+                    if (typeof showVal === 'function') {
+                        return showVal();
+                    }
+                };
+            };
+
+            angular.forEach(table.add, function (add, i) {
+                table.add[i].show = showFn(add.show);
+            });
         }
 
         function _newPagination(scope) {
@@ -211,7 +240,6 @@ angular.module('greyscaleApp')
                     col['class'] += ' header-actions';
                 }
                 if (col.textCenter) {
-                    console.log(col);
                     col['class'] += ' text-center';
                 }
                 if (col.title) {

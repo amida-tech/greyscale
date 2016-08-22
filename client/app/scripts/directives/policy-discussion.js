@@ -43,25 +43,10 @@ angular.module('greyscaleApp')
                 $scope.editComment = _editComment;
 
                 function save(commentBody, isDraft) {
-                    var _tag = {
-                            users: [],
-                            groups: []
-                        },
-                        i, qty,
-                        res = $q.reject('SAVE.ERROR');
-
-                    qty = commentBody.tag ? commentBody.tag.length : 0;
-
-                    for (i = 0; i < qty; i++) {
-                        if (commentBody.tag[i].userId) {
-                            _tag.users.push(commentBody.tag[i].userId);
-                        } else if (commentBody.tags[i].groupId) {
-                            _tag.groups.push(commentBody.tag[i].groupId);
-                        }
-                    }
+                    var res = $q.reject('SAVE.ERROR');
 
                     var _newComment = angular.extend({}, commentBody);
-                    _newComment.tags = _tag;
+                    _newComment.tags = greyscaleUtilsSrv.getTagsPostData(commentBody.tag);
                     _newComment.activated = !isDraft;
 
                     if (_newComment.id) {
@@ -187,29 +172,9 @@ angular.module('greyscaleApp')
                 };
 
                 $q.all(reqs).then(function (resp) {
-                    var tag, i, qty, title;
+                    var i, qty;
                     /* form associate */
-                    scope.model.associate = {
-                        tags: []
-                    };
-
-                    qty = resp.tags.users.length;
-                    for (i = 0; i < qty; i++) {
-                        tag = resp.tags.users[i];
-                        title = greyscaleUtilsSrv.getUserName(tag);
-                        angular.extend(tag, {
-                            fullName: title
-                        });
-
-                        scope.model.associate.tags.push(tag);
-                        scope.model.associate[tag.userId] = tag;
-
-                    }
-
-                    qty = resp.tags.groups.length;
-                    for (i = 0; i < qty; i++) {
-                        scope.model.associate.tags.push(resp.tags.groups[i]);
-                    }
+                    scope.model.associate = greyscaleUtilsSrv.getTagsAssociate(resp.tags);
 
                     /* comment types */
                     qty = resp.tags.commentTypes.length;
