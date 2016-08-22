@@ -824,11 +824,10 @@ angular.module('greyscaleApp')
         }
 
         var _productCached;
+
         function _loadProduct(productId) {
-            if (_productCached) {
-                return $q.when(_productCached);
-            } else {
-                return _productCached = greyscaleProductApi.get(productId)
+            if (!_productCached) {
+                _productCached = greyscaleProductApi.get(productId)
                     .then(function (product) {
                         $state.ext.productName = product.title;
                         return product;
@@ -838,6 +837,7 @@ angular.module('greyscaleApp')
                         $state.go('home');
                     });
             }
+            return _productCached;
         }
 
     });

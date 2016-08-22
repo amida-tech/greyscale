@@ -122,9 +122,6 @@ angular.module('greyscaleApp')
                 var startNode,
                     range = model.range;
 
-                while (typeof range === 'string') {
-                    range = JSON.parse(range);
-                }
                 startNode = greyscaleSelection.restore(questionBlock[0], range);
                 if (startNode) {
                     var parent = startNode.parentNode;

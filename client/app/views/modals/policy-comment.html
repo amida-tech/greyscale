@@ -5,7 +5,8 @@
     <div name="dataForm" class="form" ng-form="dataForm">
         <div class="row">
             <div class="col-sm-12">
-                <text-angular ng-model="model.entry"></text-angular>
+                <blockquote ng-bind-html="model.range.entry"></blockquote>
+                <text-angular ng-model="model.entry" ng-required="1"></text-angular>
             </div>
         </div>
         <div class="row">

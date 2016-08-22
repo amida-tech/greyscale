@@ -280,14 +280,13 @@ angular.module('greyscaleApp')
         }
 
         function _fullScreenComment(comment) {
-            //return _simpleFullScreenForm('views/modals/comment-full-screen.html', comment);
             return $uibModal.open({
                 templateUrl: 'views/modals/comment-full-screen.html',
                 controller: 'ModalCommentFullScreenCtrl',
                 size: 'xxl',
                 windowClass: 'modal fade in',
                 resolve: {
-                    comment: comment,
+                    comment: comment
                 }
             }).result.catch(hndlModalErr);
         }

@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('policyDiscussion', function ($q, greyscaleGlobals, greyscaleCommentApi, greyscaleUtilsSrv,
-        greyscaleModalsSrv, greyscaleProfileSrv, i18n, _) {
+        greyscaleModalsSrv, greyscaleProfileSrv, i18n, _, $sanitize) {
 
         return {
             restrict: 'E',
@@ -25,13 +25,16 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.$on(greyscaleGlobals.events.policy.addComment, function (evt, data) {
+                    var _entry = $sanitize(data.quote) || '';
+
+                    data.range.entry = _entry;
+
                     var _comment = {
                         userFromId: $scope.policy.userId,
                         taskId: $scope.policy.taskId,
                         stepId: null,
                         questionId: data.section.id,
-                        entry: data.quote ? '<blockquote contenteditable="false" readonly="readonly">' +
-                            data.quote + '</blockquote><br/>' : '',
+                        entry: '',
                         range: data.range,
                         tag: [],
                         isReturn: false
@@ -87,10 +90,6 @@ angular.module('greyscaleApp')
                         _comment.tag = _getTags(_comment.tags);
                     }
 
-                    while (_comment.range && typeof _comment.range === 'string') {
-                        _comment.range = JSON.parse(_comment.range);
-                    }
-
                     return greyscaleModalsSrv.policyComment(_comment, _opt)
                         .then(save)
                         .catch(function (reason) {
@@ -143,6 +142,7 @@ angular.module('greyscaleApp')
                     }
                     return res;
                 }
+
                 $scope.hideComments = function (filter) {
                     greyscaleCommentApi.hide($scope.policy.taskId, filter).then(function () {
                         for (var i = 0; i < $scope.model.items.length; i++) {
