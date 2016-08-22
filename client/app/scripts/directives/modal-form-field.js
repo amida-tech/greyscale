@@ -144,20 +144,20 @@ angular.module('greyscaleApp')
                     $compile(elem.contents())(scope);
 
                 }
-
+                /*
                 function _addValidator(ngModel, validate) {
-                    ngModel.$parsers.unshift(function(value){
+                    ngModel.$parsers.unshift(function (value) {
                         var valid = validate.isValid($scope.modalFormRec);
                         ngModel.$setValidity(validate.key, valid);
                         return valid ? value : undefined;
                     });
-                    ngModel.$formatters.unshift(function(value) {
+                    ngModel.$formatters.unshift(function (value) {
                         var valid = validate.isValid($scope.modalFormRec);
                         ngModel.$setValidity(validate.key, valid);
                         return value;
                     });
                 }
-
+                */
                 scope.fieldChange = function (row, field) {
                     $timeout(function () {
                         scope.$emit('form-field-change', {

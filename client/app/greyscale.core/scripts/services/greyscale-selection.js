@@ -149,7 +149,7 @@ angular.module('greyscale.core')
             _node = node;
 
             while (!(_node.nodeName === 'DIV' && ~_node.className.indexOf('ta-text')) &&
-            _node.nodeName !== '#document') {
+                _node.nodeName !== '#document') {
                 _clone = _node.cloneNode(false);
                 if (_clone.nodeName === 'LI') {
                     _clone.setAttribute('value', _getLiIndex(_node));
