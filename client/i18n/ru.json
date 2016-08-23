@@ -96,6 +96,15 @@
         "RESET": "Сброс",
         "TODAY": "Сегодня"
     },
+    "DLG": {
+        "POLICY": {
+            "STEP": {
+                "CURRENT": "",
+                "NEXT": "",
+                "TITLE": ""
+            }
+        }
+    },
     "ERROR": {
         "ACCESS_RESTRICTED": "Доступ ограничен к",
         "BAD_TOKEN": "",

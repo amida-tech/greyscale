@@ -215,7 +215,23 @@ angular.module('greyscale.core')
             }, {
                 value: 'started',
                 name: 'STARTED'
-            }]
+            }],
+            dialogs: {
+                policyPublish: {
+                    current: 'current',
+                    next: 'next',
+                    header: 'DLG.POLICY.STEP.TITLE',
+                    buttons: [{
+                        type: 'primary',
+                        title: 'DLG.POLICY.STEP.NEXT',
+                        value: 'next'
+                    }, {
+                        type: 'primary',
+                        title: 'DLG.POLICY.STEP.CURRENT',
+                        value: 'current'
+                    }]
+                }
+            }
         };
 
         return {

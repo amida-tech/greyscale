@@ -96,6 +96,15 @@
         "RESET": "Reset",
         "TODAY": "Today"
     },
+    "DLG": {
+        "POLICY": {
+            "STEP": {
+                "CURRENT": "Restart current step",
+                "NEXT": "Start next step",
+                "TITLE": "What do you want to do?"
+            }
+        }
+    },
     "ERROR": {
         "ACCESS_RESTRICTED": "Access restricted to",
         "BAD_TOKEN": "Authentication check error",

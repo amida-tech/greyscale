@@ -27,6 +27,7 @@ angular.module('greyscaleApp')
             productTask: _productTask,
             userGroups: _userGroups,
             confirm: _confirm,
+            dialog: _dialog,
             showVersion: _showVersion,
             sendNotification: _sendNotification,
             changePassword: _changePassword,
@@ -281,7 +282,6 @@ angular.module('greyscaleApp')
         }
 
         function _fullScreenComment(comment) {
-            //return _simpleFullScreenForm('views/modals/comment-full-screen.html', comment);
             return $uibModal.open({
                 templateUrl: 'views/modals/comment-full-screen.html',
                 controller: 'ModalCommentFullScreenCtrl',
@@ -313,6 +313,18 @@ angular.module('greyscaleApp')
                 windowClass: 'modal fade in',
                 resolve: {
                     survey: survey
+                }
+            }).result;
+        }
+
+        function _dialog(_params) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/modal-dlg.html',
+                controller: 'ModalDlgCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    params: _params
                 }
             }).result;
         }

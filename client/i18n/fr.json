@@ -96,6 +96,15 @@
         "RESET": "",
         "TODAY": ""
     },
+    "DLG": {
+        "POLICY": {
+            "STEP": {
+                "CURRENT": "",
+                "NEXT": "",
+                "TITLE": ""
+            }
+        }
+    },
     "ERROR": {
         "ACCESS_RESTRICTED": "",
         "BAD_TOKEN": "",

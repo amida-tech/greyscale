@@ -38,7 +38,7 @@ angular.module('greyscale.rest')
             return _api().one(survey.id + '').remove().then(_plainResp);
         }
 
-        function _updateSurvey(survey) {
-            return _api().one(survey.id + '').customPUT(survey).then(_plainResp);
+        function _updateSurvey(survey, params) {
+            return _api().one(survey.id + '').customPUT(survey, null, params).then(_plainResp);
         }
     });
