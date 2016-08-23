@@ -1,4 +1,5 @@
 var sql = require('sql');
+var _ = require('underscore');
 
 var columns = [
     'id',
@@ -53,13 +54,15 @@ SurveyQuestion.multiSelectTypes = [2, 3, 4];
 SurveyQuestion.sectionTypes = [8, 9, 10];
 SurveyQuestion.bulletPointsType = 11;
 
-SurveyQuestion.insertCols = columns.splice(columns.indexOf('id'), 1);
+SurveyQuestion.insertCols = _.without(columns, 'id');
+
 SurveyQuestion.editCols = [
     'label', 'position', 'isRequired', 'description',
     'skip', 'size', 'minLength', 'maxLength',
     'isWordmml', 'incOtherOpt', 'units', 'intOnly', 'value', 'qid',
     'links', 'attachment', 'optionNumbering', 'hasComments', 'withLinks'
 ];
+
 
 SurveyQuestion.translate = [
     'value',
