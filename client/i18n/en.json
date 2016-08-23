@@ -14,15 +14,24 @@
         "SLOGAN": "Turn knowledge into data."
     },
     "COMMENTS": {
+        "ANSWERS": "Answers",
+        "EXPLAIN_WHY_AGREE": "Please explain why you agree",
+        "EXPLAIN_WHY_DISAGREE": "Please explain why you disagree",
         "HIDE_ALL": "Hide all",
         "HIDE_ALL_FLAGGED": "Hide all flagged",
+        "IS_AGREED": "Agreed",
+        "IS_DISAGREED": "Disagreed",
         "NO_MESSAGES": "no messages",
+        "TAG_ANSWER": "Tag Answer",
         "TAG_COMMENT": "Tag comment",
         "TITLE": "Make comment",
-        "TYPE": "Comment type"
+        "TYPE": "Comment type",
+        "YOU_ANSWERED_ALREADY": "You has been answered.",
+        "YOU_ARE_THE_OWNER": "You are the owner of this comment."
     },
     "COMMON": {
         "ADD": "Add",
+        "AGREE": "Agree",
         "ALL": "All",
         "APPLY": "Apply",
         "ASSIGN": "Assign",
@@ -38,6 +47,8 @@
         "CREATE": "Create",
         "CURRENT_VALUE": "Current value",
         "DELETE": "Delete",
+        "DISAGREE": "Disagree",
+        "DOWNLOAD": "Download",
         "EDIT": "Edit",
         "FURTHER": "Further",
         "GLOBALLY": "Globally",
@@ -84,6 +95,15 @@
         "PLACEHOLDER": "YYYY/MM/DD",
         "RESET": "Reset",
         "TODAY": "Today"
+    },
+    "DLG": {
+        "POLICY": {
+            "STEP": {
+                "CURRENT": "Restart current step",
+                "NEXT": "Start next step",
+                "TITLE": "What do you want to do?"
+            }
+        }
     },
     "ERROR": {
         "ACCESS_RESTRICTED": "Access restricted to",
@@ -391,6 +411,11 @@
         "COUNT_UOAS": "Subjects",
         "DEADLINE": "Deadline",
         "DOWNLOAD_DATA": "Download Data",
+        "DOWNLOAD_VERSIONS": {
+            "CHOOSE_VERSION": "Choose version",
+            "HEADER": "Download version of {{title}}",
+            "REVIEW": "review"
+        },
         "INFO_TITLE": "Project Details"
     },
     "PM_PROJECTS": {
@@ -508,7 +533,6 @@
             "DESCRIPTION": "Description",
             "DESCRIPTION_REQUIRED": "Description is required.",
             "LOAD_FROM_WORKFLOW_TEMPLATE": "Select Workflow Template...",
-            "SAVE_AS_TEMPLATE": "Save Current Workflow As Template",
             "STEPS": {
                 "ADD_GROUP": "Add Group",
                 "ALLOW_EDIT": "Edit",
@@ -524,6 +548,7 @@
                 "PRODUCT_WORKFLOW_STEPS": "Workflow Steps",
                 "PROVIDE_RESPONSES": "Provide Responses",
                 "ROLE": "Role",
+                "SAVE_AS_TEMPLATE": "Save as template",
                 "SEE_OTHERS_RESPONSES": "See Others Responses",
                 "SORT_DISABLED": "Reorder allowed only for project with status \"Planning\"",
                 "SORT_ENABLED": "Drag by this handle to reorder steps list",
@@ -534,8 +559,11 @@
             },
             "STEPS_FOR": "Workflow Steps <small>for \"{{product}}\" Project</small>",
             "TITLE": "Title",
+            "TITLE_IN_USE": "This title already in use.",
             "TITLE_REQUIRED": "Title is required.",
-            "WORKFLOW_TEMPLATES": "Workflow Templates"
+            "WORKFLOW_TEMPLATE": "Workflow Template",
+            "WORKFLOW_TEMPLATES": "Workflow Templates",
+            "WORKFLOW_TEMPLATE_SAVED": "Saved"
         }
     },
     "PRODUCT_TASKS": {

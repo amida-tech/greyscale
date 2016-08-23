@@ -572,10 +572,6 @@ function* checkInsert(req) {
         var userId = yield * checkOneId(req, req.body.userId, User, 'id', 'userId', 'User');
     }
     var entry = yield * checkString(req.body.entry, 'Entry');
-    // check if return or resolve entry already exist for question
-/* it is possible to flag or resolve multiple times for each question (policy section)
-    var duplicateEntry = yield * checkDuplicateEntry(req, taskId, questionId, req.body.isReturn, req.body.isResolve);
-*/
     // get next order for entry
     var nextOrder = yield * getNextOrder(req, taskId, questionId);
     req.body = _.extend(req.body, {
@@ -951,27 +947,21 @@ function* getCurrentStep(req, taskId) {
     return result[0];
 }
 
-function* checkDuplicateEntry(req, taskId, questionId, isReturn, isResolve) {
+function* checkDuplicateAnswer(req, taskId, commentId, userId) {
     var thunkQuery = req.thunkQuery;
     var result;
-    isReturn = (isReturn) ? true : false;
-    isResolve = (isResolve) ? true : false;
-    // check if comment (return or resolve) is exist for taskId, questionId
     var query =
         Comment
         .select(Comment.id)
         .from(Comment)
         .where(
-            Comment.isReturn.equals(isReturn)
-            .and(Comment.activated.equals(false))
-            .and(Comment.isResolve.equals(isResolve))
+            Comment.parentId.equals(commentId)
             .and(Comment.taskId.equals(taskId))
-            .and(Comment.questionId.equals(questionId))
+            .and(Comment.userFromId.equals(userId))
         );
     result = yield thunkQuery(query);
     if (_.first(result)) {
-        var rR = (isReturn) ? 'Flag ' : ((isResolve) ? 'Resolve ' : '');
-        throw new HttpError(403, rR + 'comment for questionId=`' + questionId + '` already exist');
+        throw new HttpError(403, 'User already agreed/disagreed with this comment');
     }
     return result;
 }

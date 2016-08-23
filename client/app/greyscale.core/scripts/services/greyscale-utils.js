@@ -19,6 +19,8 @@ angular.module('greyscale.core')
             capitalize: _capitalize,
             countWords: _countWords,
             getUserName: _getUserName,
+            getTagsAssociate: _getTagsAssociate,
+            getTagsPostData: _getTagsPostData,
             getElemOffset: _getOffset
         };
 
@@ -164,6 +166,48 @@ angular.module('greyscale.core')
 
         function _getUserName(profile) {
             return [profile.firstName, profile.lastName].join(' ');
+        }
+
+        function _getTagsAssociate(tagsData) {
+            var tag, i, qty, title;
+            var _associate = {
+                tags: []
+            };
+            qty = tagsData.users.length;
+            for (i = 0; i < qty; i++) {
+                tag = tagsData.users[i];
+                title = _getUserName(tag);
+                angular.extend(tag, {
+                    fullName: title
+                });
+                _associate.tags.push(tag);
+                _associate[tag.userId] = tag;
+
+            }
+            qty = tagsData.groups.length;
+            for (i = 0; i < qty; i++) {
+                _associate.tags.push(tagsData.groups[i]);
+            }
+            return _associate;
+        }
+
+        function _getTagsPostData(tags) {
+            var _tagsData = {
+                    users: [],
+                    groups: []
+                },
+                i, qty;
+
+            qty = tags ? tags.length : 0;
+
+            for (i = 0; i < qty; i++) {
+                if (tags[i].userId) {
+                    _tagsData.users.push(tags[i].userId);
+                } else if (tags[i].groupId) {
+                    _tagsData.groups.push(tags[i].groupId);
+                }
+            }
+            return _tagsData;
         }
 
         function _getOffset(elem) {

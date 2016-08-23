@@ -48,7 +48,8 @@ var exportObject = function  (req, realm) {
                 'LEFT JOIN "Surveys" ' +
                 'ON (maxv.id = "Surveys".id AND maxv.version = "Surveys"."surveyVersion") ' +
                 'LEFT JOIN "Policies" ' +
-                'ON ("Surveys"."id" = "Policies"."surveyId")'
+                'ON ("Surveys"."id" = "Policies"."surveyId")' + 
+                'AND ("Surveys"."surveyVersion" = "Policies"."surveyVersion")'
             );
         });
     };

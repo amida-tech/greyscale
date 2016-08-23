@@ -6,11 +6,11 @@
 angular.module('greyscale.rest')
     .factory('greyscaleProjectApi', function (greyscaleRestSrv) {
         function api(realm) {
-            return greyscaleRestSrv({}, realm)/*.one('projects')*/;
+            return greyscaleRestSrv({}, realm) /*.one('projects')*/ ;
         }
 
         function _productsApi(realm) {
-            return api(realm)/*.one(projectId + '')*/.one('products');
+            return api(realm) /*.one(projectId + '')*/ .one('products');
         }
 
         function _surveysApi(projectId) {

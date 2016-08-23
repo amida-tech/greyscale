@@ -27,6 +27,7 @@ angular.module('greyscaleApp')
             productTask: _productTask,
             userGroups: _userGroups,
             confirm: _confirm,
+            dialog: _dialog,
             showVersion: _showVersion,
             sendNotification: _sendNotification,
             changePassword: _changePassword,
@@ -35,7 +36,9 @@ angular.module('greyscaleApp')
             addProduct: _addProduct,
             importDataset: _importDataset,
             policyComment: _policyComment,
-            fullScreenComment: _fullScreenComment
+            fullScreenComment: _fullScreenComment,
+            saveAsWorkflowTemplate: _saveAsWorkflowTemplate,
+            downloadPolicyVersions: _downloadReviewVersions
         };
 
         function hndlModalErr(err) {
@@ -61,10 +64,6 @@ angular.module('greyscaleApp')
 
         function _simpleLargeForm(tmplUrl, data, ext) {
             return _simpleForm(tmplUrl, data, ext, 'lg');
-        }
-
-        function _simpleFullScreenForm(tmplUrl, data, ext) {
-            return _simpleForm(tmplUrl, data, ext, 'xxl');
         }
 
         function modalForm(data, tableDescription) {
@@ -114,16 +113,15 @@ angular.module('greyscaleApp')
             }).result;
         }
 
-        function _productWorkflow(product, modalParams) {
+        function _productWorkflow(modalData) {
             return $uibModal.open({
                 templateUrl: 'views/modals/product-workflow.html',
-                controller: 'ModalProductWorkflowCtrl',
+                controller: 'ModalProductWorkflowCtrl as ctrl',
                 controllerAs: 'ctrl',
                 size: 'xxl',
                 windowClass: 'modal fade in',
                 resolve: {
-                    product: product,
-                    modalParams: modalParams || {}
+                    modalData: modalData
                 }
             }).result;
         }
@@ -284,6 +282,50 @@ angular.module('greyscaleApp')
         }
 
         function _fullScreenComment(comment) {
-            return _simpleFullScreenForm('views/modals/comment-full-screen.html', comment);
+            return $uibModal.open({
+                templateUrl: 'views/modals/comment-full-screen.html',
+                controller: 'ModalCommentFullScreenCtrl',
+                size: 'xxl',
+                windowClass: 'modal fade in',
+                resolve: {
+                    comment: comment,
+                }
+            }).result.catch(hndlModalErr);
+        }
+
+        function _saveAsWorkflowTemplate(data) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/save-as-workflow-template-form.html',
+                controller: 'ModalSaveAsWorkflowTemplateCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    modalData: data
+                }
+            }).result;
+        }
+
+        function _downloadReviewVersions(survey) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/download-review-versions.html',
+                controller: 'ModalDownloadReviewVersionsCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    survey: survey
+                }
+            }).result;
+        }
+
+        function _dialog(_params) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/modal-dlg.html',
+                controller: 'ModalDlgCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    params: _params
+                }
+            }).result;
         }
     });

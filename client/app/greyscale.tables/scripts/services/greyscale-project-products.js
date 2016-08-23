@@ -47,16 +47,15 @@ angular.module('greyscale.tables')
             show: true,
             sortable: 'survey.id',
             dataFormat: 'option',
-            cellTemplate:
-            '<span ng-if="row.survey">' +
-            '  <i class="fa" ng-class="{\'fa-file\':row.policy, \'fa-list\': !row.policy}"></i> ' +
-            '  <span>{{row.survey.title}} ' +
-            '    <small>(' +
-            '      <span ng-show="row.survey.isDraft" translate="SURVEYS.IS_DRAFT"></span>' +
-            '      <span ng-show="!row.survey.isDraft" translate="SURVEYS.IS_COMPLETE"></span>' +
-            '    )</small>' +
-            '  </span>' +
-            '</span>',
+            cellTemplate: '<span ng-if="row.survey">' +
+                '  <i class="fa" ng-class="{\'fa-file\':row.policy, \'fa-list\': !row.policy}"></i> ' +
+                '  <span>{{row.survey.title}} ' +
+                '    <small>(' +
+                '      <span ng-show="row.survey.isDraft" translate="SURVEYS.IS_DRAFT"></span>' +
+                '      <span ng-show="!row.survey.isDraft" translate="SURVEYS.IS_COMPLETE"></span>' +
+                '    )</small>' +
+                '  </span>' +
+                '</span>',
             dataPlaceholder: tns + 'SELECT_SURVEY',
             dataRequired: true,
             dataSet: {
@@ -167,14 +166,14 @@ angular.module('greyscale.tables')
             // if (!projectId) {
             //     return $q.reject('');
             // } else {
-                var req = {
-                    surveys: greyscaleSurveyApi.list(),
-                    products: greyscaleProjectApi.productsList(/*projectId*/)
-                };
-                return $q.all(req).then(function (promises) {
-                    _dicts.surveys = promises.surveys;
-                    return _setPolicyId(promises.products);
-                });
+            var req = {
+                surveys: greyscaleSurveyApi.list(),
+                products: greyscaleProjectApi.productsList( /*projectId*/ )
+            };
+            return $q.all(req).then(function (promises) {
+                _dicts.surveys = promises.surveys;
+                return _setPolicyId(promises.products);
+            });
             // }
         }
 
@@ -255,7 +254,10 @@ angular.module('greyscale.tables')
         }
 
         function _editProductWorkflow(product) {
-            return greyscaleModalsSrv.productWorkflow(product)
+            var modalData = {
+                product: product
+            };
+            return greyscaleModalsSrv.productWorkflow(modalData)
                 .then(function (data) {
                     return _saveWorkflowAndSteps(product, data);
                 })

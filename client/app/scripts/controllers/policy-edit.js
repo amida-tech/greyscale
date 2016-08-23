@@ -5,11 +5,12 @@
 angular.module('greyscaleApp')
     .controller('PolicyEditCtrl', function (_, $q, $scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
         Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, greyscaleProfileSrv, greyscaleUsers,
-        greyscaleEntityTypeApi, greyscaleProductApi) {
+        greyscaleEntityTypeApi, greyscaleProductApi, greyscaleModalsSrv, $log) {
 
         var projectId,
             policyIdx = greyscaleGlobals.formBuilder.fieldTypes.indexOf('policy'),
-            surveyId = $stateParams.id === 'new' ? null : $stateParams.id;
+            surveyId = $stateParams.id === 'new' ? null : $stateParams.id,
+            dlgPublish = greyscaleGlobals.dialogs.policyPublish;
 
         var isPolicy = true;
 
@@ -68,16 +69,46 @@ angular.module('greyscaleApp')
         };
 
         $scope.save = function () {
-            var _deregistator = $scope.$on(greyscaleGlobals.events.survey.builderFormSaved, function () {
-                _deregistator();
-                _save();
-            });
-            $scope.saveFormbuilder();
+            _save(true);
         };
 
         $scope.cancel = _goPolicyList;
 
-        $scope.publish = _publish;
+        $scope.publish = function () {
+            _save(false);
+        };
+
+        function _save(isDraft) {
+            var _publish = $q.resolve(false),
+                _deregistator = $scope.$on(greyscaleGlobals.events.survey.builderFormSaved, function () {
+                    _deregistator();
+                    if (!isDraft) {
+                        _publish = greyscaleModalsSrv.dialog(dlgPublish);
+                    }
+                    _publish
+                        .then(function (_action) {
+                            return _saveSurvey(isDraft)
+                                .then(function () {
+                                    return _action;
+                                });
+                        })
+                        .then(function (_action) {
+                            // do action
+                            switch (_action) {
+                            case dlgPublish.next:
+                                break;
+                            case dlgPublish.current:
+
+                                break;
+                            }
+                            $log.debug('publish action', _action);
+                            return true;
+                        })
+                        .then(_goPolicyList);
+
+                });
+            $scope.saveFormbuilder();
+        }
 
         function _loadSurvey() {
 
@@ -151,20 +182,25 @@ angular.module('greyscaleApp')
             });
         }
 
-        function _save() {
+        function _saveSurvey(isDraft) {
             var _survey,
-                _policy = $scope.model.policy;
+                _policy = $scope.model.policy,
+                params = {},
+                _questions = $scope.model.survey.questions,
+                _savePromise;
 
+            if (isDraft) {
+                params.draft = true;
+            }
             _survey = angular.extend({}, $scope.model.survey);
             _survey.projectId = projectId;
             _survey.isPolicy = true;
-
-            var _questions = $scope.model.survey.questions;
 
             if (surveyId) {
                 _survey.id = surveyId;
             }
             angular.extend(_survey, {
+                isDraft: !!isDraft,
                 policyId: _policy.id,
                 title: _policy.title,
                 section: _policy.section,
@@ -182,14 +218,9 @@ angular.module('greyscaleApp')
                 _survey.questions = $scope.model.policy.sections;
             }
 
-            (_survey.id ? greyscaleSurveyApi.update(_survey) : greyscaleSurveyApi.add(_survey))
-            .then(function (resp) {
-                    $scope.model.survey.questions = _questions;
-                    if (!_survey.id) {
-                        $scope.model.survey.id = resp.id;
-                    }
-                    _goPolicyList();
-                })
+            _savePromise = (_survey.id ? greyscaleSurveyApi.update(_survey, params) : greyscaleSurveyApi.add(_survey));
+
+            return _savePromise
                 .catch(function (err) {
                     greyscaleUtilsSrv.errorMsg(err, 'ERROR.SURVEY_UPDATE_ERROR');
                 });
@@ -213,11 +244,6 @@ angular.module('greyscaleApp')
 
         function _goPolicyList() {
             $state.go('policy');
-        }
-
-        function _publish() {
-            $scope.model.survey.isDraft = false;
-            $scope.save();
         }
 
         function _policiesGenerate(_sections) {
