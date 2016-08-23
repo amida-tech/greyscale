@@ -188,7 +188,7 @@ BEGIN
                     IF NEW.id IS NOT NULL THEN
                         SELECT "productId"
                         INTO NEW."productId"
-                        FROM google."Surveys"
+                        FROM "Surveys"
                         WHERE id = NEW.id AND "surveyVersion" = 0;
 
                                     IF NEW."productId" IS NULL THEN
@@ -200,7 +200,7 @@ BEGIN
                                     IF NEW."surveyVersion" <> -1 THEN
                             SELECT  COALESCE(MAX("surveyVersion") + 1, 1)
                             INTO    NEW."surveyVersion"
-                            FROM    google."Surveys"
+                            FROM    "Surveys"
                             WHERE id = NEW.id;
                         END IF;
                     ELSE

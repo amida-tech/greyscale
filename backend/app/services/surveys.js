@@ -145,6 +145,17 @@ var exportObject = function  (req, realm) {
 
     this.deleteDraft = function (surveyId) {
         return co(function* (){
+
+            var questions = yield thunkQuery(
+                SurveyQuestion.select().where({surveyId: surveyId, surveyVersion: -1})
+            );
+
+            if (questions.length) {
+                for (var i in questions) {
+                    yield self.deleteVersionQuestion(questions[i].id, -1);
+                }
+            }
+
             yield thunkQuery(
                 Policy.delete().where(
                     Policy.surveyId.equals(surveyId)
@@ -186,20 +197,44 @@ var exportObject = function  (req, realm) {
                     .returning(Policy.star())
                 );
             }
+
+            if (Array.isArray(fullSurveyData.questions) && fullSurveyData.questions.length){
+                var oldQuestions = yield thunkQuery(
+                    SurveyQuestion.select().where({surveyId: surveyId, surveyVersion: -1})
+                );
+                var oldQuestionsIds = {};
+
+                for (var i in oldQuestions) {
+                    oldQuestionsIds[oldQuestions[i].id] = oldQuestions[i];
+                }
+
+                for (var i in fullSurveyData.questions) {
+                    if (fullSurveyData.questions[i].id && oldQuestionIds[fullSurveyData.questions[i].id]) { // need update or delete
+                        if (fullSurveyData.questions[i].deleted) {
+                            yield self.deleteVersionQuestion();
+                        } else {
+                            yield self.updateVersionQuestion();
+                        }
+                    } else { // new question, insert
+                        yield self.addVersionQuestion();
+                    }
+                }
+            }
+
             return surveyDraft;
         });
     };
 
-    this.addVersionQuestion = function (surveyId, surveyVersion, question) {
+    this.addVersionQuestion = function (surveyId, surveyVersion, fullQuestionData) {
         return co(function* () {
-            var questionData = _.pick(question, SurveyQuestion.insertCols);
+            var questionData = _.pick(fullQuestionData, SurveyQuestion.insertCols);
             questionData.surveyId = surveyId;
             questionData.surveyVersion = surveyVersion;
-            var questionId = (yield thunkQuery(SurveyQuestion.insert(questionData).returning(SurveyQuestion.id)))[0];
-            if (Array.isArray(question.options) && question.length) {
+            var questionId = (yield thunkQuery(SurveyQuestion.insert(questionData).returning(SurveyQuestion.id)))[0].id;
+            if (Array.isArray(fullQuestionData.options) && fullQuestionData.length) {
                 var options = [];
-                for (var i in question.options[i]) {
-                    var questionOptionData = _.pick(question, SurveyQuestionOption.insertCols);
+                for (var i in fullQuestionData.options[i]) {
+                    var questionOptionData = _.pick(fullQuestionData.options[i], SurveyQuestionOption.insertCols);
                     questionOptionData.questionId = questionId.id;
                     options.push(questionOptionData);
                 }
@@ -208,14 +243,33 @@ var exportObject = function  (req, realm) {
         });
     };
 
-    this.updateVersionQuestion = function (surveyId, surveyVersion, question) {
+    this.addVersionQuestionOptions = function (surveyId, surveyVersion, questionId, options) {
+
+    };
+
+    // Actualy, we can update only questions in draft (version = -1)
+    this.updateVersionQuestion = function (surveyId, surveyVersion, questionId, fullQuestionData) {
         return co(function* () {
-            var questionId = question.id;
-            var questionData = _.pick(question, SurveyQuestion.editCols);
+
+            var questionData = _.pick(fullQuestionData, SurveyQuestion.editCols);
             questionData.surveyId = surveyId;
             questionData.surveyVersion = surveyVersion;
-            if (Object.keys()) {
+            if (Object.keys(questionData).length) {
+                yield thunkQuery(
+                    SurveyQuestion.update(questionData).where({surveyId: surveyId, surveyVersion: surveyVersion})
+                );
+            }
 
+            yield thunkQuery(
+                SurveyQuestionOption.delete().where({questionId: questionId, surveyVersion: surveyVersion})
+            );
+
+            if (Array.isArray(fullQuestionData.options) && fullQuestionData.options.length) {
+                options =
+                for (var i in fullQuestionData.options) {
+                    optionData = _.pick(fullQuestionData.options[i], SurveyQuestionOption.insertCols);
+                    var newOption = yield thunkQuery(SurveyQuestionOption.insert());
+                }
             }
         });
     };
@@ -258,6 +312,7 @@ var exportObject = function  (req, realm) {
                 yield self.checkPolicyData(policyData);
             }
 
+            yield thunkQuery(Survey.delete().where({id: surveyId, surveyVersion: -1}));
             var surveyDraft = yield thunkQuery(Survey.insert(surveyData).returning(Survey.star()));
 
             if (fullSurveyData.isPolicy) {
@@ -265,6 +320,12 @@ var exportObject = function  (req, realm) {
                 // what if by some reason policy draft already exists
                 yield thunkQuery(Policy.delete().where({surveyId: surveyId, surveyVersion: -1}));
                 var policyDraft = yield thunkQuery(Policy.insert(policyData).returning(Policy.star()));
+            }
+
+            if (Array.isArray(fullSurveyData.questions) && fullSurveyData.questions.length) {
+                for (var i in fullSurveyData.questions) {
+                    yield self.addVersionQuestion(surveyId, -1, fullSurveyData.questions[i]);
+                }
             }
 
             return surveyDraft;
