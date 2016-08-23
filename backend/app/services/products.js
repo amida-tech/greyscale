@@ -6,6 +6,8 @@ var
     notifications = require('app/controllers/notifications'),
     ProductUOA = require('app/models/product_uoa'),
     Product = require('app/models/products'),
+    Workflow = require('app/models/workflows'),
+    Policy = require('app/models/policies'),
     Organization = require('app/models/organizations'),
     Survey = require('app/models/surveys'),
     Task = require('app/models/tasks'),
@@ -29,6 +31,44 @@ var exportObject = function  (req, realm) {
     if (!realm) {
         thunkQuery = req.thunkQuery;
     }
+
+    this.getList = function (options) {
+        return co(function* () {
+            return yield thunkQuery(
+                Product
+                .select(
+                    Product.star(),
+                    'row_to_json("Workflows".*) as workflow',
+                    'row_to_json("Surveys".*) as survey',
+                    'row_to_json("Policies".*) as policy'
+                )
+                .from(
+                    Product
+                    .leftJoin(Workflow)
+                    .on(Product.id.equals(Workflow.productId))
+                    .leftJoin(Survey)
+                    .on(
+                        Product.id.equals(Survey.productId)
+                            .and(
+                                Survey.surveyVersion.in(
+                                    Survey.as('subS')
+                                        .subQuery()
+                                        .select(Survey.as('subS').surveyVersion.max())
+                                        .where(Survey.as('subS').id.equals(Survey.id))
+                                )
+                            )
+                    )
+                    .leftJoin(Policy)
+                    .on(
+                        Policy.surveyId.equals(Survey.id)
+                            .and(Policy.surveyVersion.equals(Survey.surveyVersion))
+                    )
+                ),
+                options
+            );
+        });
+    };
+
     this.addProductUoa = function (productId, uoaId) {
         return co(function* () {
             yield thunkQuery(
@@ -52,6 +92,7 @@ var exportObject = function  (req, realm) {
             });
         });
     };
+
     this.deleteProductUoa = function (productId, uoaId) {
         return co(function* () {
             yield thunkQuery(
@@ -75,6 +116,7 @@ var exportObject = function  (req, realm) {
             });
         });
     };
+
     this.deleteProductAllUoas = function (productId) {
         return co(function* () {
             yield thunkQuery(
@@ -96,6 +138,7 @@ var exportObject = function  (req, realm) {
             });
         });
     };
+
     this.insertProduct = function (data) {
         return co(function* () {
             var product = yield thunkQuery(
@@ -116,6 +159,7 @@ var exportObject = function  (req, realm) {
             }
         });
     };
+
     this.updateProduct = function () {
         return co(function* () {
             yield thunkQuery(
@@ -172,6 +216,7 @@ var exportObject = function  (req, realm) {
             }
         });
     };
+
     this.updateCurrentStepId = function(product) {
         var self = this;
         return co(function* () {
@@ -310,6 +355,7 @@ var exportObject = function  (req, realm) {
             };
         });
     };
+
     this.notify = function (note0, entryId, taskId, essenceName, templateName) {
         var self = this;
         co(function* () {
@@ -342,6 +388,7 @@ var exportObject = function  (req, realm) {
             error(JSON.stringify(err));
         });
     };
+
     this.notifyOneUser = function (userId, note0, entryId, taskId, essenceName, templateName) {
         var self = this;
         return co(function* () {

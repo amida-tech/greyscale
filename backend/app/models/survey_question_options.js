@@ -16,6 +16,9 @@ var SurveyQuestionOption = sql.define({
     columns: columns
 });
 
+SurveyQuestionOption.insertCols = columns.splice(columns.indexOf('id'), 1);
+SurveyQuestionOption.editCols = ['value', 'label', 'isSelected'];
+
 SurveyQuestionOption.translate = [
     'value',
     'label'

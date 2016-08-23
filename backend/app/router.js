@@ -71,21 +71,27 @@ router.route('/:realm/v0.2/surveys/parsedocx')
     .post( /*authenticate('token').always,*/ surveys.parsePolicyDocx);
 
 router.route('/:realm/v0.2/surveys')
-    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.select)
-    .post(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ surveys.insertOne);
+    .get(authenticate('token').always, surveys.select)
+    .post(authenticate('token').always, jsonParser, surveys.insertOne);
 
 router.route('/:realm/v0.2/surveys/:id')
-    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.selectOne)
-    .put(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ surveys.editOne)
-    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.delete);
+    .get(authenticate('token').always, surveys.selectOne)
+    .put(authenticate('token').always, jsonParser, surveys.editOne)
+    .delete(authenticate('token').always, surveys.delete);
+
+router.route('/:realm/v0.2/surveys/:id/versions')
+    .get(authenticate('token').always, surveys.surveyVersions);
+
+router.route('/:realm/v0.2/surveys/:id/versions/:version')
+    .get(authenticate('token').always, surveys.surveyVersion);
 
 router.route('/:realm/v0.2/surveys/:id/questions')
-    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questions)
-    .post(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ surveys.questionAdd);
+    .get(authenticate('token').always, surveys.questions)
+    .post(authenticate('token').always, jsonParser, surveys.questionAdd);
 
 router.route('/:realm/v0.2/questions/:id')
-    .put(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ surveys.questionEdit)
-    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questionDelete);
+    .put(authenticate('token').always, jsonParser, surveys.questionEdit)
+    .delete(authenticate('token').always, surveys.questionDelete);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEY ANSWERS

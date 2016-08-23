@@ -27,8 +27,30 @@ module.exports = {
 
     select: function (req, res, next) {
         var oSurvey = new sSurvey(req);
-        oSurvey.getList().then(
+        oSurvey.getList(req.query).then(
             (data) => res.json(data),
+            (err) => next(err)
+        );
+    },
+
+    surveyVersions: function (req, res, next) {
+        var oSurvey = new sSurvey(req);
+        oSurvey.getVersions(req.params.id).then(
+            (data) => res.json(data),
+            (err) => next(err)
+        );
+    },
+
+    surveyVersion: function (req, res, next) {
+        var oSurvey = new sSurvey(req);
+        oSurvey.getVersion(req.params.id, req.params.version).then(
+            (data) => {
+                if (data) {
+                    res.json(data);
+                } else {
+                    next(new HttpError(404, 'Version does not exist'));
+                }
+            },
             (err) => next(err)
         );
     },
@@ -99,8 +121,19 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         var oSurvey = new sSurvey(req);
+        var data = false;
         co(function* () {
-            var data = yield oSurvey.getById(req.params.id);
+            if (req.query.forEdit) {
+                if (req.user.roleID !== 2) {
+                    throw new HttpError(403, 'Only admins can edit surveys');
+                }
+
+                data = yield oSurvey.getVersion(req.params.id, -1); // draft
+                if (data) return data;
+            }
+
+            data = yield oSurvey.getById(req.params.id); // max version
+
             if (data) {
                 return data;
             } else {
@@ -178,19 +211,31 @@ module.exports = {
         });
     },
 
+
+
     editOne: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
+        var oSurvey = new sSurvey(req);
+
         co(function* () {
-            yield * checkSurveyData(req);
-            var updateSurvey = req.body;
+            if (req.query.draft) {
+                return yield oSurvey.saveDraft(req.params.id, req.body);
+            } else {
+                return yield oSurvey.createVersion(req.params.id, req.body);
+            }
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
 
-            updateSurvey = _.pick(updateSurvey, Survey.editCols);
-
+    editOld: function (req, res, next) {
+        co (function* () {
             if (Object.keys(updateSurvey).length) {
                 yield thunkQuery(
                     Survey
-                    .update(updateSurvey)
-                    .where(Survey.id.equals(req.params.id))
+                        .update(updateSurvey)
+                        .where(Survey.id.equals(req.params.id))
                 );
                 bologger.log({
                     req: req,
@@ -208,8 +253,8 @@ module.exports = {
                 if (Object.keys(updatePolicy).length) {
                     yield thunkQuery(
                         Policy
-                        .update(updatePolicy)
-                        .where(Policy.id.equals(req.body.policyId))
+                            .update(updatePolicy)
+                            .where(Policy.id.equals(req.body.policyId))
                     );
 
                     if (Array.isArray(req.body.attachments)) {
@@ -252,8 +297,8 @@ module.exports = {
                             try {
                                 yield thunkQuery(
                                     SurveyQuestion
-                                    .update(updateObj)
-                                    .where(SurveyQuestion.id.equals(updateSurvey.questions[i].id))
+                                        .update(updateObj)
+                                        .where(SurveyQuestion.id.equals(updateSurvey.questions[i].id))
                                 );
                                 updateSurvey.questions[i].status = 'Ok';
                                 updateSurvey.questions[i].message = 'Updated';
@@ -437,11 +482,6 @@ module.exports = {
                 errors: errorMessages,
                 questions: updateSurvey.questions
             };
-
-        }).then(function (data) {
-            res.status(data.status).json(data);
-        }, function (err) {
-            next(err);
         });
     },
 
@@ -636,24 +676,9 @@ function* addQuestion(req, dataObj) {
 
 function* checkSurveyData(req) {
     var thunkQuery = req.thunkQuery;
-
-    if (!req.params.id) { // create
-
-        if (!req.body.title) {
-            throw new HttpError(403, 'title field are required');
-        }
-    }
 }
 
-function* checkPolicyData(req) {
-    var thunkQuery = thunkify(new Query(req.params.realm));
 
-    if (!req.body.section || !req.body.subsection) {
-        throw new HttpError(403, 'section and subsection fields are required');
-    }
-
-    req.body.author = req.user.realmUserId;
-}
 
 function* linkAttachments(req, policyId, attachArr) {
     var thunkQuery = req.thunkQuery;

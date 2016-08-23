@@ -2,6 +2,8 @@ var
     _ = require('underscore'),
     Policy = require('app/models/policies'),
     Survey = require('app/models/surveys'),
+    SurveyQuestion = require('app/models/survey_questions'),
+    SurveyQuestionOption = require('app/models/survey_question_options'),
     co = require('co'),
     thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError;
@@ -15,13 +17,84 @@ var exportObject = function  (req, realm) {
         var thunkQuery = req.thunkQuery;
     }
 
-    this.getList = function () {
+    this.getList = function (options) {
         return co(function* () {
             return yield thunkQuery(
+                'SELECT ' +
+                '    "Surveys".*, ' +
+                '    "Policies"."id" AS "policyId", ' +
+                '    "Policies"."section", ' +
+                '    "Policies"."subsection", ' +
+                '    "Policies"."author", ' +
+                '    "Policies"."number", ' +
+                '    (SELECT array_agg(row_to_json(att)) ' +
+                '       FROM ( ' +
+                '           SELECT a."id", a."filename", a."size", a."mimetype" ' +
+                '           FROM "AttachmentLinks" al ' +
+                '           JOIN "Attachments" a ' +
+                '           ON al."entityId" = "Policies"."id" ' +
+                '           JOIN "Essences" e ' +
+                '           ON e.id = al."essenceId" ' +
+                '           AND e."tableName" = \'Policies\' ' +
+                '           WHERE a."id" = ANY(al."attachments") ' +
+                '       ) as att' +
+                '   ) as attachments ' +
+                'FROM ' +
+                '( ' +
+                '    SELECT a.id, max(a."surveyVersion") as version ' +
+                'FROM "Surveys" a ' +
+                'GROUP BY a."id" ' +
+                ') as maxv ' +
+                'LEFT JOIN "Surveys" ' +
+                'ON (maxv.id = "Surveys".id AND maxv.version = "Surveys"."surveyVersion") ' +
+                'LEFT JOIN "Policies" ' +
+                'ON ("Surveys"."id" = "Policies"."surveyId")'
+            );
+        });
+    };
+
+    this.getVersions = function (surveyId) {
+        return co(function* () {
+           return yield thunkQuery(
+               Survey.select().where(Survey.id.equals(surveyId).and(Survey.surveyVersion.gte(0)))
+           );
+        });
+    };
+
+    this.getVersion = function (id, version) {
+        return co(function* () {
+            var data =  yield thunkQuery(
                 Survey
+                    .from(
+                        Survey
+                            .leftJoin(Policy)
+                            .on(
+                                Survey.id.equals(Policy.surveyId)
+                                    .and(Survey.surveyVersion.equals(Policy.surveyVersion))
+                            )
+                    )
                     .select(
                         Survey.star(),
                         Policy.id.as("policyId"), Policy.section, Policy.subsection, Policy.author, Policy.number,
+                        '(WITH sq AS ' +
+                        '( ' +
+                            'SELECT ' +
+                            '"SurveyQuestions".* , ' +
+                            'array_agg(row_to_json("SurveyQuestionOptions".*)) as options ' +
+                            'FROM ' +
+                            '"SurveyQuestions" ' +
+                            'LEFT JOIN ' +
+                            '"SurveyQuestionOptions" ' +
+                            'ON ' +
+                            '"SurveyQuestions"."id" = "SurveyQuestionOptions"."questionId" ' +
+                            'AND "SurveyQuestions"."surveyVersion" = "SurveyQuestionOptions"."surveyVersion" ' +
+                            'WHERE "SurveyQuestions"."surveyId" = "Surveys"."id" ' +
+                            'AND "SurveyQuestions"."surveyVersion" = "Surveys"."surveyVersion" ' +
+                            'GROUP BY "SurveyQuestions"."id", "SurveyQuestions"."surveyVersion" ' +
+                            'ORDER BY ' +
+                            '"SurveyQuestions"."position" ' +
+                        ') ' +
+                        'SELECT array_agg(row_to_json(sq.*)) as questions FROM sq)',
                         '(SELECT array_agg(row_to_json(att)) FROM (' +
                             'SELECT a."id", a."filename", a."size", a."mimetype" ' +
                             'FROM "AttachmentLinks" al ' +
@@ -32,19 +105,204 @@ var exportObject = function  (req, realm) {
                             'AND e."tableName" = \'Policies\' ' +
                             'WHERE a."id" = ANY(al."attachments")' +
                         ') as att) as attachments'
-                        //'(' +
-                        //    'SELECT array_agg("Products"."id") ' +
-                        //    'FROM "Products" ' +
-                        //    'WHERE "Products"."surveyId" = "Surveys"."id"' +
-                        //') as products'
                     )
-                    .from(
-                        Survey
-                            .leftJoin(Policy)
-                            .on(Survey.id.equals(Policy.surveyId))
-                    ),
-                req.query
+                    .where(Survey.id.equals(id).and(Survey.surveyVersion.equals(version)))
+                    .group(Survey.id, Survey.surveyVersion, Policy.id)
             );
+            return data[0] || false;
+        });
+    };
+
+    this.createVersion = function (surveyId, fullSurveyData) {
+        var self = this;
+        return co(function* () {
+
+            var surveyData = _.pick(fullSurveyData, Survey.insertCols);
+            var policyData = _.pick(fullSurveyData, Policy.insertCols);
+            surveyData.creator = req.user.realmUserId;
+            policyData.author = req.user.realmUserId;
+            // check survey/policy data
+
+            surveyData.id = surveyId;
+            yield self.checkSurveyData(fullSurveyData);
+
+            if (fullSurveyData.isPolicy) {
+                yield self.checkPolicyData(policyData);
+            }
+
+            var surveyVersion = yield thunkQuery(Survey.insert(surveyData).returning(Survey.star()));
+            if (fullSurveyData.isPolicy) {
+                policyData.surveyVersion = surveyVersion[0].surveyVersion;
+                policyData.surveyId = surveyId;
+                yield thunkQuery(Policy.insert(policyData).returning(Policy.star()));
+            }
+
+            yield self.deleteDraft(surveyId);
+
+            return surveyVersion;
+        });
+    };
+
+    this.deleteDraft = function (surveyId) {
+        return co(function* (){
+            yield thunkQuery(
+                Policy.delete().where(
+                    Policy.surveyId.equals(surveyId)
+                    .and(Policy.surveyVersion.equals(-1))
+                )
+            );
+
+            yield thunkQuery(
+                Survey.delete().where(
+                    Survey.id.equals(surveyId)
+                    .and(Survey.surveyVersion.equals(-1))
+                )
+            );
+        });
+    };
+
+    this.updateDraft = function (surveyId, fullSurveyData) {
+        var self = this;
+        return co(function* () {
+            var surveyData = _.pick(fullSurveyData, Survey.editCols);
+            var policyData = _.pick(fullSurveyData, Policy.editCols);
+
+            var surveyDraft = yield thunkQuery(
+                Survey.update(surveyData)
+                .where(
+                    Survey.id.equals(surveyId)
+                    .and(Survey.surveyVersion.equals(-1))
+                )
+                .returning(Survey.star())
+            );
+
+            if (fullSurveyData.isPolicy) {
+                var policyDraft = yield thunkQuery(
+                    Policy.update(policyData)
+                    .where(
+                        Policy.surveyId.equals(surveyId)
+                        .and(Policy.surveyVersion.equals(-1))
+                    )
+                    .returning(Policy.star())
+                );
+            }
+            return surveyDraft;
+        });
+    };
+
+    this.addVersionQuestion = function (surveyId, surveyVersion, question) {
+        return co(function* () {
+            var questionData = _.pick(question, SurveyQuestion.insertCols);
+            questionData.surveyId = surveyId;
+            questionData.surveyVersion = surveyVersion;
+            var questionId = (yield thunkQuery(SurveyQuestion.insert(questionData).returning(SurveyQuestion.id)))[0];
+            if (Array.isArray(question.options) && question.length) {
+                var options = [];
+                for (var i in question.options[i]) {
+                    var questionOptionData = _.pick(question, SurveyQuestionOption.insertCols);
+                    questionOptionData.questionId = questionId.id;
+                    options.push(questionOptionData);
+                }
+                yield thunkQuery(SurveyQuestionOption.insert(options));
+            }
+        });
+    };
+
+    this.updateVersionQuestion = function (surveyId, surveyVersion, question) {
+        return co(function* () {
+            var questionId = question.id;
+            var questionData = _.pick(question, SurveyQuestion.editCols);
+            questionData.surveyId = surveyId;
+            questionData.surveyVersion = surveyVersion;
+            if (Object.keys()) {
+
+            }
+        });
+    };
+
+    this.deleteVersionQuestion = function (questionId, surveyVersion) {
+        return co(function* (){
+            yield thunkQuery(
+                SurveyQuestionOption.delete()
+                    .where(
+                        SurveyQuestionOption.questionId.equals(questionId)
+                            .and(SurveyQuestionOption.surveyVersion.equals(surveyVersion))
+                    )
+            );
+            yield thunkQuery(
+                SurveyQuestion.delete()
+                    .where(
+                        SurveyQuestion.id.equals(questionId)
+                            .and(SurveyQuestion.surveyVersion.equals(surveyVersion))
+                    )
+            );
+        });
+    };
+
+    this.createDraft = function (surveyId, fullSurveyData) {
+        var self = this;
+        return co(function* () {
+
+            var surveyData = _.pick(fullSurveyData, Survey.insertCols);
+            var policyData = _.pick(fullSurveyData, Policy.insertCols);
+            surveyData.surveyVersion = -1;
+            policyData.surveyVersion = -1;
+            surveyData.creator = req.user.realmUserId;
+            policyData.author = req.user.realmUserId;
+            // check survey/policy data
+
+            surveyData.id = surveyId;
+            yield self.checkSurveyData(fullSurveyData);
+
+            if (fullSurveyData.isPolicy) {
+                yield self.checkPolicyData(policyData);
+            }
+
+            var surveyDraft = yield thunkQuery(Survey.insert(surveyData).returning(Survey.star()));
+
+            if (fullSurveyData.isPolicy) {
+                policyData.surveyId = surveyId;
+                // what if by some reason policy draft already exists
+                yield thunkQuery(Policy.delete().where({surveyId: surveyId, surveyVersion: -1}));
+                var policyDraft = yield thunkQuery(Policy.insert(policyData).returning(Policy.star()));
+            }
+
+            return surveyDraft;
+        });
+    };
+
+    this.saveDraft = function (surveyId, fullSurveyData) {
+        var self = this;
+        return co(function* () {
+            var draft = yield self.getVersion(surveyId, -1);
+            if (!draft) {
+                draft = self.createDraft(surveyId, fullSurveyData);
+            } else {
+                draft = self.updateDraft(surveyId, fullSurveyData);
+            }
+            return draft;
+        });
+    };
+
+    this.checkSurveyData = function (surveyData) {
+        return co(function* () {
+            if (!surveyData.id) { // create
+                if (!req.body.title || !req.body.productId) {
+                    throw new HttpError(403, 'title and productId fields are required');
+                }
+
+                // TODO check if product exists
+            }
+        });
+    };
+
+    this.checkPolicyData = function (policyData) {
+        return co(function* () {
+            if (!policyData.id) {
+                if (!req.body.section || !req.body.subsection) {
+                    throw new HttpError(403, 'section and subsection fields are required');
+                }
+            }
         });
     };
 
@@ -76,6 +334,7 @@ var exportObject = function  (req, realm) {
                             '"SurveyQuestions"."id" = "SurveyQuestionOptions"."questionId" ' +
                             'AND "SurveyQuestions"."surveyVersion" = "SurveyQuestionOptions"."surveyVersion" ' +
                             'WHERE "SurveyQuestions"."surveyId" = "Surveys"."id" ' +
+                            'AND "SurveyQuestions"."surveyVersion" = "Surveys"."surveyVersion" ' +
                             'GROUP BY "SurveyQuestions"."id", "SurveyQuestions"."surveyVersion" ' +
                             'ORDER BY ' +
                             '"SurveyQuestions"."position" ' +
@@ -92,7 +351,17 @@ var exportObject = function  (req, realm) {
                             'WHERE a."id" = ANY(al."attachments")' +
                         ') as att) as attachments'
                     )
-                    .where(Survey.id.equals(id))
+                    .where(
+                        Survey.id.equals(id)
+                        .and(Survey.surveyVersion.equals(
+                            Survey.as('subS')
+                            .subQuery()
+                            .select(
+                                Survey.as('subS').surveyVersion.max()
+                            )
+                            .where(Survey.as('subS').id.equals(Survey.id))
+                        ))
+                    )
                     .group(Survey.id, Survey.surveyVersion, Policy.id)
             );
             return data[0] || false;

@@ -53,6 +53,7 @@ SurveyQuestion.multiSelectTypes = [2, 3, 4];
 SurveyQuestion.sectionTypes = [8, 9, 10];
 SurveyQuestion.bulletPointsType = 11;
 
+SurveyQuestion.insertCols = columns.splice(columns.indexOf('id'), 1);
 SurveyQuestion.editCols = [
     'label', 'position', 'isRequired', 'description',
     'skip', 'size', 'minLength', 'maxLength',
