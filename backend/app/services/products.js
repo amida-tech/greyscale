@@ -12,7 +12,6 @@ var
     Survey = require('app/models/surveys'),
     Task = require('app/models/tasks'),
     WorkflowStep = require('app/models/workflow_steps'),
-    Task = require('app/models/tasks'),
     sTask = require('app/services/tasks'),
     co = require('co'),
     Query = require('app/util').Query,
@@ -389,7 +388,7 @@ var exportObject = function  (req, realm) {
         });
     };
 
-    this.notifyOneUser = function (userId, note0, entryId, taskId, essenceName, templateName) {
+    this.notifyOneUser = function (userId, note0, entryId, taskId, essenceName, templateName) { // ToDo: move to notification service when refactored
         var self = this;
         return co(function* () {
             var userTo = yield * common.getUser(req, userId);
