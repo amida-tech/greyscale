@@ -43,7 +43,7 @@ angular.module('greyscale.rest')
                     // fix quoted text: move it to the range object
                     if (data[i].range && !data[i].range.entry) {
                         _entry = _quote.exec(data[i].entry);
-                        if (_entry[1]) {
+                        if (_entry && _entry[1]) {
                             data[i].range.entry = _entry[1];
                             data[i].entry = data[i].entry.replace(_entry[0], '');
                         }
