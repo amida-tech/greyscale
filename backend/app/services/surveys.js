@@ -132,6 +132,11 @@ var exportObject = function  (req, realm) {
             }
 
             var surveyVersion = yield thunkQuery(Survey.insert(surveyData).returning(Survey.star()));
+
+            if (!surveyId) {
+                surveyId = surveyVersion[0].id;
+            }
+
             if (fullSurveyData.isPolicy) {
                 policyData.surveyVersion = surveyVersion[0].surveyVersion;
                 policyData.surveyId = surveyId;
