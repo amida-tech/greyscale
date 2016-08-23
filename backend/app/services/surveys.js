@@ -7,8 +7,7 @@ var
     co = require('co'),
     Query = require('app/util').Query,
     thunkify = require('thunkify'),
-    officegen = require('officegen'),
-    //htmlToJson = require('html-to-json'),
+    htmlDocx = require('html-docx-js'),
     HttpError = require('app/error').HttpError;
 
 var debug = require('debug')('debug_service_surveys');
@@ -116,15 +115,11 @@ var exportObject = function  (req, realm) {
     this.policyToDocx = function (productId) {
 
         return co(function* () {
-            var docx = officegen ( 'docx' );
-            docx.on ( 'finalize', function ( written ) {
-                // ...
-                debug('Docx finalize');
-            });
-            docx.on ( 'error', function ( err ) {
-                // ...
-                debug('Docx error');
-            });
+
+            // html header & footer
+            var htmlHeader = '<!DOCTYPE html><html><head></head><body>';
+            var htmlFooter = '</body></html>';
+            var content = htmlHeader;
 
             // get policy sections
             var policySections = yield thunkQuery(
@@ -144,46 +139,15 @@ var exportObject = function  (req, realm) {
             );
             if (_.first(policySections)) {
                 for (var i in policySections) {
-                    debug(policySections[i].description);
-                    }
+                    //debug(policySections[i].description);
+                    content += '<p><h1>' + policySections[i].label + '</h1></p>';
+                    content += '<p>' + policySections[i].description + '</p>';
                 }
+            }
 
-            var html2json = require('html2json').html2json;
-            var json = html2json(policySections[1].description);
+            content += htmlFooter;
+            return htmlDocx.asBlob(content);
 
-/*
-            var dict = {
-                sections: htmlToJson.createParser({
-                    'text': function ($doc) {
-                        return $doc.find('p').text();
-                    }
-                })
-            };
-            var promise = htmlToJson.batch(policySections[1].description,  dict);
-            json = yield promise;
-
-            promise.done(function (result) {
-                //Works as well
-                debug(result);
-            });
-*/
-
-
-            var pObj = docx.createP ();
-
-            pObj.addText (policySections[1].description);
-            pObj.addText ( 'Bold + underline', { bold: true, underline: true } );
-            pObj.addText ( 'Italic', { italic: true } );
-
-            var pObj = docx.createP ({ pStyle: 1 });
-            pObj.addText ( 'H1 Style');
-/*
-            pObj.addText ( ' with color', { color: '000088' } );
-            pObj.addText ( ' and back color.', { color: '00ffff', back: '000088' } );
-*/
-            // ... (fill docx with data)
-
-            return docx;
         });
     };
 

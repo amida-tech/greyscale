@@ -126,8 +126,8 @@ module.exports = {
                 'Content-disposition': 'attachment; filename=' + data.productId + '.docx'
             });
 
-            data.docx.generate ( res );
-            //res.json(data);
+            //data.docx.pipe ( res );
+            res.end(data.docx);
         }, function (err) {
             next(err);
         });
