@@ -142,10 +142,23 @@ angular.module('greyscale.tables')
             classes: 'hidden-head',
             dataPromise: _getData,
             dragSortable: true,
-            add: {
+            add: [{
+                icon: true,
+                title: tns + 'SAVE_AS_TEMPLATE',
+                classes: 'right-gap',
+                disable: function () {
+                    return _table.dataFilter.saveAsTemplateDisable();
+                },
+                handler: function () {
+                    _table.dataFilter.saveAsTemplate();
+                },
+                show: function () {
+                    return !_table.dataFilter.templateMode;
+                }
+            }, {
                 icon: 'fa-plus',
                 handler: _addWorkflowStep
-            }
+            }]
         });
 
         function _getGroups() {

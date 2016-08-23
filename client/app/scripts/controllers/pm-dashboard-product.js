@@ -70,18 +70,8 @@ angular.module('greyscaleApp')
             Organization.$lock = false;
         });
 
-        $scope.download = function (e) {
-            if (!$scope.model.downloadHref) {
-                e.preventDefault();
-                e.stopPropagation();
-                greyscaleProductApi.product(productId).getTicket()
-                    .then(function (ticket) {
-                        $scope.model.downloadHref = greyscaleProductApi.getDownloadDataLink(ticket);
-                        $timeout(function () {
-                            e.currentTarget.click();
-                        });
-                    });
-            }
+        $scope.download = function () {
+            greyscaleModalsSrv.downloadPolicyVersions($scope.model.survey);
         };
 
         $scope.editProductTasks = function () {

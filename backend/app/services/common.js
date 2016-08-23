@@ -444,12 +444,10 @@ var getPolicyAuthorIdByTask = function* (req, taskId) {
             .select(Policy.author)
             .from(
             Task
-                .leftJoin(Product)
-                .on(Product.id.equals(Task.productId))
                 .leftJoin(Survey)
-                .on(Survey.id.equals(Product.surveyId))
+                .on(Survey.productId.equals(Task.productId))
                 .leftJoin(Policy)
-                .on(Policy.id.equals(Survey.policyId))
+                .on(Policy.surveyId.equals(Survey.id))
         )
             .where(Task.id.equals(taskId))
     );

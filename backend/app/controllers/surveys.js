@@ -211,8 +211,6 @@ module.exports = {
         });
     },
 
-
-
     editOne: function (req, res, next) {
         var oSurvey = new sSurvey(req);
 
@@ -486,6 +484,14 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+        var oSurvey = new sSurvey(req);
+        oSurvey.createVersion(null, req.body).then(
+            (data) => res.json(data),
+            (err) => next(err)
+        );
+    },
+
+    insertOneOld: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkSurveyData(req);

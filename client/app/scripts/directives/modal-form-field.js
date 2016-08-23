@@ -12,7 +12,8 @@ angular.module('greyscaleApp')
                 modalFormField: '=',
                 modalFormFieldModel: '='
             },
-            link: function (scope, elem, attr) {
+            require: '^form',
+            link: function (scope, elem, attr, ngForm) {
 
                 var clmn = scope.modalFormField;
 
@@ -141,6 +142,7 @@ angular.module('greyscaleApp')
 
                     elem.append(field);
                     $compile(elem.contents())(scope);
+
                 }
 
                 scope.fieldChange = function (row, field) {

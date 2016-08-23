@@ -1,8 +1,12 @@
 <rd-widget>
     <rd-widget-header icon="{{model.icon}}" title="{{model.title}}">
-        <div class="text-right" ng-show="model.add">
-            <a  ng-if="model.add" class="action action-primary" ng-click="model.add.handler()" title="{{model.add.tooltip||'COMMON.ADD'|translate}}">
-                <i ng-if="model.add.icon !== null" class="fa {{model.add.icon||'fa-plus'}}"></i> {{model.add.title||'COMMON.ADD'|translate}}
+        <div class="text-right" ng-show="model.add.length">
+            <a ng-repeat="addBtn in model.add"
+               ng-show="addBtn.show()"
+               ng-class="{disabled: addBtn.disable()}"
+               class="action action-primary {{addBtn.classes}}" ng-click="!addBtn.disable() && addBtn.handler()"
+               title="{{addBtn.tooltip||'COMMON.ADD'|translate}}">
+                <i ng-if="addBtn.icon !== null" class="fa {{addBtn.icon||'fa-plus'}}"></i> {{addBtn.title||'COMMON.ADD'|translate}}
             </a>
         </div>
     </rd-widget-header>

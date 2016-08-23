@@ -109,20 +109,21 @@ var exportObject = function  (req, realm) {
     this.isPolicy = function (taskId) {
         return co(function* () {
             var policyId = yield thunkQuery(
-                Task.select(
-                    Survey.policyId
-                )
-                    .from(
+                Task
+                .select()
+                .from(
                     Task
-                        .leftJoin(Product)
+                        .join(Product)
                         .on(Task.productId.equals(Product.id))
-                        .leftJoin(Survey)
-                        .on(Product.surveyId.equals(Survey.id))
+                        .join(Survey)
+                        .on(Product.id.equals(Survey.productId))
+                        .join(Policy)
+                        .on(Policy.surveyId.equals(Survey.id))
                 )
                     .where(Task.id.equals(taskId)
                 )
             );
-            return (_.first(policyId) && policyId[0].policyId) ? true : false;
+            return (_.first(policyId)) ? true : false;
         });
     };
     this.isPolicyProduct = function (productId) {
@@ -277,14 +278,14 @@ var exportObject = function  (req, realm) {
                     .leftJoin(Product)
                     .on(Task.productId.equals(Product.id))
                     .leftJoin(Survey)
-                    .on(Product.surveyId.equals(Survey.id))
+                    .on(Product.id.equals(Survey.productId))
                     .leftJoin(WorkflowStep)
                     .on(Task.stepId.equals(WorkflowStep.id))
                     .leftJoin(ProductUOA)
                     .on(
                     ProductUOA.productId.equals(Task.productId)
                         .and(ProductUOA.UOAid.equals(Task.uoaId))
-                )
+                    )
                     .leftJoin(WorkflowStep.as(curStepAlias))
                     .on(
                     ProductUOA.currentStepId.equals(WorkflowStep.as(curStepAlias).id)
@@ -294,13 +295,18 @@ var exportObject = function  (req, realm) {
                 query = query.where(
                     sql.array(Task.id).containedBy('{' + tasks + '}')
                         .and(Product.status.equals(1))
-                        .and(Survey.policyId.isNotNull())
+                        .and(Policy.subQuery().select(Policy.surveyId).from(Policy).where(Policy.surveyId.equals(Survey.id)).exists()
+                    )
+
+                        //.and(Policy.subQuery().select(Policy.id).from(Policy).where(Policy.surveyId.equals(Survey.id)).isNotNull())
+                //and (SELECT "Policies"."id" FROM "Policies" WHERE "Policies"."surveyId" = "Surveys"."id" ) is  null
                 );
             } else {
                 query = query.where(
                     sql.array(Task.id).containedBy('{' + tasks + '}')
                         .and(Product.status.equals(1))
-                        .and(Survey.policyId.isNull())
+                        .and(Policy.subQuery().select(Policy.surveyId).from(Policy).where(Policy.surveyId.equals(Survey.id)).notExists()
+                    )
                 );
             }
             return yield thunkQuery(query, req.query);
@@ -589,6 +595,19 @@ var exportObject = function  (req, realm) {
                 'THEN \'current\' ' +
                 'ELSE \'waiting\'' +
                 'END as "status" ';
+        }
+    };
+    this.policy = {
+        isPolicy : function (surveyId) {
+            return 'CASE ' +
+                'WHEN ' +
+                '(' +
+                'SELECT "Policies"."id" FROM "Policies" WHERE "Policies"."surveyId" = "Surveys"."id" ' +
+                'LIMIT 1' +
+                ') IS NULL ' +
+                'THEN TRUE ' +
+                'ELSE FALSE ' +
+                'END as "isPolicy"';
         }
     };
     this.modifyUserInGroups = function (delUserFromGroups, newUserToGroups) {

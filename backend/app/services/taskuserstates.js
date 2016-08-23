@@ -1,8 +1,8 @@
 var
     _ = require('underscore'),
     common = require('app/services/common'),
+    sComment = require('app/services/comments'),
     TaskUserState = require('app/models/taskuserstates'),
-    Comment = require('app/models/comments'),   // ToDo: move to comments service when refactoring
     co = require('co'),
     Query = require('app/util').Query,
     sql = require('sql'),
@@ -16,12 +16,17 @@ var debug = require('debug')('debug_taskuserstates_service');
 var error = require('debug')('error');
 debug.log = console.log.bind(console);
 
+
+
+
 var exportObject = function  (req, realm) {
 
     var thunkQuery = thunkify(new Query(realm));
     if (!realm) {
         thunkQuery = req.thunkQuery;
     }
+    var oComment = new sComment(req);
+
     this.add = function (taskId, users, endDate) {
     // only initial adding task user states - when task created. Does not check existing records
         return co(function* () {
@@ -285,26 +290,10 @@ var exportObject = function  (req, realm) {
         // check if task for user haven`t unresolved flags - unflag it
         var self = this;
         return co(function* () {
-            var isFlagged = yield self.isFlagged(taskId, userId);
+            var isFlagged = yield oComment.isFlagged(taskId, userId);
             if (!isFlagged) {
                 yield self.flagged(taskId, userId, !isFlagged);
             }
-        });
-    };
-    this.isFlagged = function (taskId, userId) {    // ToDo: move to comments service when refactoring
-        // set taskUserState flag `flagged` and then modify stateId
-        var self = this;
-        return co(function* () {
-            var query = Comment
-                .select(Comment.id)
-                .where(Comment.userFromId.equals(userId)
-                    .and(Comment.taskId.equals(taskId))
-                    .and(Comment.isReturn.equals(true))
-                    .and(Comment.isResolve.equals(false))
-                    .and(Comment.activated.equals(true))
-            );
-            var result = yield thunkQuery(query);
-            return _.first(result);
         });
     };
 };

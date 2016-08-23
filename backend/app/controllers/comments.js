@@ -5,6 +5,8 @@ var
     common = require('app/services/common'),
     sTask = require('app/services/tasks'),
     sTaskUserState = require('app/services/taskuserstates'),
+    sComment = require('app/services/comments'),
+    sSurvey = require('app/services/surveys'),
     BoLogger = require('app/bologger'),
     Organization = require('app/models/organizations'),
     bologger = new BoLogger(),
@@ -70,88 +72,6 @@ function* checkString(val, keyName) {
     }
     return val;
 }
-
-var notify = function (req, commentId, taskId, action, essenceName, templateName, authorId) {
-    co(function* () {
-        var userTo, note, usersFromGroup;
-        var i, j;
-        // notify
-        var sentUsersId = []; // array for excluding duplicate sending
-
-        // if authorId specified - send notification to author
-        if (authorId){
-            userTo = yield * common.getUser(req, authorId);
-            note = yield * notifications.extendNote(req, {
-                body: req.body.entry,
-                action: action
-            }, userTo, essenceName, commentId, userTo.organizationId, taskId);
-            notifications.notify(req, userTo, note, templateName);
-            sentUsersId.push(authorId);
-        }
-
-/* don't notify users assigned to task - ONLY tagged
-        var task = yield * common.getTask(req, taskId);
-        for (i in task.userIds) {
-            if (sentUsersId.indexOf(task.userIds[i]) === -1) {
-                userTo = yield * common.getUser(req, task.userIds[i]);
-                note = yield * notifications.extendNote(req, {
-                    body: req.body.entry,
-                    action: action
-                }, userTo, essenceName, commentId, userTo.organizationId, taskId);
-                notifications.notify(req, userTo, note, templateName);
-                sentUsersId.push(task.userIds[i]);
-            }
-        }
-        for (i in task.groupIds) {
-            usersFromGroup = yield * common.getUsersFromGroup(req, task.groupIds[i]);
-            for (j in usersFromGroup) {
-                if (sentUsersId.indexOf(usersFromGroup[j].userId) === -1) {
-                    userTo = yield * common.getUser(req, usersFromGroup[j].userId);
-                    note = yield * notifications.extendNote(req, {
-                        body: req.body.entry,
-                        action: action
-                    }, userTo, essenceName, commentId, userTo.organizationId, taskId);
-                    notifications.notify(req, userTo, note, templateName);
-                    sentUsersId.push(usersFromGroup[j].userId);
-                }
-            }
-        }
-*/
-
-        if (req.body.tags) {
-            req.body.tags = JSON.parse(req.body.tags);
-            for (i in req.body.tags.users) {
-                if (sentUsersId.indexOf(req.body.tags.users[i]) === -1) {
-                    userTo = yield * common.getUser(req, req.body.tags.users[i]);
-                    note = yield * notifications.extendNote(req, {
-                        body: req.body.entry,
-                        action: action
-                    }, userTo, essenceName, commentId, userTo.organizationId, taskId);
-                    note = notifications.notify(req, userTo, note, templateName);
-                    sentUsersId.push(req.body.tags.users[i]);
-                }
-            }
-            for (i in req.body.tags.groups) {
-                usersFromGroup = yield * common.getUsersFromGroup(req, req.body.tags.groups[i]);
-                for (j in usersFromGroup) {
-                    if (sentUsersId.indexOf(usersFromGroup[j].userId) === -1) {
-                        userTo = yield * common.getUser(req, usersFromGroup[j].userId);
-                        note = yield * notifications.extendNote(req, {
-                            body: req.body.entry,
-                            action: action
-                        }, userTo, essenceName, commentId, userTo.organizationId, taskId);
-                        note = notifications.notify(req, userTo, note, templateName);
-                        sentUsersId.push(usersFromGroup[j].userId);
-                    }
-                }
-            }
-        }
-    }).then(function (result) {
-        debug('Created notification for comment with id`' + commentId + '`');
-    }, function (err) {
-        error(JSON.stringify(err));
-    });
-};
 
 module.exports = {
 
@@ -281,10 +201,13 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var oTaskUserState = new sTaskUserState(req);
+            var oComment = new sComment(req);
+            var oSurvey = new sSurvey(req);
             var isReturn = req.body.isReturn;
             var isResolve = req.body.isResolve;
             yield * checkInsert(req);
             var task = yield * common.getTask(req, parseInt(req.body.taskId));
+            var maxSurveyVersion = yield oSurvey.getMaxSurveyVersion(task.id);
             req.body = _.extend(req.body, {
                 userFromId: req.user.realmUserId
             }); // add from realmUserId instead of user id
@@ -331,9 +254,9 @@ module.exports = {
             if (req.body.activated && !isResolve) {
                 if (isReturn) {
                     var authorId = yield * common.getPolicyAuthorIdByTask(req, task.id);
-                    notify(req, result[0].id, task.id, 'Flagged comment added', 'Comments', 'comment', authorId);
+                    oComment.notify(result[0].id, task.id, 'Flagged comment added', 'Comments', 'comment', authorId);
                 } else {
-                    notify(req, result[0].id, task.id, 'Comment added', 'Comments', 'comment');
+                    oComment.notify(result[0].id, task.id, 'Comment added', 'Comments', 'comment');
                 }
             }
 
@@ -358,6 +281,7 @@ module.exports = {
     insertAnswer: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+            var oComment = new sComment(req);
             yield * checkAnswerInsert(req);
             var parentComment = yield * common.getEntity(req, req.params.commentId, Comment, 'id');
             req.body = _.extend(req.body,_.pick(parentComment, Comment.answerFromParentCols)); // add key values from parent comment
@@ -388,7 +312,7 @@ module.exports = {
             var result = yield thunkQuery(Comment.insert(req.body).returning(Comment.id));
 
             if (req.body.activated) {
-                notify(req, result[0].id, parentComment.taskId, 'Answer added', 'Comments', 'comment');
+                oComment.notify(result[0].id, parentComment.taskId, 'Answer added', 'Comments', 'comment');
             }
 
             bologger.log({
@@ -412,6 +336,7 @@ module.exports = {
     updateOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+            var oComment = new sComment(req);
             yield * checkUpdate(req);
             req.body = _.extend(req.body, {
                 updated: new Date()
@@ -428,9 +353,9 @@ module.exports = {
             if (!result[0].isResolve) {
                 if (result[0].isReturn) {
                     var authorId = yield * common.getPolicyAuthorIdByTask(req, result[0].taskId);
-                    notify(req, result[0].id, result[0].taskId, 'Flagged comment updated', 'Comments', 'comment', authorId);
+                    oComment.notify(result[0].id, result[0].taskId, 'Flagged comment updated', 'Comments', 'comment', authorId);
                 } else {
-                    notify(req, result[0].id, result[0].taskId, 'Comment updated', 'Comments', 'comment');
+                    oComment.notify(result[0].id, result[0].taskId, 'Comment updated', 'Comments', 'comment');
                 }
             }
 
@@ -453,9 +378,10 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+            var oComment = new sComment(req);
             var entry = yield * checkCanUpdate(req, req.params.id);
             req.body.entry = entry.entry;
-            notify(req, entry.id, entry.taskId, 'Comment deleted', null, 'comment');
+            oComment.notify(entry.id, entry.taskId, 'Comment deleted', null, 'comment');
 
             yield thunkQuery(Comment.delete().where(Comment.id.equals(req.params.id)));
         }).then(function (data) {
@@ -572,10 +498,6 @@ function* checkInsert(req) {
         var userId = yield * checkOneId(req, req.body.userId, User, 'id', 'userId', 'User');
     }
     var entry = yield * checkString(req.body.entry, 'Entry');
-    // check if return or resolve entry already exist for question
-/* it is possible to flag or resolve multiple times for each question (policy section)
-    var duplicateEntry = yield * checkDuplicateEntry(req, taskId, questionId, req.body.isReturn, req.body.isResolve);
-*/
     // get next order for entry
     var nextOrder = yield * getNextOrder(req, taskId, questionId);
     req.body = _.extend(req.body, {
@@ -951,27 +873,21 @@ function* getCurrentStep(req, taskId) {
     return result[0];
 }
 
-function* checkDuplicateEntry(req, taskId, questionId, isReturn, isResolve) {
+function* checkDuplicateAnswer(req, taskId, commentId, userId) {
     var thunkQuery = req.thunkQuery;
     var result;
-    isReturn = (isReturn) ? true : false;
-    isResolve = (isResolve) ? true : false;
-    // check if comment (return or resolve) is exist for taskId, questionId
     var query =
         Comment
         .select(Comment.id)
         .from(Comment)
         .where(
-            Comment.isReturn.equals(isReturn)
-            .and(Comment.activated.equals(false))
-            .and(Comment.isResolve.equals(isResolve))
+            Comment.parentId.equals(commentId)
             .and(Comment.taskId.equals(taskId))
-            .and(Comment.questionId.equals(questionId))
+            .and(Comment.userFromId.equals(userId))
         );
     result = yield thunkQuery(query);
     if (_.first(result)) {
-        var rR = (isReturn) ? 'Flag ' : ((isResolve) ? 'Resolve ' : '');
-        throw new HttpError(403, rR + 'comment for questionId=`' + questionId + '` already exist');
+        throw new HttpError(403, 'User already agreed/disagreed with this comment');
     }
     return result;
 }

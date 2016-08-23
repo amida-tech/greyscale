@@ -4,17 +4,19 @@ var
     Survey = require('app/models/surveys'),
     SurveyQuestion = require('app/models/survey_questions'),
     SurveyQuestionOption = require('app/models/survey_question_options'),
+    Task = require('app/models/tasks'),
     co = require('co'),
+    Query = require('app/util').Query,
+    sql = require('sql'),
     thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError;
 
 
 var exportObject = function  (req, realm) {
 
-    if (realm) {
-        var thunkQuery = thunkify(new Query(realm));
-    } else {
-        var thunkQuery = req.thunkQuery;
+    var thunkQuery = thunkify(new Query(realm));
+    if (!realm) {
+        thunkQuery = req.thunkQuery;
     }
 
     this.getList = function (options) {
@@ -48,7 +50,8 @@ var exportObject = function  (req, realm) {
                 'LEFT JOIN "Surveys" ' +
                 'ON (maxv.id = "Surveys".id AND maxv.version = "Surveys"."surveyVersion") ' +
                 'LEFT JOIN "Policies" ' +
-                'ON ("Surveys"."id" = "Policies"."surveyId")'
+                'ON ("Surveys"."id" = "Policies"."surveyId")' +
+                'AND ("Surveys"."surveyVersion" = "Policies"."surveyVersion")'
             );
         });
     };
@@ -131,6 +134,11 @@ var exportObject = function  (req, realm) {
             }
 
             var surveyVersion = yield thunkQuery(Survey.insert(surveyData).returning(Survey.star()));
+
+            if (!surveyId) {
+                surveyId = surveyVersion[0].id;
+            }
+
             if (fullSurveyData.isPolicy) {
                 policyData.surveyVersion = surveyVersion[0].surveyVersion;
                 policyData.surveyId = surveyId;
@@ -452,7 +460,23 @@ var exportObject = function  (req, realm) {
         });
     };
 
-
-}
+    this.getMaxSurveyVersion = function (taskId) {
+        var self = this;
+        return co(function* () {
+            //.select(sql.functions.MIN(WorkflowStep.position))
+            var query = Task
+                .select(sql.functions.MAX(Survey.surveyVersion))
+                .from(
+                Task
+                    .leftJoin(Survey)
+                    .on(Task.productId.equals(Survey.productId))
+            )
+                .where(Task.id.equals(taskId)
+            );
+            var result = yield thunkQuery(query);
+            return _.first(result);
+        });
+    };
+};
 
 module.exports = exportObject;
