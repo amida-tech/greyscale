@@ -14,6 +14,7 @@ var
     UoaType = require('app/models/uoatypes'),
     Task = require('app/models/tasks'),
     Survey = require('app/models/surveys'),
+    SurveyMeta = require('app/models/survey_meta'),
     Policy = require('app/models/policies'),
     SurveyQuestion = require('app/models/survey_questions'),
     Discussion = require('app/models/discussions'),
@@ -444,10 +445,10 @@ var getPolicyAuthorIdByTask = function* (req, taskId) {
             .select(Policy.author)
             .from(
             Task
-                .leftJoin(Survey)
-                .on(Survey.productId.equals(Task.productId))
-                .leftJoin(Policy)
-                .on(Policy.surveyId.equals(Survey.id))
+                .join(SurveyMeta)
+                .on(SurveyMeta.productId.equals(Task.productId))
+                .join(Policy)
+                .on(Policy.surveyId.equals(SurveyMeta.surveyId))
         )
             .where(Task.id.equals(taskId))
     );
