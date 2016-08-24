@@ -10,6 +10,7 @@ var
     Policy = require('app/models/policies'),
     Organization = require('app/models/organizations'),
     Survey = require('app/models/surveys'),
+    SurveyMeta = require('app/models/survey_meta'),
     Task = require('app/models/tasks'),
     WorkflowStep = require('app/models/workflow_steps'),
     sTask = require('app/services/tasks'),
@@ -45,9 +46,11 @@ var exportObject = function  (req, realm) {
                     Product
                     .leftJoin(Workflow)
                     .on(Product.id.equals(Workflow.productId))
+                    .leftJoin(SurveyMeta)
+                    .on(Product.id.equals(SurveyMeta.productId))
                     .leftJoin(Survey)
                     .on(
-                        Product.id.equals(Survey.productId)
+                        Survey.id.equals(SurveyMeta.surveyId)
                             .and(
                                 Survey.surveyVersion.in(
                                     Survey.as('subS')
@@ -65,6 +68,46 @@ var exportObject = function  (req, realm) {
                 ),
                 options
             );
+        });
+    };
+
+    this.getById = function (id) {
+        return co(function* () {
+            var product = yield thunkQuery(
+                Product
+                .select(
+                    Product.star(),
+                    'row_to_json("Workflows".*) as workflow',
+                    'row_to_json("Surveys".*) as survey',
+                    'row_to_json("Policies".*) as policy'
+                )
+                .from(
+                    Product
+                        .leftJoin(Workflow)
+                        .on(Product.id.equals(Workflow.productId))
+                        .leftJoin(SurveyMeta)
+                        .on(Product.id.equals(SurveyMeta.productId))
+                        .leftJoin(Survey)
+                        .on(
+                            Survey.id.equals(SurveyMeta.surveyId)
+                                .and(
+                                    Survey.surveyVersion.in(
+                                        Survey.as('subS')
+                                            .subQuery()
+                                            .select(Survey.as('subS').surveyVersion.max())
+                                            .where(Survey.as('subS').id.equals(Survey.id))
+                                    )
+                                )
+                        )
+                        .leftJoin(Policy)
+                        .on(
+                            Policy.surveyId.equals(Survey.id)
+                                .and(Policy.surveyVersion.equals(Survey.surveyVersion))
+                        )
+                )
+                .where(Product.id.equals(id))
+            );
+            return product[0] || false;
         });
     };
 
