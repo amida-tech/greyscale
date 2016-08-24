@@ -11,16 +11,7 @@ angular.module('greyscale.core')
                 states: ['organizations', 'superusers']
             }, {
                 title: 'NAV.ADMIN_SECTION',
-                states: [
-                    [
-                        {title: 'NAV.PROJECT_MANAGEMENT', icon: 'fa-home'},
-                        ['projects.setup.products', 'policy', 'workflowTemplates']
-                    ],
-                    'access',
-                    /*'uoas',*/
-                    /*'orgs', */
-                    'users'
-                ]
+                states: ['workflowTemplates', 'policy', 'projects.setup.products', 'access', 'uoas', /*'orgs', */ 'users']
             }, {
                 title: 'NAV.CONTENT_SECTION',
                 states: ['profile', 'tasks', 'visualizations', 'graph', 'table']

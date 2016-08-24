@@ -17,7 +17,7 @@ angular.module('greyscaleApp')
 
                 var clmn = scope.modalFormField;
 
-                if (clmn.dataHide) {
+                if (clmn.dataHide && !clmn.viewMode) {
                     elem.remove();
                     return;
                 }
@@ -238,7 +238,7 @@ angular.module('greyscaleApp')
                     var fnFields = ['dataReadOnly', 'dataHide'];
                     angular.forEach(fnFields, function (field) {
                         if (typeof params[field] === 'function') {
-                            parsedParams[field] = params[field]($scope.modalFormRec);
+                            parsedParams[field] = params[field]();
                         }
                     });
 
