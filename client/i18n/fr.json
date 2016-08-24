@@ -483,7 +483,8 @@
             "TASKS": "",
             "TITLE": "",
             "UOAS": "",
-            "WORKFLOW": ""
+            "WORKFLOW": "",
+            "WORKFLOW_TEMPLATE": ""
         },
         "TASKS": {
             "DRAG_USER": "",

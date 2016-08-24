@@ -195,20 +195,38 @@ angular.module('greyscaleApp')
         .then(function(data){
             $scope.model.workflowTemplates = data;
             if (!tplEdit) {
-                $scope.model.selectedTemplate = currentTemplateId ? _.find(data, {id: currentTemplateId}) : undefined;
+                var apply;
+
+                if (!product.workflow && product.workflowTemplateId && !currentTemplateId) {
+                    currentTemplateId = product.workflowTemplateId;
+                    apply = true;
+                }
+
+                $scope.model.selectedTemplate = currentTemplateId ?
+                    _.find(data, {id: currentTemplateId}) : undefined;
+
+                if (apply && $scope.model.selectedTemplate) {
+                    productWorkflow.$loading = true;
+                    $timeout(function(){
+                        _applyWorkflowTemplate(true);
+                        productWorkflow.$loading = false;
+                    });
+                }
             }
         })
         .catch(greyscaleUtilsSrv.errorMsg);
     }
 
-    function _applyWorkflowTemplate() {
+    function _applyWorkflowTemplate(force) {
         var template = $scope.model.selectedTemplate;
         var workflow = $scope.model.product.workflow = $scope.model.product.workflow || {};
         workflow.name = template.workflow.name;
         workflow.description = template.workflow.description;
 
         _setSteps(template.steps);
-        $scope.model.selectedTemplate = undefined;
+        if (!force) {
+            $scope.model.selectedTemplate = undefined;
+        }
     }
 
     function _saveCurrentWorkflowAsTemplate() {

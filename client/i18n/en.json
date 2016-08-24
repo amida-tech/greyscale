@@ -483,7 +483,8 @@
             "TASKS": "Tasks",
             "TITLE": "Title",
             "UOAS": "Subjects",
-            "WORKFLOW": "Workflow"
+            "WORKFLOW": "Workflow",
+            "WORKFLOW_TEMPLATE": "Workflow Template"
         },
         "TASKS": {
             "DRAG_USER": "Drag And Drop User To Task",

@@ -483,7 +483,8 @@
             "TASKS": "Задачи",
             "TITLE": "Название",
             "UOAS": "Субъекты",
-            "WORKFLOW": "Процесс"
+            "WORKFLOW": "Процесс",
+            "WORKFLOW_TEMPLATE": ""
         },
         "TASKS": {
             "DRAG_USER": "Перетащите пользователя на задачу",

@@ -7,6 +7,7 @@ angular.module('greyscale.tables')
         greyscaleModalsSrv,
         greyscaleUtilsSrv,
         greyscaleProductWorkflowApi,
+        greyscaleWorkflowTemplateApi,
         greyscaleGlobals,
         $state,
         inform, i18n) {
@@ -52,6 +53,16 @@ angular.module('greyscale.tables')
                 handler: _editProductWorkflow
             },
             dataHide: true
+        }, {
+            field: 'workflowTemplateId',
+            title: tns + 'WORKFLOW_TEMPLATE',
+            show: false,
+            dataFormat: 'option',
+            dataSet: {
+                getData: _getWorkflowTemplates,
+                keyField: 'id',
+                valField: 'templateName'
+            }
         }, {
             show: true,
             dataFormat: 'action',
@@ -164,10 +175,12 @@ angular.module('greyscale.tables')
             } else {
                 var req = {
                     surveys: greyscaleSurveyApi.list(),
-                    products: greyscaleProjectApi.productsList(projectId)
+                    products: greyscaleProjectApi.productsList(projectId),
+                    workflowTemplates: greyscaleWorkflowTemplateApi.list()
                 };
                 return $q.all(req).then(function (promises) {
                     _dicts.surveys = promises.surveys;
+                    _dicts.workflowTemplates = promises.workflowTemplates;
                     return _setPolicyId(promises.products);
                 });
             }
@@ -192,6 +205,13 @@ angular.module('greyscale.tables')
         function _getSurveys() {
             return !_editProductMode ? _dicts.surveys : _.filter(_dicts.surveys, function (survey) {
                 return _editProductMode.surveyId === survey.id || !survey.policyId || !survey.products || !survey.products.length;
+            });
+        }
+
+        function _getWorkflowTemplates() {
+            return _.map(_dicts.workflowTemplates, function (template) {
+                template.templateName = template.workflow.name;
+                return template;
             });
         }
 
