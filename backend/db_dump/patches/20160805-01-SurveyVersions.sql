@@ -243,7 +243,7 @@ BEGIN
 
                     IF NEW.id IS NOT NULL THEN
                         IF NOT EXISTS (
-                            SELECT  id FROM $query$ || schema_name || $query$."SurveyQuestions" WHERE id = NEW.id AND "surveyVersion" = 0
+                            SELECT  id FROM $query$ || schema_name || $query$."SurveyQuestions"
                         ) THEN
                             RAISE EXCEPTION 'id not allowed %', NEW.id;
                         END IF;
