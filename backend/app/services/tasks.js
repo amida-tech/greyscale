@@ -135,7 +135,7 @@ var exportObject = function  (req, realm) {
                     .join(Policy)
                     .on(Policy.surveyId.equals(SurveyMeta.surveyId))
                 )
-                .where(Product.id.equals(productId))
+                .where(SurveyMeta.productId.equals(productId))
             );
             return (_.first(policyId)) ? true : false;
         });
