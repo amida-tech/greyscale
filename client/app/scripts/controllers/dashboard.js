@@ -37,7 +37,7 @@ angular.module('greyscaleApp')
                                 icon: _group.states[i][0].icon,
                                 section: true
                             });
-                            angular.forEach(_group.states[i][1], function(state){
+                            angular.forEach(_group.states[i][1], function (state) {
                                 _addSidebarItem(_items, state, true);
                             });
                         } else {

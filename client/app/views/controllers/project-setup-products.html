@@ -1,3 +1,12 @@
 <span ng-if="model.products">
     <widget-table model="model.products"></widget-table>
 </span>
+
+<script type="text/ng-template" id="project-setup-products-survey.html">
+    <span ng-if="row.survey">
+        <i class="fa" ng-class="{'fa-file':row.policy, 'fa-list': !row.policy}"></i>
+        <span>{{row.survey.title}}
+            <small>(<span ng-show="row.survey.isDraft" translate="SURVEYS.IS_DRAFT"></span><span ng-show="!row.survey.isDraft" translate="SURVEYS.IS_COMPLETE"></span>)</small>
+        </span>
+    </span>
+</script>

@@ -1,15 +1,7 @@
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleProjectProductsTbl', function ($q, _,
-        greyscaleProjectApi,
-        greyscaleSurveyApi,
-        greyscaleProductApi,
-        greyscaleModalsSrv,
-        greyscaleUtilsSrv,
-        greyscaleProductWorkflowApi,
-        greyscaleGlobals,
-        $state,
-        inform, i18n) {
+    .factory('greyscaleProjectProductsTbl', function ($q, _, greyscaleProjectApi, greyscaleSurveyApi, $state, i18n,
+        greyscaleProductApi, greyscaleModalsSrv, greyscaleUtilsSrv, greyscaleProductWorkflowApi, greyscaleGlobals) {
 
         var tns = 'PRODUCTS.TABLE.';
 
@@ -30,113 +22,117 @@ angular.module('greyscale.tables')
         _statusIcons[_const.STATUS_STARTED] = 'fa-pause';
         _statusIcons[_const.STATUS_SUSPENDED] = 'fa-play';
 
-        var _cols = [{
-        //     field: 'title',
-        //     title: tns + 'TITLE',
-        //     show: true,
-        //     sortable: 'title',
-        //     dataRequired: true
-        // }, {
-            field: 'description',
-            title: tns + 'DESCRIPTION',
-            show: true,
-            dataRequired: true,
-            dataFormat: 'textarea'
-        }, {
-            field: 'workflow.name',
-            sortable: 'workflow.name',
-            title: tns + 'WORKFLOW',
-            show: true,
-            cellTemplate: '{{cell}}<span ng-if="!cell" class="action" translate="' + tns + 'CREATE_WORKFLOW"></span>',
-            link: {
-                handler: _editProductWorkflow
-            },
-            dataHide: true
-        }, {
-            show: true,
-            dataFormat: 'action',
-            dataHide: true,
-            actions: [{
-                getIcon: _getStatusIcon,
-                getTooltip: _getStartOrPauseProductTooltip,
-                class: 'info',
-                handler: _startOrPauseProduct
-            }]
-        }, {
-            field: 'status',
-            show: true,
-            sortable: 'status',
-            title: tns + 'STATUS',
-            dataFormat: 'option',
-            dataNoEmptyOption: true,
-            cellTemplate: '<a ui-sref="pmProductDashboard({productId:row.id})">{{option.name}}</a>',
-            dataRequired: true,
-            dataSet: {
-                getData: _getStatus,
-                keyField: 'id',
-                valField: 'name',
-                getDisabled: _getDisabledStatus
-            }
-        }, {
-            title: tns + 'SETTINGS',
-            show: true,
-            textLeft: true,
-            dataFormat: 'action',
-            dataHide: true,
-            actions: [{
-                title: tns + 'UOAS',
-                class: 'info',
-                handler: _editProductUoas,
-                show: _showUoaSetting
+        var _cols = [
+            /*{
+
+                     field: 'title',
+                     title: tns + 'TITLE',
+                     show: true,
+                     sortable: 'title',
+                     dataRequired: true
+                     },*/
+            {
+                field: 'description',
+                title: tns + 'DESCRIPTION',
+                show: true,
+                dataRequired: true,
+                dataFormat: 'textarea'
             }, {
-                title: tns + 'TASKS',
-                class: 'info',
-                handler: _editProductTasks
-            }/*, {
-                title: tns + 'INDEXES',
-                class: 'info',
-                handler: _editProductIndexes
-            }*/]
-        }, {
-            field: 'surveyId',
-            title: tns + 'SURVEY_POLICY',
-            show: true,
-            sortable: 'surveyId',
-            dataFormat: 'option',
-            cellTemplate: '<span ng-if="option.id"><i class="fa" ng-class="{\'fa-file\':row.policyId, \'fa-list\': !row.policyId}"></i> <span>{{option.title}} <small>(<span ng-show="option.isDraft" translate="SURVEYS.IS_DRAFT"></span><span ng-show="!option.isDraft" translate="SURVEYS.IS_COMPLETE"></span>)</small></span></span>',
-            dataPlaceholder: tns + 'SELECT_SURVEY',
-            dataRequired: true,
-            formPosition: -1,
-            dataSet: {
-                getData: _getSurveys,
-                keyField: 'id',
-                valField: 'title',
-                groupBy: function (item) {
-                    return i18n.translate(tns + (item.policyId ? 'POLICIES' : 'SURVEYS'));
-                }
-            },
-            link: {
-                //target: '_blank',
-                //href: '/survey/{{item.id}}'
-                state: function (item) {
-                    return item.policyId ? 'policy.edit({id: item.surveyId})' :
-                        'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})';
-                }
-                //state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
-            }
-        }, {
-            show: true,
-            dataFormat: 'action',
-            actions: [{
-                icon: 'fa-pencil',
-                tooltip: 'COMMON.EDIT',
-                handler: _editProduct
+                field: 'workflow.name',
+                sortable: 'workflow.name',
+                title: tns + 'WORKFLOW',
+                show: true,
+                cellTemplate: '{{cell}}<span ng-if="!cell" class="action" translate="' + tns + 'CREATE_WORKFLOW"></span>',
+                link: {
+                    handler: _editProductWorkflow
+                },
+                dataHide: true
             }, {
-                icon: 'fa-trash',
-                tooltip: 'COMMON.DELETE',
-                handler: _removeProduct
-            }]
-        }];
+                show: true,
+                dataFormat: 'action',
+                dataHide: true,
+                actions: [{
+                    getIcon: _getStatusIcon,
+                    getTooltip: _getStartOrPauseProductTooltip,
+                    class: 'info',
+                    handler: _startOrPauseProduct
+                }]
+            }, {
+                field: 'status',
+                show: true,
+                sortable: 'status',
+                title: tns + 'STATUS',
+                dataFormat: 'option',
+                dataNoEmptyOption: true,
+                cellTemplate: '<a ui-sref="pmProductDashboard({productId:row.id})">{{option.name}}</a>',
+                dataRequired: true,
+                dataSet: {
+                    getData: _getStatus,
+                    keyField: 'id',
+                    valField: 'name',
+                    getDisabled: _getDisabledStatus
+                }
+            }, {
+                title: tns + 'SETTINGS',
+                show: true,
+                textLeft: true,
+                dataFormat: 'action',
+                dataHide: true,
+                actions: [{
+                        title: tns + 'UOAS',
+                        class: 'info',
+                        handler: _editProductUoas,
+                        show: _showUoaSetting
+                    }, {
+                        title: tns + 'TASKS',
+                        class: 'info',
+                        handler: _editProductTasks
+                    }
+                    /*, {
+                                 title: tns + 'INDEXES',
+                                 class: 'info',
+                                 handler: _editProductIndexes
+                                 }*/
+                ]
+            }, {
+                title: tns + 'SURVEY_POLICY',
+                show: true,
+                sortable: 'survey.title',
+                dataFormat: 'option',
+                cellTemplateUrl: 'project-setup-products-survey.html',
+                dataPlaceholder: tns + 'SELECT_SURVEY',
+                dataRequired: true,
+                dataSet: {
+                    getData: _getSurveys,
+                    keyField: 'id',
+                    valField: 'title',
+                    groupBy: function (item) {
+                        return i18n.translate(tns + (item.policyId ? 'POLICIES' : 'SURVEYS'));
+                    }
+                },
+                link: {
+                    //target: '_blank',
+                    //href: '/survey/{{item.id}}'
+                    state: function (item) {
+                            return item.policy ? 'policy.edit({id: item.policy.surveyId})' :
+                                'projects.setup.surveys.edit({surveyId: item.survey.id})';
+                        }
+                        //state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
+                }
+            }, {
+                show: true,
+                dataFormat: 'action',
+                actions: [{
+                    icon: 'fa-pencil',
+                    tooltip: 'COMMON.EDIT',
+                    handler: _editProduct
+                }, {
+                    icon: 'fa-trash',
+                    tooltip: 'COMMON.DELETE',
+                    handler: _removeProduct
+                }]
+            }
+        ];
 
         var _table = {
             title: '',
@@ -327,12 +323,12 @@ angular.module('greyscale.tables')
         }
 
         function _planningNotFinish(product) {
-            return !product.uoas || !product.uoas.length || !product.surveyId ||
-                !product.workflowSteps || !product.workflowSteps.length || !product.tasks || !product.tasks.length;
+            return !product.uoas || !product.uoas.length || !product.surveyId || !product.workflowSteps || !product.workflowSteps.length || !product.tasks || !product.tasks.length;
         }
 
         function _getDisabledStatus(item, rec) {
-            return item.id !== _const.STATUS_PLANNING && item.id !== _const.STATUS_CANCELLED && _planningNotFinish(rec);
+            return item.id !== _const.STATUS_PLANNING && item.id !== _const.STATUS_CANCELLED && _planningNotFinish(
+                rec);
         }
 
         function _getFormWarning(product) {
