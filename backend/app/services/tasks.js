@@ -4,6 +4,7 @@ var
     Task = require('app/models/tasks'),
     TaskUserState = require('app/models/taskuserstates'),
     Survey = require('app/models/surveys'),
+    SurveyMeta = require('app/models/survey_meta'),
     Product = require('app/models/products'),
     Policy = require('app/models/policies'),
     Group = require('app/models/groups'),
@@ -110,15 +111,13 @@ var exportObject = function  (req, realm) {
         return co(function* () {
             var policyId = yield thunkQuery(
                 Task
-                .select()
+                .select(Policy.id)
                 .from(
                     Task
-                        .join(Product)
-                        .on(Task.productId.equals(Product.id))
-                        .join(Survey)
-                        .on(Product.id.equals(Survey.productId))
+                        .join(SurveyMeta)
+                        .on(SurveyMeta.productId.equals(Task.productId))
                         .join(Policy)
-                        .on(Policy.surveyId.equals(Survey.id))
+                        .on(Policy.surveyId.equals(SurveyMeta.surveyId))
                 )
                     .where(Task.id.equals(taskId)
                 )
@@ -129,14 +128,12 @@ var exportObject = function  (req, realm) {
     this.isPolicyProduct = function (productId) {
         return co(function* () {
             var policyId = yield thunkQuery(
-                Product
-                .select()
+                SurveyMeta
+                .select(Policy.id)
                 .from(
-                    Product
-                    .join(Survey)
-                    .on(Survey.productId.equals(Product.id))
+                    SurveyMeta
                     .join(Policy)
-                    .on(Policy.surveyId.equals(Survey.id))
+                    .on(Policy.surveyId.equals(SurveyMeta.surveyId))
                 )
                 .where(Product.id.equals(productId))
             );
@@ -215,13 +212,13 @@ var exportObject = function  (req, realm) {
             );
         });
     };
-    this.getSelfTasks = function () {
+    this.getSelfTasks = function (userId) {
         var self = this;
         return co(function* () {
-            var userTasks = yield self.getUserTasks(req.user.id);
+            var userTasks = yield self.getUserTasks(userId);
             var surveyTasks = yield self.getSelfTasksExt('Discussions', 'curStep', userTasks);
             var policyTasks = yield self.getSelfTasksExt('Comments', 'curStep', userTasks, true);
-            var tasksUserStatus = yield self.getTasksUserStatus('Comments', req.user.id, userTasks);
+            var tasksUserStatus = yield self.getTasksUserStatus('Comments', userId, userTasks);
             policyTasks = self.mergeTasksWithUserStatus(policyTasks, tasksUserStatus, 'userStatus');
             return _.union(surveyTasks, policyTasks);
         });
@@ -278,8 +275,10 @@ var exportObject = function  (req, realm) {
                     .on(Task.uoaId.equals(UOA.id))
                     .leftJoin(Product)
                     .on(Task.productId.equals(Product.id))
+                    .leftJoin(SurveyMeta)
+                    .on(SurveyMeta.productId.equals(Task.productId))
                     .leftJoin(Survey)
-                    .on(Product.id.equals(Survey.productId))
+                    .on(Survey.id.equals(SurveyMeta.surveyId))
                     .leftJoin(WorkflowStep)
                     .on(Task.stepId.equals(WorkflowStep.id))
                     .leftJoin(ProductUOA)

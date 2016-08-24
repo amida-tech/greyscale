@@ -50,7 +50,8 @@ Comment.insertCols = [
     'userHideId',
     'hiddenAt',
     'parentId',
-    'isAgree'
+    'isAgree',
+    'surveyVersion'
 ];
 
 Comment.answerFromParentCols = [

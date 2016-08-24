@@ -1113,7 +1113,7 @@ module.exports = {
     tasks: function (req, res, next) {
         co(function* () {
             var oTask = new sTask(req);
-            return yield oTask.getSelfTasks();
+            return yield oTask.getSelfTasks(req.user.id);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
