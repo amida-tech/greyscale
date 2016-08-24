@@ -1,11 +1,11 @@
 angular.module('greyscaleApp')
-.directive('lineNumbers', paragraphNumbersDirective)
-.directive('taBind', paragraphNumbersDirective);
+    .directive('lineNumbers', paragraphNumbersDirective)
+    .directive('taBind', paragraphNumbersDirective);
 
 function paragraphNumbersDirective(_, $timeout) {
     return {
         restrict: 'CA',
-        link: function(scope, el, attr){
+        link: function (scope, el, attr) {
 
             var lineTags = [
                 'P', 'LI',
@@ -17,15 +17,15 @@ function paragraphNumbersDirective(_, $timeout) {
                 'FONT', 'B', 'I', 'U', 'strong'
             ];
 
-            $timeout(function(){
+            $timeout(function () {
                 if ((attr.contenteditable && attr.taBind) || el.hasClass('line-numbers')) {
                     _setLineNumbers(el[0]);
                     if (attr.contenteditable) {
-                        el.closest('text-angular').on('input click paste cut', function(){
+                        el.closest('text-angular').on('input click paste cut', function () {
                             _setLineNumbers(el[0]);
                         });
                     }
-                    scope.$on('line-numbers-refresh', function(){
+                    scope.$on('line-numbers-refresh', function () {
                         _setLineNumbers(el[0]);
                     });
                 }
@@ -33,7 +33,7 @@ function paragraphNumbersDirective(_, $timeout) {
             });
 
             function _setLineNumbers(parentNode, insideLine) {
-                _loopChildNodes(parentNode, function(node){
+                _loopChildNodes(parentNode, function (node) {
                     if (_isEmpty(node)) {
                         return;
                     }
@@ -81,7 +81,7 @@ function paragraphNumbersDirective(_, $timeout) {
 
             function _hasDeepLineChild(node) {
                 var has = false;
-                _loopChildNodes(node, function(n) {
+                _loopChildNodes(node, function (n) {
                     if (!has && (n.tagName === 'BR' || (_isLine(n) || _hasDeepLineChild(n)))) {
                         has = true;
                     }
@@ -95,7 +95,7 @@ function paragraphNumbersDirective(_, $timeout) {
 
             function _hasLineChild(node) {
                 var has = false;
-                _loopChildNodes(node, function(n) {
+                _loopChildNodes(node, function (n) {
                     if (!has && (n.tagName === 'BR' || _isLine(n))) {
                         has = true;
                     }
@@ -109,7 +109,7 @@ function paragraphNumbersDirective(_, $timeout) {
 
             function _hasTextChild(node) {
                 var has = false;
-                _loopChildNodes(node, function(n){
+                _loopChildNodes(node, function (n) {
                     if (!has && (_isText(n))) {
                         has = true;
                     }

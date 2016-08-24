@@ -31,12 +31,12 @@ angular.module('greyscale.tables')
         _statusIcons[_const.STATUS_SUSPENDED] = 'fa-play';
 
         var _cols = [{
-        //     field: 'title',
-        //     title: tns + 'TITLE',
-        //     show: true,
-        //     sortable: 'title',
-        //     dataRequired: true
-        // }, {
+            //     field: 'title',
+            //     title: tns + 'TITLE',
+            //     show: true,
+            //     sortable: 'title',
+            //     dataRequired: true
+            // }, {
             field: 'description',
             title: tns + 'DESCRIPTION',
             show: true,
@@ -84,19 +84,21 @@ angular.module('greyscale.tables')
             dataFormat: 'action',
             dataHide: true,
             actions: [{
-                title: tns + 'UOAS',
-                class: 'info',
-                handler: _editProductUoas,
-                show: _showUoaSetting
-            }, {
-                title: tns + 'TASKS',
-                class: 'info',
-                handler: _editProductTasks
-            }/*, {
-                title: tns + 'INDEXES',
-                class: 'info',
-                handler: _editProductIndexes
-            }*/]
+                    title: tns + 'UOAS',
+                    class: 'info',
+                    handler: _editProductUoas,
+                    show: _showUoaSetting
+                }, {
+                    title: tns + 'TASKS',
+                    class: 'info',
+                    handler: _editProductTasks
+                }
+                /*, {
+                                title: tns + 'INDEXES',
+                                class: 'info',
+                                handler: _editProductIndexes
+                            }*/
+            ]
         }, {
             field: 'surveyId',
             title: tns + 'SURVEY_POLICY',
@@ -119,10 +121,10 @@ angular.module('greyscale.tables')
                 //target: '_blank',
                 //href: '/survey/{{item.id}}'
                 state: function (item) {
-                    return item.policyId ? 'policy.edit({id: item.surveyId})' :
-                        'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})';
-                }
-                //state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
+                        return item.policyId ? 'policy.edit({id: item.surveyId})' :
+                            'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})';
+                    }
+                    //state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
             }
         }, {
             show: true,

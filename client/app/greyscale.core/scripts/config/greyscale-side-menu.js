@@ -12,8 +12,10 @@ angular.module('greyscale.core')
             }, {
                 title: 'NAV.ADMIN_SECTION',
                 states: [
-                    [
-                        {title: 'NAV.PROJECT_MANAGEMENT', icon: 'fa-home'},
+                    [{
+                            title: 'NAV.PROJECT_MANAGEMENT',
+                            icon: 'fa-home'
+                        },
                         ['projects.setup.products', 'policy', 'workflowTemplates']
                     ],
                     'access',

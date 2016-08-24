@@ -96,7 +96,7 @@ angular.module('greyscale.tables')
                 cellTemplateExtData: {
                     resendActivation: _resendActivation
                 },
-                dataHide: function(row){
+                dataHide: function (row) {
                     return row.isActive;
                 }
             }, {
