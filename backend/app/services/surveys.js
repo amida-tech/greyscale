@@ -370,8 +370,8 @@ var exportObject = function  (req, realm) {
     this.checkSurveyData = function (surveyData) {
         return co(function* () {
             if (!surveyData.id) { // create
-                if (!req.body.title || !req.body.productId) {
-                    throw new HttpError(403, 'title and productId fields are required');
+                if (!req.body.title) {
+                    throw new HttpError(403, 'title field is required');
                 }
             }
         });

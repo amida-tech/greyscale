@@ -17,38 +17,43 @@ BEGIN
         EXECUTE $query$
             SET search_path TO $query$ || schema_name || $query$;
 
-            CREATE TABLE "SurveyLocks"
-                        (
-                          "surveyId" integer NOT NULL,
-                          "editor" integer,
-                          "startEdit" timestamp with time zone,
-                          "socketId" character varying,
-                          CONSTRAINT "SurveyLocks_pkey" PRIMARY KEY ("surveyId")
-                        )
-                        WITH (
-                          OIDS=FALSE
-                        );
-                        ALTER TABLE "SurveyLocks"
-                          OWNER TO $query$ || db_user || $query$;
+            CREATE TABLE "SurveyMeta"
+            (
+              "surveyId" integer NOT NULL,
+              "productId" integer NOT NULL,
+              "editor" integer,
+              "startEdit" timestamp with time zone,
+              "socketId" character varying,
+              CONSTRAINT "SurveyLocks_pkey" PRIMARY KEY ("surveyId"),
+              CONSTRAINT "SurveyMeta_productId_fkey" FOREIGN KEY ("productId")
+                  REFERENCES "Products" (id) MATCH SIMPLE
+                  ON UPDATE NO ACTION ON DELETE NO ACTION,
+              CONSTRAINT "SurveyMeta_productId_key" UNIQUE ("productId")
+            )
+            WITH (
+              OIDS=FALSE
+            );
+            ALTER TABLE "SurveyMeta"
+              OWNER TO $query$ || db_user || $query$;
 
 
             ALTER TABLE "Surveys"
                 ADD COLUMN "creator" integer,
                 --ADD COLUMN "created" timestamp without time zone NOT NULL DEFAULT now(),
                 ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0,
-                ADD COLUMN "productId" integer,
+                --ADD COLUMN "productId" integer,
                 DROP COLUMN "projectId",
 
-                ADD CONSTRAINT "Surveys_productId_fkey" FOREIGN KEY ("productId")
-                    REFERENCES "Products" (id) MATCH SIMPLE
-                    ON UPDATE NO ACTION ON DELETE NO ACTION,
+--                ADD CONSTRAINT "Surveys_productId_fkey" FOREIGN KEY ("productId")
+--                    REFERENCES "Products" (id) MATCH SIMPLE
+--                    ON UPDATE NO ACTION ON DELETE NO ACTION,
 
                 ADD CONSTRAINT "Surveys_creator_fkey" FOREIGN KEY ("creator")
                     REFERENCES "Users" (id) MATCH SIMPLE
                     ON UPDATE NO ACTION ON DELETE NO ACTION;
 
-            UPDATE "Surveys" SET "productId" = (
-                SELECT id FROM "Products" WHERE "Surveys".id = "Products"."surveyId" LIMIT 1
+            INSERT INTO "SurveyMeta" ("surveyId", "productId") (
+                SELECT DISTINCT ON ("surveyId") "surveyId",id FROM "Products" WHERE "Products"."surveyId" IS NOT NULL
             );
 
             ALTER TABLE "Products"
@@ -191,13 +196,9 @@ BEGIN
                         FROM "Surveys"
                         WHERE id = NEW.id AND "surveyVersion" = 0;
 
-                                    IF NEW."productId" IS NULL THEN
-                                        RAISE EXCEPTION 'id not allowed %', NEW.id;
-                                    END IF;
+                        PERFORM pg_advisory_xact_lock(_rel_id, NEW.id);
 
-                                    PERFORM pg_advisory_xact_lock(_rel_id, NEW.id);
-
-                                    IF NEW."surveyVersion" <> -1 THEN
+                        IF NEW."surveyVersion" <> -1 THEN
                             SELECT  COALESCE(MAX("surveyVersion") + 1, 1)
                             INTO    NEW."surveyVersion"
                             FROM    "Surveys"
