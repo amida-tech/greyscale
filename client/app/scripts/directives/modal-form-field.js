@@ -145,19 +145,6 @@ angular.module('greyscaleApp')
 
                 }
 
-                function _addValidator(ngModel, validate) {
-                    ngModel.$parsers.unshift(function(value){
-                        var valid = validate.isValid($scope.modalFormRec);
-                        ngModel.$setValidity(validate.key, valid);
-                        return valid ? value : undefined;
-                    });
-                    ngModel.$formatters.unshift(function(value) {
-                        var valid = validate.isValid($scope.modalFormRec);
-                        ngModel.$setValidity(validate.key, valid);
-                        return value;
-                    });
-                }
-
                 scope.fieldChange = function (row, field) {
                     $timeout(function () {
                         scope.$emit('form-field-change', {
