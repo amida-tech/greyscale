@@ -269,7 +269,8 @@ var exportObject = function  (req, realm) {
                 self.taskStatus.flaggedColumn(commentDiscussion),
                 self.taskStatus.flaggedCountColumn(commentDiscussion),
                 self.taskStatus.flaggedFromColumn(commentDiscussion),
-                self.taskStatus.statusColumn(curStepAlias)
+                self.taskStatus.statusColumn(curStepAlias),
+                self.policy.policyId()
             )
                 .from(
                 Task
@@ -297,9 +298,6 @@ var exportObject = function  (req, realm) {
                         .and(Product.status.equals(1))
                         .and(Policy.subQuery().select(Policy.surveyId).from(Policy).where(Policy.surveyId.equals(Survey.id)).exists()
                     )
-
-                        //.and(Policy.subQuery().select(Policy.id).from(Policy).where(Policy.surveyId.equals(Survey.id)).isNotNull())
-                //and (SELECT "Policies"."id" FROM "Policies" WHERE "Policies"."surveyId" = "Surveys"."id" ) is  null
                 );
             } else {
                 query = query.where(
@@ -598,16 +596,11 @@ var exportObject = function  (req, realm) {
         }
     };
     this.policy = {
-        isPolicy : function (surveyId) {
-            return 'CASE ' +
-                'WHEN ' +
-                '(' +
+        policyId : function (surveyId) {
+            return '(' +
                 'SELECT "Policies"."id" FROM "Policies" WHERE "Policies"."surveyId" = "Surveys"."id" ' +
                 'LIMIT 1' +
-                ') IS NULL ' +
-                'THEN TRUE ' +
-                'ELSE FALSE ' +
-                'END as "isPolicy"';
+                ') as "policyId"';
         }
     };
     this.modifyUserInGroups = function (delUserFromGroups, newUserToGroups) {
