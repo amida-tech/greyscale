@@ -114,12 +114,14 @@ angular.module('greyscaleApp')
                     if (_data.task) {
                         greyscaleCommentApi.getUsers(_data.task.id)
                             .then(function (commentData) {
-                                var _u, _qty = commentData.users.length;
+                                var _u,
+                                    _usr,
+                                    _qty = commentData.users.length;
 
                                 for (_u = 0; _u < _qty; _u++) {
-                                    _data.collaborators[commentData.users[_u].userId] = _.pick(commentData.users[_u], ['userId', 'firstName', 'lastName']);
-                                    _data.collaborators[commentData.users[_u].userId].fullName = greyscaleUtilsSrv.getUserName(
-                                        commentData.users[_u]);
+                                    _usr = _.pick(commentData.users[_u], ['userId', 'firstName', 'lastName']);
+                                    _usr.fullName = greyscaleUtilsSrv.getUserName(commentData.users[_u]);
+                                    _data.collaborators[commentData.users[_u].userId] = _usr;
                                 }
                             });
                     }
@@ -138,7 +140,7 @@ angular.module('greyscaleApp')
                 _survey = data.survey,
                 _questions = [],
                 _sections = [],
-                qty = _survey.questions.length;
+                qty = _survey && _survey.questions ? _survey.questions.length : -1;
 
             for (q = 0; q < qty; q++) {
                 _survey.questions[q].canComment = $scope.model.isTaskMode;

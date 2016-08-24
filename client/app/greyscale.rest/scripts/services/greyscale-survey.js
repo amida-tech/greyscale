@@ -26,8 +26,8 @@ angular.module('greyscale.rest')
             return _api().get().then(_plainResp);
         }
 
-        function _getSurvey(surveyId) {
-            return _api().one(surveyId + '').get().then(_plainResp);
+        function _getSurvey(surveyId, params) {
+            return _api().one(surveyId + '').get(params).then(_plainResp);
         }
 
         function _addSurvey(survey) {
