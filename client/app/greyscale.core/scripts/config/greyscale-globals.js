@@ -72,11 +72,13 @@ angular.module('greyscale.core')
                 superAdmin: {
                     key: 'admin',
                     //name: 'admin',
+                    homeState: 'projects.setup.products',
                     mask: 0x8000
                 },
                 admin: {
                     key: 'client',
                     //name: 'client',
+                    homeState: 'projects.setup.products',
                     mask: 0x4000
                 },
                 user: {

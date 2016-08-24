@@ -17,7 +17,7 @@ angular.module('greyscaleApp')
 
                 var clmn = scope.modalFormField;
 
-                if (clmn.dataHide && !clmn.viewMode) {
+                if (clmn.dataHide) {
                     elem.remove();
                     return;
                 }
@@ -145,19 +145,6 @@ angular.module('greyscaleApp')
 
                 }
 
-                function _addValidator(ngModel, validate) {
-                    ngModel.$parsers.unshift(function(value){
-                        var valid = validate.isValid($scope.modalFormRec);
-                        ngModel.$setValidity(validate.key, valid);
-                        return valid ? value : undefined;
-                    });
-                    ngModel.$formatters.unshift(function(value) {
-                        var valid = validate.isValid($scope.modalFormRec);
-                        ngModel.$setValidity(validate.key, valid);
-                        return value;
-                    });
-                }
-
                 scope.fieldChange = function (row, field) {
                     $timeout(function () {
                         scope.$emit('form-field-change', {
@@ -251,7 +238,7 @@ angular.module('greyscaleApp')
                     var fnFields = ['dataReadOnly', 'dataHide'];
                     angular.forEach(fnFields, function (field) {
                         if (typeof params[field] === 'function') {
-                            parsedParams[field] = params[field]();
+                            parsedParams[field] = params[field]($scope.modalFormRec);
                         }
                     });
 
