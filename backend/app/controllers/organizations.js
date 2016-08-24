@@ -76,13 +76,7 @@ module.exports = {
                     var org = yield thunkQuery(
                         Organization
                         .select(
-                            Organization.star(),
-                            '(SELECT ' +
-                            '"Projects"."id" ' +
-                            'FROM "Projects"' +
-                            'WHERE ' +
-                            '"Projects"."organizationId" = "Organizations"."id"' +
-                            'LIMIT 1) as "projectId"'
+                            Organization.star()
                         )
                         .where(
                             Organization.realm.equals(req.schemas[i])
@@ -100,13 +94,7 @@ module.exports = {
                 data = yield thunkQuery(
                     Organization
                     .select(
-                        Organization.star(),
-                        '(SELECT ' +
-                        '"Projects"."id" ' +
-                        'FROM "Projects"' +
-                        'WHERE ' +
-                        '"Projects"."organizationId" = "Organizations"."id"' +
-                        'LIMIT 1) as "projectId"'
+                        Organization.star()
                     )
                     .from(Organization),
                     _.omit(req.query, 'offset', 'limit', 'order')

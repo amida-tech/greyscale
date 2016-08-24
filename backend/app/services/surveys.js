@@ -3,6 +3,7 @@ var
     Policy = require('app/models/policies'),
     Survey = require('app/models/surveys'),
     SurveyQuestion = require('app/models/survey_questions'),
+    SurveyMeta = require('app/models/survey_meta'),
     SurveyQuestionOption = require('app/models/survey_question_options'),
     Task = require('app/models/tasks'),
     co = require('co'),
@@ -113,6 +114,23 @@ var exportObject = function  (req, realm) {
                     .group(Survey.id, Survey.surveyVersion, Policy.id)
             );
             return data[0] || false;
+        });
+    };
+
+    this.assignToProduct = function (surveyId, productId) {
+        var self = this;
+        return co(function*() {
+            var meta = yield thunkQuery(SurveyMeta.select().where(SurveyMeta.surveyId.equals(surveyId)));
+
+            if (meta.length) {
+                yield thunkQuery(
+                    SurveyMeta.update({productId: productId}).where({surveyId: surveyId}).returning(SurveyMeta.star())
+                );
+            } else {
+                yield thunkQuery(
+                    SurveyMeta.insert({surveyId: surveyId, productId: productId}).returning(SurveyMeta.star())
+                );
+            }
         });
     };
 

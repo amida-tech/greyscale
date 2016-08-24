@@ -4,6 +4,7 @@ var
     common = require('app/services/common'),
     sTask = require('app/services/tasks'),
     sProduct = require('app/services/products'),
+    sSurvey = require('app/services/surveys'),
     sTaskUserState = require('app/services/taskuserstates'),
     crypto = require('crypto'),
     BoLogger = require('app/bologger'),
@@ -1085,9 +1086,15 @@ module.exports = {
 
         co(function* () {
             var oProduct = new sProduct(req);
-            yield oProduct.checkProductData();
+            var oSurvey = new sSurvey(req);
+            yield oProduct.checkProductData(req.body);
             var policyUoaId = yield * common.getPolicyUoaId(req);
             var product = yield * common.getEntity(req, req.params.id, Product, 'id');
+
+            if (req.body.surveyId) {
+                yield oSurvey.assignToProduct(req.body.surveyId, req.params.id);
+            }
+
             var oldSurvey = product.surveyId ? yield * common.getEntity(req, product.surveyId, Survey, 'id') : null;
             var newSurvey = req.body.surveyId ? yield * common.getEntity(req, req.body.surveyId, Survey, 'id') : null;
 
