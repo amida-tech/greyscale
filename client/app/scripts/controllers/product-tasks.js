@@ -840,5 +840,4 @@ angular.module('greyscaleApp')
 
             return _productCached;
         }
-
     });
