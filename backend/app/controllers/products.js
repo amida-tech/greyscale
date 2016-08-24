@@ -1158,6 +1158,9 @@ module.exports = {
             }
 
             if (parseInt(req.body.status) === 1) { // if status changed to 'STARTED'
+                if (newSurvey.isDraft) {
+                    throw new HttpError(403, 'You can not start the project. ' + (newSurvey.policyId ? 'Policy ' : 'Survey ') + 'have status `in Draft`');
+                }
                 var result = oProduct.updateCurrentStepId(product);
             }
             return yield oProduct.updateProduct();

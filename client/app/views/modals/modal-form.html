@@ -11,7 +11,7 @@
                  modal-form-rec="model"
                  modal-form-field="item"
                  modal-form-field-model="model[item.field]"
-                 ng-repeat="item in view.cols"
+                 ng-repeat="item in view.cols | orderBy: 'formPosition' track by $index"
                  ng-show="!item.dataReadOnly || item.dataReadOnly ==='edit' && !model.id || model.id"
                 ></div>
         </div>

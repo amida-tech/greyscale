@@ -56,6 +56,10 @@ ul.sidebar {
             color: $green;
             border: none;
         }
+
+        &.indent a {
+            padding-left: 40px;
+        }
     }
 
     .sidebar-main {

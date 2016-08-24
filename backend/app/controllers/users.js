@@ -777,6 +777,11 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
 
         co(function* () {
+            if (req.user.id === parseInt(req.params.id)) {
+                if ((req.user.roleID === 1 && req.params.realm === 'public') || req.user.roleID !== 1) {
+                    throw new HttpError(400, 'You can not remove yourself');
+                }
+            }
             if (req.params.realm !== 'public') {
                 var adminUser = yield thunkQuery(Organization.select(Organization.adminUserId)
                     .from(Organization)
