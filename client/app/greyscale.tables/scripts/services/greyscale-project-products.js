@@ -24,13 +24,12 @@ angular.module('greyscale.tables')
 
         var _cols = [
             /*{
-
-                     field: 'title',
-                     title: tns + 'TITLE',
-                     show: true,
-                     sortable: 'title',
-                     dataRequired: true
-                     },*/
+             field: 'title',
+             title: tns + 'TITLE',
+             show: true,
+             sortable: 'title',
+             dataRequired: true
+             },*/
             {
                 field: 'description',
                 title: tns + 'DESCRIPTION',
@@ -89,12 +88,13 @@ angular.module('greyscale.tables')
                         handler: _editProductTasks
                     }
                     /*, {
-                                 title: tns + 'INDEXES',
-                                 class: 'info',
-                                 handler: _editProductIndexes
-                                 }*/
+                     title: tns + 'INDEXES',
+                     class: 'info',
+                     handler: _editProductIndexes
+                     }*/
                 ]
             }, {
+                field: 'surveyId',
                 title: tns + 'SURVEY_POLICY',
                 show: true,
                 sortable: 'survey.title',
@@ -102,6 +102,7 @@ angular.module('greyscale.tables')
                 cellTemplateUrl: 'project-setup-products-survey.html',
                 dataPlaceholder: tns + 'SELECT_SURVEY',
                 dataRequired: true,
+                formPosition: -1,
                 dataSet: {
                     getData: _getSurveys,
                     keyField: 'id',
@@ -162,21 +163,16 @@ angular.module('greyscale.tables')
                 surveys: greyscaleSurveyApi.list(),
                 products: greyscaleProjectApi.productsList( /*projectId*/ )
             };
-            return $q.all(req).then(function (promises) {
-                _dicts.surveys = promises.surveys;
-                return _setPolicyId(promises.products);
+            return $q.all(req).then(function (resp) {
+                _dicts.surveys = resp.surveys;
+                return _setAddData(resp.products);
             });
             // }
         }
 
-        function _setPolicyId(products) {
+        function _setAddData(products) {
             angular.forEach(products, function (product) {
-                var survey = _.find(_dicts.surveys, {
-                    id: product.surveyId
-                });
-                if (survey) {
-                    product.policyId = survey.policyId;
-                }
+                product.surveyId = product.survey ? product.survey.id : null;
             });
             return products;
         }
@@ -187,7 +183,9 @@ angular.module('greyscale.tables')
 
         function _getSurveys() {
             return !_editProductMode ? _dicts.surveys : _.filter(_dicts.surveys, function (survey) {
-                return _editProductMode.surveyId === survey.id || !survey.policyId || !survey.products || !survey.products.length;
+                return _editProductMode.surveyId === survey.id || !survey.policyId;
+                //todo: modify condition to return unselected policies
+                // || !survey.products || !survey.products.length;
             });
         }
 
@@ -197,9 +195,6 @@ angular.module('greyscale.tables')
             return _loadProductExtendedData(product)
                 .then(function (extendedProduct) {
                     var _editTable = angular.copy(_table);
-                    if (extendedProduct) {
-
-                    }
                     return greyscaleModalsSrv.editRec(extendedProduct, _editTable);
                 })
                 .then(function (newProduct) {
@@ -263,13 +258,14 @@ angular.module('greyscale.tables')
             });
         }
 
-        function _editProductIndexes(product) {
-            $state.go('projects.setup.indexes', {
-                productId: product.id,
-                product: product
-            });
-        }
-
+        /*
+         function _editProductIndexes(product) {
+         $state.go('projects.setup.indexes', {
+         productId: product.id,
+         product: product
+         });
+         }
+         */
         function _errHandler(err, operation) {
             var msg = _table.formTitle + ' ' + operation + ' error';
             greyscaleUtilsSrv.errorMsg(err, msg);
@@ -289,8 +285,8 @@ angular.module('greyscale.tables')
                 reqs.workflowSteps = greyscaleProductWorkflowApi
                     .workflow(product.workflow.id).stepsList();
             }
-            return $q.all(reqs).then(function (promises) {
-                angular.extend(extendedProduct, promises);
+            return $q.all(reqs).then(function (resp) {
+                angular.extend(extendedProduct, resp);
                 return extendedProduct;
             });
         }
@@ -377,7 +373,7 @@ angular.module('greyscale.tables')
         }
 
         function _showUoaSetting(row) {
-            return !row.policyId;
+            return !row.policy;
         }
 
         function errHandler(err, operation) {
