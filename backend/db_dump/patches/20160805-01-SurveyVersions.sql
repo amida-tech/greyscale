@@ -191,11 +191,6 @@ BEGIN
                     AND relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = '$query$||schema_name||$query$');
 
                     IF NEW.id IS NOT NULL THEN
-                        SELECT "productId"
-                        INTO NEW."productId"
-                        FROM "Surveys"
-                        WHERE id = NEW.id AND "surveyVersion" = 0;
-
                         PERFORM pg_advisory_xact_lock(_rel_id, NEW.id);
 
                         IF NEW."surveyVersion" <> -1 THEN

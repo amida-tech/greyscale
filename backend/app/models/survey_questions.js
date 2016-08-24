@@ -54,7 +54,7 @@ SurveyQuestion.multiSelectTypes = [2, 3, 4];
 SurveyQuestion.sectionTypes = [8, 9, 10];
 SurveyQuestion.bulletPointsType = 11;
 
-SurveyQuestion.insertCols = _.without(columns, 'id');
+SurveyQuestion.insertCols = columns;
 
 SurveyQuestion.editCols = [
     'label', 'position', 'isRequired', 'description',
