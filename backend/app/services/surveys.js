@@ -133,6 +133,8 @@ var exportObject = function  (req, realm) {
                 yield self.checkPolicyData(policyData);
             }
 
+            delete fullSurveyData.surveyVersion;
+
             var surveyVersion = yield thunkQuery(Survey.insert(surveyData).returning(Survey.star()));
 
             if (!surveyId) {
