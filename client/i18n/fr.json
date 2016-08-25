@@ -327,7 +327,6 @@
         "PRODUCT_TASKS": "",
         "PROFILE": "",
         "PROJECTS": {
-            "LABEL": "",
             "PRODUCTS": "",
             "SURVEYS": "",
             "TASKS": "",
@@ -412,7 +411,6 @@
     "POLICY": {
         "APPROVE": "",
         "AUTHOR": "",
-        "IS_EDITING_BY": "",
         "NEW_POLICY": "",
         "NUMBER": "",
         "PUBLISH": "",

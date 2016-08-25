@@ -92,12 +92,10 @@ angular.module('greyscale.tables')
             }, {
                 title: '',
                 show: false,
-                cellTemplate: '<a ng-click="ext.resendActivation(row)" class="btn btn-primary" translate="' + tns + 'RESEND_ACTIVATION"></a>',
+                dataHide: true,
+                cellTemplate: '<span ng-show="!row.isActive"><a ng-click="ext.resendActivation(row)" class="btn btn-primary" translate="' + tns + 'RESEND_ACTIVATION"></a></span>',
                 cellTemplateExtData: {
                     resendActivation: _resendActivation
-                },
-                dataHide: function (row) {
-                    return row.isActive;
                 }
             }, {
                 title: 'COMMON.SEND_MESSAGE',

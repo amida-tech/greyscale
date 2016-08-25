@@ -9,13 +9,13 @@ angular.module('greyscaleApp')
         var _parentState = 'projects.setup';
 
         $scope.tabs = [{
-            state: 'products',
-            title: 'NAV.PROJECTS.PRODUCTS',
-            icon: 'fa-briefcase'
-        }, {
             state: 'surveys',
             title: 'NAV.PROJECTS.SURVEYS',
             icon: 'fa-list'
+        }, {
+            state: 'products',
+            title: 'NAV.PROJECTS.PRODUCTS',
+            icon: 'fa-briefcase'
         }];
 
         $scope.activeTab = 0;

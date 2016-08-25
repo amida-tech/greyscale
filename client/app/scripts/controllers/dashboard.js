@@ -31,19 +31,18 @@ angular.module('greyscaleApp')
                     var _items = [];
                     var _group = greyscaleSideMenu.groups[g];
                     for (var i = 0; i < _group.states.length; i++) {
-                        if (angular.isArray(_group.states[i])) {
-                            _items.push({
-                                title: _group.states[i][0].title,
-                                icon: _group.states[i][0].icon,
-                                section: true
-                            });
-                            angular.forEach(_group.states[i][1], function (state) {
-                                _addSidebarItem(_items, state, true);
-                            });
-                        } else {
-                            _addSidebarItem(_items, _group.states[i]);
+                        var _state = $state.get(_group.states[i]);
+                        if (_state) {
+                            var _accessLevel = (_state.data.accessLevel & _level);
+                            var customAccess = _getCustomAccess(_state.data.customAccess);
+                            if (_state.data && _state.data.accessLevel && _accessLevel !== 0 && customAccess) {
+                                _items.push({
+                                    sref: _state.name,
+                                    title: _state.data.name,
+                                    icon: _state.data.icon
+                                });
+                            }
                         }
-
                     }
                     if (_items.length > 0) {
                         _groups.push({
@@ -67,22 +66,6 @@ angular.module('greyscaleApp')
         $scope.logout = function () {
             $rootScope.$broadcast(greyscaleGlobals.events.common.logout);
         };
-
-        function _addSidebarItem(_items, state, underSection) {
-            var _state = $state.get(state);
-            if (_state) {
-                var _accessLevel = (_state.data.accessLevel & _level);
-                var customAccess = _getCustomAccess(_state.data.customAccess);
-                if (_state.data && _state.data.accessLevel && _accessLevel !== 0 && customAccess) {
-                    _items.push({
-                        indent: underSection,
-                        sref: _state.name,
-                        title: _state.data.name,
-                        icon: _state.data.icon
-                    });
-                }
-            }
-        }
 
         function _isSuperAdmin() {
             return (_level & greyscaleGlobals.userRoles.superAdmin.mask) === greyscaleGlobals.userRoles.superAdmin.mask;
