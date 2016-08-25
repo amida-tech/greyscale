@@ -34,40 +34,41 @@ var exportObject = function  (req, realm) {
 
     this.getList = function (options) {
         return co(function* () {
-            return yield thunkQuery(
-                Product
-                .select(
+            var query = Product
+                    .select(
                     Product.star(),
                     'row_to_json("Workflows".*) as workflow',
                     'row_to_json("Surveys".*) as survey',
                     'row_to_json("Policies".*) as policy'
                 )
-                .from(
+                    .from(
                     Product
-                    .leftJoin(Workflow)
-                    .on(Product.id.equals(Workflow.productId))
-                    .leftJoin(SurveyMeta)
-                    .on(Product.id.equals(SurveyMeta.productId))
-                    .leftJoin(Survey)
-                    .on(
+                        .leftJoin(Workflow)
+                        .on(Product.id.equals(Workflow.productId))
+                        .leftJoin(SurveyMeta)
+                        .on(Product.id.equals(SurveyMeta.productId))
+                        .leftJoin(Survey)
+                        .on(
                         Survey.id.equals(SurveyMeta.surveyId)
                             .and(
-                                Survey.surveyVersion.in(
-                                    Survey.as('subS')
-                                        .subQuery()
-                                        .select(Survey.as('subS').surveyVersion.max())
-                                        .where(Survey.as('subS').id.equals(Survey.id))
-                                )
+                            Survey.surveyVersion.in(
+                                Survey.as('subS')
+                                    .subQuery()
+                                    .select(Survey.as('subS').surveyVersion.max())
+                                    .where(Survey.as('subS').id.equals(Survey.id))
                             )
+                        )
                     )
-                    .leftJoin(Policy)
-                    .on(
+                        .leftJoin(Policy)
+                        .on(
                         Policy.surveyId.equals(Survey.id)
                             .and(Policy.surveyVersion.equals(Survey.surveyVersion))
                     )
-                ),
-                options
-            );
+                );
+            if (options.surveyId) {
+                query = query.where(SurveyMeta.surveyId.equals(options.surveyId));
+            }
+            return yield thunkQuery(query, options);
         });
     };
 
