@@ -268,7 +268,7 @@ angular.module('greyscaleApp')
                  return false;
              }
              */
-
+            $log.debug('publishDisabled', $scope.model.survey.isDraft, $scope.model.survey.surveyVersion);
             return dataForm.$invalid || !$scope.model.survey.isDraft || !!~($scope.model.survey.surveyVersion);
         }
 

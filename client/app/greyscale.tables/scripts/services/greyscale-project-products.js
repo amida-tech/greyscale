@@ -171,8 +171,18 @@ angular.module('greyscale.tables')
         }
 
         function _setAddData(products) {
+            var _survey;
             angular.forEach(products, function (product) {
-                product.surveyId = product.survey ? product.survey.id : null;
+                if (product.survey) {
+                    product.surveyId = product.survey ? product.survey.id : null;
+                    _survey = _.find(_dicts.surveys, {
+                        id: product.surveyId
+                    });
+                    if (_survey) {
+                        _survey.products = _survey.products || [];
+                        _survey.products.push(product.id);
+                    }
+                }
             });
             return products;
         }
@@ -183,9 +193,8 @@ angular.module('greyscale.tables')
 
         function _getSurveys() {
             return !_editProductMode ? _dicts.surveys : _.filter(_dicts.surveys, function (survey) {
-                return _editProductMode.surveyId === survey.id || !survey.policyId;
-                //todo: modify condition to return unselected policies
-                // || !survey.products || !survey.products.length;
+                return _editProductMode.surveyId === survey.id || !survey.policyId ||
+                    !survey.products || !survey.products.length;
             });
         }
 
