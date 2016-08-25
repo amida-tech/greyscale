@@ -267,7 +267,8 @@ var exportObject = function  (req, realm) {
                 self.taskStatus.flaggedCountColumn(commentDiscussion),
                 self.taskStatus.flaggedFromColumn(commentDiscussion),
                 self.taskStatus.statusColumn(curStepAlias),
-                self.policy.policyId()
+                self.policy.policyId(),
+                self.policy.maxSurveyVersion()
             )
                 .from(
                 Task
@@ -306,7 +307,13 @@ var exportObject = function  (req, realm) {
                     )
                 );
             }
-            return yield thunkQuery(query, req.query);
+            var selfTasksExt = yield thunkQuery(query, req.query);
+            if (_.first(selfTasksExt)) {
+                selfTasksExt = _.filter(selfTasksExt, function(item){
+                    return (item.maxSurveyVersion === item.survey.surveyVersion);
+                });
+            }
+            return selfTasksExt;
         });
     };
     this.getTaskExt = function (commentDiscussion, curStepAlias) {
@@ -595,11 +602,19 @@ var exportObject = function  (req, realm) {
         }
     };
     this.policy = {
-        policyId : function (surveyId) {
+        policyId : function () {
             return '(' +
                 'SELECT "Policies"."id" FROM "Policies" WHERE "Policies"."surveyId" = "Surveys"."id" ' +
                 'LIMIT 1' +
                 ') as "policyId"';
+        },
+        maxSurveyVersion : function () {
+            return '( ' +
+            'SELECT max("Surveys"."surveyVersion") ' +
+            'FROM "Surveys" ' +
+            'WHERE "Surveys"."id" = "SurveyMeta"."surveyId" ' +
+            'GROUP BY "Surveys"."id" ' +
+            ') as "maxSurveyVersion"';
         }
     };
     this.modifyUserInGroups = function (delUserFromGroups, newUserToGroups) {
