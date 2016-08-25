@@ -543,7 +543,6 @@ var exportObject = function  (req, realm) {
     this.getMaxSurveyVersion = function (taskId) {
         var self = this;
         return co(function* () {
-            //.select(sql.functions.MIN(WorkflowStep.position))
             var query = Task
                 .select(sql.functions.MAX(Survey.surveyVersion))
                 .from(
@@ -556,7 +555,7 @@ var exportObject = function  (req, realm) {
                 .where(Task.id.equals(taskId)
             );
             var result = yield thunkQuery(query);
-            return _.first(result);
+            return _.first(result) ? result[0].max : 0;
         });
     };
 };

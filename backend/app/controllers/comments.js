@@ -40,15 +40,6 @@ var isInt = function (val) {
     return _.isNumber(parseInt(val)) && !_.isNaN(parseInt(val));
 };
 
-var setWhereInt = function (selectQuery, val, model, key) {
-    if (val) {
-        if (isInt(val)) {
-            selectQuery = selectQuery + pgEscape(' AND "%I"."%I" = %s', model, key, val);
-        }
-    }
-    return selectQuery;
-};
-
 function* checkOneId(req, val, model, key, keyName, modelName) {
     if (!val) {
         throw new HttpError(403, keyName + ' must be specified');
@@ -79,77 +70,11 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var taskId = yield * checkOneId(req, req.query.taskId, Task, 'id', 'taskId', 'Task');
-            var task = yield * common.getTask(req, taskId);
-            var productId = task.productId;
-            var uoaId = task.uoaId;
-            var selectFields =
-                'SELECT ' +
-                '"Comments".*, ' +
-                '(SELECT sum(CAST(CASE WHEN "c1"."isAgree" THEN 1 ELSE 0 END as INT)) as agree ' +
-                'FROM "Comments"  as c1 WHERE "c1"."parentId" = "Comments"."id"), ' +
-                '(SELECT sum(CAST(CASE WHEN "c1"."isAgree" THEN 0 ELSE 1 END as INT)) as disagree ' +
-                'FROM "Comments"  as c1 WHERE "c1"."parentId" = "Comments"."id"), ' +
-                '"Tasks"."uoaId", ' +
-                '"Tasks"."productId", ' +
-                '"SurveyQuestions"."surveyId"';
-
-            var selectFrom =
-                'FROM ' +
-                '"Comments" ' +
-                'INNER JOIN "Tasks" ON "Comments"."taskId" = "Tasks"."id" ' +
-                'INNER JOIN "SurveyQuestions" ON "Comments"."questionId" = "SurveyQuestions"."id" ' +
-                //'INNER JOIN "UnitOfAnalysis" ON "Tasks"."uoaId" = "UnitOfAnalysis"."id" '+
-                'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" ' +
-                //'INNER JOIN "Products" ON "Tasks"."productId" = "Products"."id" '+
-                'INNER JOIN "Surveys" ON "SurveyQuestions"."surveyId" = "Surveys"."id"';
-
-            var selectWhere = 'WHERE "Comments"."parentId" IS NULL ';   // select only comments - not answers
-            selectWhere = setWhereInt(selectWhere, req.query.questionId, 'Comments', 'questionId');
-            //selectWhere = setWhereInt(selectWhere, req.query.userId, 'Comments', 'userId');
-            selectWhere = setWhereInt(selectWhere, req.query.userFromId, 'Comments', 'userFromId');
-            selectWhere = setWhereInt(selectWhere, req.query.taskId, 'Comments', 'taskId');
-            selectWhere = setWhereInt(selectWhere, uoaId, 'Tasks', 'uoaId');
-            selectWhere = setWhereInt(selectWhere, productId, 'Tasks', 'productId');
-            selectWhere = setWhereInt(selectWhere, req.query.stepId, 'WorkflowSteps', 'id');
-            selectWhere = setWhereInt(selectWhere, req.query.surveyId, 'Surveys', 'id');
-
-             //return only activated comments and draft comments for current user
-            selectWhere = selectWhere + pgEscape(' AND ("Comments"."activated" = true OR "Comments"."userFromId" = %s ) ', req.user.id);
-
-            if (!(req.query.hidden === 'true')) {
-                // show only unhidden comments
-                selectWhere = selectWhere + ' AND ("Comments"."isHidden" = false) ';
-            } else if(!auth.checkAdmin(req.user)) {
-                // specified hidden parameters for ordinary user show only self comments (include hidden)
-                selectWhere = selectWhere + pgEscape(' AND ("Comments"."isHidden" = false OR "Comments"."userFromId" = %s ) ', req.user.id);
-            } // if admin - show all hidden comments
-
-            if (req.query.filter === 'resolve') {
-                /*
-                it should filter results to get actual messages without history - returning flag messages and draft resolving messages
-                (isReturn && !isResolve && activated) || (isResolve && !isReturn && !activated)
-                */
-                selectWhere = selectWhere + ' AND (' +
-                    '("Comments"."isReturn" = true AND "Comments"."isResolve" = false AND "Comments"."activated" = true) ' +
-                    'OR ' +
-                    '("Comments"."isReturn" = false AND "Comments"."isResolve" = true AND "Comments"."activated" = false) ' +
-                    ') ';
-            }
-
-            var selectOrder = '';
-            if (req.query.order) {
-                var sorted = req.query.order.split(',');
-                for (var i = 0; i < sorted.length; i++) {
-                    var sort = sorted[i];
-                    selectOrder =
-                        ((selectOrder === '') ? 'ORDER BY ' : selectOrder + ', ') +
-                        sort.replace('-', '').trim() +
-                        (sort.indexOf('-') === 0 ? ' desc' : ' asc');
-                }
-            }
-
-            var selectQuery = selectFields + selectFrom + selectWhere + selectOrder;
-            return yield thunkQuery(selectQuery);
+            var oComment = new sComment(req);
+            var oSurvey = new sSurvey(req);
+            var maxSurveyVersion = yield oSurvey.getMaxSurveyVersion(taskId);
+            var isAdmin = auth.checkAdmin(req.user);
+            return oComment.getComments(taskId, req.query, req.user.id, isAdmin, maxSurveyVersion);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -207,7 +132,10 @@ module.exports = {
             var isResolve = req.body.isResolve;
             yield * checkInsert(req);
             var task = yield * common.getTask(req, parseInt(req.body.taskId));
-            var maxSurveyVersion = yield oSurvey.getMaxSurveyVersion(task.id);
+            var surveyVersion = yield oSurvey.getMaxSurveyVersion(task.id);
+            req.body = _.extend(req.body, {
+                surveyVersion: surveyVersion
+            });
             req.body = _.extend(req.body, {
                 userFromId: req.user.realmUserId
             }); // add from realmUserId instead of user id

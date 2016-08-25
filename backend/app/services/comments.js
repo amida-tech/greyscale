@@ -2,6 +2,11 @@ var
     _ = require('underscore'),
     common = require('app/services/common'),
     Comment = require('app/models/comments'),
+    Survey = require('app/models/surveys'),
+    SurveyMeta = require('app/models/survey_meta'),
+    SurveyQuestion = require('app/models/survey_questions'),
+    Task = require('app/models/tasks'),
+    WorkflowStep = require('app/models/workflow_steps'),
     notifications = require('app/controllers/notifications'),   // ToDo: move to notification service when refactored
     co = require('co'),
     Query = require('app/util').Query,
@@ -36,6 +41,95 @@ var exportObject = function  (req, realm) {
             var result = yield thunkQuery(query);
             return _.first(result);
         });
+    };
+
+    this.getComments = function (taskId, reqQuery, userId, isAdmin, version) {
+        var self = this;
+        return co(function* () {
+            var query = Comment
+                .select(
+                Comment.star(),
+                self.answers.agree(),
+                self.answers.disagree(),
+                Task.uoaId,
+                Task.productId,
+                Survey.id.as('surveyId')
+            )
+                .from(Comment
+                    .join(Task)
+                    .on(Task.id.equals(Comment.taskId))
+                    .join(WorkflowStep)
+                    .on(WorkflowStep.id.equals(Task.stepId))
+                    .leftJoin(SurveyMeta)
+                    .on(SurveyMeta.productId.equals(Task.productId))
+                    .leftJoin(Survey)
+                    .on(Survey.id.equals(SurveyMeta.surveyId).and(Survey.surveyVersion.equals(version)))
+                )
+                .where(Comment.parentId.isNull() // select only comments - not answers
+                .and(Comment.taskId.equals(taskId))
+                .and(Comment.surveyVersion.equals(version))
+            );
+            if (reqQuery.questionId) {
+                query = query.and(Comment.questionId.equals(reqQuery.questionId));
+            }
+            if (reqQuery.stepId) {
+                query = query.and(WorkflowStep.id.equals(reqQuery.stepId));
+            }
+            if (reqQuery.surveyId) {
+                query = query.and(Survey.id.equals(reqQuery.surveyId));
+            }
+            //return only activated comments and draft comments for current user
+            query = query.and(Comment.activated.equals(true).or(Comment.userFromId.equals(userId)));
+            if (!(reqQuery.hidden === 'true')) {
+                // show only unhidden comments
+                query = query.and(Comment.isHidden.equals(false));
+            } else if(!isAdmin) {
+                // specified hidden parameters for ordinary user show only self comments (include hidden)
+                query = query.and(Comment.isHidden.equals(false).or(Comment.userFromId.equals(userId)));
+            } // if admin - show all hidden comments
+
+            if (reqQuery.filter === 'resolve') {
+                /*
+                 it should filter results to get actual messages without history - returning flag messages and draft resolving messages
+                 (isReturn && !isResolve && activated) || (isResolve && !isReturn && !activated)
+                 */
+                /*
+                 ' AND (' +
+                 '("Comments"."isReturn" = true AND "Comments"."isResolve" = false AND "Comments"."activated" = true) ' +
+                 'OR ' +
+                 '("Comments"."isReturn" = false AND "Comments"."isResolve" = true AND "Comments"."activated" = false) ' +
+                 ') ';
+                 */
+                query = query.and(
+                    Comment.isReturn.equals(Comment.activated).and(Comment.isResolve.notEquals(Comment.activated))
+                );
+            }
+
+            if (reqQuery.order) {
+                var sorted = req.query.order.split(',');
+                for (var i = 0; i < sorted.length; i++) {
+                    var sort = sorted[i];
+                    if (sort.indexOf('-') === 0) {
+                        query = query.order(Comment[sort.replace('-', '').trim()].descending)
+                    } else {
+                        query = query.order(Comment[sort.replace('-', '').trim()])
+                    }
+                }
+            }
+
+            return yield thunkQuery(query);
+        });
+    };
+
+    this.answers = {
+        agree : function () {
+            return '(SELECT sum(CAST(CASE WHEN "c1"."isAgree" THEN 1 ELSE 0 END as INT)) as agree ' +
+                'FROM "Comments"  as c1 WHERE "c1"."parentId" = "Comments"."id")';
+        },
+        disagree : function () {
+            return '(SELECT sum(CAST(CASE WHEN "c1"."isAgree" THEN 0 ELSE 1 END as INT)) as disagree ' +
+            'FROM "Comments"  as c1 WHERE "c1"."parentId" = "Comments"."id")';
+        }
     };
 
     this.notify = function (commentId, taskId, action, essenceName, templateName, authorId) {
