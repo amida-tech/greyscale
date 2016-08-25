@@ -337,7 +337,6 @@
         "PRODUCT_TASKS": "Задачи проекта \"{{ext.productName}}\"",
         "PROFILE": "Профиль",
         "PROJECTS": {
-            "LABEL": "",
             "PRODUCTS": "Проекты",
             "SURVEYS": "Опросы",
             "TASKS": "Задачи",
