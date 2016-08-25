@@ -17,7 +17,6 @@ angular.module('greyscaleApp')
         $scope.model = {
             survey: {
                 isPolicy: isPolicy,
-                isDraft: true,
                 author: -1
             },
             policy: {
@@ -203,7 +202,6 @@ angular.module('greyscaleApp')
                 _survey.id = surveyId;
             }
             angular.extend(_survey, {
-                isDraft: !!isDraft,
                 policyId: _policy.id,
                 title: _policy.title,
                 section: _policy.section,
@@ -221,7 +219,7 @@ angular.module('greyscaleApp')
                 _survey.questions = $scope.model.policy.sections;
             }
 
-            _savePromise = (_survey.id ? greyscaleSurveyApi.update(_survey, params) : greyscaleSurveyApi.add(_survey));
+            _savePromise = (_survey.id ? greyscaleSurveyApi.update(_survey, params) : greyscaleSurveyApi.add(_survey, params));
 
             return _savePromise
                 .catch(function (err) {
@@ -268,8 +266,7 @@ angular.module('greyscaleApp')
                  return false;
              }
              */
-            $log.debug('publishDisabled', $scope.model.survey.isDraft, $scope.model.survey.surveyVersion);
-            return dataForm.$invalid || !$scope.model.survey.isDraft || !!~($scope.model.survey.surveyVersion);
+            return dataForm.$invalid || !!~($scope.model.survey.surveyVersion);
         }
 
         function _reinitPolicySections(sections) {

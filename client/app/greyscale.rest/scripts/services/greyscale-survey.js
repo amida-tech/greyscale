@@ -32,20 +32,20 @@ angular.module('greyscale.rest')
             return _api().get().then(_plainResp);
         }
 
-        function _getSurvey(surveyId) {
-            return _survey(surveyId).get().then(_plainResp);
+        function _getSurvey(surveyId, params) {
+            return _survey(surveyId).get(params).then(_plainResp);
         }
 
-        function _addSurvey(survey) {
-            return _api().customPOST(survey).then(_plainResp);
+        function _addSurvey(survey, params) {
+            return _api().customPOST(survey, null, params).then(_plainResp);
         }
 
         function _deleteSurvey(survey) {
             return _survey(survey.id).remove().then(_plainResp);
         }
 
-        function _updateSurvey(survey) {
-            return _survey(survey.id).customPUT(survey).then(_plainResp);
+        function _updateSurvey(survey, params) {
+            return _survey(survey.id).customPUT(survey, null, params).then(_plainResp);
         }
 
         function _listVersions(surveyId) {

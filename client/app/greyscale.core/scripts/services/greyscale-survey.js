@@ -13,8 +13,8 @@ angular.module('greyscale.core')
         function _moveNextStep(surveyId) {
 
         }
-        
+
         function _doAction(survey, action) {
-            
+
         }
     });

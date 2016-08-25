@@ -6,8 +6,8 @@
     <span ng-if="option.id">
         <i class="fa" ng-class="{'fa-file':row.policy, 'fa-list': !row.policy}"></i>
         <span>{{option.title}}
-            <small>(<span ng-show="option.isDraft" translate="SURVEYS.IS_DRAFT"></span><span
-                ng-show="!option.isDraft" translate="SURVEYS.IS_COMPLETE"></span>)</small>
+            <small>(<span ng-show="option.surveyVersion===-1" translate="SURVEYS.IS_DRAFT"></span><span
+                ng-show="!option.surveyVersion!==-1" translate="SURVEYS.IS_COMPLETE"></span>)</small>
         </span>
     </span>
 </script>

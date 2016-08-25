@@ -49,8 +49,8 @@
                                    ui-sref="projects.setup.surveys.edit({projectId: model.product.projectId, surveyId: model.product.surveyId})">
                                     {{model.survey.title}}
                                     <small>
-                                        (<span ng-show="model.survey.isDraft" translate="SURVEYS.IS_DRAFT">
-                                        </span><span ng-show="!model.survey.isDraft" translate="SURVEYS.IS_COMPLETE"></span>)
+                                        (<span ng-show="model.survey.surveyVersion===-1" translate="SURVEYS.IS_DRAFT">
+                                        </span><span ng-show="model.survey.surveyVersion!==-1" translate="SURVEYS.IS_COMPLETE"></span>)
                                     </small>
                                 </a>
                             </td>

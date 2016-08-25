@@ -9,7 +9,7 @@ angular.module('greyscale.tables')
         greyscaleProductWorkflowApi,
         greyscaleGlobals,
         $state,
-        inform, i18n) {
+        i18n, greyscaleSurveySrv) {
 
         var tns = 'PRODUCTS.TABLE.';
 
@@ -26,7 +26,9 @@ angular.module('greyscale.tables')
             STATUS_CANCELLED: 4
         };
 
-        var _statusIcons = {};
+        var _statusIcons = {},
+            dlgPublish = greyscaleGlobals.dialogs.policyPublish;
+
         _statusIcons[_const.STATUS_STARTED] = 'fa-pause';
         _statusIcons[_const.STATUS_SUSPENDED] = 'fa-play';
 
@@ -49,7 +51,8 @@ angular.module('greyscale.tables')
                 sortable: 'workflow.name',
                 title: tns + 'WORKFLOW',
                 show: true,
-                cellTemplate: '{{cell}}<span ng-if="!cell" class="action" translate="' + tns + 'CREATE_WORKFLOW"></span>',
+                cellTemplate: '{{cell}}<span ng-if="!cell" class="action" translate="' + tns +
+                    'CREATE_WORKFLOW"></span>',
                 link: {
                     handler: _editProductWorkflow
                 },
@@ -86,15 +89,15 @@ angular.module('greyscale.tables')
                 dataFormat: 'action',
                 dataHide: true,
                 actions: [{
-                    title: tns + 'UOAS',
-                    class: 'info',
-                    handler: _editProductUoas,
-                    show: _showUoaSetting
-                }, {
-                    title: tns + 'TASKS',
-                    class: 'info',
-                    handler: _editProductTasks
-                }
+                        title: tns + 'UOAS',
+                        class: 'info',
+                        handler: _editProductUoas,
+                        show: _showUoaSetting
+                    }, {
+                        title: tns + 'TASKS',
+                        class: 'info',
+                        handler: _editProductTasks
+                    }
                     /*, {
                      title: tns + 'INDEXES',
                      class: 'info',
@@ -123,10 +126,10 @@ angular.module('greyscale.tables')
                     //target: '_blank',
                     //href: '/survey/{{item.id}}'
                     state: function (item) {
-                        return item.policy ? 'policy.edit({id: item.policy.surveyId})' :
-                            'projects.setup.surveys.edit({surveyId: item.survey.id})';
-                    }
-                    //state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
+                            return item.policy ? 'policy.edit({id: item.policy.surveyId})' :
+                                'projects.setup.surveys.edit({surveyId: item.survey.id})';
+                        }
+                        //state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
                 }
             }, {
                 show: true,
@@ -169,7 +172,7 @@ angular.module('greyscale.tables')
             // } else {
             var req = {
                 surveys: greyscaleSurveyApi.list(),
-                products: greyscaleProjectApi.productsList(/*projectId*/)
+                products: greyscaleProjectApi.productsList( /*projectId*/ )
             };
             return $q.all(req).then(function (resp) {
                 _dicts.surveys = resp.surveys;
@@ -201,8 +204,8 @@ angular.module('greyscale.tables')
 
         function _getSurveys() {
             return !_editProductMode ? _dicts.surveys : _.filter(_dicts.surveys, function (survey) {
-                return _editProductMode.surveyId === survey.id || !survey.policyId
-                    || !survey.products || !survey.products.length;
+                return _editProductMode.surveyId === survey.id || !survey.policyId || !survey.products ||
+                    !survey.products.length;
             });
         }
 
@@ -336,13 +339,13 @@ angular.module('greyscale.tables')
         }
 
         function _planningNotFinish(product) {
-            return !product.uoas || !product.uoas.length || !product.surveyId || !product.workflowSteps
-                || !product.workflowSteps.length || !product.tasks || !product.tasks.length;
+            return !product.uoas || !product.uoas.length || !product.surveyId || !product.workflowSteps ||
+                !product.workflowSteps.length || !product.tasks || !product.tasks.length;
         }
 
         function _getDisabledStatus(item, rec) {
-            return item.id !== _const.STATUS_PLANNING && item.id !== _const.STATUS_CANCELLED
-                && _planningNotFinish(rec);
+            return item.id !== _const.STATUS_PLANNING && item.id !== _const.STATUS_CANCELLED &&
+                _planningNotFinish(rec);
         }
 
         function _getFormWarning(product) {
