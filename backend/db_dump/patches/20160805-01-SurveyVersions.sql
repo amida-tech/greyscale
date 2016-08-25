@@ -170,8 +170,10 @@ BEGIN
             -- ADD version column to attachments
 
             ALTER TABLE "AttachmentLinks"
-            			ADD COLUMN "version" integer NOT NULL DEFAULT 0,
-            			ADD CONSTRAINT "AttachmentLinks_essenceId_entityId_version_key" UNIQUE ("essenceId", "entityId", "version");
+                ADD COLUMN "version" integer NOT NULL DEFAULT 0,
+                DROP CONSTRAINT IF EXISTS  "AttachmentLinks_pkey",
+                ADD CONSTRAINT "AttachmentLinks_pkey" PRIMARY KEY ("essenceId", "entityId", version),
+                ADD CONSTRAINT "AttachmentLinks_essenceId_entityId_version_key" UNIQUE ("essenceId", "entityId", "version");
 
             -- CREATE TRIGGER ON INSERT FOR SURVEYS TO CONTROL SURVEY ID AND VERSION
 

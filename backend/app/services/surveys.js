@@ -5,6 +5,8 @@ var
     SurveyQuestion = require('app/models/survey_questions'),
     SurveyMeta = require('app/models/survey_meta'),
     SurveyQuestionOption = require('app/models/survey_question_options'),
+    sAttachment = require('app/services/attachments'),
+    sEssence = require('app/services/essences'),
     Task = require('app/models/tasks'),
     co = require('co'),
     Query = require('app/util').Query,
@@ -35,10 +37,11 @@ var exportObject = function  (req, realm) {
                 '           SELECT a."id", a."filename", a."size", a."mimetype" ' +
                 '           FROM "AttachmentLinks" al ' +
                 '           JOIN "Attachments" a ' +
-                '           ON al."entityId" = "Policies"."id" ' +
+                '           ON al."entityId" = "Surveys"."id" ' +
+                '           AND al."version" = "Surveys"."surveyVersion" ' +
                 '           JOIN "Essences" e ' +
                 '           ON e.id = al."essenceId" ' +
-                '           AND e."tableName" = \'Policies\' ' +
+                '           AND e."tableName" = \'Surveys\' ' +
                 '           WHERE a."id" = ANY(al."attachments") ' +
                 '       ) as att' +
                 '   ) as attachments ' +
@@ -103,10 +106,11 @@ var exportObject = function  (req, realm) {
                             'SELECT a."id", a."filename", a."size", a."mimetype" ' +
                             'FROM "AttachmentLinks" al ' +
                             'JOIN "Attachments" a ' +
-                            'ON al."entityId" = "Policies"."id" ' +
+                            'ON al."entityId" = "Surveys"."id" ' +
+                            'AND al."version" = "Surveys"."surveyVersion" ' +
                             'JOIN "Essences" e ' +
                             'ON e.id = al."essenceId" ' +
-                            'AND e."tableName" = \'Policies\' ' +
+                            'AND e."tableName" = \'Surveys\' ' +
                             'WHERE a."id" = ANY(al."attachments")' +
                         ') as att) as attachments'
                     )
@@ -186,6 +190,10 @@ var exportObject = function  (req, realm) {
                 }
             }
 
+            if (Array.isArray(fullSurveyData.attachments) && fullSurveyData.attachments.length) {
+                yield self.linkAttachments(surveyId, surveyVersion[0].surveyVersion, fullSurveyData.attachments);
+            }
+
             yield self.deleteDraft(surveyId);
 
             return surveyVersion;
@@ -194,6 +202,8 @@ var exportObject = function  (req, realm) {
 
     this.deleteDraft = function (surveyId) {
         var self = this;
+        var oAttachment = new sAttachment(req);
+        var oEssence = new sEssence(req);
         return co(function* (){
 
             var questions = yield thunkQuery(
@@ -219,6 +229,9 @@ var exportObject = function  (req, realm) {
                     .and(Survey.surveyVersion.equals(-1))
                 )
             );
+
+            var essence = yield oEssence.getByTableName('Surveys');
+            yield oAttachment.removeLink(essence.id, surveyId, -1);
         });
     };
 
@@ -270,6 +283,10 @@ var exportObject = function  (req, realm) {
                         yield self.addVersionQuestion(surveyId, -1, questionData);
                     }
                 }
+            }
+
+            if (Array.isArray(fullSurveyData.attachments) && fullSurveyData.attachments.length) {
+                yield self.linkAttachments(surveyId, -1, fullSurveyData.attachments);
             }
 
             return surveyDraft;
@@ -385,7 +402,35 @@ var exportObject = function  (req, realm) {
                 }
             }
 
+            if (Array.isArray(fullSurveyData.attachments) && fullSurveyData.attachments.length) {
+                yield self.linkAttachments(surveyId, -1, fullSurveyData.attachments);
+            }
+
             return surveyDraft;
+        });
+    };
+
+    this.linkAttachments = function (surveyId, version, attachArr) {
+        var oAttachment = new sAttachment(req);
+        var oEssence = new sEssence(req);
+
+        return co(function* () {
+            var essence = yield oEssence.getByTableName('Surveys');
+            if (Array.isArray(attachArr)) {
+                var link = yield oAttachment.getLink(essence.id, surveyId, version);
+
+                if (link.length) {
+                    yield oAttachment.updateLinkArray(essence.id, surveyId, attachArr, version);
+                } else {
+                    var link = {
+                        essenceId: essence.id,
+                        entityId: surveyId,
+                        version: version,
+                        attachments: attachArr
+                    }
+                    yield oAttachment.addLink(link);
+                }
+            }
         });
     };
 

@@ -692,40 +692,7 @@ function* checkSurveyData(req) {
 
 
 
-function* linkAttachments(req, policyId, attachArr) {
-    var thunkQuery = req.thunkQuery;
 
-    var essence = yield thunkQuery(Essence.select().where(Essence.tableName.equals('Policies')));
-
-    if (Array.isArray(attachArr)) {
-
-        var link = yield thunkQuery(AttachmentLink.select().where({
-            essenceId: essence[0].id,
-            entityId: policyId
-        }));
-
-        if (link.length) {
-            yield thunkQuery(
-                AttachmentLink
-                .update({
-                    attachments: attachArr
-                })
-                .where({
-                    essenceId: essence[0].id,
-                    entityId: policyId
-                })
-            );
-        } else {
-            yield thunkQuery(
-                AttachmentLink.insert({
-                    essenceId: essence[0].id,
-                    entityId: policyId,
-                    attachments: attachArr
-                })
-            );
-        }
-    }
-}
 
 function* checkQuestionData(req, dataObj, isCreate) {
     var thunkQuery = req.thunkQuery;
