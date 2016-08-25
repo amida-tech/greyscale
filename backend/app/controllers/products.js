@@ -1055,6 +1055,7 @@ module.exports = {
         co(function* () {
             var oProduct = new sProduct(req);
             var oTask = new sTask(req);
+            var oSurvey = new sSurvey(req);
             var tasks = yield oTask.getByProductAllUoas(req.params.id);
             // remove all subjects
             if (tasks.length) {
@@ -1063,6 +1064,7 @@ module.exports = {
             yield oTask.deleteTasks(req.params.id);
             yield oProduct.deleteProductAllUoas(req.params.id);
             // ToDo: Check workflow exist before delete
+            yield oSurvey.detachFromProduct(req.params.id);
             return yield thunkQuery(
                 Product.delete().where(Product.id.equals(req.params.id))
             );
@@ -1091,12 +1093,9 @@ module.exports = {
             var policyUoaId = yield * common.getPolicyUoaId(req);
             var product = yield * common.getEntity(req, req.params.id, Product, 'id');
 
-            if (req.body.surveyId) {
-                yield oSurvey.assignToProduct(req.body.surveyId, req.params.id);
-            }
-
-            var oldSurvey = product.surveyId ? yield * common.getEntity(req, product.surveyId, Survey, 'id') : null;
-            var newSurvey = req.body.surveyId ? yield * common.getEntity(req, req.body.surveyId, Survey, 'id') : null;
+            var oldSurveyId = yield oSurvey.getSurveyAssignedToProduct(req.params.id);
+            var oldSurvey = oldSurveyId ? yield oSurvey.getById(oldSurveyId) : null;
+            var newSurvey = req.body.surveyId ? yield oSurvey.getById(req.body.surveyId) : null;
 
             if ((newSurvey && newSurvey.policyId) &&                                        // new survey is policy
                 // AND
@@ -1136,6 +1135,14 @@ module.exports = {
                 }
                 var result = oProduct.updateCurrentStepId(product);
             }
+
+            if (oldSurvey && newSurvey && oldSurvey.id !== newSurvey.id) {  // detach old survey from product
+                yield oSurvey.detachFromProduct(req.params.id);
+            }
+            if (req.body.surveyId) {
+                yield oSurvey.assignToProduct(req.body.surveyId, req.params.id);
+            }
+
             return yield oProduct.updateProduct();
         }).then(function (data) {
             res.status(202).end();
@@ -1149,9 +1156,10 @@ module.exports = {
 
         co(function* () {
             var oProduct = new sProduct(req);
+            var oSurvey = new sSurvey(req);
             req.body.organizationId = req.user.organizationId;
             yield oProduct.checkProductData(req.body);
-            var newSurvey = req.body.surveyId ? yield * common.getEntity(req, req.body.surveyId, Survey, 'id') : null;
+            var newSurvey = req.body.surveyId ? yield oSurvey.getById(req.body.surveyId) : null;
 
             if (newSurvey && newSurvey.policyId) { // new survey is policy
                 // check one project - one policy
@@ -1159,6 +1167,9 @@ module.exports = {
             }
 
             var productId = yield oProduct.insertProduct(req.body);
+            if (req.body.surveyId) {
+                yield oSurvey.assignToProduct(req.body.surveyId, productId);
+            }
 
             if (productId) {
                 var policyUoaId = yield * common.getPolicyUoaId(req);

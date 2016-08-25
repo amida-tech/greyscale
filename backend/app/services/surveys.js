@@ -117,6 +117,14 @@ var exportObject = function  (req, realm) {
         });
     };
 
+    this.getSurveyAssignedToProduct = function (productId) {
+        var self = this;
+        return co(function*() {
+            var survey = yield thunkQuery(SurveyMeta.select().where(SurveyMeta.productId.equals(productId)));
+            return _.first(survey) ? survey[0].surveyId : null;
+        });
+    };
+
     this.assignToProduct = function (surveyId, productId) {
         var self = this;
         return co(function*() {
@@ -131,6 +139,13 @@ var exportObject = function  (req, realm) {
                     SurveyMeta.insert({surveyId: surveyId, productId: productId}).returning(SurveyMeta.star())
                 );
             }
+        });
+    };
+
+    this.detachFromProduct = function (productId) {
+        var self = this;
+        return co(function*() {
+            yield thunkQuery(SurveyMeta.delete().where(SurveyMeta.productId.equals(productId)));
         });
     };
 
