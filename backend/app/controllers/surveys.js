@@ -3,6 +3,7 @@ var
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     Survey = require('app/models/surveys'),
+    SurveyMeta = require('app/models/survey_meta'),
     Policy = require('app/models/policies'),
     Product = require('app/models/products'),
     AttachmentLink = require('app/models/attachment_links'),
@@ -150,7 +151,9 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var products = yield thunkQuery(
-                Product.select().where(Product.surveyId.equals(req.params.id))
+                SurveyMeta
+                    .select()
+                    .where(SurveyMeta.surveyId.equals(req.params.id))
             );
             if (_.first(products)) {
                 throw new HttpError(403, 'This survey has already linked with some product(s), you cannot delete it');
@@ -189,13 +192,16 @@ module.exports = {
                 }
             }
 
-            var survey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.params.id)));
+            //var survey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.params.id)));
 
+            yield thunkQuery(Policy.delete().where(Policy.surveyId.equals(req.params.id)));
             yield thunkQuery(Survey.delete().where(Survey.id.equals(req.params.id)));
 
+/*
             if (survey[0] && survey[0].policyId) {
                 yield thunkQuery(Policy.delete().where(Policy.id.equals(survey[0].policyId)));
             }
+*/
         }).then(function (data) {
             bologger.log({
                 req: req,
