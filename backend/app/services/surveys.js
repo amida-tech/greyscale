@@ -503,8 +503,10 @@ var exportObject = function  (req, realm) {
                 .select(sql.functions.MAX(Survey.surveyVersion))
                 .from(
                 Task
+                    .join(SurveyMeta)
+                    .on(SurveyMeta.productId.equals(Task.productId))
                     .leftJoin(Survey)
-                    .on(Task.productId.equals(Survey.productId))
+                    .on(Survey.id.equals(SurveyMeta.surveyId))
             )
                 .where(Task.id.equals(taskId)
             );
