@@ -817,8 +817,8 @@ angular.module('greyscaleApp')
                 },
                 reqs = {
                     product: $q.when(product),
-                    survey: (product.surveyId !== null) ? greyscaleSurveyApi.get(product.surveyId) : $q.resolve(noSurvey),
-                    tasks: greyscaleProductApi.product(productId).tasksList()
+                    survey: (product.survey.id) ? greyscaleSurveyApi.get(product.survey.id) : $q.resolve(noSurvey),
+                    tasks: greyscaleProductApi.product(product.id).tasksList()
                 };
             return $q.all(reqs);
         }

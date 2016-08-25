@@ -25,7 +25,7 @@ angular.module('greyscale.rest')
         }
 
         function _survey(surveyId) {
-            return _api.one(surveyId + '');
+            return _api().one(surveyId + '');
         }
 
         function _surveys() {
