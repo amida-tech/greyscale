@@ -1,7 +1,8 @@
 'use strict';
 angular.module('greyscale.tables')
     .factory('greyscaleProjectProductsTbl', function ($q, _, greyscaleProjectApi, greyscaleSurveyApi, $state, i18n,
-        greyscaleProductApi, greyscaleModalsSrv, greyscaleUtilsSrv, greyscaleProductWorkflowApi, greyscaleGlobals) {
+        greyscaleProductApi, greyscaleModalsSrv, greyscaleUtilsSrv, greyscaleProductWorkflowApi, greyscaleGlobals,
+        greyscaleSurveySrv) {
 
         var tns = 'PRODUCTS.TABLE.';
 
@@ -78,15 +79,15 @@ angular.module('greyscale.tables')
                 dataFormat: 'action',
                 dataHide: true,
                 actions: [{
-                        title: tns + 'UOAS',
-                        class: 'info',
-                        handler: _editProductUoas,
-                        show: _showUoaSetting
-                    }, {
-                        title: tns + 'TASKS',
-                        class: 'info',
-                        handler: _editProductTasks
-                    }
+                    title: tns + 'UOAS',
+                    class: 'info',
+                    handler: _editProductUoas,
+                    show: _showUoaSetting
+                }, {
+                    title: tns + 'TASKS',
+                    class: 'info',
+                    handler: _editProductTasks
+                }
                     /*, {
                      title: tns + 'INDEXES',
                      class: 'info',
@@ -115,10 +116,10 @@ angular.module('greyscale.tables')
                     //target: '_blank',
                     //href: '/survey/{{item.id}}'
                     state: function (item) {
-                            return item.policy ? 'policy.edit({id: item.policy.surveyId})' :
-                                'projects.setup.surveys.edit({surveyId: item.survey.id})';
-                        }
-                        //state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
+                        return item.policy ? 'policy.edit({id: item.policy.surveyId})' :
+                            'projects.setup.surveys.edit({surveyId: item.survey.id})';
+                    }
+                    //state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
                 }
             }, {
                 show: true,
@@ -161,7 +162,7 @@ angular.module('greyscale.tables')
             // } else {
             var req = {
                 surveys: greyscaleSurveyApi.list(),
-                products: greyscaleProjectApi.productsList( /*projectId*/ )
+                products: greyscaleProjectApi.productsList(/*projectId*/)
             };
             return $q.all(req).then(function (resp) {
                 _dicts.surveys = resp.surveys;
@@ -193,8 +194,7 @@ angular.module('greyscale.tables')
 
         function _getSurveys() {
             return !_editProductMode ? _dicts.surveys : _.filter(_dicts.surveys, function (survey) {
-                return _editProductMode.surveyId === survey.id || !survey.policyId ||
-                    !survey.products || !survey.products.length;
+                return _editProductMode.surveyId === survey.id || !survey.policyId || !survey.products || !survey.products.length;
             });
         }
 
@@ -333,7 +333,7 @@ angular.module('greyscale.tables')
 
         function _getDisabledStatus(item, rec) {
             return item.id !== _const.STATUS_PLANNING && item.id !== _const.STATUS_CANCELLED && _planningNotFinish(
-                rec);
+                    rec);
         }
 
         function _getFormWarning(product) {
@@ -362,22 +362,33 @@ angular.module('greyscale.tables')
         }
 
         function _startOrPauseProduct(product) {
-            var op = 'changing status';
-            var status = product.status;
-            var setStatus;
-            if (status === _const.STATUS_STARTED) {
-                setStatus = _const.STATUS_SUSPENDED;
-            } else if (status === _const.STATUS_SUSPENDED) {
-                setStatus = _const.STATUS_STARTED;
+            var op = 'changing status',
+                _publishDlg = $q.resolve(false),
+                _product = angular.copy(product),
+                newStatus;
+
+            switch (product.status) {
+            case _const.STATUS_STARTED:
+                newStatus = _const.STATUS_SUSPENDED;
+                break;
+            case _const.STATUS_SUSPENDED:
+                newStatus = _const.STATUS_STARTED;
+                _publishDlg = greyscaleModalsSrv.dialog(dlgPublish);
+                break;
             }
-            if (setStatus !== undefined) {
-                var saveProject = angular.copy(product);
-                saveProject.status = setStatus;
-                greyscaleProductApi.update(saveProject)
-                    .then(_reload)
-                    .catch(function (err) {
-                        return errHandler(err, op);
-                    });
+
+            if (newStatus !== undefined) {
+                _product.status = newStatus;
+                _publishDlg.then(function (action) {
+                    return greyscaleProductApi.update(_product)
+                        .then(_reload)
+                        .then(function () {
+                            return greyscaleSurveySrv.doAction(_product.survey, action);
+                        })
+                        .catch(function (err) {
+                            return errHandler(err, op);
+                        });
+                });
             }
         }
 
