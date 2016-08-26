@@ -15,6 +15,16 @@ angular.module('greyscale.core')
         }
 
         function _doAction(survey, action) {
+            // do action
+            switch (_action) {
+            case dlgPublish.next:
+                break;
+            case dlgPublish.current:
+
+                break;
+            }
+            $log.debug('survey action', _action);
+            return true;
 
         }
     });

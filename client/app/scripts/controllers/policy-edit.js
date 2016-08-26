@@ -88,20 +88,8 @@ angular.module('greyscaleApp')
                         .then(function (_action) {
                             return _saveSurvey(isDraft)
                                 .then(function () {
-                                    return _action;
+                                    return greyscaleSurveySrv.doAction($scope.model.survey, _action);
                                 });
-                        })
-                        .then(function (_action) {
-                            // do action
-                            switch (_action) {
-                            case dlgPublish.next:
-                                break;
-                            case dlgPublish.current:
-
-                                break;
-                            }
-                            $log.debug('publish action', _action);
-                            return true;
                         })
                         .then(_goPolicyList);
 
