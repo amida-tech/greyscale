@@ -8,8 +8,7 @@ var columns = [
     'isDraft',
     'creator',
     'langId',
-    'surveyVersion',
-    'productId'
+    'surveyVersion'
 ];
 
 var Survey = sql.define({
