@@ -32,6 +32,7 @@ var exportObject = function  (req, realm) {
                 '    "Policies"."subsection", ' +
                 '    "Policies"."author", ' +
                 '    "Policies"."number", ' +
+                '    "SurveyMeta"."productId", ' +
                 '    (SELECT array_agg(row_to_json(att)) ' +
                 '       FROM ( ' +
                 '           SELECT a."id", a."filename", a."size", a."mimetype" ' +
@@ -53,6 +54,8 @@ var exportObject = function  (req, realm) {
                 ') as maxv ' +
                 'LEFT JOIN "Surveys" ' +
                 'ON (maxv.id = "Surveys".id AND maxv.version = "Surveys"."surveyVersion") ' +
+                'LEFT JOIN "SurveyMeta" ' +
+                'ON ("SurveyMeta"."surveyId" = "Surveys"."id") ' +
                 'LEFT JOIN "Policies" ' +
                 'ON ("Surveys"."id" = "Policies"."surveyId")' +
                 'AND ("Surveys"."surveyVersion" = "Policies"."surveyVersion")'
@@ -63,7 +66,16 @@ var exportObject = function  (req, realm) {
     this.getVersions = function (surveyId) {
         return co(function* () {
            return yield thunkQuery(
-               Survey.select().where(Survey.id.equals(surveyId).and(Survey.surveyVersion.gte(0)))
+               Survey
+               .select(Survey.star(),SurveyMeta.productId)
+               .from(
+                   Survey
+                   .leftJoin(SurveyMeta)
+                   .on(SurveyMeta.surveyId.equals(Survey.id))
+               )
+               .where(
+                   Survey.id.equals(surveyId).and(Survey.surveyVersion.gte(0))
+               )
            );
         });
     };
@@ -79,10 +91,13 @@ var exportObject = function  (req, realm) {
                                 Survey.id.equals(Policy.surveyId)
                                     .and(Survey.surveyVersion.equals(Policy.surveyVersion))
                             )
+                            .leftJoin(SurveyMeta)
+                            .on(SurveyMeta.surveyId.equals(Survey.id))
                     )
                     .select(
                         Survey.star(),
                         Policy.id.as("policyId"), Policy.section, Policy.subsection, Policy.author, Policy.number,
+                        SurveyMeta.productId,
                         '(WITH sq AS ' +
                         '( ' +
                             'SELECT ' +
@@ -115,7 +130,7 @@ var exportObject = function  (req, realm) {
                         ') as att) as attachments'
                     )
                     .where(Survey.id.equals(id).and(Survey.surveyVersion.equals(version)))
-                    .group(Survey.id, Survey.surveyVersion, Policy.id)
+                    .group(Survey.id, Survey.surveyVersion, Policy.id, SurveyMeta.productId)
             );
             return data[0] || false;
         });
@@ -473,15 +488,18 @@ var exportObject = function  (req, realm) {
                 Survey
                     .from(
                         Survey
-                            .leftJoin(Policy)
-                            .on(
-                                Survey.id.equals(Policy.surveyId)
-                                .and(Survey.surveyVersion.equals(Policy.surveyVersion))
-                            )
+                        .leftJoin(Policy)
+                        .on(
+                            Survey.id.equals(Policy.surveyId)
+                            .and(Survey.surveyVersion.equals(Policy.surveyVersion))
+                        )
+                        .leftJoin(SurveyMeta)
+                        .on(SurveyMeta.surveyId.equals(Survey.id))
                     )
                     .select(
                         Survey.star(),
                         Policy.id.as("policyId"), Policy.section, Policy.subsection, Policy.author, Policy.number,
+                        SurveyMeta.productId,
                         '(WITH sq AS ' +
                         '( ' +
                             'SELECT ' +
@@ -523,7 +541,7 @@ var exportObject = function  (req, realm) {
                             .where(Survey.as('subS').id.equals(Survey.id))
                         ))
                     )
-                    .group(Survey.id, Survey.surveyVersion, Policy.id)
+                    .group(Survey.id, Survey.surveyVersion, Policy.id, SurveyMeta.productId)
             );
             return data[0] || false;
         });
