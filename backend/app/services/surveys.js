@@ -146,6 +146,49 @@ var exportObject = function  (req, realm) {
         });
     };
 
+    this.lockSurvey = function (id, userId, socketId) {
+        var self = this;
+        return co(function* () {
+            var oUser = new sUser(req);
+
+            var surveyMeta = yield thunkQuery(SurveyMeta.select().where(SurveyMeta.surveyId.equals(id)));
+            if (!surveyMeta.length || !surveyMeta[0].productId) {
+                throw new HttpError(404, "Survey with id = " + id + " does not assign to any product and cannot be locked");
+            }
+
+            surveyMeta = surveyMeta[0];
+
+            var startEdit = new Date();
+
+            if (surveyMeta.socketId && (surveyMeta.socketId !== socketId)) {
+                var startEditOld = new Date(surveyMeta.startEdit);
+                var range = startEdit.getTime() - startEditOld.getTime();
+                if ((range < self._lockLimit) && (surveyMeta.editor !== userId)) {
+                    throw new HttpError(403, "Policy already locked");
+                }
+            }
+
+            var user = yield oUser.getById(userId);
+
+            if (!user) {
+                throw new HttpError(403, "User with id = " + userId + " does not exist");
+            } else if (user.roleID != 2) {
+                throw new HttpError(403, "Only admins can edit a policy");
+            }
+
+            var editFields = {
+                editor: userId,
+                startEdit: startEdit,
+                socketId: socketId
+            };
+
+            surveyMeta = yield thunkQuery(
+                SurveyMeta.update(editFields).where(SurveyMeta.surveyId.equals(id)).returning(SurveyMeta.star())
+            );
+            return surveyMeta[0];
+        });
+    };
+
     this.assignToProduct = function (surveyId, productId) {
         var self = this;
         return co(function*() {

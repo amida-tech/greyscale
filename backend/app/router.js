@@ -125,6 +125,9 @@ router.route('/:realm/v0.2/uploads/:id/ticket')
 router.route('/:realm/v0.2/uploads/:id/:essenceId/:entityId')
     .delete(authenticate('token').always, attachments.delete);
 
+router.route('/:realm/v0.2/uploads/:id/:essenceId/:entityId/:version')
+    .delete(authenticate('token').always, attachments.delete);
+
 router.route('/:realm/v0.2/uploads/upload_link')
     .post(authenticate('token').always, jsonParser, attachments.getUploadLink);
 
