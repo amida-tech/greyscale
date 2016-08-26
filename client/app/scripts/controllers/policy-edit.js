@@ -6,7 +6,7 @@ angular.module('greyscaleApp')
     .controller('PolicyEditCtrl', function ($q, _, $scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
         Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, greyscaleProfileSrv, greyscaleUsers,
         greyscaleEntityTypeApi, greyscaleProductApi, greyscaleWebSocketSrv, $interval, greyscaleModalsSrv,
-        greyscaleSurveySrv) {
+        greyscaleSurveySrv, $log) {
 
         var projectId,
             policyIdx = greyscaleGlobals.formBuilder.fieldTypes.indexOf('policy'),
@@ -71,6 +71,7 @@ angular.module('greyscaleApp')
         });
 
         hbPromise = $interval(function () {
+            $log.debug($scope.model.survey);
             if ($scope.model.survey.isPolicy && $scope.model.survey.policyId && !$scope.model.lock.locked) {
                 _lockPolicy($scope.model.survey.policyId);
             }
@@ -307,7 +308,8 @@ angular.module('greyscaleApp')
                 _survey.questions = $scope.model.policy.sections;
             }
 
-            _savePromise = (_survey.id ? greyscaleSurveyApi.update(_survey, params) : greyscaleSurveyApi.add(_survey, params));
+            _savePromise = (_survey.id ? greyscaleSurveyApi.update(_survey, params) : greyscaleSurveyApi.add(_survey,
+                params));
 
             return _savePromise
                 .catch(function (err) {
@@ -335,7 +337,7 @@ angular.module('greyscaleApp')
         function _publishIsDisabled(dataForm) {
             /* don't need
              if (surveyId && dataForm.$pristine) {
-                 return false;
+             return false;
              }
              */
             return dataForm.$invalid || !!~($scope.model.survey.surveyVersion);
