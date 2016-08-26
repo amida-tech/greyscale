@@ -8,7 +8,7 @@
            ng-class="{'active': version.id == model.selectedVersionId}"
            ng-click="model.selectedVersionId = version.id"
            ng-repeat="version in model.versions track by $index">
-            {{version.user}} <span translate=".REVIEW"></span>
+            {{version.user.fullName}}'s <span translate=".REVIEW"></span>
             <span class="pull-right">{{version.created|date:'short'}}</span>
         </a>
     </div>

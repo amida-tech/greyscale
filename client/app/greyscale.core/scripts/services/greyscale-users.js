@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscale.core')
-    .service('greyscaleUsers', function ($q, greyscaleUserApi) {
+    .service('greyscaleUsers', function ($q, greyscaleUserApi, greyscaleUtilsSrv) {
         var _users = {};
 
         this.get = function (userId) {
@@ -36,6 +36,7 @@ angular.module('greyscale.core')
 
                             for (_u = 0; _u < _qty; _u++) {
                                 _users[users[_u].id] = users[_u];
+                                _users[users[_u].id].fullName = greyscaleUtilsSrv.getUserName(users[_u]);
                             }
                         })
                         .catch(function () {
@@ -72,7 +73,8 @@ angular.module('greyscale.core')
             return {
                 firstName: 'John',
                 lastName: 'Doe',
-                email: 'mail@example.org'
+                email: 'mail@example.org',
+                fullName: 'John Doe'
             };
         }
     });
