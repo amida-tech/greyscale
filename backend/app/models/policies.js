@@ -7,7 +7,7 @@ var columns = [
     'number',
     'author',
     'surveyId',
-    'surveyVersion'
+    'surveyVersion',
     'editor',
     'startEdit',
     'socketId'
