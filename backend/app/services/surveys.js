@@ -33,6 +33,7 @@ var exportObject = function  (req, realm) {
                 '    "Policies"."author", ' +
                 '    "Policies"."number", ' +
                 '    "SurveyMeta"."productId", ' +
+                '    ARRAY (SELECT "UOAid" FROM "ProductUOA" WHERE "productId" = "SurveyMeta"."productId") as uoas, ' +
                 '    (SELECT array_agg(row_to_json(att)) ' +
                 '       FROM ( ' +
                 '           SELECT a."id", a."filename", a."size", a."mimetype" ' +
@@ -98,6 +99,7 @@ var exportObject = function  (req, realm) {
                         Survey.star(),
                         Policy.id.as("policyId"), Policy.section, Policy.subsection, Policy.author, Policy.number,
                         SurveyMeta.productId,
+                        'ARRAY (SELECT "UOAid" FROM "ProductUOA" WHERE "productId" = "SurveyMeta"."productId") as uoas, ' +
                         '(WITH sq AS ' +
                         '( ' +
                             'SELECT ' +
@@ -500,6 +502,7 @@ var exportObject = function  (req, realm) {
                         Survey.star(),
                         Policy.id.as("policyId"), Policy.section, Policy.subsection, Policy.author, Policy.number,
                         SurveyMeta.productId,
+                        'ARRAY (SELECT "UOAid" FROM "ProductUOA" WHERE "productId" = "SurveyMeta"."productId") as uoas, ' +
                         '(WITH sq AS ' +
                         '( ' +
                             'SELECT ' +
