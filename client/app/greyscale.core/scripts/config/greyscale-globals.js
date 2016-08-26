@@ -235,11 +235,11 @@ angular.module('greyscale.core')
                     buttons: [{
                         type: 'primary',
                         title: 'DLG.POLICY.STEP.NEXT',
-                        value: 'next'
+                        value: productActions.forceMove
                     }, {
                         type: 'primary',
                         title: 'DLG.POLICY.STEP.CURRENT',
-                        value: 'current'
+                        value: productActions.restart
                     }]
                 }
             },
