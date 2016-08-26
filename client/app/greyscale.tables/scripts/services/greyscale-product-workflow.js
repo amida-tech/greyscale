@@ -4,9 +4,8 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleProductWorkflowTbl', function (_, $q, greyscaleModalsSrv,
-        greyscaleProductApi, greyscaleUtilsSrv, greyscaleRoleApi,
-        greyscaleProductWorkflowApi, greyscaleGlobals, $timeout, greyscaleGroupApi) {
+    .factory('greyscaleProductWorkflowTbl', function (_, $q, greyscaleModalsSrv, greyscaleProductApi, greyscaleUtilsSrv,
+        greyscaleRoleApi, greyscaleProductWorkflowApi, greyscaleGlobals, $timeout, greyscaleGroupApi) {
 
         var tns = 'PRODUCTS.WORKFLOW.STEPS.';
 
@@ -28,7 +27,7 @@ angular.module('greyscale.tables')
                 title: tns + 'ROLE',
                 showDataInput: true,
                 show: true,
-                dataFormat: 'text',
+                dataFormat: 'text'
             },
             startDate: {
                 field: 'startDate',
@@ -275,8 +274,7 @@ angular.module('greyscale.tables')
 
         function _getOrderHandleClass() {
             var product = _getProduct();
-            var cl = (product.status === 0) ? 'drag-sortable' : 'disabled';
-            return cl;
+            return (product.status === 0) ? 'drag-sortable' : 'disabled';
         }
 
         return _table;

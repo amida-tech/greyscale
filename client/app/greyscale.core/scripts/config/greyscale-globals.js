@@ -4,6 +4,12 @@
 'use strict';
 angular.module('greyscale.core')
     .provider('greyscaleGlobals', function () {
+        var productActions = {
+            resolve: 'resolve',
+            forceMove: 'force',
+            restart: 'restart'
+        };
+
         var self = {
             events: {
                 common: {
@@ -223,8 +229,8 @@ angular.module('greyscale.core')
             }],
             dialogs: {
                 policyPublish: {
-                    current: 'current',
-                    next: 'next',
+                    current: productActions.restart,
+                    next: productActions.forceMove,
                     header: 'DLG.POLICY.STEP.TITLE',
                     buttons: [{
                         type: 'primary',
@@ -236,7 +242,8 @@ angular.module('greyscale.core')
                         value: 'current'
                     }]
                 }
-            }
+            },
+            productActions: productActions
         };
 
         return {

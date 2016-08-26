@@ -6,7 +6,7 @@ angular.module('greyscaleApp')
     .controller('PolicyEditCtrl', function ($q, _, $scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
         Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, greyscaleProfileSrv, greyscaleUsers,
         greyscaleEntityTypeApi, greyscaleProductApi, greyscaleWebSocketSrv, $interval, greyscaleModalsSrv,
-        greyscaleSurveySrv) {
+        greyscaleProductSrv, $log) {
 
         var projectId,
             policyIdx = greyscaleGlobals.formBuilder.fieldTypes.indexOf('policy'),
@@ -165,7 +165,10 @@ angular.module('greyscaleApp')
                         .then(function (_action) {
                             return _saveSurvey(isDraft)
                                 .then(function () {
-                                    return greyscaleSurveySrv.doAction($scope.model.survey, _action);
+                                    return greyscaleProductSrv.doAction(
+                                        $scope.model.survey.productId,
+                                        $scope.model.survey.uoaIds[0],
+                                        _action);
                                 });
                         })
                         .then(_goPolicyList);
@@ -307,7 +310,8 @@ angular.module('greyscaleApp')
                 _survey.questions = $scope.model.policy.sections;
             }
 
-            _savePromise = (_survey.id ? greyscaleSurveyApi.update(_survey, params) : greyscaleSurveyApi.add(_survey, params));
+            _savePromise = (_survey.id ? greyscaleSurveyApi.update(_survey, params) : greyscaleSurveyApi.add(_survey,
+                params));
 
             return _savePromise
                 .catch(function (err) {
@@ -335,7 +339,7 @@ angular.module('greyscaleApp')
         function _publishIsDisabled(dataForm) {
             /* don't need
              if (surveyId && dataForm.$pristine) {
-                 return false;
+             return false;
              }
              */
             return dataForm.$invalid || !!~($scope.model.survey.surveyVersion);
@@ -361,5 +365,5 @@ angular.module('greyscaleApp')
             return profile;
         }
 
-        /* end ofinternal functions */
+        /* end of internal functions */
     });
