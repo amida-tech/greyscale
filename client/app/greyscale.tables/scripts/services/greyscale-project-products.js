@@ -9,7 +9,7 @@ angular.module('greyscale.tables')
         greyscaleProductWorkflowApi,
         greyscaleGlobals,
         $state,
-        i18n, greyscaleSurveySrv) {
+        i18n, greyscaleProductSrv) {
 
         var tns = 'PRODUCTS.TABLE.';
 
@@ -395,7 +395,7 @@ angular.module('greyscale.tables')
                     return greyscaleProductApi.update(_product)
                         .then(_reload)
                         .then(function () {
-                            return greyscaleSurveySrv.doAction(_product.survey, action);
+                            return greyscaleProductSrv.doAction(_product.id, _product.uoas[0], action);
                         })
                         .catch(function (err) {
                             return errHandler(err, op);

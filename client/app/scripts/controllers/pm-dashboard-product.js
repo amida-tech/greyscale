@@ -71,7 +71,7 @@ angular.module('greyscaleApp')
         });
 
         $scope.download = function () {
-            greyscaleModalsSrv.downloadPolicyVersions($scope.model.survey);
+            greyscaleModalsSrv.downloadPolicyVersions($scope.model.product.survey);
         };
 
         $scope.editProductTasks = function () {

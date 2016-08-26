@@ -156,6 +156,7 @@ angular.module('greyscaleApp')
 
         function _save(isDraft) {
             var _publish = $q.resolve(false),
+                survey = $scope.model.survey,
                 _deregistator = $scope.$on(greyscaleGlobals.events.survey.builderFormSaved, function () {
                     _deregistator();
                     if (!isDraft) {
@@ -165,10 +166,8 @@ angular.module('greyscaleApp')
                         .then(function (_action) {
                             return _saveSurvey(isDraft)
                                 .then(function () {
-                                    return greyscaleProductSrv.doAction(
-                                        $scope.model.survey.productId,
-                                        $scope.model.survey.uoaIds[0],
-                                        _action);
+                                    return (survey.productId && survey.uoas[0]) ?
+                                        greyscaleProductSrv.doAction(survey.productId, survey.uoas[0], _action) : true;
                                 });
                         })
                         .then(_goPolicyList);

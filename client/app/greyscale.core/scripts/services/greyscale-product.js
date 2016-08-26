@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleProductSrv', function ($q, _, greyscaleGlobals, greyscaleProductApi, $log) {
+    .service('greyscaleProductSrv', function ($q, _, greyscaleGlobals, greyscaleProductApi) {
         var actions = greyscaleGlobals.productActions;
 
         return {
@@ -21,7 +21,6 @@ angular.module('greyscale.core')
                     params[_action] = true;
                 }
             }
-            $log.debug('product action', _action, params);
 
             return params ? productApi.taskMove(uoaId, params) : $q.reject('incorrect action');
         }
