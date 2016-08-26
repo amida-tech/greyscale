@@ -13,15 +13,19 @@ angular.module('greyscale.core')
                 },
                 survey: {
                     answerDirty: 'ANSWER_DIRTY',
-                    builderFormSaved: 'form-changes-saved'
+                    builderFormSaved: 'form-changes-saved',
+                    extSave: 'EXT_SAVE'
                 },
                 policy: {
                     addComment: 'POLICY_ADD_COMMENT'
                 },
-                webSocket: {
+                ws: { /* webSocket events */
                     notify: 'something-new',
+                    policyLock: 'POLICY_LOCK',
+                    policyUnlock: 'POLICY_UNLOCK',
                     policyLocked: 'POLICY_LOCKED',
-                    policyUnlocked: 'POLICY_UNLOCKED'
+                    policyUnlocked: 'POLICY_UNLOCKED',
+                    setUser: 'setUser'
                 }
             },
             projectStates: [{
@@ -187,6 +191,7 @@ angular.module('greyscale.core')
             adminSchema: 'public',
             tokenTTLsec: 300,
             autosaveSec: 15,
+            wsHeartbeatSec: 20,
             setRolesId: _setRolesId,
             widgetTableDefaults: {
                 pageLength: 0

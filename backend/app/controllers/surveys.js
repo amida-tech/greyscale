@@ -19,6 +19,7 @@ var
     mammoth = require('mammoth-colors'),
     cheerio = require('cheerio'),
     sSurvey = require('app/services/surveys'),
+    sPolicy = require('app/services/policies'),
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_surveys');

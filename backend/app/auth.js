@@ -11,26 +11,20 @@ var passport = require('passport'),
     Essences = require('app/models/essences'),
     HttpError = require('app/error').HttpError,
     util = require('util'),
-    config = require('config');
-
-var Query = require('app/util').Query,
+    config = require('config'),
+    Query = require('app/util').Query,
     query = new Query(),
     sql = require('sql'),
     _ = require('underscore'),
     co = require('co'),
-    thunkify = require('thunkify');
-var thunkQuery = thunkify(query);
-
-var Right = require('app/models/rights'),
+    thunkify = require('thunkify'),
+    thunkQuery = thunkify(query),
+    Right = require('app/models/rights'),
     RoleRights = require('app/models/role_rights'),
-    UserRights = false;
+    UserRights = false,
+    sUser = require('app/services/users');
 
-var requestRights = 'ARRAY(' +
-    ' SELECT "Rights"."action" FROM "RolesRights" ' +
-    ' LEFT JOIN "Rights"' +
-    ' ON ("RolesRights"."rightID" = "Rights"."id")' +
-    ' WHERE "RolesRights"."roleID" = "Users"."roleID"' +
-    ') AS rights';
+
 
 var debug = require('debug')('debug_auth');
 debug.log = console.log.bind(console);
@@ -254,23 +248,9 @@ passport.use(new TokenStrategy({
                 );
             } else {
                 if (existToken[0].realm === req.params.realm) {
-                    clientThunkQuery = thunkify(new Query(req.params.realm));
-                    data = yield clientThunkQuery(
-                        User
-                        .select(
-                            User.star(),
-                            Role.name.as('role'),
-                            requestRights
-                        )
-                        .from(
-                            User
-                            .leftJoin(Role).on(User.roleID.equals(Role.id))
-                            .leftJoin(Organization).on(User.organizationId.equals(Organization.id))
-                        )
-                        .where(
-                            User.id.equals(existToken[0].userID)
-                        )
-                    );
+                    var data = [];
+                    var oUser = new sUser(req, req.params.realm);
+                    data[0] = yield oUser.getInfo(existToken[0].userID);
                 } else { // try to auth with token from other realm
                     return false;
                 }

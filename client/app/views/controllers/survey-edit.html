@@ -29,9 +29,11 @@
             </div>
         </div>
 
-        <form-builder ng-model="model.survey"></form-builder>
+        <div ng-if="!model.loading">
+            <form-builder ng-model="model.survey"></form-builder>
+        </div>
 
-        <div no-compile form-builder-control>
+        <div class="row">
             <div class="form-builder-control">
                 <button class="btn btn-default" ng-click="cancel()" translate="COMMON.CANCEL"></button>
                 <button class="btn btn-primary" ng-click="save()" ng-disabled="dataForm.$invalid || !dataForm.$dirty" translate="COMMON.SAVE"></button>

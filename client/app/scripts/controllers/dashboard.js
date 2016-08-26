@@ -64,7 +64,7 @@ angular.module('greyscaleApp')
         });
 
         $scope.logout = function () {
-            $rootScope.$emit(greyscaleGlobals.events.common.logout);
+            $rootScope.$broadcast(greyscaleGlobals.events.common.logout);
         };
 
         function _isSuperAdmin() {

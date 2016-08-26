@@ -1,6 +1,9 @@
 <div class="row policy-edit">
-    <!-- gs-palette></gs-palette -->
     <div name="dataForm" class="col-sm-12 form-horizontal" ng-form="dataForm">
+        <div uib-alert class="alert-warning" ng-if="model.lock.locked">
+            <span translate="POLICY.IS_EDITING_BY"></span> {{model.lock.editorUser.fullName}} ({{model.lock.editorUser.email}})
+            <span class="subtext">{{model.survey.startEdit | date:'y/MM/dd H:m:ss'}}</span>
+        </div>
         <div class="row">
             <div class="col-sm-7">
                 <policy-block policy-data="model.policy"></policy-block>
@@ -15,9 +18,10 @@
                 </rd-widget>
             </div>
         </div>
-        <form-builder ng-model="model.survey"></form-builder>
-
-        <div no-compile form-builder-control>
+        <div ng-if="!model.policy.options.readonly && !model.loading && !model.lock.locked">
+            <form-builder ng-model="model.survey"></form-builder>
+        </div>
+        <div class="row">
             <div class="form-builder-control text-right">
                 <button class="btn btn-default" ng-click="save()"
                         ng-disabled="dataForm.$invalid || !dataForm.$dirty"

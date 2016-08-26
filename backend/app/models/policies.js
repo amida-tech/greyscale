@@ -8,6 +8,9 @@ var columns = [
     'author',
     'surveyId',
     'surveyVersion'
+    'editor',
+    'startEdit',
+    'socketId'
 ];
 
 var Policy = sql.define({
