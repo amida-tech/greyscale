@@ -5,6 +5,8 @@
 
 angular.module('greyscale.core')
     .service('greyscaleSurveySrv', function ($q, greyscaleGlobals, greyscaleSurveyApi, $log) {
+        var dlgPublish = greyscaleGlobals.dialogs.policyPublish;
+
         return {
             doAction: _doAction,
             nextStep: _moveNextStep
@@ -14,7 +16,7 @@ angular.module('greyscale.core')
 
         }
 
-        function _doAction(survey, action) {
+        function _doAction(survey, _action) {
             // do action
             switch (_action) {
             case dlgPublish.next:
