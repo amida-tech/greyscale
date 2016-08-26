@@ -6,7 +6,8 @@
             <label for="title" class="col-sm-4 control-label required" translate="POLICY.TITLE"></label>
             <div class="col-sm-8">
                 <p class="form-control-static" ng-show="policyData.options.readonly">{{policyData.title}}</p>
-                <input type="text" class="form-control" ng-required="true" name="title" id="title" ng-model="policyData.title"
+                <input type="text" class="form-control" ng-required="true" name="title" id="title"
+                       ng-model="policyData.title"
                        ng-hide="policyData.options.readonly"/>
             </div>
         </div>
@@ -55,7 +56,7 @@
                 <p class="subtext" translate="POLICY.UPLOAD_TEXT"></p>
                 <form ng-show="!uploader.progress" class="row" name="{{formName}}">
                     <input type="file" class="form-control input-file" name="file" nv-file-select uploader="uploader"
-                    ng-class="{error: model.error}">
+                           ng-class="{error: model.error}">
                 </form>
                 <div class="progress" ng-if="uploader.progress">
                     <div class="progress-bar" role="progressbar" ng-style="{width: uploader.progress + '%'}"></div>
@@ -65,8 +66,9 @@
                 </div>
             </div>
         </div>
-        <fb-policy ng-model="item" ng-repeat="item in policyData.sections" options="policyData.options" associate="policyData.associate"
-		           author="policyData.author"></fb-policy>
+        <fb-policy ng-model="item" ng-repeat="item in policyData.sections" options="policyData.options"
+                   associate="policyData.associate"
+                   author="policyData.author"></fb-policy>
         <attachments field="policyData" options="policyData.options"></attachments>
     </div>
 </div>

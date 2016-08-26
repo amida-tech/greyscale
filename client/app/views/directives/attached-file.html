@@ -1,0 +1,7 @@
+<div class="col-sm-12 col-xs-12 col-md-6 file-attach">
+    <a class="action action-primary file-link" target="_self"
+       ng-href="{{url}}"
+       ng-click="download($event)"
+       download="{{file.filename}}"><i class="fa {{iconClass}}"></i> {{file.filename}}</a>
+    <a class="action action-danger file-remove" ng-click="remove()" ng-if="!readonly"><i class="fa fa-trash"></i></a>
+</div>

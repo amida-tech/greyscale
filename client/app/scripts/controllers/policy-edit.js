@@ -225,7 +225,8 @@ angular.module('greyscaleApp')
                             subsection: survey.subsection,
                             number: survey.number,
                             answerId: survey.policyId,
-                            attachments: survey.attachments || []
+                            attachments: survey.attachments || [],
+                            version: survey.surveyVersion
                         });
 
                         for (q = 0; q < qty; q++) {
