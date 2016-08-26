@@ -426,6 +426,7 @@
     "POLICY": {
         "APPROVE": "Approve",
         "AUTHOR": "Author",
+        "IS_EDITING_BY": "Policy is editing by:",
         "NEW_POLICY": "New policy",
         "NUMBER": "Number",
         "PUBLISH": "Publish",

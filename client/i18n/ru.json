@@ -426,6 +426,7 @@
     "POLICY": {
         "APPROVE": "",
         "AUTHOR": "",
+        "IS_EDITING_BY": "",
         "NEW_POLICY": "",
         "NUMBER": "",
         "PUBLISH": "",
