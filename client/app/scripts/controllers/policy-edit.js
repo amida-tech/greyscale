@@ -6,7 +6,7 @@ angular.module('greyscaleApp')
     .controller('PolicyEditCtrl', function ($q, _, $scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
         Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, greyscaleProfileSrv, greyscaleUsers,
         greyscaleEntityTypeApi, greyscaleProductApi, greyscaleWebSocketSrv, $interval, greyscaleModalsSrv,
-        greyscaleSurveySrv, $log) {
+        greyscaleProductSrv, $log) {
 
         var projectId,
             policyIdx = greyscaleGlobals.formBuilder.fieldTypes.indexOf('policy'),
@@ -71,7 +71,6 @@ angular.module('greyscaleApp')
         });
 
         hbPromise = $interval(function () {
-            $log.debug($scope.model.survey);
             if ($scope.model.survey.isPolicy && $scope.model.survey.policyId && !$scope.model.lock.locked) {
                 _lockPolicy($scope.model.survey.policyId);
             }
@@ -166,7 +165,10 @@ angular.module('greyscaleApp')
                         .then(function (_action) {
                             return _saveSurvey(isDraft)
                                 .then(function () {
-                                    return greyscaleSurveySrv.doAction($scope.model.survey, _action);
+                                    return greyscaleProductSrv.doAction(
+                                        $scope.model.survey.productId,
+                                        $scope.model.survey.uoaIds[0],
+                                        _action);
                                 });
                         })
                         .then(_goPolicyList);
@@ -363,5 +365,5 @@ angular.module('greyscaleApp')
             return profile;
         }
 
-        /* end ofinternal functions */
+        /* end of internal functions */
     });
