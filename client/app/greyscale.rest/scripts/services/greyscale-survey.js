@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleSurveyApi', function (greyscaleRestSrv) {
+    .factory('greyscaleSurveyApi', function (greyscaleRestSrv, greyscaleUtilsSrv) {
 
         return {
             list: _surveys,
@@ -10,7 +10,9 @@ angular.module('greyscale.rest')
             update: _updateSurvey,
             delete: _deleteSurvey,
             versions: _listVersions,
-            getVersion: _getVersion
+            getVersion: _getVersion,
+            getTicket: _getVersionTicket,
+            getDownloadHref: _getHref
         };
 
         function _plainResp(resp) {
@@ -54,5 +56,13 @@ angular.module('greyscale.rest')
 
         function _getVersion(surveyId, versionId) {
             return _survey(surveyId).one('versions', versionId + '').get().then(_plainResp);
+        }
+
+        function _getVersionTicket(survey) {
+            return 'direct';
+        }
+
+        function _getHref(survey) {
+            return greyscaleUtilsSrv.getApiBase() + '/surveys/' + survey.id + '/savedocx/' + survey.surveyVersion;
         }
     });

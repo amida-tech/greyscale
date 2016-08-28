@@ -45,7 +45,7 @@ angular.module('greyscale.tables')
                 title: tns + 'WORKFLOW',
                 show: true,
                 cellTemplate: '{{cell}}<span ng-if="!cell" class="action" translate="' + tns +
-                'CREATE_WORKFLOW"></span>',
+                    'CREATE_WORKFLOW"></span>',
                 link: {
                     handler: _editProductWorkflow
                 },
@@ -82,15 +82,15 @@ angular.module('greyscale.tables')
                 dataFormat: 'action',
                 dataHide: true,
                 actions: [{
-                    title: tns + 'UOAS',
-                    class: 'info',
-                    handler: _editProductUoas,
-                    show: _showUoaSetting
-                }, {
-                    title: tns + 'TASKS',
-                    class: 'info',
-                    handler: _editProductTasks
-                }
+                        title: tns + 'UOAS',
+                        class: 'info',
+                        handler: _editProductUoas,
+                        show: _showUoaSetting
+                    }, {
+                        title: tns + 'TASKS',
+                        class: 'info',
+                        handler: _editProductTasks
+                    }
                     /*, {
                      title: tns + 'INDEXES',
                      class: 'info',
@@ -119,10 +119,10 @@ angular.module('greyscale.tables')
                     //target: '_blank',
                     //href: '/survey/{{item.id}}'
                     state: function (item) {
-                        return item.policy ? 'policy.edit({id: item.policy.surveyId})' :
-                            'projects.setup.surveys.edit({surveyId: item.survey.id})';
-                    }
-                    //state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
+                            return item.policy ? 'policy.edit({id: item.policy.surveyId})' :
+                                'projects.setup.surveys.edit({surveyId: item.survey.id})';
+                        }
+                        //state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
                 }
             }, {
                 show: true,
@@ -165,7 +165,7 @@ angular.module('greyscale.tables')
             // } else {
             var req = {
                 surveys: greyscaleSurveyApi.list(),
-                products: greyscaleProjectApi.productsList(/*projectId*/)
+                products: greyscaleProjectApi.productsList( /*projectId*/ )
             };
             return $q.all(req).then(function (resp) {
                 _dicts.surveys = resp.surveys;
