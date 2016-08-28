@@ -1,7 +1,7 @@
 angular.module('greyscaleApp')
     .service('Organization', function (_, $rootScope, greyscaleOrganizationApi) {
         var org = {};
-        var global;
+
         org.$watch = function () {
             var field, targetScope, handler;
             if (typeof arguments[0] === 'string') {
@@ -24,6 +24,7 @@ angular.module('greyscaleApp')
                 off();
             });
         };
+
         org.$setBy = function (field, value) {
             var params = {};
             params[field] = value;

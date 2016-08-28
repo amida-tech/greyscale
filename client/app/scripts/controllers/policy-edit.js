@@ -8,7 +8,7 @@ angular.module('greyscaleApp')
         greyscaleEntityTypeApi, greyscaleProductApi, greyscaleWebSocketSrv, $interval, greyscaleModalsSrv,
         greyscaleProductSrv, $log) {
 
-        var projectId,
+        var //projectId,
             policyIdx = greyscaleGlobals.formBuilder.fieldTypes.indexOf('policy'),
             surveyId = $stateParams.id === 'new' ? null : $stateParams.id,
             dlgPublish = greyscaleGlobals.dialogs.policyPublish;
@@ -118,7 +118,7 @@ angular.module('greyscaleApp')
         if (surveyId) {
             $scope.model.loading = true;
             Organization.$watch($scope, function () {
-                projectId = Organization.projectId;
+                //projectId = Organization.projectId;
                 _loadSurvey();
             });
         } else {
@@ -254,9 +254,11 @@ angular.module('greyscaleApp')
                     }
                     $state.ext.surveyName = survey ? survey.title : $state.ext.surveyName;
 
+                    /*
                     if (projectId !== survey.projectId) {
                         Organization.$setBy('projectId', survey.projectId);
                     }
+                    */
 
                     return greyscaleEntityTypeApi.list({
                         tableName: (isPolicy ? 'Policies' : 'SurveyAnswers')
@@ -284,7 +286,7 @@ angular.module('greyscaleApp')
                 params.draft = true;
             }
             _survey = angular.extend({}, $scope.model.survey);
-            _survey.projectId = projectId;
+            // _survey.projectId = projectId;
             _survey.isPolicy = true;
 
             if (surveyId) {
