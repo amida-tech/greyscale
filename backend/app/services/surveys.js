@@ -671,7 +671,7 @@ var exportObject = function  (req, realm) {
                         authorName = author.firstName + ' ' + author.lastName;
                     }
                 }
-                content += '<table width="300">' +
+                content += '<table width="300" border="1">' +
                     '<tr><td>SECTION</td><td>' + survey.section + '</td></tr>' +
                     '<tr><td>SUBSECTION</td><td>' + survey.subsection + '</td></tr>' +
                     '<tr><td>NUMBER</td><td>' + survey.number + '</td></tr>' +
