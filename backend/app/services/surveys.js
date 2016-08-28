@@ -7,6 +7,7 @@ var
     SurveyQuestionOption = require('app/models/survey_question_options'),
     sAttachment = require('app/services/attachments'),
     sEssence = require('app/services/essences'),
+    sUser = require('app/services/users'),
     Task = require('app/models/tasks'),
     co = require('co'),
     Query = require('app/util').Query,
@@ -143,6 +144,12 @@ var exportObject = function  (req, realm) {
         return co(function*() {
             var survey = yield thunkQuery(SurveyMeta.select().where(SurveyMeta.productId.equals(productId)));
             return _.first(survey) ? survey[0].surveyId : null;
+        });
+    };
+
+    this.getMeta = function (id) {
+        return co(function* () {
+
         });
     };
 
