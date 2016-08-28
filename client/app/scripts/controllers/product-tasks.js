@@ -1,7 +1,7 @@
 angular.module('greyscaleApp')
     .controller('ProductTasksCtrl', function (_, $q, $scope, $state, $stateParams, $timeout, Organization,
         greyscaleProductWorkflowApi, greyscaleProductApi, greyscaleUserApi, greyscaleUtilsSrv, greyscaleUoaTypeApi,
-        greyscaleGroupApi, greyscaleTaskApi, greyscaleModalsSrv, greyscaleSurveyApi) {
+        greyscaleGroupApi, greyscaleTaskApi, greyscaleModalsSrv, greyscaleSurveyApi, $log) {
 
         var tns = 'PRODUCTS.TASKS.TABLE.';
 
@@ -49,9 +49,7 @@ angular.module('greyscaleApp')
 
         Organization.$watch('realm', $scope, function () {
 
-            if (!Organization.projectId) {
-                return;
-            }
+            $log.debug(Organization);
 
             $scope.model.projectId = Organization.projectId;
 
@@ -611,7 +609,8 @@ angular.module('greyscaleApp')
                     $scope.model.uoas = tableData.uoas;
                     if (table) {
                         return _getTasksData(tableData);
-                    } else if (tableData.workflowSteps && tableData.uoas && tableData.workflowSteps.length && tableData.uoas.length) {
+                    } else if (tableData.workflowSteps && tableData.uoas && tableData.workflowSteps.length &&
+                        tableData.uoas.length) {
                         $scope.model.tasks = _initTasksTable(tableData);
                     }
                     $scope.model.$loading = false;
@@ -765,6 +764,7 @@ angular.module('greyscaleApp')
         //////////////////// initial loading /////////////////////
 
         function _loadUsersData() {
+            $log.debug('req users');
             var reqs = {
                 users: greyscaleUserApi.list(),
                 groups: greyscaleGroupApi.list(Organization.id)
@@ -829,7 +829,11 @@ angular.module('greyscaleApp')
             if (!_productCached) {
                 _productCached = greyscaleProductApi.get(productId)
                     .then(function (product) {
-                        $state.ext.productName = product.title;
+                        var ttl = product.title;
+                        if (!ttl && product.survey) {
+                            ttl = product.survey.title;
+                        }
+                        $state.ext.productName = ttl;
                         return product;
                     })
                     .catch(function (error) {
