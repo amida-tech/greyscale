@@ -652,6 +652,7 @@ var exportObject = function  (req, realm) {
 
     this.policyToDocx = function (surveyId, version) {
         var self = this;
+        var oUser = new sUser(req);
         return co(function* () {
 
             // html header & footer
@@ -661,17 +662,35 @@ var exportObject = function  (req, realm) {
 
             var survey = yield self.getVersion(surveyId, version);
 
-            if (_.first(survey.questions)) {
-                for (var i in survey.questions) {
-                    if (survey.questions[i].type == 14) {
-                        content += '<p><h1>' + survey.questions[i].label + '</h1></p>';
-                        content += '<p>' + survey.questions[i].description + '</p>';
+
+            if (survey.policyId) {
+                var authorName = '';
+                if (survey.author) {
+                    var author = yield oUser.getById(survey.author);
+                    if (author) {
+                        authorName = author.firstName + ' ' + author.lastName;
+                    }
+                }
+                content += '<table width="300">' +
+                    '<tr><td>SECTION</td><td>' + survey.section + '</td></tr>' +
+                    '<tr><td>SUBSECTION</td><td>' + survey.subsection + '</td></tr>' +
+                    '<tr><td>NUMBER</td><td>' + survey.number + '</td></tr>' +
+                    '<tr><td>TITLE</td><td>' + survey.title + '</td></tr>' +
+                    '<tr><td>TYPE</td><td>Medical Policy</td></tr>' +
+                    '<tr><td>AUTHOR</td><td>' + authorName + '</td></tr>' +
+                    '</table>';
+
+                if (_.first(survey.questions)) {
+                    for (var i in survey.questions) {
+                        if (survey.questions[i].type == 14) {
+                            content += '<p><h1>' + survey.questions[i].label + '</h1></p>';
+                            content += '<p>' + survey.questions[i].description + '</p>';
+                        }
                     }
                 }
             }
 
             content += htmlFooter;
-            console.log(content);
             var docx = htmlDocx.asBlob(content);
             return docx;
 
