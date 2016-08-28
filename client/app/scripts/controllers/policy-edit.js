@@ -6,7 +6,7 @@ angular.module('greyscaleApp')
     .controller('PolicyEditCtrl', function ($q, _, $scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
         Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, greyscaleProfileSrv, greyscaleUsers,
         greyscaleEntityTypeApi, greyscaleProductApi, greyscaleWebSocketSrv, $interval, greyscaleModalsSrv,
-        greyscaleProductSrv, $log) {
+        greyscaleProductSrv) {
 
         var //projectId,
             policyIdx = greyscaleGlobals.formBuilder.fieldTypes.indexOf('policy'),
@@ -159,14 +159,14 @@ angular.module('greyscaleApp')
                 survey = $scope.model.survey,
                 _deregistator = $scope.$on(greyscaleGlobals.events.survey.builderFormSaved, function () {
                     _deregistator();
-                    if (!isDraft) {
+                    if (!isDraft && survey.productId && survey.uoas && survey.uoas[0]) {
                         _publish = greyscaleModalsSrv.dialog(dlgPublish);
                     }
                     _publish
                         .then(function (_action) {
                             return _saveSurvey(isDraft)
                                 .then(function () {
-                                    return (survey.productId && survey.uoas[0]) ?
+                                    return (_action && survey.productId && survey.uoas[0]) ?
                                         greyscaleProductSrv.doAction(survey.productId, survey.uoas[0], _action) : true;
                                 });
                         })
@@ -255,10 +255,10 @@ angular.module('greyscaleApp')
                     $state.ext.surveyName = survey ? survey.title : $state.ext.surveyName;
 
                     /*
-                    if (projectId !== survey.projectId) {
-                        Organization.$setBy('projectId', survey.projectId);
-                    }
-                    */
+                     if (projectId !== survey.projectId) {
+                     Organization.$setBy('projectId', survey.projectId);
+                     }
+                     */
 
                     return greyscaleEntityTypeApi.list({
                         tableName: (isPolicy ? 'Policies' : 'SurveyAnswers')
