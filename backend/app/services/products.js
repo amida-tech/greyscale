@@ -39,7 +39,8 @@ var exportObject = function  (req, realm) {
                     Product.star(),
                     'row_to_json("Workflows".*) as workflow',
                     'row_to_json("Surveys".*) as survey',
-                    'row_to_json("Policies".*) as policy'
+                    'row_to_json("Policies".*) as policy',
+                    'ARRAY (SELECT "UOAid" FROM "ProductUOA" WHERE "productId" = "Products"."id") as uoas'
                 )
                     .from(
                     Product
@@ -80,7 +81,8 @@ var exportObject = function  (req, realm) {
                     Product.star(),
                     'row_to_json("Workflows".*) as workflow',
                     'row_to_json("Surveys".*) as survey',
-                    'row_to_json("Policies".*) as policy'
+                    'row_to_json("Policies".*) as policy',
+                    'ARRAY (SELECT "UOAid" FROM "ProductUOA" WHERE "productId" = "Products"."id") as uoas'
                 )
                 .from(
                     Product
