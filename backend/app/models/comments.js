@@ -59,12 +59,18 @@ Comment.answerFromParentCols = [
     'questionId',
     'userId',
     'stepId',
-    'stepFromId'
+    'stepFromId',
+    'surveyVersion'
 ];
 
 Comment.updateCols = [
+    'userId',
     'entry',
     'updated',
+    'isReturn',
+    'isResolve',
+    'returnTaskId',
+    'activated',
     'tags',
     'range',
     'commentType',

@@ -166,15 +166,6 @@ var getDiscussionEntry = function* (req, entryId) {
 };
 exports.getDiscussionEntry = getDiscussionEntry;
 
-var getCommentEntry = function* (req, entryId) {
-    var result = yield * getEntityById(req, entryId, Comment, 'id');
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Comment with id `' + parseInt(entryId).toString() + '` does not exist in comments');
-    }
-    return result[0];
-};
-exports.getCommentEntry = getCommentEntry;
-
 var getUser = function* (req, userId) {
     var result = yield * getEntityById(req, userId, User, 'id');
     if (!_.first(result)) {
@@ -261,8 +252,10 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
             )
             .leftJoin(Product)
             .on(ProductUOA.productId.equals(Product.id))
+            .join(SurveyMeta)
+            .on(SurveyMeta.productId.equals(Product.id))
             .leftJoin(Survey)
-            .on(Product.surveyId.equals(Survey.id))
+            .on(SurveyMeta.surveyId.equals(Survey.id))
         )
         .where(
             ProductUOA.productId.equals(productId)

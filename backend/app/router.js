@@ -453,10 +453,12 @@ router.route('/:realm/v0.2/comments')
     .post(authenticate('token').always, jsonParser, comments.insertOne);
 router.route('/:realm/v0.2/comments/users/:taskId')
     .get(authenticate('token').always, comments.getUsers);
+/*
 router.route('/:realm/v0.2/comments/entryscope')
     .get(authenticate('token').always, comments.getEntryScope);
 router.route('/:realm/v0.2/comments/entryscope/:id')
     .get(authenticate('token').always, comments.getEntryUpdate);
+*/
 router.route('/:realm/v0.2/comments/hidden')
     .put(authenticate('token').always, jsonParser, comments.hideUnhide);
 router.route('/:realm/v0.2/comments/:id')
