@@ -11,6 +11,7 @@ var
     User = require('app/models/users'),
     SurveyQuestion = require('app/models/survey_questions'),
     SurveyQuestionOption = require('app/models/survey_question_options'),
+    mc = require('app/mc_helper'),
     co = require('co'),
     Query = require('app/util').Query,
     query = new Query(),
@@ -119,6 +120,40 @@ module.exports = {
         } else {
             next(new HttpError(403, 'Please, provide a file'));
         }
+    },
+
+    policyToDocx: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            //var productId;
+            //try {
+            //    productId = yield mc.get(req.mcClient, req.params.ticket);
+            //} catch (e) {
+            //    throw new HttpError(500, e);
+            //}
+            //
+            //if (!productId) {
+            //    throw new HttpError(400, 'Ticket is not valid');
+            //}
+
+            var oSurvey = new sSurvey(req);
+            var docx = yield oSurvey.policyToDocx(req.params.id, req.params.version);
+
+            return {
+                docx: docx
+            };
+
+        }).then(function (data) {
+            res.writeHead ( 200, {
+                'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'Content-disposition': 'attachment; filename=' + req.params.id + '.docx'
+            });
+
+            //data.docx.pipe ( res );
+            res.end(data.docx);
+        }, function (err) {
+            next(err);
+        });
     },
 
     selectOne: function (req, res, next) {

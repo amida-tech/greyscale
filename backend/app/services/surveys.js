@@ -9,12 +9,16 @@ var
     sEssence = require('app/services/essences'),
     sUser = require('app/services/users'),
     Task = require('app/models/tasks'),
+    Product = require('app/models/products'),
     co = require('co'),
     Query = require('app/util').Query,
     sql = require('sql'),
     thunkify = require('thunkify'),
+    htmlDocx = require('html-docx-js'),
     HttpError = require('app/error').HttpError;
 
+var debug = require('debug')('debug_service_surveys');
+debug.log = console.log.bind(console);
 
 var exportObject = function  (req, realm) {
 
@@ -645,6 +649,35 @@ var exportObject = function  (req, realm) {
             return _.first(result) ? result[0].max : 0;
         });
     };
+
+    this.policyToDocx = function (surveyId, version) {
+        var self = this;
+        return co(function* () {
+
+            // html header & footer
+            var htmlHeader = '<!DOCTYPE html><html><head></head><body>';
+            var htmlFooter = '</body></html>';
+            var content = htmlHeader;
+
+            var survey = yield self.getVersion(surveyId, version);
+
+            if (_.first(survey.questions)) {
+                for (var i in survey.questions) {
+                    if (survey.questions[i].type == 14) {
+                        content += '<p><h1>' + survey.questions[i].label + '</h1></p>';
+                        content += '<p>' + survey.questions[i].description + '</p>';
+                    }
+                }
+            }
+
+            content += htmlFooter;
+            console.log(content);
+            var docx = htmlDocx.asBlob(content);
+            return docx;
+
+        });
+    }
+
 };
 
 module.exports = exportObject;
