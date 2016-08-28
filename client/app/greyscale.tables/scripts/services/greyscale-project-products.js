@@ -1,15 +1,8 @@
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleProjectProductsTbl', function ($q, _,
-        greyscaleProjectApi,
-        greyscaleSurveyApi,
-        greyscaleProductApi,
-        greyscaleModalsSrv,
-        greyscaleUtilsSrv,
-        greyscaleProductWorkflowApi,
-        greyscaleGlobals,
-        $state,
-        i18n, greyscaleProductSrv) {
+    .factory('greyscaleProjectProductsTbl', function ($q, _, greyscaleProjectApi, greyscaleSurveyApi,
+        greyscaleProductApi, greyscaleModalsSrv, greyscaleUtilsSrv, greyscaleProductWorkflowApi, greyscaleGlobals,
+        $state, i18n, greyscaleProductSrv) {
 
         var tns = 'PRODUCTS.TABLE.';
 
@@ -52,7 +45,7 @@ angular.module('greyscale.tables')
                 title: tns + 'WORKFLOW',
                 show: true,
                 cellTemplate: '{{cell}}<span ng-if="!cell" class="action" translate="' + tns +
-                    'CREATE_WORKFLOW"></span>',
+                'CREATE_WORKFLOW"></span>',
                 link: {
                     handler: _editProductWorkflow
                 },
@@ -89,15 +82,15 @@ angular.module('greyscale.tables')
                 dataFormat: 'action',
                 dataHide: true,
                 actions: [{
-                        title: tns + 'UOAS',
-                        class: 'info',
-                        handler: _editProductUoas,
-                        show: _showUoaSetting
-                    }, {
-                        title: tns + 'TASKS',
-                        class: 'info',
-                        handler: _editProductTasks
-                    }
+                    title: tns + 'UOAS',
+                    class: 'info',
+                    handler: _editProductUoas,
+                    show: _showUoaSetting
+                }, {
+                    title: tns + 'TASKS',
+                    class: 'info',
+                    handler: _editProductTasks
+                }
                     /*, {
                      title: tns + 'INDEXES',
                      class: 'info',
@@ -126,10 +119,10 @@ angular.module('greyscale.tables')
                     //target: '_blank',
                     //href: '/survey/{{item.id}}'
                     state: function (item) {
-                            return item.policy ? 'policy.edit({id: item.policy.surveyId})' :
-                                'projects.setup.surveys.edit({surveyId: item.survey.id})';
-                        }
-                        //state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
+                        return item.policy ? 'policy.edit({id: item.policy.surveyId})' :
+                            'projects.setup.surveys.edit({surveyId: item.survey.id})';
+                    }
+                    //state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
                 }
             }, {
                 show: true,
@@ -172,7 +165,7 @@ angular.module('greyscale.tables')
             // } else {
             var req = {
                 surveys: greyscaleSurveyApi.list(),
-                products: greyscaleProjectApi.productsList( /*projectId*/ )
+                products: greyscaleProjectApi.productsList(/*projectId*/)
             };
             return $q.all(req).then(function (resp) {
                 _dicts.surveys = resp.surveys;
@@ -385,7 +378,9 @@ angular.module('greyscale.tables')
                 break;
             case _const.STATUS_SUSPENDED:
                 newStatus = _const.STATUS_STARTED;
-                _publishDlg = greyscaleModalsSrv.dialog(dlgPublish);
+                if (_product.id && _product.uoas && _product.uoas[0]) {
+                    _publishDlg = greyscaleModalsSrv.dialog(dlgPublish);
+                }
                 break;
             }
 
@@ -395,7 +390,11 @@ angular.module('greyscale.tables')
                     return greyscaleProductApi.update(_product)
                         .then(_reload)
                         .then(function () {
-                            return greyscaleProductSrv.doAction(_product.id, _product.uoas[0], action);
+                            if (action && _product.id && _product.uoas && _product.uoas[0]) {
+                                return greyscaleProductSrv.doAction(_product.id, _product.uoas[0], action);
+                            } else {
+                                return true;
+                            }
                         })
                         .catch(function (err) {
                             return errHandler(err, op);
