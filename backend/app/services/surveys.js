@@ -23,6 +23,8 @@ var exportObject = function  (req, realm) {
         thunkQuery = req.thunkQuery;
     }
 
+    this._lockLimit = 1*60*1000; //one minute
+
     this.getList = function (options) {
         return co(function* () {
             return yield thunkQuery(
@@ -149,7 +151,19 @@ var exportObject = function  (req, realm) {
 
     this.getMeta = function (id) {
         return co(function* () {
+            var surveyMeta = yield thunkQuery(SurveyMeta.select().where(SurveyMeta.surveyId.equals(id)));
+            return surveyMeta[0] || false;
+        });
+    };
 
+    this.unlockSocketSurveys = function (socketId) { // in theory, we can have just one locked policy per connection
+        return co(function* () {
+            var editFields = {
+                socketId: null,
+                editor: null,
+                startEdit: null
+            };
+            return yield thunkQuery(SurveyMeta.update(editFields).where(SurveyMeta.socketId.equals(socketId)).returning(SurveyMeta.star()));
         });
     };
 
@@ -157,23 +171,12 @@ var exportObject = function  (req, realm) {
         var self = this;
         return co(function* () {
             var oUser = new sUser(req);
-
-            var surveyMeta = yield thunkQuery(SurveyMeta.select().where(SurveyMeta.surveyId.equals(id)));
-            if (!surveyMeta.length || !surveyMeta[0].productId) {
-                throw new HttpError(404, "Survey with id = " + id + " does not assign to any product and cannot be locked");
-            }
-
-            surveyMeta = surveyMeta[0];
-
             var startEdit = new Date();
-
-            if (surveyMeta.socketId && (surveyMeta.socketId !== socketId)) {
-                var startEditOld = new Date(surveyMeta.startEdit);
-                var range = startEdit.getTime() - startEditOld.getTime();
-                if ((range < self._lockLimit) && (surveyMeta.editor !== userId)) {
-                    throw new HttpError(403, "Policy already locked");
-                }
-            }
+            var fields = {
+                editor: userId,
+                startEdit: startEdit,
+                socketId: socketId
+            };
 
             var user = yield oUser.getById(userId);
 
@@ -183,16 +186,29 @@ var exportObject = function  (req, realm) {
                 throw new HttpError(403, "Only admins can edit a policy");
             }
 
-            var editFields = {
-                editor: userId,
-                startEdit: startEdit,
-                socketId: socketId
-            };
+            var surveyMeta = yield self.getMeta(id);
 
-            surveyMeta = yield thunkQuery(
-                SurveyMeta.update(editFields).where(SurveyMeta.surveyId.equals(id)).returning(SurveyMeta.star())
-            );
+            if (surveyMeta) {
+                if (surveyMeta.socketId && (surveyMeta.socketId !== socketId)) {
+                    var startEditOld = new Date(surveyMeta.startEdit);
+                    var range = startEdit.getTime() - startEditOld.getTime();
+                    if ((range < self._lockLimit) && (surveyMeta.editor !== userId)) {
+                        throw new HttpError(403, "Policy already locked");
+                    }
+                }
+
+                surveyMeta = yield thunkQuery(
+                    SurveyMeta.update(fields).where(SurveyMeta.surveyId.equals(id)).returning(SurveyMeta.star())
+                );
+            } else {
+                fields.surveyId = id;
+                surveyMeta = yield thunkQuery(
+                    SurveyMeta.insert(fields).returning(SurveyMeta.star())
+                );
+            }
+
             return surveyMeta[0];
+
         });
     };
 

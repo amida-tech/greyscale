@@ -2,6 +2,7 @@
 
 var io = require('socket.io');
 var sPolicy = require('app/services/policies');
+var sSurvey = require('app/services/surveys');
 var Token = require('app/models/token');
 var sUser = require('app/services/users');
 var config = require('config');
@@ -81,8 +82,8 @@ var exportObject = {
             socket.on('disconnect', function (reason) {
                 debug('Socket disconnected ' + socket.id);
                 if (socket.req) {
-                    var oPolicy = new sPolicy(socket.req);
-                    oPolicy.unlockSocketPolicies(socket.id.replace('/#','') ).then(
+                    var oSurvey = new sSurvey(socket.req);
+                    oSurvey.unlockSocketSurveys(socket.id.replace('/#','') ).then(
                         (data) => {
                             for (var i in data) {
                                 self.send(socketEvents.policyUnlocked, {policyId: data[i].id});
@@ -90,7 +91,6 @@ var exportObject = {
                         }
                     );
                 }
-
             });
 
             socket.on(socketEvents.policyLock, function (data) {
@@ -99,21 +99,25 @@ var exportObject = {
                 if (socket.req && socket.req.user && socket.req.user.id){
                     co(function* () {
                         var oPolicy = new sPolicy(socket.req);
+                        var oSurvey = new sSurvey(socket.req);
                         debug(socket.req.user.id);
-                        var policy;
-                        try{
-                            policy = yield oPolicy.lockPolicy(data.policyId, socket.req.user.id, socket.id.replace('/#',''));
-                        }catch(err){
+                        var surveyLock;
+                        var policy = yield oPolicy.getById(data.policyId);
+                        try {
+                            surveyLock = yield oSurvey.lockSurvey(policy.surveyId, socket.req.user.id, socket.id.replace('/#',''));
+                        } catch(err) {
+                            surveyLock = yield oSurvey.getMeta(policy.surveyId);
                             debug(JSON.stringify(err));
-                            policy = yield oPolicy.getById(data.policyId);
                         }
-                        return policy;
+
+                        debug(surveyLock);
+                        return surveyLock;
                     }).then(
-                        (policy) => {
+                        (surveyLock) => {
                             var response = {
-                                policyId: policy.id,
-                                editor: policy.editor,
-                                tsLock: policy.startEdit
+                                policyId: data.policyId,
+                                editor: surveyLock.editor,
+                                tsLock: surveyLock.startEdit
                             };
                             debug(response);
                             socket.emit(socketEvents.policyLocked, response);
