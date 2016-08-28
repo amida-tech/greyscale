@@ -2,6 +2,7 @@ var
     _ = require('underscore'),
     common = require('app/services/common'),
     sComment = require('app/services/comments'),
+    sSurvey = require('app/services/surveys'),
     TaskUserState = require('app/models/taskuserstates'),
     co = require('co'),
     Query = require('app/util').Query,
@@ -26,14 +27,17 @@ var exportObject = function  (req, realm) {
         thunkQuery = req.thunkQuery;
     }
     var oComment = new sComment(req);
+    var oSurvey = new sSurvey(req);
 
-    this.add = function (taskId, users, endDate) {
+    this.add = function (taskId, users, endDate, version) {
+        var self = this;
     // only initial adding task user states - when task created. Does not check existing records
         return co(function* () {
+            var version = version ? version : yield oSurvey.getMaxSurveyVersion(taskId);
             var late = endDate ? (endDate < new Date()): false;
             var stateId = late ? TaskUserState.getStateId('late') : TaskUserState.getStateId('pending');
-            var query ='INSERT INTO "TaskUserStates"  ("taskId", "userId", "stateId", "late", "endDate") ' +
-                pgEscape('SELECT %s, v, %s, %s, %L FROM unnest(\'{%s}\'::int[]) g(v)', taskId, stateId, late, endDate.toLocaleString(), users) +
+            var query ='INSERT INTO "TaskUserStates"  ("taskId", "userId", "stateId", "late", "endDate", "surveyVersion") ' +
+                pgEscape('SELECT %s, v, %s, %s, %L, %s FROM unnest(\'{%s}\'::int[]) g(v)', taskId, stateId, late, endDate.toLocaleString(), version, users) +
                 'RETURNING "TaskUserStates"."taskId", "TaskUserStates"."userId", "TaskUserStates"."stateId"';
 
             var result = yield thunkQuery(query);
@@ -48,9 +52,11 @@ var exportObject = function  (req, realm) {
             });
         });
     };
-    this.update = function (taskId, users, endDate) {
+    this.update = function (taskId, users, endDate, version) {
+        var self = this;
         // updating task user states.
         return co(function* () {
+            var version = version ? version : yield self.getMaxSurveyVersion(taskId);
             var late = (endDate < new Date());
             var stateId = late ? TaskUserState.getStateId('late') : TaskUserState.getStateId('pending');
             var query = TaskUserState
@@ -62,6 +68,7 @@ var exportObject = function  (req, realm) {
                 })
                 .where(TaskUserState.userId.in(Array.from(users)))
                 .and(TaskUserState.taskId.equals(taskId))
+                .and(TaskUserState.surveyVersion.equals(version))
                 .returning(TaskUserState.taskId, TaskUserState.userId, TaskUserState.stateId);
             var result = yield thunkQuery(query);
             bologger.log({
@@ -75,12 +82,16 @@ var exportObject = function  (req, realm) {
             });
         });
     };
-    this.remove = function (taskId, users) {
+    this.remove = function (taskId, users, version) {
+        var self = this;
         // removing task user states.
         return co(function* () {
+            var version = version ? version : yield self.getMaxSurveyVersion(taskId);
             var query = TaskUserState
                 .delete()
-                .where(TaskUserState.taskId.equals(taskId));
+                .where(TaskUserState.taskId.equals(taskId)
+                .and(TaskUserState.surveyVersion.equals(version))
+            );
             if (users) { // if users specified - remove only states for specified users
                 query = query.and(TaskUserState.userId.in(Array.from(users)));
             } // else remove all user states for specified task
@@ -98,20 +109,23 @@ var exportObject = function  (req, realm) {
             });
         });
     };
-    this.modify = function (taskId, users, endDate) {
+    this.modify = function (taskId, users, endDate, version) {
         // Modifying task user states.
         // if exist  - update
         // if not exist - add
         // if exist and not present in new users list for task - remove
         var self = this;
         return co(function* () {
+            var version = version ? version : yield self.getMaxSurveyVersion(taskId);
             var newUsers = users;
             var removingUsers = users;
             var updatingUsers = users;
             // get existing taskUserStates - all users for specified task
             var query = TaskUserState
                 .select(TaskUserState.userId)
-                .where(TaskUserState.taskId.equals(taskId));
+                .where(TaskUserState.taskId.equals(taskId)
+                .and(TaskUserState.surveyVersion.equals(version))
+            );
             var existingUsers = yield thunkQuery(query);
             if (_.first(existingUsers)) {
                 existingUsers = _.each(existingUsers, function(item, i, arr) {
@@ -120,42 +134,46 @@ var exportObject = function  (req, realm) {
             }
             newUsers = _.difference(users, existingUsers);
             if (newUsers && newUsers.length > 0) {
-                yield self.add(taskId, newUsers, endDate);
+                yield self.add(taskId, newUsers, endDate, version);
 
             }
             updatingUsers = _.intersection(users, existingUsers);
             if (updatingUsers && updatingUsers.length > 0) {
-                yield self.updateEndDate(taskId, updatingUsers, endDate);
+                yield self.updateEndDate(taskId, updatingUsers, endDate, version);
             }
             removingUsers = _.difference(existingUsers, users);
             if (removingUsers && removingUsers.length > 0) {
-                yield self.remove(taskId, removingUsers);
+                yield self.remove(taskId, removingUsers, version);
             }
         });
     };
-    this.upsert = function (taskId, userId, endDate) {
+    this.upsert = function (taskId, userId, endDate, version) {
         // Upserting task user states.
         // if exist  - update
         // if not exist - add
         // Don't remove !!!
         var self = this;
         return co(function* () {
-            var user = yield self.get(taskId, userId, true);
+            var version = version ? version : yield self.getMaxSurveyVersion(taskId);
+            var user = yield self.get(taskId, userId, version, true);
             if (user) {
-                yield self.update(taskId, [userId], endDate);
+                yield self.update(taskId, [userId], endDate, version);
             } else {
-                yield self.add(taskId, [userId], endDate);
+                yield self.add(taskId, [userId], endDate, version);
             }
             return user;
         });
     };
-    this.get = function (taskId, userId, noCheckError) {
+    this.get = function (taskId, userId, version, noCheckError) {
+        var self = this;
         return co(function* () {
+            var version = version ? version : yield self.getMaxSurveyVersion(taskId);
             // get taskUserState
             var taskUserState = yield thunkQuery(TaskUserState
                     .select(TaskUserState.star())
                     .where(TaskUserState.taskId.equals(taskId))
                     .and(TaskUserState.userId.equals(userId))
+                    .and(TaskUserState.surveyVersion.equals(version))
             );
             if (!_.first(taskUserState) && !noCheckError) {
                 // backend server logic error - it does not possible
@@ -166,28 +184,33 @@ var exportObject = function  (req, realm) {
         });
     };
     this.getByLists = function (tasks, users) {
+        var self = this;
         return co(function* () {
             // get taskUserState(s)
             var query = TaskUserState
-                    .select(TaskUserState.star());
-            if (tasks && users) {
+                    .select(TaskUserState.star(),
+                    self.column.maxSurveyVersion()
+                )
+                    .where(TaskUserState.taskId.in(Array.from(tasks)))
+                ;
+            if (users) {
                 query = query
-                    .where(TaskUserState.userId.in(Array.from(users)))
-                    .and(TaskUserState.taskId.in(Array.from(tasks)));
-            } else if (users) {
-                query = query
-                    .where(TaskUserState.userId.in(Array.from(users)));
-            } else if (tasks) {
-                query = query
-                    .where(TaskUserState.taskId.in(Array.from(tasks)));
+                    .and(TaskUserState.userId.in(Array.from(users)));
             }
-            return yield thunkQuery(query);
+            var taskUserStates = yield thunkQuery(query);
+            if (_.first(taskUserStates)) {
+                taskUserStates = _.filter(taskUserStates, function(item){
+                    return (item.maxSurveyVersion === item.surveyVersion);
+                });
+            }
+            return taskUserStates;
         });
     };
-    this.updateLate = function (tasks, users) {
+    this.updateLate = function (tasks, users, version) {
         // update taskUserStates stateId - ONLY late state - hardcoded :( ToDo something
         var self = this;
         return co(function* () {
+            var version = version ? version : yield self.getMaxSurveyVersion(tasks[0]);
             var query ='UPDATE "TaskUserStates" ' +
                 'SET ' +
                 '"late" = ("endDate" < now()), ' +
@@ -196,15 +219,9 @@ var exportObject = function  (req, realm) {
                 'THEN 1 ELSE "stateId" END as int), ' +
                 '"updatedAt" = now() ' +
                 pgEscape('WHERE (("TaskUserStates"."userId" IN (%s)) ', users) +
+                pgEscape('AND ("TaskUserStates"."surveyVersion" = %s)) ', version)  +
                 (tasks ? pgEscape('AND ("TaskUserStates"."taskId" IN (%s))) ', tasks) : ')') +
                 'RETURNING "taskId", "userId", "stateId"';
-/*
-            var query = TaskUserState
-                    .update(updateBody)
-                    .where(TaskUserState.userId.in(Array.from(users)))
-                    .and(TaskUserState.taskId.in(Array.from(tasks)))
-                    .returning(TaskUserState.taskId, TaskUserState.userId, TaskUserState.stateId);
-*/
             var result = yield thunkQuery(query);
             bologger.log({
                 req: req,
@@ -217,15 +234,17 @@ var exportObject = function  (req, realm) {
             });
         });
     };
-    this.updateState = function (taskId, userId, updateBody) {
+    this.updateState = function (taskId, userId, updateBody, version) {
         // update taskUserState stateId and flags if needed
         var self = this;
         return co(function* () {
+            var version = version ? version : yield self.getMaxSurveyVersion(taskId);
             updateBody = _.extend(updateBody, {updatedAt: new Date()});
             var result = yield thunkQuery(TaskUserState
                     .update(updateBody)
                     .where(TaskUserState.userId.equals(userId))
                     .and(TaskUserState.taskId.equals(taskId))
+                    .and(TaskUserState.surveyVersion.equals(version))
                     .returning(TaskUserState.taskId, TaskUserState.userId, TaskUserState.stateId)
             );
             bologger.log({
@@ -239,14 +258,15 @@ var exportObject = function  (req, realm) {
             });
         });
     };
-    this.updateStateAt = function (taskId, userId, stateAtName) {
+    this.updateStateAt = function (taskId, userId, stateAtName, version) {
         // set taskUserState flag `stateAtName` (`startedAt`, `approvedAt`, `draftAt`) and then modify stateId
         var self = this;
         return co(function* () {
-            var taskUserState = yield self.get(taskId, userId); // get taskUserState
+            var version = version ? version : yield self.getMaxSurveyVersion(taskId);
+            var taskUserState = yield self.get(taskId, userId, version); // get taskUserState
             taskUserState[stateAtName] = new Date();
             taskUserState.stateId = TaskUserState.setState(taskUserState);
-            yield self.updateState(taskId, userId, _.pick(taskUserState, ['stateId', stateAtName]));
+            yield self.updateState(taskId, userId, _.pick(taskUserState, ['stateId', stateAtName]), version);
         });
     };
     this.start = function (taskId, userId) {
@@ -261,40 +281,71 @@ var exportObject = function  (req, realm) {
         // set taskUserState flag `draftAt` and then modify stateId
         this.updateStateAt(taskId, userId, 'draftAt');
     };
-    this.updateEndDate = function (taskId, users, endDate) {
+    this.updateEndDate = function (taskId, users, endDate, version) {
         // set taskUserState flag `late` when endDate changed and then set stateId
         var self = this;
         var taskUserState;
         return co(function* () {
+            var version = version ? version : yield self.getMaxSurveyVersion(taskId);
             var late = (endDate < new Date());
             for (var i in users) {
-                taskUserState = yield self.get(taskId, users[i]); // get taskUserState
+                taskUserState = yield self.get(taskId, users[i], version); // get taskUserState
                 taskUserState.late = late;
                 taskUserState.endDate = endDate;
                 taskUserState.stateId = TaskUserState.setState(taskUserState);
-                yield self.updateState(taskId, users[i], _.pick(taskUserState, ['stateId', 'late', 'endDate']));
+                yield self.updateState(taskId, users[i], _.pick(taskUserState, ['stateId', 'late', 'endDate']), version);
             }
         });
     };
-    this.flagged = function (taskId, userId, unflag) {
+    this.flagged = function (taskId, userId, unflag, version) {
         // set taskUserState flag `flagged` and then modify stateId
         var self = this;
         return co(function* () {
-            var taskUserState = yield self.get(taskId, userId); // get taskUserState
+            var version = version ? version : yield self.getMaxSurveyVersion(taskId);
+            var taskUserState = yield self.get(taskId, userId, version); // get taskUserState
             taskUserState.flagged = unflag ? false : true;
             taskUserState.stateId = TaskUserState.setState(taskUserState);
-            yield self.updateState(taskId, userId, _.pick(taskUserState, ['stateId', 'flagged']));
+            yield self.updateState(taskId, userId, _.pick(taskUserState, ['stateId', 'flagged']), version);
         });
     };
-    this.tryUnflag = function (taskId, userId) {
+    this.tryUnflag = function (taskId, userId, version) {
         // check if task for user haven`t unresolved flags - unflag it
         var self = this;
         return co(function* () {
+            var version = version ? version : yield self.getMaxSurveyVersion(taskId);
             var isFlagged = yield oComment.isFlagged(taskId, userId);
             if (!isFlagged) {
-                yield self.flagged(taskId, userId, !isFlagged);
+                yield self.flagged(taskId, userId, !isFlagged, version);
             }
         });
+    };
+
+    this.getMaxSurveyVersion = function (taskId) {
+        var self = this;
+        return co(function* () {
+            var query = TaskUserState
+                .select(sql.functions.MAX(TaskUserState.surveyVersion))
+                .from(
+                TaskUserState
+            )
+                .where(TaskUserState.taskId.equals(taskId)
+            );
+            var result = yield thunkQuery(query);
+            return _.first(result) ? result[0].max : 0;
+        });
+    };
+
+    this.column = {
+        maxSurveyVersion : function () {
+            return '( ' +
+                'SELECT max("TUS"."surveyVersion") ' +
+                'FROM "TaskUserStates" as "TUS" ' +
+                'WHERE "TaskUserStates"."taskId" = "TUS"."taskId" ' +
+                //'AND "TaskUserStates"."userId" = "TUS"."userId"' +
+                'GROUP BY "TUS"."taskId" ' +
+                ') as "maxSurveyVersion"';
+        //( SELECT max("TUS"."surveyVersion") FROM "TaskUserStates" as "TUS"  WHERE "TaskUserStates"."taskId" = "TUS"."taskId" AND "TaskUserStates"."userId" = "TUS"."userId" GROUP BY "TUS"."taskId" ) as "maxSurveyVersion"
+        }
     };
 };
 module.exports = exportObject;

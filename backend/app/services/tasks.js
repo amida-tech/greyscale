@@ -21,6 +21,7 @@ var
     bologger = new BoLogger(),
     sTaskUserState = require('app/services/taskuserstates'),
     sProduct = require('app/services/products'),
+    sSurvey = require('app/services/surveys'),
     pgEscape = require('pg-escape');
 
 var exportObject = function  (req, realm) {
@@ -31,6 +32,7 @@ var exportObject = function  (req, realm) {
     }
     var oTaskUserState = new sTaskUserState(req);
     var oProduct = new sProduct(req);
+    var oSurvey = new sSurvey(req);
 
     this.getList = function () {
         return co(function* () {
@@ -147,21 +149,24 @@ var exportObject = function  (req, realm) {
             if (isPolicy) {
                 var taskUsersIds =  yield self.getTaskUsersIdsByProduct(req.params.id);
                 var tasks = yield self.getProductTasksExt('Comments');
-                var tasksUsersStatuses = yield self.getTaskUsersStatuses('Comments', taskUsersIds.userIds);
-                tasks = _.each(tasks, function (task) {
-                    var usersStatus = [];
-                    _.each(tasksUsersStatuses, function(userStatus){
-                        if (userStatus.taskId === task.id) {
-                            if (_.find(taskUsersIds.taskUserIds, function(item){
-                                    return (item.taskId === userStatus.taskId && item.userId === userStatus.userId);
-                                })) {
-                                usersStatus.push(_.omit(userStatus, 'taskId'));
+                if (tasks && tasks.length > 0) {
+                    for (var i in tasks) {
+                    //tasks = _.each(tasks, function (task) {
+                        var tasksUsersStatuses = yield self.getTaskUsersStatuses('Comments', taskUsersIds.userIds, tasks[i].id);
+                        var usersStatus = [];
+                        _.each(tasksUsersStatuses, function (userStatus) {
+                            if (userStatus.taskId === tasks[i].id) {
+                                if (_.find(taskUsersIds.taskUserIds, function (item) {
+                                        return (item.taskId === userStatus.taskId && item.userId === userStatus.userId);
+                                    })) {
+                                    usersStatus.push(_.omit(userStatus, 'taskId'));
+                                }
                             }
-                        }
-                    });
-                    usersStatus = self.getNamedStatuses(usersStatus, 'status');
-                    task.userStatuses = usersStatus;
-                });
+                        });
+                        usersStatus = self.getNamedStatuses(usersStatus, 'status');
+                        tasks[i].userStatuses = usersStatus;
+                    }
+                }
                 return tasks;
             } else {
                 return yield self.getProductTasksExt('Discussions');
@@ -358,19 +363,29 @@ var exportObject = function  (req, realm) {
     this.getTaskPolicy = function () {
         return this.getTaskExt('Comments', 'curStep');
     };
+    this.getTaskUsersStatuses4Policy = function (users, taskId) {
+        var self = this;
+        return co(function* () {
+            return yield self.getTaskUsersStatuses('Comments', users, taskId);
+        });
+    };
     this.getTaskUsersStatuses = function (commentDiscussion, users, taskId) {
 
-        var tasks = taskId ? [taskId] : null;
-        // 1st update Late status
-        oTaskUserState.updateLate(tasks, users);
-        // get all TaskUserStates for lists of users and tasks
-        return oTaskUserState.getByLists(tasks, users);
+        var taskUsersStatuses = [];
+        if (taskId) {
+            var surveyVersion = oSurvey.getMaxSurveyVersion(taskId);
+            // 1st update Late status
+            oTaskUserState.updateLate([taskId], users, surveyVersion);
+            // get all TaskUserStates for lists of users and tasks
+            taskUsersStatuses = oTaskUserState.getByLists([taskId], users);
+        }
+        return taskUsersStatuses;
 
     };
     this.getTasksUserStatus = function (commentDiscussion, userId, tasks) {
 
         // 1st update Late status
-        oTaskUserState.updateLate(tasks, [userId]);
+        // oTaskUserState.updateLate(tasks, [userId]); // ToDo: !!!! temporary disable
         // get all TaskUserStates for lists of users and tasks
         return oTaskUserState.getByLists(tasks, [userId]);
 
