@@ -197,8 +197,7 @@ angular.module('greyscale.tables')
 
         function _getSurveys() {
             return !_editProductMode ? _dicts.surveys : _.filter(_dicts.surveys, function (survey) {
-                return _editProductMode.surveyId === survey.id || !survey.policyId || !survey.products ||
-                    !survey.products.length;
+                return _editProductMode.surveyId === survey.id || !survey.policyId || !survey.products || !survey.products.length;
             });
         }
 
@@ -332,8 +331,10 @@ angular.module('greyscale.tables')
         }
 
         function _statusDisabledForPolicy(status, product) {
-            return product.policy && status.id !== product.status &&
-                !!~[_const.STATUS_PLANNING, _const.STATUS_STARTED, _const.STATUS_SUSPENDED].indexOf(status.id)
+            var res = status.id !== product.status && (product.status > _const.STATUS_PLANNING &&
+                !!~[_const.STATUS_PLANNING, _const.STATUS_STARTED, _const.STATUS_SUSPENDED].indexOf(status.id) ||
+                product.status === _const.STATUS_PLANNING && status.id === _const.STATUS_SUSPENDED);
+            return res;
         }
 
         function _planningNotFinish(product) {
@@ -342,8 +343,13 @@ angular.module('greyscale.tables')
         }
 
         function _getDisabledStatus(item, rec) {
-            return item.id !== _const.STATUS_PLANNING && item.id !== _const.STATUS_CANCELLED &&
-                _planningNotFinish(rec) || _statusDisabledForPolicy(item, rec);
+            var res;
+            if (rec.policy) {
+                return _statusDisabledForPolicy(item,rec);
+            } else {
+                return item.id !== _const.STATUS_PLANNING && item.id !== _const.STATUS_CANCELLED &&
+                    _planningNotFinish(rec);
+            }
         }
 
         function _getFormWarning(product) {
