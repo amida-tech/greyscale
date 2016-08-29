@@ -29,10 +29,14 @@ angular.module('greyscale.core')
         }
 
         function _needAction(product, uoas) {
-            var _state = _.find(statuses, {
-                id: product.status
-            });
-            return product && product.id && uoas && uoas[0] &&
-                _state && !!~activeStatuses.indexOf(_state.id);
+            var res = false, _state;
+            if (product && uoas) {
+                _state = _.find(statuses, {
+                    id: product.status
+                });
+                res = product.id && uoas[0] &&
+                    _state && !!~activeStatuses.indexOf(_state.id);
+            }
+            return res;
         }
     });
