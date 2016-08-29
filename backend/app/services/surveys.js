@@ -196,6 +196,92 @@ var exportObject = function  (req, realm) {
         });
     };
 
+    this.checkQuestionData = function (dataObj, isCreate) {
+        var question;
+        return co(function* () {
+            if (isCreate) {
+                if (
+                    typeof dataObj.label === 'undefined' ||
+                    typeof dataObj.type === 'undefined'
+                ) {
+                    throw new HttpError(403, 'label, surveyId(in params) and type fields are required');
+                }
+            } else {
+                question = yield thunkQuery(
+                    SurveyQuestion.select().where(SurveyQuestion.id.equals(req.params.id))
+                );
+                if (!_.first(question)) {
+                    throw new HttpError(403, 'Survey question with id = ' + req.params.id + 'does not exist');
+                }
+                question = _.first(question);
+            }
+
+            var surveyId = isCreate ? req.params.id : question.surveyId;
+            dataObj = _.extend(dataObj, {
+                surveyId: surveyId
+            });
+
+            if (dataObj.type) {
+                if (!(parseInt(dataObj.type) in SurveyQuestion.types)) {
+                    throw new HttpError(
+                        403,
+                        'Type value should be from 0 till ' + Object.keys(SurveyQuestion.types).length - 1
+                    );
+                }
+            }
+
+            var maxPos = yield thunkQuery(
+                SurveyQuestion.select('max("SurveyQuestions"."position")').where(SurveyQuestion.surveyId.equals(surveyId))
+            );
+
+            var nextPos = 1;
+
+            if (_.first(maxPos)) {
+                nextPos = _.first(maxPos).max + 1;
+            }
+
+            if (isCreate || typeof dataObj.position !== 'undefined') {
+                dataObj.position = isNaN(parseInt(dataObj.position)) ? 0 : parseInt(dataObj.position);
+
+                if (dataObj.position > nextPos || dataObj.position < 1) {
+                    dataObj.position = isCreate ? nextPos : (nextPos - 1);
+                }
+
+                if ((isCreate && _.first(maxPos))) {
+                    yield thunkQuery( // CREATE
+                        'UPDATE "SurveyQuestions" SET "position" = "position"+1 ' +
+                        'WHERE (' +
+                        '("SurveyQuestions"."surveyId" = ' + surveyId + ') ' +
+                        'AND ("SurveyQuestions"."position" >= ' + dataObj.position + ')' +
+                        ')'
+                    );
+                }
+                if (!isCreate && (question.position !== dataObj.position)) { // EDIT
+                    var q;
+                    if (question.position < dataObj.position) {
+                        q =
+                            'UPDATE "SurveyQuestions" SET "position" = "position"-1 ' +
+                            'WHERE (' +
+                            '("SurveyQuestions"."surveyId" = ' + surveyId + ') ' +
+                            'AND ("SurveyQuestions"."position" > ' + question.position + ')' +
+                            'AND ("SurveyQuestions"."position" <= ' + dataObj.position + ')' +
+                            ')';
+                    } else {
+                        q =
+                            'UPDATE "SurveyQuestions" SET "position" = "position"+1 ' +
+                            'WHERE (' +
+                            '("SurveyQuestions"."surveyId" = ' + surveyId + ') ' +
+                            'AND ("SurveyQuestions"."position" < ' + question.position + ')' +
+                            'AND ("SurveyQuestions"."position" >= ' + dataObj.position + ')' +
+                            ')';
+                    }
+
+                    yield thunkQuery(q);
+                }
+            }
+        });
+    }
+
     this.unlockSurvey = function (id, socketId) {
         return co(function* () {
             var editFields = {
