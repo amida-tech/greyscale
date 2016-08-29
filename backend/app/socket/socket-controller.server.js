@@ -86,7 +86,7 @@ var exportObject = {
                     oSurvey.unlockSocketSurveys(socket.id.replace('/#','') ).then(
                         (data) => {
                             for (var i in data) {
-                                self.send(socketEvents.policyUnlocked, {policyId: data[i].id});
+                                self.send(socketEvents.policyUnlocked, {surveyId: data[i].surveyId});
                             }
                         }
                     );
