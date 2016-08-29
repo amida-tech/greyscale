@@ -98,15 +98,13 @@ var exportObject = {
                 debug(socket.req);
                 if (socket.req && socket.req.user && socket.req.user.id){
                     co(function* () {
-                        var oPolicy = new sPolicy(socket.req);
                         var oSurvey = new sSurvey(socket.req);
                         debug(socket.req.user.id);
                         var surveyLock;
-                        var policy = yield oPolicy.getById(data.policyId);
                         try {
-                            surveyLock = yield oSurvey.lockSurvey(policy.surveyId, socket.req.user.id, socket.id.replace('/#',''));
+                            surveyLock = yield oSurvey.lockSurvey(data.surveyId, socket.req.user.id, socket.id.replace('/#',''));
                         } catch(err) {
-                            surveyLock = yield oSurvey.getMeta(policy.surveyId);
+                            surveyLock = yield oSurvey.getMeta(data.surveyId);
                             debug(JSON.stringify(err));
                         }
 
@@ -115,7 +113,7 @@ var exportObject = {
                     }).then(
                         (surveyLock) => {
                             var response = {
-                                policyId: data.policyId,
+                                surveyId: data.surveyId,
                                 editor: surveyLock.editor,
                                 tsLock: surveyLock.startEdit
                             };

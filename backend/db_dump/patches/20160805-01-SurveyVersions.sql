@@ -20,7 +20,7 @@ BEGIN
             CREATE TABLE "SurveyMeta"
             (
               "surveyId" integer NOT NULL,
-              "productId" integer NOT NULL,
+              "productId" integer,
               "editor" integer,
               "startEdit" timestamp with time zone,
               "socketId" character varying,
