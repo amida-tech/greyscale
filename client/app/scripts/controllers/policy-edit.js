@@ -129,29 +129,43 @@ angular.module('greyscaleApp')
 
         /* internal functions */
 
+        function _isCurrentRecord(data) {
+            return data.policyId && data.policyId === $scope.model.policy.id ||
+                data.surveyId && data.surveyId === $scope.model.survey.id;
+        }
+
         function _lockPolicy(policyId) {
             greyscaleWebSocketSrv.emit(wsEvents.policyLock, {
-                policyId: policyId
+                policyId: policyId,
+                surveyId: surveyId
             });
         }
 
         function _unlockPolicy(policyId) {
             greyscaleWebSocketSrv.emit(wsEvents.policyUnlock, {
-                policyId: policyId
+                policyId: policyId,
+                surveyId: surveyId
             });
         }
 
         function _policyLocked(data) {
             angular.extend($scope.model.lock, data);
-            $scope.model.lock.locked = (data.editor !== user.id);
-            greyscaleUsers.get(data.editor)
-                .then(function (user) {
-                    $scope.model.lock.editorUser = user;
-                });
+            if (!data.editor) {
+                $log.warn('lock editor undefined!');
+            }
+            if (data.editor && data.editor !== user.id && _isCurrentRecord(data)) {
+                $scope.model.lock.locked = true;
+                greyscaleUsers.get(data.editor)
+                    .then(function (user) {
+                        $scope.model.lock.editorUser = user;
+                    });
+            }
         }
 
         function _policyUnlocked(data) {
-            $scope.model.lock.locked = (data.policyId === $scope.model.survey.policyId);
+            if (_isCurrentRecord(data)) {
+                $scope.model.lock.locked = false;
+            }
         }
 
         function _save(isDraft) {
