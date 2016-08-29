@@ -125,17 +125,6 @@ module.exports = {
     policyToDocx: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            //var productId;
-            //try {
-            //    productId = yield mc.get(req.mcClient, req.params.ticket);
-            //} catch (e) {
-            //    throw new HttpError(500, e);
-            //}
-            //
-            //if (!productId) {
-            //    throw new HttpError(400, 'Ticket is not valid');
-            //}
-
             var oSurvey = new sSurvey(req);
             var docx = yield oSurvey.policyToDocx(req.params.id, req.params.version);
 

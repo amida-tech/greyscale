@@ -2,6 +2,7 @@ var
     _ = require('underscore'),
     Policy = require('app/models/policies'),
     Survey = require('app/models/surveys'),
+    Workflow = require('app/models/workflows'),
     SurveyQuestion = require('app/models/survey_questions'),
     SurveyMeta = require('app/models/survey_meta'),
     SurveyQuestionOption = require('app/models/survey_question_options'),
@@ -10,6 +11,7 @@ var
     sUser = require('app/services/users'),
     Task = require('app/models/tasks'),
     Product = require('app/models/products'),
+    ProductUOA = require('app/models/product_uoa'),
     co = require('co'),
     Query = require('app/util').Query,
     sql = require('sql'),
@@ -103,12 +105,29 @@ var exportObject = function  (req, realm) {
                             .on(SurveyMeta.surveyId.equals(Survey.id))
                             .leftJoin(Product)
                             .on(Product.id.equals(SurveyMeta.productId))
+                            .leftJoin(ProductUOA)
+                            .on(Product.id.equals(ProductUOA.productId))
+                            .leftJoin(Workflow)
+                            .on(Workflow.productId.equals(Product.id))
                     )
                     .select(
                         Survey.star(),
                         Policy.id.as("policyId"), Policy.section, Policy.subsection, Policy.author, Policy.number,
-                        //SurveyMeta.productId,
+                        '(' +
+                        '   SELECT ' +
+                        '       CASE WHEN ws.id IS NULL THEN FALSE' +
+                        '       ELSE TRUE' +
+                        '       END' +
+                        '   FROM "WorkflowSteps" ws ' +
+                        '   WHERE ws.id = "ProductUOA"."currentStepId" ' +
+                        '   AND ws.position = (' +
+                        '       SELECT max(subws.position) ' +
+                        '       FROM "WorkflowSteps" subws ' +
+                        '       WHERE subws."workflowId" = "Workflows".id' +
+                        '   )' +
+                        ') as "isLastStep", '+
                         'row_to_json("Products".*) as product',
+                        'row_to_json("Workflows".*) as workflow',
                         'ARRAY (SELECT "UOAid" FROM "ProductUOA" WHERE "productId" = "SurveyMeta"."productId") as uoas, ' +
                         '(WITH sq AS ' +
                         '( ' +
@@ -142,7 +161,10 @@ var exportObject = function  (req, realm) {
                         ') as att) as attachments'
                     )
                     .where(Survey.id.equals(id).and(Survey.surveyVersion.equals(version)))
-                    .group(Survey.id, Survey.surveyVersion, Policy.id, SurveyMeta.productId, Product.id)
+                    .group(
+                        Survey.id, Survey.surveyVersion, Policy.id, SurveyMeta.productId,
+                        Product.id, Workflow.id, ProductUOA.currentStepId, '"isLastStep"'
+                    )
             );
             return data[0] || false;
         });
@@ -589,12 +611,29 @@ var exportObject = function  (req, realm) {
                         .on(SurveyMeta.surveyId.equals(Survey.id))
                         .leftJoin(Product)
                         .on(Product.id.equals(SurveyMeta.productId))
+                        .leftJoin(ProductUOA)
+                        .on(Product.id.equals(ProductUOA.productId))
+                        .leftJoin(Workflow)
+                        .on(Workflow.productId.equals(Product.id))
                     )
                     .select(
                         Survey.star(),
                         Policy.id.as("policyId"), Policy.section, Policy.subsection, Policy.author, Policy.number,
-                        //SurveyMeta.productId,
+                        '(' +
+                        '   SELECT ' +
+                        '       CASE WHEN ws.id IS NULL THEN FALSE' +
+                        '       ELSE TRUE' +
+                        '       END' +
+                        '   FROM "WorkflowSteps" ws ' +
+                        '   WHERE ws.id = "ProductUOA"."currentStepId" ' +
+                        '   AND ws.position = (' +
+                        '       SELECT max(subws.position) ' +
+                        '       FROM "WorkflowSteps" subws ' +
+                        '       WHERE subws."workflowId" = "Workflows".id' +
+                        '   )' +
+                        ') as "isLastStep", '+
                         'row_to_json("Products".*) as product',
+                        'row_to_json("Workflows".*) as workflow',
                         'ARRAY (SELECT "UOAid" FROM "ProductUOA" WHERE "productId" = "SurveyMeta"."productId") as uoas, ' +
                         '(WITH sq AS ' +
                         '( ' +
@@ -637,7 +676,10 @@ var exportObject = function  (req, realm) {
                             .where(Survey.as('subS').id.equals(Survey.id))
                         ))
                     )
-                    .group(Survey.id, Survey.surveyVersion, Policy.id, SurveyMeta.productId, Product.id)
+                    .group(
+                        Survey.id, Survey.surveyVersion, Policy.id,
+                        SurveyMeta.productId, Product.id, Workflow.id, ProductUOA.currentStepId, '"isLastStep"'
+                    )
             );
             return data[0] || false;
         });
