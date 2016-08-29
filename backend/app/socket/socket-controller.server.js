@@ -128,6 +128,22 @@ var exportObject = {
                 }
             });
 
+            socket.on(socketEvents.policyUnlock, function (data) {
+                debug('policyUnlock');
+                debug(socket.req);
+                if (socket.req && socket.req.user && socket.req.user.id){
+                    var oSurvey = new sSurvey(socket.req);
+                    oSurvey.unlockSurvey(data.surveyId, socket.id.replace('/#','')).then(
+                        (result) => {
+                            for (var i in result) {
+                                self.send(socketEvents.policyUnlocked, {surveyId: result[i].surveyId});
+                            }
+                        },
+                        (err) => debug(JSON.stringify(err))
+                    );
+                }
+            });
+
             socket.on(socketEvents.setUser, function (data) {
 
                 // We pass req to services constructor as something like session

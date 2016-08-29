@@ -174,6 +174,23 @@ var exportObject = function  (req, realm) {
         });
     };
 
+    this.unlockSurvey = function (id, socketId) {
+        return co(function* () {
+            var editFields = {
+                socketId: null,
+                editor: null,
+                startEdit: null
+            };
+
+            return yield thunkQuery(
+                SurveyMeta
+                    .update(editFields)
+                    .where({socketId: socketId, surveyId: id})
+                    .returning(SurveyMeta.star())
+            );
+        });
+    };
+
     this.lockSurvey = function (id, userId, socketId) {
         var self = this;
         return co(function* () {
