@@ -338,8 +338,9 @@ angular.module('greyscaleApp')
         }
 
         function _publishIsDisabled(dataForm) {
-            /* disable if invalid or public version and not changed */
-            return dataForm.$invalid || !!~($scope.model.survey.surveyVersion) && dataForm.$pristine;
+            /* disable if editing locked or invalid or public version and not changed */
+            return $scope.model.lock.locked || dataForm.$invalid ||
+                !!~($scope.model.survey.surveyVersion) && dataForm.$pristine;
         }
 
         function _reinitPolicySections(sections) {
