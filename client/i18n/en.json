@@ -443,6 +443,7 @@
         "SUBSECTION": "Subsection",
         "TEXT": "Draft policy text:",
         "TITLE": "Policy title",
+        "UPDATED": "Policy updated",
         "UPLOAD_TEXT": "Copy and paste text into sections below or upload a draft written using the template to automatically divide it into sections below"
     },
     "PRODUCTS": {
