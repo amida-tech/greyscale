@@ -29,7 +29,9 @@ angular.module('greyscale.core')
         }
 
         function _needAction(product, uoas) {
-            var _state = _.find(statuses, {id: product.status});
+            var _state = _.find(statuses, {
+                id: product.status
+            });
             return product && product.id && uoas && uoas[0] &&
                 _state && !!~activeStatuses.indexOf(_state.id);
         }
