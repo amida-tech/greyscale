@@ -24,6 +24,7 @@ angular.module('greyscaleApp')
         $scope.model = {
             id: surveyId,
             title: '',
+            surveyData: null,
             isTaskMode: !!taskId
         };
 
@@ -65,7 +66,8 @@ angular.module('greyscaleApp')
                         taskId: resp.task ? resp.task.id : null,
                         userId: _user.id,
                         sections: [],
-                        attachments: resp.survey.attachments || []
+                        attachments: resp.survey.attachments || [],
+                        version: resp.survey.surveyVersion
                     },
                     collaboratorIds: [],
                     collaborators: {},
@@ -129,7 +131,7 @@ angular.module('greyscaleApp')
             })
             .finally(function () {
                 $scope.model.title = _title.join(' - ');
-                angular.extend($scope.model, data || {});
+                $scope.model.surveyData = data;
                 $scope.loading = false;
             });
 

@@ -1,5 +1,5 @@
-<rd-loading ng-if="model.loading" class="compact"></rd-loading>
-<div class="row policy-edit" ng-if="!model.loading">
+<rd-loading ng-show="model.loading" class="compact"></rd-loading>
+<div class="row policy-edit" ng-hide="model.loading">
     <div name="dataForm" class="col-sm-12 form-horizontal" ng-form="dataForm">
         <div uib-alert class="alert-warning" ng-if="model.lock.locked">
             <span translate="POLICY.IS_EDITING_BY"></span> {{model.lock.editorUser.fullName}} ({{model.lock.editorUser.email}})
@@ -7,7 +7,7 @@
         </div>
         <div class="row">
             <div class="col-sm-7">
-                <policy-block></policy-block>
+                <policy-block policy-data="model.policy"></policy-block>
             </div>
 
             <div class="col-sm-5" ng-if="model.policy.taskId">

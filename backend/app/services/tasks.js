@@ -556,6 +556,7 @@ var exportObject = function  (req, realm) {
             };
         });
     };
+
     this.taskStatus = {
         flaggedColumn : function (commentDiscussion) {
             return 'CASE ' +
@@ -568,6 +569,15 @@ var exportObject = function  (req, realm) {
                 pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
                 pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
                 ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : pgEscape('AND "%s"."taskId" = "Tasks"."id" ', commentDiscussion)) +
+                ((commentDiscussion === 'Discussions') ? '' :
+                        pgEscape(
+                            'AND "%s"."surveyVersion" = (SELECT max("Surveys"."surveyVersion") ' +
+                            'FROM "Tasks" as "subS" ' +
+                            'INNER JOIN "SurveyMeta" ON ("SurveyMeta"."productId" = "subS"."productId") ' +
+                            'INNER JOIN "Surveys" ON ("Surveys"."id" = "SurveyMeta"."surveyId") ' +
+                            'WHERE "subS"."id" = "%s"."taskId") ',
+                            commentDiscussion, commentDiscussion)
+                ) +
                 'LIMIT 1' +
                 ') IS NULL ' +
                 'THEN FALSE ' +
@@ -582,6 +592,15 @@ var exportObject = function  (req, realm) {
                 pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
                 pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
                 ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : pgEscape('AND "%s"."taskId" = "Tasks"."id" ', commentDiscussion)) +
+                ((commentDiscussion === 'Discussions') ? '' :
+                        pgEscape(
+                            'AND "%s"."surveyVersion" = (SELECT max("Surveys"."surveyVersion") ' +
+                            'FROM "Tasks" as "subS" ' +
+                            'INNER JOIN "SurveyMeta" ON ("SurveyMeta"."productId" = "subS"."productId") ' +
+                            'INNER JOIN "Surveys" ON ("Surveys"."id" = "SurveyMeta"."surveyId") ' +
+                            'WHERE "subS"."id" = "%s"."taskId") ',
+                            commentDiscussion, commentDiscussion)
+                ) +
                 ') as "flaggedCount"';
         },
         flaggedFromColumn : function (commentDiscussion) {
@@ -593,6 +612,15 @@ var exportObject = function  (req, realm) {
                 pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
                 pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
                 ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : pgEscape('AND "%s"."taskId" = "Tasks"."id" ', commentDiscussion)) +
+                ((commentDiscussion === 'Discussions') ? '' :
+                        pgEscape(
+                            'AND "%s"."surveyVersion" = (SELECT max("Surveys"."surveyVersion") ' +
+                            'FROM "Tasks" as "subS" ' +
+                            'INNER JOIN "SurveyMeta" ON ("SurveyMeta"."productId" = "subS"."productId") ' +
+                            'INNER JOIN "Surveys" ON ("Surveys"."id" = "SurveyMeta"."surveyId") ' +
+                            'WHERE "subS"."id" = "%s"."taskId") ',
+                            commentDiscussion, commentDiscussion)
+                ) +
                 'LIMIT 1' +
                 ') as "flaggedFrom"';
         },
