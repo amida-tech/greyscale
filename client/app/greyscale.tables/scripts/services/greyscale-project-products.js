@@ -345,7 +345,7 @@ angular.module('greyscale.tables')
         function _getDisabledStatus(item, rec) {
             var res;
             if (rec.policy) {
-                return _statusDisabledForPolicy(item,rec);
+                return _statusDisabledForPolicy(item, rec);
             } else {
                 return item.id !== _const.STATUS_PLANNING && item.id !== _const.STATUS_CANCELLED &&
                     _planningNotFinish(rec);
