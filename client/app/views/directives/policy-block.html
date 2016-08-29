@@ -1,11 +1,7 @@
 <div class="policy" ng-class="{'policy-review':model.policy.options.readonly}">
     <div class="policy-head form-horizontal">
         <div search-panel search-selector="model.policy.options.readonly ? '.section-text' :  '[ta-bind]'"></div>
-        <div class="text-right subtext" ng-if="model.survey.surveyVersion !== undefined">
-            <span translate="SURVEYS.VERSION"></span>:
-            <span ng-hide="model.survey.surveyVersion < 0">{{model.survey.surveyVersion}}</span>
-            <span ng-show="model.survey.surveyVersion < 0" translate="SURVEYS.VERSION_DRAFT"></span>
-        </div>
+        <survey-version></survey-version>
         <div class="form-group">
             <label for="title" class="col-sm-4 control-label required" translate="POLICY.TITLE"></label>
             <div class="col-sm-8">
