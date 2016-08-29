@@ -315,7 +315,7 @@ var exportObject = function  (req, realm) {
             var selfTasksExt = yield thunkQuery(query, req.query);
             if (_.first(selfTasksExt)) {
                 selfTasksExt = _.filter(selfTasksExt, function(item){
-                    return (item.maxSurveyVersion === item.survey.surveyVersion);
+                    return (item.survey && item.maxSurveyVersion === item.survey.surveyVersion);
                 });
             }
             return selfTasksExt;
