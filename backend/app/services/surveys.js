@@ -101,11 +101,14 @@ var exportObject = function  (req, realm) {
                             )
                             .leftJoin(SurveyMeta)
                             .on(SurveyMeta.surveyId.equals(Survey.id))
+                            .leftJoin(Product)
+                            .on(Product.id.equals(SurveyMeta.productId))
                     )
                     .select(
                         Survey.star(),
                         Policy.id.as("policyId"), Policy.section, Policy.subsection, Policy.author, Policy.number,
-                        SurveyMeta.productId,
+                        //SurveyMeta.productId,
+                        'row_to_json("Products".*) as product',
                         'ARRAY (SELECT "UOAid" FROM "ProductUOA" WHERE "productId" = "SurveyMeta"."productId") as uoas, ' +
                         '(WITH sq AS ' +
                         '( ' +
@@ -139,7 +142,7 @@ var exportObject = function  (req, realm) {
                         ') as att) as attachments'
                     )
                     .where(Survey.id.equals(id).and(Survey.surveyVersion.equals(version)))
-                    .group(Survey.id, Survey.surveyVersion, Policy.id, SurveyMeta.productId)
+                    .group(Survey.id, Survey.surveyVersion, Policy.id, SurveyMeta.productId, Product.id)
             );
             return data[0] || false;
         });
@@ -567,11 +570,14 @@ var exportObject = function  (req, realm) {
                         )
                         .leftJoin(SurveyMeta)
                         .on(SurveyMeta.surveyId.equals(Survey.id))
+                        .leftJoin(Product)
+                        .on(Product.id.equals(SurveyMeta.productId))
                     )
                     .select(
                         Survey.star(),
                         Policy.id.as("policyId"), Policy.section, Policy.subsection, Policy.author, Policy.number,
-                        SurveyMeta.productId,
+                        //SurveyMeta.productId,
+                        'row_to_json("Products".*) as product',
                         'ARRAY (SELECT "UOAid" FROM "ProductUOA" WHERE "productId" = "SurveyMeta"."productId") as uoas, ' +
                         '(WITH sq AS ' +
                         '( ' +
@@ -614,7 +620,7 @@ var exportObject = function  (req, realm) {
                             .where(Survey.as('subS').id.equals(Survey.id))
                         ))
                     )
-                    .group(Survey.id, Survey.surveyVersion, Policy.id, SurveyMeta.productId)
+                    .group(Survey.id, Survey.surveyVersion, Policy.id, SurveyMeta.productId, Product.id)
             );
             return data[0] || false;
         });
