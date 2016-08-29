@@ -34,6 +34,7 @@ angular.module('greyscaleApp')
                 editorUser: {}
             },
             survey: {
+                id: surveyId * 1,
                 isPolicy: isPolicy,
                 author: -1
             },
@@ -102,7 +103,7 @@ angular.module('greyscaleApp')
             Organization.$lock = false;
             lAnswerDirty();
             $interval.cancel(hbPromise);
-            _unlockPolicy($scope.model.survey.policyId);
+            _unlockPolicy();
             greyscaleWebSocketSrv.off(wsEvents.policyLocked, _policyLocked);
             greyscaleWebSocketSrv.off(wsEvents.policyUnlocked, _policyUnlocked);
             _destroy();
@@ -129,23 +130,26 @@ angular.module('greyscaleApp')
 
         /* internal functions */
 
+        function _recordIds() {
+            return {
+                surveyId: $scope.model.survey ? $scope.model.survey.id : surveyId
+            };
+        }
+
         function _isCurrentRecord(data) {
-            return data.policyId && data.policyId === $scope.model.policy.id ||
-                data.surveyId && data.surveyId === $scope.model.survey.id;
+            var _policy = $scope.model.policy,
+                _survey = $scope.model.survey;
+
+            return data.policyId && _policy && data.policyId === _policy.id ||
+                data.surveyId && _survey && data.surveyId === _survey.id;
         }
 
-        function _lockPolicy(policyId) {
-            greyscaleWebSocketSrv.emit(wsEvents.policyLock, {
-                policyId: policyId,
-                surveyId: surveyId
-            });
+        function _lockPolicy() {
+            greyscaleWebSocketSrv.emit(wsEvents.policyLock, _recordIds());
         }
 
-        function _unlockPolicy(policyId) {
-            greyscaleWebSocketSrv.emit(wsEvents.policyUnlock, {
-                policyId: policyId,
-                surveyId: surveyId
-            });
+        function _unlockPolicy() {
+            greyscaleWebSocketSrv.emit(wsEvents.policyUnlock, _recordIds());
         }
 
         function _policyLocked(data) {
@@ -235,7 +239,7 @@ angular.module('greyscaleApp')
                     survey.isPolicy = isPolicy;
 
                     if (isPolicy) {
-                        _lockPolicy(survey.policyId);
+                        _lockPolicy();
 
                         angular.extend($scope.model.policy, {
                             id: survey.policyId,
