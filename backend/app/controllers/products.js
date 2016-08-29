@@ -55,12 +55,24 @@ var moveWorkflow = function* (req, productId, UOAid) {
     var thunkQuery = req.thunkQuery;
     var oProduct = new sProduct(req);
     var oTask = new sTask(req);
+    var oTaskUserState = new sTaskUserState(req);
+    var oSurvey = new sSurvey(req);
 
     //if (req.user.roleID !== 2 && req.user.roleID !== 1) { // TODO check org owner
     //    throw new HttpError(403, 'Access denied');
     //}
     var curStep = yield * common.getCurrentStepExt(req, productId, UOAid);
     var isPolicy = yield oTask.isPolicy(curStep.task.id);
+
+    if (req.query.restart) { // restart step
+        // add initial TaskUserStates
+        task = yield * common.getTask(req, curStep.task.id);
+        var surveyVersion = yield oSurvey.getMaxSurveyVersion(task.id);
+        var usersIds =  yield oTask.getUsersIdsByTask(task.id);
+        yield oTaskUserState.add(task.id, usersIds, task.endDate, surveyVersion);
+        return;
+    }
+
 
     var autoResolve = false;
     if (req.query.force) { // force to move step
@@ -129,7 +141,6 @@ var moveWorkflow = function* (req, productId, UOAid) {
             return;
         }
     } else if (!req.query.force) {    // for policy - check all users approved task - only if no force
-        var oTaskUserState = new sTaskUserState(req);
         var taskUserStates = yield oTaskUserState.getByLists([curStep.task.id],null);
         if (!_.first(taskUserStates)) {
             debug('Error getting taskUserStates - possible obsolete data - don`t move workflow step');
