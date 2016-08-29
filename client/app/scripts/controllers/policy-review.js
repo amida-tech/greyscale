@@ -24,6 +24,7 @@ angular.module('greyscaleApp')
         $scope.model = {
             id: surveyId,
             title: '',
+            surveyData: null,
             isTaskMode: !!taskId
         };
 
@@ -129,7 +130,7 @@ angular.module('greyscaleApp')
             })
             .finally(function () {
                 $scope.model.title = _title.join(' - ');
-                angular.extend($scope.model, data || {});
+                $scope.model.surveyData = data;
                 $scope.loading = false;
             });
 

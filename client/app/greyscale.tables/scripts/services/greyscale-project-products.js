@@ -2,7 +2,7 @@
 angular.module('greyscale.tables')
     .factory('greyscaleProjectProductsTbl', function ($q, _, greyscaleProjectApi, greyscaleSurveyApi,
         greyscaleProductApi, greyscaleModalsSrv, greyscaleUtilsSrv, greyscaleProductWorkflowApi, greyscaleGlobals,
-        $state, i18n, greyscaleProductSrv) {
+        $state, i18n, greyscaleProductSrv, $log) {
 
         var tns = 'PRODUCTS.TABLE.';
 
@@ -331,6 +331,11 @@ angular.module('greyscale.tables')
             return greyscaleProductWorkflowApi.workflow(workflowId).stepsListUpdate(steps);
         }
 
+        function _statusDisabledForPolicy(status, product) {
+            return product.policy && status.id !== product.status &&
+                !!~[_const.STATUS_PLANNING, _const.STATUS_STARTED, _const.STATUS_SUSPENDED].indexOf(status.id)
+        }
+
         function _planningNotFinish(product) {
             return !product.uoas || !product.uoas.length || !product.surveyId || !product.workflowSteps ||
                 !product.workflowSteps.length || !product.tasks || !product.tasks.length;
@@ -338,7 +343,7 @@ angular.module('greyscale.tables')
 
         function _getDisabledStatus(item, rec) {
             return item.id !== _const.STATUS_PLANNING && item.id !== _const.STATUS_CANCELLED &&
-                _planningNotFinish(rec);
+                _planningNotFinish(rec) || _statusDisabledForPolicy(item, rec);
         }
 
         function _getFormWarning(product) {
