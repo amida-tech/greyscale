@@ -96,7 +96,7 @@ angular.module('greyscaleApp')
                     lastDate = startDate;
                 }
 
-                step.endDateInvalid = endDate && lastDate && endDate <= lastDate;
+                step.endDateInvalid = endDate && lastDate && endDate < lastDate;
 
                 if (endDate) {
                     lastDate = endDate;
