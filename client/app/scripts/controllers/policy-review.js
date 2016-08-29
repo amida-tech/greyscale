@@ -66,7 +66,8 @@ angular.module('greyscaleApp')
                         taskId: resp.task ? resp.task.id : null,
                         userId: _user.id,
                         sections: [],
-                        attachments: resp.survey.attachments || []
+                        attachments: resp.survey.attachments || [],
+                        version: resp.survey.surveyVersion
                     },
                     collaboratorIds: [],
                     collaborators: {},
