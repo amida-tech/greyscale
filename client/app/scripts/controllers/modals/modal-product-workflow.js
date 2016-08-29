@@ -78,13 +78,14 @@ angular.module('greyscaleApp')
         }
     });
 
-    var _allDatesValid = true;
+    var _allDatesValid = true, _dateSequenceErrors = 0;
     var errorMsgTimer;
     function _validateDates() {
         var tableData = productWorkflow.tableParams.data;
         var steps = _getSteps();
         var lastDate;
         _allDatesValid = true;
+        _dateSequenceErrors = 0;
         angular.forEach(steps, function(step, i){
             var startDate = step.startDate ? new Date(Date.parse(step.startDate)) : null;
             var endDate = step.endDate ? new Date(Date.parse(step.endDate)) : null;
@@ -96,13 +97,16 @@ angular.module('greyscaleApp')
             if (endDate) {
                 lastDate = endDate;
             }
-            if (step.startDateInvalid || step.endDateInvalid) {
+            if (!startDate || !endDate || step.startDateInvalid || step.endDateInvalid) {
                 _allDatesValid = false;
+            }
+            if (step.startDateInvalid || step.endDateInvalid) {
+                _dateSequenceErrors++;
             }
             tableData[i].startDateInvalid = step.startDateInvalid;
             tableData[i].endDateInvalid = step.endDateInvalid;
         });
-        if (!_allDatesValid) {
+        if (_dateSequenceErrors) {
             if (errorMsgTimer) {
                 $timeout.cancel(errorMsgTimer);
             }
