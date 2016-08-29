@@ -378,7 +378,7 @@ angular.module('greyscale.tables')
                 break;
             case _const.STATUS_SUSPENDED:
                 newStatus = _const.STATUS_STARTED;
-                if (_product.id && _product.uoas && _product.uoas[0]) {
+                if (greyscaleProductSrv.needAcionSecect(_product,_product.uoas)) {
                     _publishDlg = greyscaleModalsSrv.dialog(dlgPublish);
                 }
                 break;
@@ -390,7 +390,7 @@ angular.module('greyscale.tables')
                     return greyscaleProductApi.update(_product)
                         .then(_reload)
                         .then(function () {
-                            if (action && _product.id && _product.uoas && _product.uoas[0]) {
+                            if (action && greyscaleProductSrv.needAcionSecect(_product,_product.uoas)) {
                                 return greyscaleProductSrv.doAction(_product.id, _product.uoas[0], action);
                             } else {
                                 return true;

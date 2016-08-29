@@ -1,0 +1,5 @@
+<div class="text-right subtext" ng-if="model.survey.surveyVersion || model.survey.surveyVersion+1">
+    <span translate="SURVEYS.VERSION"></span>:
+    <span ng-hide="model.survey.surveyVersion < 0">{{model.survey.surveyVersion}}</span>
+    <span ng-show="model.survey.surveyVersion < 0" translate="SURVEYS.VERSION_DRAFT"></span>
+</div>

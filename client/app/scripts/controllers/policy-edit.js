@@ -173,15 +173,18 @@ angular.module('greyscaleApp')
                 survey = $scope.model.survey,
                 _deregistator = $scope.$on(greyscaleGlobals.events.survey.builderFormSaved, function () {
                     _deregistator();
-                    if (!isDraft && survey.productId && survey.uoas && survey.uoas[0]) {
+                    if (!isDraft && greyscaleProductSrv.needAcionSecect(survey.product, survey.uoas)) {
                         _publish = greyscaleModalsSrv.dialog(dlgPublish);
                     }
                     _publish
                         .then(function (_action) {
                             return _saveSurvey(isDraft)
                                 .then(function () {
-                                    return (_action && survey.productId && survey.uoas[0]) ?
-                                        greyscaleProductSrv.doAction(survey.productId, survey.uoas[0], _action) : true;
+                                    if (_action && greyscaleProductSrv.needAcionSecect(survey.product, survey.uoas)) {
+                                        return greyscaleProductSrv.doAction(survey.product.id, survey.uoas[0], _action);
+                                    } else {
+                                        return true;
+                                    }
                                 });
                         })
                         .then(_goPolicyList);
@@ -262,7 +265,8 @@ angular.module('greyscaleApp')
                             sections: _sections,
                             options: {
                                 canImport: canImport,
-                                readonly: survey.locked
+                                readonly: survey.locked,
+                                version: survey.surveyVersion
                             }
                         });
                     }

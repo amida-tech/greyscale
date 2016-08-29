@@ -724,7 +724,9 @@
         "TITLE": "Title",
         "TRANSLATED": "Translation complete",
         "URL_INCORRECT": "URL incorrect",
-        "VERSION": "Versions",
+        "VERSION": "Version",
+        "VERSIONS": "Versions",
+        "VERSION_DRAFT": "draft",
         "VIEW": "View"
     },
     "TABLES": {
