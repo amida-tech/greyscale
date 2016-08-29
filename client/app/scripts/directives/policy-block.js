@@ -9,11 +9,6 @@ angular.module('greyscaleApp')
         return {
             restrict: 'E',
             templateUrl: 'views/directives/policy-block.html',
-            /*
-            scope: {
-                policyData: '=?'
-            },
-            */
             controller: function ($scope, $element, greyscaleUtilsSrv, FileUploader, $timeout, greyscaleTokenSrv,
                 greyscaleGlobals) {
 
@@ -97,7 +92,8 @@ angular.module('greyscaleApp')
                             });
                         }
                         if (data.hasOwnProperty(_sectionName) && $scope.model.policy.sections[i]) {
-                            $scope.model.policy.sections[i].label = _sectionName || $scope.model.policy.sections[i].label;
+                            $scope.model.policy.sections[i].label = _sectionName ||
+                                $scope.model.policy.sections[i].label;
                             $scope.model.policy.sections[i].description = data[_sectionName];
                             i++;
                         }

@@ -3,8 +3,8 @@
         <rd-widget ng-show="model.title">
             <rd-widget-header title="{{model.title}}"></rd-widget-header>
             <rd-widget-body>
-                <policy-block policy-data="model.surveyData.policy"></policy-block>
-                <survey-form survey-data="model.surveyData" ng-class="{'flagged-survey':model.surveyData.resolveData}" ng-if="model.isTaskMode"></survey-form>
+                <policy-block></policy-block>
+                <survey-form survey-data="model" ng-class="{'flagged-survey':model.resolveData}" ng-if="model.isTaskMode"></survey-form>
             </rd-widget-body>
         </rd-widget>
     </div>
@@ -13,7 +13,7 @@
             <rd-widget ng-show="model.title" >
                 <rd-widget-header title="{{'SURVEYS.DISCUSSION' | translate}}"></rd-widget-header>
                 <rd-widget-body classes="group-discussion">
-                    <policy-discussion policy="model.surveyData.policy"></policy-discussion>
+                    <policy-discussion policy="model.policy"></policy-discussion>
                 </rd-widget-body>
             </rd-widget>
         </div>

@@ -72,8 +72,8 @@ angular.module('greyscaleApp')
         });
 
         hbPromise = $interval(function () {
-            if ($scope.model.survey.isPolicy && $scope.model.survey.policyId && !$scope.model.lock.locked) {
-                _lockPolicy($scope.model.survey.policyId);
+            if ($scope.model.survey.id && !$scope.model.lock.locked) {
+                _lockPolicy();
             }
         }, greyscaleGlobals.wsHeartbeatSec * 1000);
 
@@ -117,7 +117,6 @@ angular.module('greyscaleApp')
             .then(_setAuthor);
 
         if (surveyId) {
-            $scope.model.loading = true;
             Organization.$watch($scope, function () {
                 //projectId = Organization.projectId;
                 _loadSurvey();
@@ -167,8 +166,11 @@ angular.module('greyscaleApp')
         }
 
         function _policyUnlocked(data) {
+            $log.debug('_policyUnlocked', data);
             if (_isCurrentRecord(data)) {
                 $scope.model.lock.locked = false;
+                greyscaleUtilsSrv.successMsg('POLICY.UPDATED');
+                _loadSurvey();
             }
         }
 
@@ -203,6 +205,8 @@ angular.module('greyscaleApp')
             var params = {
                 forEdit: true
             };
+
+            $scope.model.loading = true;
 
             greyscaleProductApi.getList({
                 surveyId: surveyId
