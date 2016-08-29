@@ -6,7 +6,7 @@ angular.module('greyscaleApp')
     .controller('PolicyEditCtrl', function ($q, _, $scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
         Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, greyscaleProfileSrv, greyscaleUsers,
         greyscaleEntityTypeApi, greyscaleProductApi, greyscaleWebSocketSrv, $interval, greyscaleModalsSrv,
-        greyscaleProductSrv) {
+        greyscaleProductSrv, $log) {
 
         var //projectId,
             policyIdx = greyscaleGlobals.formBuilder.fieldTypes.indexOf('policy'),
@@ -338,12 +338,8 @@ angular.module('greyscaleApp')
         }
 
         function _publishIsDisabled(dataForm) {
-            /* don't need
-             if (surveyId && dataForm.$pristine) {
-             return false;
-             }
-             */
-            return dataForm.$invalid || !!~($scope.model.survey.surveyVersion);
+            /* disable if invalid or public version and not changed */
+            return dataForm.$invalid || !!~($scope.model.survey.surveyVersion) && dataForm.$pristine;
         }
 
         function _reinitPolicySections(sections) {
