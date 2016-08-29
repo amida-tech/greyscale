@@ -57,6 +57,7 @@ angular.module('greyscale.core')
                 id: 4,
                 name: 'CANCELLED'
             }],
+            productActiveStates: [1, 2],
             uoaVisibility: [{
                 id: 1,
                 name: 'PUBLIC'

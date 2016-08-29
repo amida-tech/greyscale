@@ -74,6 +74,7 @@ angular.module('greyscaleApp')
         });
 
         var _allDatesValid = true;
+        var  _dateSequenceErrors = 0;
         var errorMsgTimer;
 
         function _validateDates() {
@@ -84,6 +85,7 @@ angular.module('greyscaleApp')
                 endDate;
 
             _allDatesValid = true;
+            _dateSequenceErrors = 0;
             angular.forEach(steps, function (step, i) {
                 startDate = step.startDate ? new Date(Date.parse(step.startDate)) : null;
                 endDate = step.endDate ? new Date(Date.parse(step.endDate)) : null;
@@ -94,19 +96,22 @@ angular.module('greyscaleApp')
                     lastDate = startDate;
                 }
 
-                step.endDateInvalid = endDate && lastDate && endDate <= lastDate;
+                step.endDateInvalid = endDate && lastDate && endDate < lastDate;
 
                 if (endDate) {
                     lastDate = endDate;
                 }
 
-                if (step.startDateInvalid || step.endDateInvalid) {
+                if (!startDate || !endDate || step.startDateInvalid || step.endDateInvalid) {
                     _allDatesValid = false;
+                }
+                if (step.startDateInvalid || step.endDateInvalid) {
+                    _dateSequenceErrors++;
                 }
                 tableData[i].startDateInvalid = step.startDateInvalid;
                 tableData[i].endDateInvalid = step.endDateInvalid;
             });
-            if (!_allDatesValid) {
+            if (_dateSequenceErrors) {
                 if (errorMsgTimer) {
                     $timeout.cancel(errorMsgTimer);
                 }

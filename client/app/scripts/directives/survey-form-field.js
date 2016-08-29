@@ -49,7 +49,7 @@ angular.module('greyscaleApp')
                             '">{{field.qid}}. {{field.label}}</label><p class="subtext field-description">{{field.description}}</p>';
 
                         if (!flags.blindReview && !flags.provideResponses && !flags.isPolicy) {
-                            label = '<a class="fa fa-users version-button" ng-click="showVersion(field)" title="{{\'SURVEYS.VERSION\' | translate}}"></a> ' + label;
+                            label = '<a class="fa fa-users version-button" ng-click="showVersion(field)" title="{{\'SURVEYS.VERSIONS\' | translate}}"></a> ' + label;
                         }
 
                         if (scope.field.flagResolve) {
