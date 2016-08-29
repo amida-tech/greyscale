@@ -113,7 +113,7 @@ var exportObject = {
                     }).then(
                         (surveyLock) => {
                             var response = {
-                                surveyId: data.surveyId,
+                                surveyId: parseInt(data.surveyId),
                                 editor: surveyLock.editor,
                                 tsLock: surveyLock.startEdit
                             };
