@@ -14,12 +14,12 @@ BEGIN
         AND (pg_catalog.pg_user.usename = db_user)
     LOOP
         RAISE NOTICE 'db_user = %, schema = %', db_user, schema_name;
-        EXECUTE 'SET search_path TO ' || quote_ident(schema_name);
-
-        EXECUTE 'ALTER TABLE "TaskUserStates" ' ||
-            'DROP CONSTRAINT "TaskUserStates_pkey" , ' ||
-            'ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0, ' ||
-            'ADD CONSTRAINT "TaskUserStates_pkey" PRIMARY KEY ("taskId", "userId", "surveyVersion");';
+        EXECUTE $query$
+            SET search_path TO $query$ || schema_name || $query$;
+            ALTER TABLE "TaskUserStates"
+            DROP CONSTRAINT "TaskUserStates_pkey",
+            ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0;
+        $query$;
 
     END LOOP;
 
