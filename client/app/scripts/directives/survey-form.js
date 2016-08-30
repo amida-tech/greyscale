@@ -320,7 +320,7 @@ angular.module('greyscaleApp')
         };
 
         function isReadonlyFlags(_flags) {
-            if (_flags.isPolicy && _flags.hasVersion) {
+            if (_flags.isPolicy && (_flags.hasVersion || _flags.isVersion)) {
                 angular.extend(_flags, {
                     allowEdit: false,
                     writeToAnswers: false,
@@ -328,7 +328,7 @@ angular.module('greyscaleApp')
                 });
             }
             return (!_flags.allowEdit && !_flags.writeToAnswers && !_flags.provideResponses) ||
-                (_flags.isPolicy && _flags.hasVersion);
+                (_flags.isPolicy && (_flags.hasVersion || _flags.isVersion));
         }
 
         function initLanguage(scope) {

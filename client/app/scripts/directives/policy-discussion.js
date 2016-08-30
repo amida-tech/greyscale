@@ -160,14 +160,19 @@ angular.module('greyscaleApp')
         };
 
         function _updateDiscussion(data, scope) {
-            if (data && data.sections && data.taskId) {
+            if (data && data.sections && (data.taskId || !!~data.version)) {
                 var params = {
                     surveyId: data.surveyId,
                     taskId: data.taskId,
-                    hidden: greyscaleProfileSrv.isAdmin()
+                    hidden: greyscaleProfileSrv.isAdmin(),
+                    version: data.version
                 };
+
                 var reqs = {
-                    tags: greyscaleCommentApi.getUsers(data.taskId),
+                    tags: data.taskId ? greyscaleCommentApi.getUsers(data.taskId) : $q.resolve({
+                        users: [],
+                        groups: []
+                    }),
                     messages: greyscaleCommentApi.list(params)
                 };
 

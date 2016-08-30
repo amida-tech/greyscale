@@ -248,7 +248,7 @@ angular.module('greyscaleApp')
                             }
 
                             if (flags.provideResponses) {
-                                body += '<div translate="SURVEYS.REVIEVER_COMMENT"></div>' +
+                                body += '<div translate="SURVEYS.REVIEWER_COMMENT"></div>' +
                                     '<textarea placeholder="Comment" ng-model="field.response"></textarea>' +
                                     '<div class="field-comment-radio">' +
                                     '<div class="radio"><label><input type="radio" name="{{field.cid}}_agree"' +

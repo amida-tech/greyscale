@@ -65,6 +65,7 @@
         "SAVE": "Save",
         "SAVED": "Saved",
         "SAVE_AND_CONTINUE": "Save And Continue",
+        "SELECT": "Select",
         "SEND": "Send",
         "SEND_MESSAGE": "Send Message",
         "SERVICE_UNAVAILABLE": "Service Unavailable",
@@ -331,7 +332,8 @@
         "POLICY": {
             "EDIT": "Policy edit",
             "REVIEW": "Policy review",
-            "TITLE": "Policies"
+            "TITLE": "Policies",
+            "VERSION": "Policy version"
         },
         "PRODUCT_INDEXES": "\"{{ext.productName}}\" Project Indexes",
         "PRODUCT_TASKS": "\"{{ext.productName}}\" Project Tasks",
@@ -714,7 +716,7 @@
         "RESOLVE_COMMENT": "Comment to the reviewer",
         "RESOLVE_ENTRY": "Resolve Entry",
         "RESPONSES": "Responses",
-        "REVIEVER_COMMENT": "Response",
+        "REVIEWER_COMMENT": "Response",
         "SAVE_AND_RESOLVE": "Resolve",
         "SAVE_DRAFT": "Save as Draft",
         "SAVE_DRAFT_SUCCESS": "Draft version saved successfully",
@@ -835,6 +837,12 @@
         "USERS_IN_GROUPS": "Users In Groups",
         "USER_GROUP": "User Group",
         "USER_GROUPS": "User Groups"
+    },
+    "VERSIONS": {
+        "REVIEW": "review",
+        "SELECT": "Select version of '{{title}}'",
+        "VERSION": "Version",
+        "VERSIONS": "Versions"
     },
     "VISUALIZATIONS": {
         "MODAL_TITLE": "Edit Visualization {{visualization.title}}",

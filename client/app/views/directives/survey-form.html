@@ -60,11 +60,12 @@
                     <!--</div>-->
 
                     <button class="btn pull-right" ng-click="saveDraft()" style="clear:right"
+                            ng-if="!surveyData.flags.isVersion"
                             title="{{'SURVEYS.LAST_SAVED' | translate}}: {{model.savedAt | date:'medium'}}"
                             ng-disabled="(isLocked() || model.formReadonly || model.locked)"
                             translate="SURVEYS.SAVE_DRAFT"></button>
 
-                    <button ng-if="!surveyData.task.flagged || surveyData.resolveModeIsDisabled"
+                    <button ng-if="(!surveyData.task.flagged || surveyData.resolveModeIsDisabled) && !surveyData.flags.isVersion"
                             class="btn btn-primary pull-right"
                             ng-hide="surveyData.flags.allowTranslate && !model.translated"
                             ng-click="save()"
@@ -73,13 +74,13 @@
                     </button>
 
                     <button class="btn btn-primary pull-right"
-                            ng-show="surveyData.flags.allowTranslate && !model.translated"
+                            ng-show="surveyData.flags.allowTranslate && !model.translated  && !surveyData.flags.isVersion"
                             disabled="disabled">
                         <span class="checkbox-inline"><label><input type="checkbox" ng-model="model.translated">
                             <i class="chk-box"></i>{{"SURVEYS.TRANSLATED" | translate}}</label></span>
                     </button>
 
-                    <button ng-if="surveyData.task.flagged && !surveyData.resolveModeIsDisabled"
+                    <button ng-if="surveyData.task.flagged && !surveyData.resolveModeIsDisabled  && !surveyData.flags.isVersion"
                             class="btn btn-primary pull-right"
                             ng-disabled="!allFlagsCommented() || model.locked"
                             ng-click="save(true)"

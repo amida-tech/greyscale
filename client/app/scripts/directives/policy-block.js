@@ -13,7 +13,7 @@ angular.module('greyscaleApp')
                 policyData: '=?'
             },
             controller: function ($scope, $element, greyscaleUtilsSrv, FileUploader, $timeout, greyscaleTokenSrv,
-                greyscaleGlobals) {
+                greyscaleGlobals, greyscaleModalsSrv, $state, $log) {
 
                 var _url = greyscaleUtilsSrv.getApiBase('surveys/parsedocx'),
                     _token = greyscaleTokenSrv();
@@ -23,6 +23,8 @@ angular.module('greyscaleApp')
                 $scope.model = $scope.model || {};
 
                 $scope.inProgress = [];
+
+                $scope.listVersions = _listVersions;
 
                 var uploader = $scope.uploader = new FileUploader({
                     url: _url,
@@ -127,6 +129,18 @@ angular.module('greyscaleApp')
                 function _isDocx(item) {
                     var re = /.+\.docx$/i;
                     return re.test(item.name);
+                }
+
+                function _listVersions() {
+                    greyscaleModalsSrv.selectPolicyVersion($scope.policyData.survey)
+                        .then(function (_survey) {
+                            if (_survey) {
+                                $state.go('policy.version', {
+                                    id: _survey.id,
+                                    version: _survey.surveyVersion
+                                });
+                            }
+                        });
                 }
             }
         };
