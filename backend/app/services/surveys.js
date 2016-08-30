@@ -166,7 +166,14 @@ var exportObject = function  (req, realm) {
                         Product.id, Workflow.id, ProductUOA.currentStepId, '"isLastStep"'
                     )
             );
-            return data[0] || false;
+            if (data[0]) {
+                if (data[0].product) {
+                    data[0].product.isLastStep = data[0].isLastStep;
+                }
+                delete data[0].isLastStep;
+                return data[0];
+            }
+            return false;
         });
     };
 
@@ -767,7 +774,14 @@ var exportObject = function  (req, realm) {
                         SurveyMeta.productId, Product.id, Workflow.id, ProductUOA.currentStepId, '"isLastStep"'
                     )
             );
-            return data[0] || false;
+            if (data[0]) {
+                if (data[0].product) {
+                    data[0].product.isLastStep = data[0].isLastStep;
+                }
+                delete data[0].isLastStep;
+                return data[0];
+            }
+            return false;
         });
     };
 
