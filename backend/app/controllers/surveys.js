@@ -179,6 +179,7 @@ module.exports = {
                 SurveyMeta
                     .select()
                     .where(SurveyMeta.surveyId.equals(req.params.id))
+                    .and(SurveyMeta.productId.isNotNull())
             );
             if (_.first(products)) {
                 throw new HttpError(403, 'This survey has already linked with some product(s), you cannot delete it');
@@ -217,16 +218,10 @@ module.exports = {
                 }
             }
 
-            //var survey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.params.id)));
-
             yield thunkQuery(Policy.delete().where(Policy.surveyId.equals(req.params.id)));
+            yield thunkQuery(SurveyMeta.delete().where(SurveyMeta.surveyId.equals(req.params.id)));
             yield thunkQuery(Survey.delete().where(Survey.id.equals(req.params.id)));
 
-/*
-            if (survey[0] && survey[0].policyId) {
-                yield thunkQuery(Policy.delete().where(Policy.id.equals(survey[0].policyId)));
-            }
-*/
         }).then(function (data) {
             bologger.log({
                 req: req,

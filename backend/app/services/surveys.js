@@ -2,6 +2,7 @@ var
     _ = require('underscore'),
     Policy = require('app/models/policies'),
     Survey = require('app/models/surveys'),
+    User = require('app/models/users'),
     Workflow = require('app/models/workflows'),
     SurveyQuestion = require('app/models/survey_questions'),
     SurveyMeta = require('app/models/survey_meta'),
