@@ -210,7 +210,7 @@ var exportObject = function  (req, realm) {
         });
     };
 
-    this.checkQuestionData = function (dataObj, isCreate) {
+    this.checkQuestionData = function (surveyId, surveyVersion, dataObj, isCreate) {
         var question;
         return co(function* () {
             if (isCreate) {
@@ -218,22 +218,27 @@ var exportObject = function  (req, realm) {
                     typeof dataObj.label === 'undefined' ||
                     typeof dataObj.type === 'undefined'
                 ) {
-                    throw new HttpError(403, 'label, surveyId(in params) and type fields are required');
+                    throw new HttpError(403, 'label and type fields are required');
                 }
             } else {
                 question = yield thunkQuery(
-                    SurveyQuestion.select().where(SurveyQuestion.id.equals(req.params.id))
+                    SurveyQuestion.select()
+                        .where(
+                            SurveyQuestion.id.equals(dataObj.id)
+                            .and(SurveyQuestion.surveyVersion.equals(surveyVersion))
+                        )
                 );
                 if (!_.first(question)) {
-                    throw new HttpError(403, 'Survey question with id = ' + req.params.id + 'does not exist');
+                    throw new HttpError(
+                        403,
+                        'Survey question with id = ' + dataObj.id + ' and ' +surveyVersion + ' version does not exist'
+                    );
                 }
                 question = _.first(question);
             }
 
-            var surveyId = isCreate ? req.params.id : question.surveyId;
-            dataObj = _.extend(dataObj, {
-                surveyId: surveyId
-            });
+            dataObj.surveyId = surveyId;
+            dataObj.surveyVersion = surveyVersion;
 
             if (dataObj.type) {
                 if (!(parseInt(dataObj.type) in SurveyQuestion.types)) {
@@ -245,7 +250,10 @@ var exportObject = function  (req, realm) {
             }
 
             var maxPos = yield thunkQuery(
-                SurveyQuestion.select('max("SurveyQuestions"."position")').where(SurveyQuestion.surveyId.equals(surveyId))
+                SurveyQuestion
+                    .select('max("SurveyQuestions"."position")')
+                    .where(SurveyQuestion.surveyId.equals(surveyId))
+                    .and(SurveyQuestion.surveyVersion.equals(surveyVersion))
             );
 
             var nextPos = 1;
@@ -266,6 +274,7 @@ var exportObject = function  (req, realm) {
                         'UPDATE "SurveyQuestions" SET "position" = "position"+1 ' +
                         'WHERE (' +
                         '("SurveyQuestions"."surveyId" = ' + surveyId + ') ' +
+                        'AND ("SurveyQuestions"."surveyVersion" = ' + surveyVersion + ') ' +
                         'AND ("SurveyQuestions"."position" >= ' + dataObj.position + ')' +
                         ')'
                     );
@@ -277,6 +286,7 @@ var exportObject = function  (req, realm) {
                             'UPDATE "SurveyQuestions" SET "position" = "position"-1 ' +
                             'WHERE (' +
                             '("SurveyQuestions"."surveyId" = ' + surveyId + ') ' +
+                            'AND ("SurveyQuestions"."surveyVersion" = ' + surveyVersion + ') ' +
                             'AND ("SurveyQuestions"."position" > ' + question.position + ')' +
                             'AND ("SurveyQuestions"."position" <= ' + dataObj.position + ')' +
                             ')';
@@ -285,6 +295,7 @@ var exportObject = function  (req, realm) {
                             'UPDATE "SurveyQuestions" SET "position" = "position"+1 ' +
                             'WHERE (' +
                             '("SurveyQuestions"."surveyId" = ' + surveyId + ') ' +
+                            'AND ("SurveyQuestions"."surveyVersion" = ' + surveyVersion + ') ' +
                             'AND ("SurveyQuestions"."position" < ' + question.position + ')' +
                             'AND ("SurveyQuestions"."position" >= ' + dataObj.position + ')' +
                             ')';
@@ -293,6 +304,7 @@ var exportObject = function  (req, realm) {
                     yield thunkQuery(q);
                 }
             }
+            return dataObj;
         });
     }
 
@@ -526,8 +538,7 @@ var exportObject = function  (req, realm) {
         var self = this;
         return co(function* () {
             var questionData = _.pick(fullQuestionData, SurveyQuestion.insertCols);
-            questionData.surveyId = surveyId;
-            questionData.surveyVersion = surveyVersion;
+            questionData = yield self.checkQuestionData(surveyId, surveyVersion, questionData, true);
             var questionId = (yield thunkQuery(SurveyQuestion.insert(questionData).returning(SurveyQuestion.id)))[0].id;
             if (Array.isArray(fullQuestionData.options) && fullQuestionData.options.length) {
                 for (var i in fullQuestionData.options) {
@@ -559,8 +570,8 @@ var exportObject = function  (req, realm) {
         var self = this;
         return co(function* () {
             var questionData = _.pick(fullQuestionData, SurveyQuestion.editCols);
-            questionData.surveyId = surveyId;
-            questionData.surveyVersion = surveyVersion;
+            questionData.id = questionId;
+            yield self.checkQuestionData(surveyId, surveyVersion, questionData, false);
             if (Object.keys(questionData).length) {
                 yield thunkQuery(
                     SurveyQuestion.update(questionData).where({id: questionId, surveyVersion: surveyVersion})
