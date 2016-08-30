@@ -43,6 +43,10 @@ module.exports = {
         co(function* () {
             var oComment = new sComment(req);
             var taskId = (!req.query.version) ? yield oComment.checkOneId(req.query.taskId, Task, 'id', 'taskId', 'Task') : req.query.taskId;
+            if (!taskId) {
+                // if task not specified then surveyId required
+                yield oComment.checkOneId(req.query.surveyId, Survey, 'id', 'surveyId', 'Survey');
+            }
             var oSurvey = new sSurvey(req);
             var surveyVersion = req.query.version ? parseInt(req.query.version) : yield oSurvey.getMaxSurveyVersion(taskId);
             var isAdmin = auth.checkAdmin(req.user);
@@ -65,6 +69,22 @@ module.exports = {
             var isAdmin = auth.checkAdmin(req.user);
             return oComment.getAnswerComments(req.query, commentId, req.user.id, isAdmin, surveyVersion);
 
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    getVersionTasks: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            var oComment = new sComment(req);
+            if (!req.params.version) {
+                throw new HttpError(403, 'Version must be specified');
+            }
+            yield oComment.checkOneId(req.query.surveyId, Survey, 'id', 'surveyId', 'Survey');
+            return oComment.getVersionTasks(req.query.surveyId, req.params.version);
         }).then(function (data) {
             res.json(data);
         }, function (err) {

@@ -148,6 +148,32 @@ var exportObject = function  (req, realm) {
         });
     };
 
+    this.getVersionTasks = function (surveyId, version) {
+        var self = this;
+        return co(function* () {
+            var query = Task
+                .select(
+                Task.star().distinct(),
+                WorkflowStep.star()
+            )
+                .from(Task
+                    .leftJoin(Comment)
+                    .on(Task.id.equals(Comment.taskId))
+                    .leftJoin(WorkflowStep)
+                    .on(WorkflowStep.id.equals(Task.stepId))
+                    .leftJoin(SurveyMeta)
+                    .on(SurveyMeta.productId.equals(Task.productId))
+                    .leftJoin(Survey)
+                    .on(Survey.id.equals(SurveyMeta.surveyId).and(Survey.surveyVersion.equals(version)))
+            )
+                .where(Comment.surveyVersion.equals(version)
+                .and(Survey.id.equals(surveyId))
+            );
+
+            return yield thunkQuery(query);
+        });
+    };
+
     this.getAnswerComments = function (reqQuery, commentId, userId, isAdmin, version) {
         var self = this;
         return co(function* () {
