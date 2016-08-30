@@ -24,7 +24,7 @@
         </div>
         <div class="row">
             <div class="form-builder-control text-right">
-                <button class="btn btn-default" ng-click="save()"
+                <button class="btn btn-default" ng-click="save()" ng-if="model.policy.id"
                         ng-disabled="dataForm.$invalid || !dataForm.$dirty || model.lock.locked"
                         translate="COMMON.SAVE"></button>
                 <button class="btn btn-primary" ng-click="publish()"

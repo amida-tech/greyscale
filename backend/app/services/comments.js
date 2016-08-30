@@ -88,10 +88,14 @@ var exportObject = function  (req, realm) {
                     .leftJoin(Survey)
                     .on(Survey.id.equals(SurveyMeta.surveyId).and(Survey.surveyVersion.equals(version)))
                 )
-                .where(Comment.parentId.isNull() // select only comments - not answers
-                .and(Comment.taskId.equals(taskId))
-                .and(Comment.surveyVersion.equals(version))
+                .where(Comment.surveyVersion.equals(version)
             );
+            if (taskId) {
+                query = query.and(Comment.taskId.equals(taskId));
+            }
+            if (!reqQuery.answers) {
+                query = query.and(Comment.parentId.isNull()); // select only comments - not answers
+            }
             if (reqQuery.questionId) {
                 query = query.and(Comment.questionId.equals(reqQuery.questionId));
             }
