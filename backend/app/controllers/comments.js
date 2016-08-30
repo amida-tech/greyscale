@@ -42,7 +42,7 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var oComment = new sComment(req);
-            var taskId = yield oComment.checkOneId(req.query.taskId, Task, 'id', 'taskId', 'Task');
+            var taskId = (!req.query.version) ? yield oComment.checkOneId(req.query.taskId, Task, 'id', 'taskId', 'Task') : req.query.taskId;
             var oSurvey = new sSurvey(req);
             var surveyVersion = req.query.version ? parseInt(req.query.version) : yield oSurvey.getMaxSurveyVersion(taskId);
             var isAdmin = auth.checkAdmin(req.user);
