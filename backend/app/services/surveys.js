@@ -75,18 +75,24 @@ var exportObject = function  (req, realm) {
 
     this.getVersions = function (surveyId) {
         return co(function* () {
-           return yield thunkQuery(
-               Survey
-               .select(Survey.star(),SurveyMeta.productId)
-               .from(
-                   Survey
-                   .leftJoin(SurveyMeta)
-                   .on(SurveyMeta.surveyId.equals(Survey.id))
-               )
-               .where(
-                   Survey.id.equals(surveyId).and(Survey.surveyVersion.gte(0))
-               )
-           );
+            return yield thunkQuery(
+                Survey
+                    .select(
+                        Survey.star(),
+                        SurveyMeta.productId,
+                        'row_to_json("Users") as creator'
+                    )
+                    .from(
+                        Survey
+                            .leftJoin(SurveyMeta)
+                            .on(SurveyMeta.surveyId.equals(Survey.id))
+                            .leftJoin(User)
+                            .on(Survey.creator.equals(User.id))
+                    )
+                    .where(
+                        Survey.id.equals(surveyId).and(Survey.surveyVersion.gte(0))
+                    )
+            );
         });
     };
 
