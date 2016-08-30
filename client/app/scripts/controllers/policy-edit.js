@@ -253,6 +253,7 @@ angular.module('greyscaleApp')
                             number: survey.number,
                             answerId: survey.policyId,
                             attachments: survey.attachments || [],
+                            survey: survey,
                             version: survey.surveyVersion
                         });
 

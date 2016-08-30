@@ -65,6 +65,7 @@
         "SAVE": "",
         "SAVED": "",
         "SAVE_AND_CONTINUE": "",
+        "SELECT": "",
         "SEND": "",
         "SEND_MESSAGE": "",
         "SERVICE_UNAVAILABLE": "",
@@ -331,7 +332,8 @@
         "POLICY": {
             "EDIT": "",
             "REVIEW": "",
-            "TITLE": ""
+            "TITLE": "",
+            "VERSION": ""
         },
         "PRODUCT_INDEXES": "",
         "PRODUCT_TASKS": "",
@@ -714,7 +716,7 @@
         "RESOLVE_COMMENT": "",
         "RESOLVE_ENTRY": "",
         "RESPONSES": "",
-        "REVIEVER_COMMENT": "",
+        "REVIEWER_COMMENT": "",
         "SAVE_AND_RESOLVE": "",
         "SAVE_DRAFT": "",
         "SAVE_DRAFT_SUCCESS": "",
@@ -835,6 +837,12 @@
         "USERS_IN_GROUPS": "",
         "USER_GROUP": "",
         "USER_GROUPS": ""
+    },
+    "VERSIONS": {
+        "REVIEW": "",
+        "SELECT": "",
+        "VERSION": "",
+        "VERSIONS": ""
     },
     "VISUALIZATIONS": {
         "MODAL_TITLE": "",

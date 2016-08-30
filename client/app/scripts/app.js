@@ -587,6 +587,21 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.any.mask
             }
         })
+        .state('policy.version', {
+            parent: 'policy',
+            url: '/version/:id/:version',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/policy-review.html',
+                    controller: 'PolicyReviewCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.POLICY.VERSION',
+                icon: 'fa-eye',
+                accessLevel: systemRoles.any.mask
+            }
+        })
         .state('workflowTemplates', {
             parent: 'home',
             url: 'workflow-templates',

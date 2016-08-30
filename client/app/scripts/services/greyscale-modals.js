@@ -38,7 +38,8 @@ angular.module('greyscaleApp')
             policyComment: _policyComment,
             fullScreenComment: _fullScreenComment,
             saveAsWorkflowTemplate: _saveAsWorkflowTemplate,
-            downloadPolicyVersions: _downloadReviewVersions
+            downloadPolicyVersions: _downloadReviewVersions,
+            selectPolicyVersion: _selectPolicyVersion
         };
 
         function hndlModalErr(err) {
@@ -308,6 +309,18 @@ angular.module('greyscaleApp')
         function _downloadReviewVersions(survey) {
             return $uibModal.open({
                 templateUrl: 'views/modals/download-review-versions.html',
+                controller: 'ModalDownloadReviewVersionsCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    survey: survey
+                }
+            }).result;
+        }
+
+        function _selectPolicyVersion(survey) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/select-policy-version.html',
                 controller: 'ModalDownloadReviewVersionsCtrl',
                 size: 'md',
                 windowClass: 'modal fade in',
