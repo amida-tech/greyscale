@@ -81,7 +81,13 @@ var exportObject = function  (req, realm) {
                     .select(
                         Survey.star(),
                         SurveyMeta.productId,
-                        'row_to_json("Users") as creator'
+                        '(WITH tmp AS (' +
+                        '   SELECT "Users"."id","Users"."firstName", "Users"."lastName" ' +
+                        '   FROM "Users" ' +
+                        '   WHERE "Users"."id" = "Surveys"."creator"' +
+                        ')' +
+                        'SELECT row_to_json(tmp.*) as creator FROM tmp' +
+                        ') '
                     )
                     .from(
                         Survey
