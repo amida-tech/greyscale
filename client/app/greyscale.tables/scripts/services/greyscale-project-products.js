@@ -70,11 +70,13 @@ angular.module('greyscale.tables')
                     //state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
             }
         }, {
-            field: 'workflow.name',
             sortable: 'workflow.name',
             title: tns + 'WORKFLOW',
             show: true,
-            cellTemplate: '{{cell}}<span ng-if="!cell" class="action" translate="' + tns + 'CREATE_WORKFLOW"></span>',
+            cellTemplate: '{{row.workflow.name}}<span ng-show="!row.workflow.name" class="action">{{ext.getWorkflowTemplateName(row)}}</span>',
+            cellTemplateExtData: {
+                getWorkflowTemplateName: _getWorkflowTemplateName,
+            },
             link: {
                 handler: _editProductWorkflow
             },
@@ -163,6 +165,11 @@ angular.module('greyscale.tables')
 
         function _getProjectId() {
             return _table.dataFilter.projectId;
+        }
+
+        function _getWorkflowTemplateName(row) {
+            var template = _.find(_dicts.workflowTemplates, {id: row.workflowTemplateId});
+            return template ? template.workflow.name : i18n.translate(tns + 'CREATE_WORKFLOW');
         }
 
         function _getData() {
