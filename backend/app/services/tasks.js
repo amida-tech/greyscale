@@ -474,6 +474,70 @@ var exportObject = function  (req, realm) {
             };
         });
     };
+    this.getUsersFromTasks = function (tasks) {
+        // get unique users from list of tasks
+        return co(function* () {
+            var userTo, usersFromGroup;
+            var users = [];
+            var chkUsers = [];
+            var chkGroups = [];
+            if (!tasks || tasks.length === 0) {
+                return users;
+            }
+            // add policy author as 1st user to user list
+            var authorId = yield * common.getPolicyAuthorIdByTask(req, tasks[0].id);
+            chkUsers.push(authorId);
+            userTo = yield * common.getUser(req, authorId);
+            users.push({
+                userId: userTo.id,
+                firstName: userTo.firstName,
+                lastName: userTo.lastName,
+                email: userTo.email,
+                isAdmin: (userTo.roleID !== 3)
+            });
+            //
+            for (var t in tasks) {
+                var task = yield * common.getTask(req, tasks[t].id);
+                var taskUsers = task.userIds;
+                for (var i in taskUsers) {
+                    if (chkUsers.indexOf(taskUsers[i]) === -1) {
+                        chkUsers.push(taskUsers[i]);
+                        userTo = yield * common.getUser(req, taskUsers[i]);
+                        users.push({
+                            userId: userTo.id,
+                            firstName: userTo.firstName,
+                            lastName: userTo.lastName,
+                            email: userTo.email,
+                            isAdmin: (userTo.roleID !== 3)
+                        });
+                    }
+                }
+                var taskGroups = task.groupIds;
+                for (i in taskGroups) {
+                    if (chkGroups.indexOf(taskGroups[i]) === -1) {
+                        chkGroups.push(taskGroups[i]);
+                        usersFromGroup = yield * common.getUsersFromGroup(req, taskGroups[i]);
+                        for (var j in usersFromGroup) {
+                            if (chkUsers.indexOf(usersFromGroup[j].userId) === -1) {
+                                userTo = yield * common.getUser(req, usersFromGroup[j].userId);
+                                users.push({
+                                    userId: userTo.id,
+                                    firstName: userTo.firstName,
+                                    lastName: userTo.lastName,
+                                    email: userTo.email,
+                                    isAdmin: (userTo.roleID !== 3)
+                                });
+                                chkUsers.push(usersFromGroup[j].userId);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return users;
+        });
+    };
+
     this.getUsersIds = function (userIds, groupIds) {
         return co(function* () {
             var usersFromGroup;

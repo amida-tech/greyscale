@@ -153,8 +153,21 @@ var exportObject = function  (req, realm) {
         return co(function* () {
             var query = Task
                 .select(
-                Task.star().distinct(),
-                WorkflowStep.star()
+                Task.id.distinct(),
+                Task.title,
+                Task.description,
+                Task.uoaId,
+                Task.productId,
+                Task.stepId,
+                Task.startDate,
+                Task.endDate,
+                Task.userIds,
+                Task.groupIds,
+                WorkflowStep.workflowId,
+                WorkflowStep.startDate.as('stepStartDate'),
+                WorkflowStep.endDate.as('stepEndDate'),
+                WorkflowStep.title.as('stepTitle'),
+                WorkflowStep.role
             )
                 .from(Task
                     .leftJoin(Comment)

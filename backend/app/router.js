@@ -457,6 +457,8 @@ router.route('/:realm/v0.2/comments')
     .post(authenticate('token').always, jsonParser, comments.insertOne);
 router.route('/:realm/v0.2/comments/users/:taskId')
     .get(authenticate('token').always, comments.getUsers);
+router.route('/:realm/v0.2/comments/versions/:version/users')
+    .get(authenticate('token').always, comments.getVersionUsers);
 router.route('/:realm/v0.2/comments/versions/:version/tasks')
     .get(authenticate('token').always, comments.getVersionTasks);
 router.route('/:realm/v0.2/comments/hidden')

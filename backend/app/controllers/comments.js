@@ -84,7 +84,7 @@ module.exports = {
                 throw new HttpError(403, 'Version must be specified');
             }
             yield oComment.checkOneId(req.query.surveyId, Survey, 'id', 'surveyId', 'Survey');
-            return oComment.getVersionTasks(req.query.surveyId, req.params.version);
+            return yield oComment.getVersionTasks(req.query.surveyId, req.params.version);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -305,6 +305,26 @@ module.exports = {
             next(err);
         });
     },
+
+    getVersionUsers: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            var oTask = new sTask(req);
+            var oComment = new sComment(req);
+            if (!req.params.version) {
+                throw new HttpError(403, 'Version must be specified');
+            }
+            yield oComment.checkOneId(req.query.surveyId, Survey, 'id', 'surveyId', 'Survey');
+            var tasks = yield oComment.getVersionTasks(req.query.surveyId, req.params.version);
+            return  yield oTask.getUsersFromTasks(tasks);
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+
     hideUnhide: function (req, res, next) {
         // put /comments/hidden?taskId=<id>&hide=true|false&filter='all'|'flagged'|<id>
         var thunkQuery = req.thunkQuery;
