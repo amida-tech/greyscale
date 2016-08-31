@@ -80,7 +80,6 @@ angular.module('greyscale.core')
         function _setFullName(user) {
             if (user) {
                 var _user = angular.extend(_nobody(), user);
-                console.log(user, _user);
                 angular.extend(user, {
                     fullName: greyscaleUtilsSrv.getUserName(_user)
                 });
