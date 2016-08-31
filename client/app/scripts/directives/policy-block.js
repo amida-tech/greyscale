@@ -60,6 +60,9 @@ angular.module('greyscaleApp')
                             _loadSections(data.sections);
                         }
                         _modifyEvt();
+                        $timeout(function () {
+                            $scope.$broadcast('line-numbers-refresh');
+                        });
                     }
 
                     uploader.clearQueue();

@@ -826,9 +826,7 @@ angular.module('greyscaleApp')
         var _productCached;
 
         function _loadProduct(productId) {
-            if (_productCached) {
-                return $q.when(_productCached);
-            } else {
+            if (!_productCached) {
                 _productCached = greyscaleProductApi.get(productId)
                     .then(function (product) {
                         $state.ext.productName = product.title;
@@ -840,6 +838,6 @@ angular.module('greyscaleApp')
                     });
                 return _productCached;
             }
+            return _productCached;
         }
-
     });
