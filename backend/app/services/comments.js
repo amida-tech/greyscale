@@ -468,6 +468,7 @@ var exportObject = function  (req, realm) {
             var i, j;
             var note0 = {
                 body: req.body.entry,
+                isFlagged: req.body.isReturn,
                 action: action
             };
             // notify
