@@ -222,8 +222,14 @@ angular.module('greyscaleApp')
                         }
 
                         body = '<div class="survey-form-field-input" survey-form-field-type="' + scope.field.type + '">' + body +
-                            '</div><p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
-                            message + '</span><span class="pull-left">' + borders + '</span></p>' + links + attach;
+                            '</div>';
+
+                        if (!scope.isDisabled) {
+                            body += '<p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
+                                message + '</span><span class="pull-left">' + borders + '</span></p>';
+                        }
+
+                        body += links + attach;
 
                         if (flags.isPolicy) {
                             body += '<div gs-co-answers field="field"></div>';

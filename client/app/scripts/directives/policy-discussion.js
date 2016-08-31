@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('policyDiscussion', function ($q, greyscaleGlobals, greyscaleCommentApi, greyscaleUtilsSrv,
-        greyscaleModalsSrv, greyscaleProfileSrv, i18n, _, $sanitize, $log) {
+        greyscaleModalsSrv, greyscaleProfileSrv, i18n, _, $sanitize) {
 
         return {
             restrict: 'E',
@@ -14,8 +14,8 @@ angular.module('greyscaleApp')
             },
             templateUrl: 'views/directives/policy-discussion.html',
             link: function (scope) {
-                scope.$watch('policy', function (data) {
-                    _updateDiscussion(data, scope);
+                scope.$watch('policy', function (policy) {
+                    _updateDiscussion(policy, scope);
                 });
             },
             controller: function ($scope) {
@@ -174,41 +174,43 @@ angular.module('greyscaleApp')
             }
         };
 
-        function _updateDiscussion(data, scope) {
-            var params, _version = {}, reqs;
+        function _updateDiscussion(policy, scope) {
+            var params, reqs = {};
 
-            $log.debug('get discussion for', data);
+            if (policy && policy.id) {
+                params = {
+                    surveyId: policy.survey.id,
+                    hidden: greyscaleProfileSrv.isAdmin()
+                };
 
-            if (data) {
-                if (data.taskId) {
-                    _version.taskId = data.taskId;
+                if (policy.options && policy.options.review && !policy.options.isVersion) {
+                    params.taskId = policy.taskId;
+                    reqs.tags = greyscaleCommentApi.getUsers(policy.taskId);
                 } else {
-                    _version.version = data.version;
+                    params.version = policy.version;
+                    reqs.users = greyscaleCommentApi.listVersionUsers(policy.version, {
+                        surveyId: policy.survey.id
+                    });
                 }
 
+                reqs.messages = greyscaleCommentApi.list(params);
 
-                if (data.sections && _version) {
-                    params = {
-                        surveyId: data.survey.id,
-                        hidden: greyscaleProfileSrv.isAdmin()
-                    };
+                $q.all(reqs).then(function (resp) {
+                    var i, qty;
 
-                    angular.extend(params, _version);
-                    reqs = {
-                        messages: greyscaleCommentApi.list(params)
-                    };
-
-                    if (_version.taskId) {
-                        reqs.tags = greyscaleCommentApi.getUsers(_version.taskId);
+                    if (resp.users) {
+                        scope.model.associate = greyscaleUtilsSrv.getTagsAssociate({
+                            users: resp.users,
+                            groups: []
+                        });
                     }
 
-                    $q.all(reqs).then(function (resp) {
-                        var i, qty;
-                        /* form associate */
-                        if (resp.tags) {
-                            scope.model.associate = greyscaleUtilsSrv.getTagsAssociate(resp.tags);
+                    /* form associate */
+                    if (resp.tags) {
+                        scope.model.associate = greyscaleUtilsSrv.getTagsAssociate(resp.tags);
 
-                            /* comment types */
+                        /* comment types */
+                        if (resp.tags.commentTypes) {
                             qty = resp.tags.commentTypes.length;
                             for (i = 0; i < qty; i++) {
                                 resp.tags.commentTypes[i].name =
@@ -216,12 +218,11 @@ angular.module('greyscaleApp')
                             }
                             scope.model.commentTypes = resp.tags.commentTypes;
                         }
-                        /* discussions */
-                        $log.debug(resp.messages);
-                        scope.model.items = resp.messages;
+                    }
+                    /* discussions */
+                    scope.model.items = resp.messages;
 
-                    });
-                }
+                });
             }
         }
     });

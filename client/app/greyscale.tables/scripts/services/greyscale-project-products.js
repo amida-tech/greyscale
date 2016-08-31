@@ -2,7 +2,7 @@
 angular.module('greyscale.tables')
     .factory('greyscaleProjectProductsTbl', function ($q, _, greyscaleProjectApi, greyscaleSurveyApi,
         greyscaleProductApi, greyscaleModalsSrv, greyscaleUtilsSrv, greyscaleProductWorkflowApi, greyscaleGlobals,
-        $state, i18n, greyscaleProductSrv, $log) {
+        $state, i18n, greyscaleProductSrv) {
 
         var tns = 'PRODUCTS.TABLE.';
 

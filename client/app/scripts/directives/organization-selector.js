@@ -41,7 +41,7 @@ angular.module('greyscaleApp')
         return org;
     })
     .directive('organizationSelector', function (_, $q, $timeout, $rootScope, greyscaleProfileSrv, greyscaleRealmSrv,
-        greyscaleGlobals, greyscaleProjectApi, greyscaleOrganizationApi, $cookies, Organization, $log) {
+        greyscaleGlobals, greyscaleProjectApi, greyscaleOrganizationApi, $cookies, Organization) {
         return {
             restrict: 'A',
             replace: true,

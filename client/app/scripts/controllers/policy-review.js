@@ -19,6 +19,12 @@ angular.module('greyscaleApp')
                 essence: greyscaleEntityTypeApi.list({
                     tableName: 'SurveyAnswers'
                 })
+            },
+            options = {
+                isPolicy: true,
+                isVersion: !!version,
+                readonly: true,
+                review: true
             };
 
         $scope.loading = true;
@@ -60,11 +66,7 @@ angular.module('greyscaleApp')
                         section: resp.survey.section,
                         subsection: resp.survey.subsection,
                         number: resp.survey.number,
-                        options: {
-                            readonly: true,
-                            isPolicy: true,
-                            isVersion: !!version
-                        },
+                        options: options,
                         survey: resp.survey,
                         surveyId: resp.survey.id,
                         answerId: resp.survey.id,

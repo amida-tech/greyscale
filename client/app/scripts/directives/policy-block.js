@@ -13,7 +13,7 @@ angular.module('greyscaleApp')
                 policyData: '=?'
             },
             controller: function ($scope, $element, greyscaleUtilsSrv, FileUploader, $timeout, greyscaleTokenSrv,
-                greyscaleGlobals, greyscaleModalsSrv, $state, $log) {
+                greyscaleGlobals, greyscaleModalsSrv, $state) {
 
                 var _url = greyscaleUtilsSrv.getApiBase('surveys/parsedocx'),
                     _token = greyscaleTokenSrv();

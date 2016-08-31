@@ -112,14 +112,14 @@ angular.module('greyscaleApp')
         greyscaleProfileSrv.getProfile()
             .then(function (_user) {
                 user = _user;
+                _setAuthor(_user, $scope.model.policy);
                 return _user;
-            })
-            .then(_setAuthor);
+            });
 
         if (surveyId) {
             Organization.$watch($scope, function () {
                 //projectId = Organization.projectId;
-                _loadSurvey();
+                _loadData();
             });
         } else {
             _policiesGenerate($scope.model.policy.sections);
@@ -169,7 +169,7 @@ angular.module('greyscaleApp')
             if (_isCurrentRecord(data)) {
                 $scope.model.lock.locked = false;
                 greyscaleUtilsSrv.successMsg('POLICY.UPDATED');
-                _loadSurvey();
+                _loadData();
             }
         }
 
@@ -200,37 +200,37 @@ angular.module('greyscaleApp')
             });
         }
 
-        function _loadSurvey() {
+        function _loadData() {
             var params = {
-                forEdit: true
-            };
+                    forEdit: true
+                },
+                _policy = {};
 
             $scope.model.loading = true;
 
             greyscaleProductApi.getList({
-                surveyId: surveyId
-            }).then(function (products) {
-                if (!products || !products.length) {
-                    return;
-                }
-                var product = products[0];
-
-                greyscaleProductApi.product(product.id).tasksList().then(function (tasks) {
-                    if (!tasks || !tasks.length) {
-                        return;
+                    surveyId: surveyId
+                })
+                .then(function (products) {
+                    if (products && products.length) {
+                        return greyscaleProductApi.product(products[0].id).tasksList();
                     }
-
-                    for (var i = 0; i < tasks.length; i++) {
-                        if (tasks[i].status !== 'current') {
-                            continue;
+                    return null;
+                })
+                .then(function (tasks) {
+                    if (tasks && tasks.length) {
+                        for (var i = 0; i < tasks.length; i++) {
+                            if (tasks[i].status === 'current') {
+                                return tasks[i].id;
+                            }
                         }
-                        $scope.model.policy.taskId = tasks[i].id;
-                        break;
                     }
-                });
-            });
-
-            greyscaleSurveyApi.get(surveyId, params)
+                    return null;
+                })
+                .then(function (taskId) {
+                    _policy.taskId = taskId;
+                    return greyscaleSurveyApi.get(surveyId, params);
+                })
                 .then(function (survey) {
                     var _questions = [],
                         _sections = [],
@@ -244,7 +244,7 @@ angular.module('greyscaleApp')
                     if (isPolicy) {
                         _lockPolicy();
 
-                        angular.extend($scope.model.policy, {
+                        angular.extend(_policy, {
                             id: survey.policyId,
                             title: survey.title,
                             section: survey.section,
@@ -252,7 +252,7 @@ angular.module('greyscaleApp')
                             number: survey.number,
                             answerId: survey.policyId,
                             attachments: survey.attachments || [],
-                            survey: survey,
+                            survey: $scope.model.survey,
                             version: survey.surveyVersion
                         });
 
@@ -269,22 +269,17 @@ angular.module('greyscaleApp')
                         angular.extend($scope.model.survey, survey);
 
                         _policiesGenerate(_sections);
-                        angular.extend($scope.model.policy, {
+                        angular.extend(_policy, {
                             sections: _sections,
                             options: {
                                 canImport: canImport,
                                 readonly: survey.locked,
-                                version: survey.surveyVersion
+                                isVersion: false
                             }
                         });
                     }
-                    $state.ext.surveyName = survey ? survey.title : $state.ext.surveyName;
 
-                    /*
-                     if (projectId !== survey.projectId) {
-                     Organization.$setBy('projectId', survey.projectId);
-                     }
-                     */
+                    $state.ext.surveyName = survey ? survey.title : $state.ext.surveyName;
 
                     return greyscaleEntityTypeApi.list({
                         tableName: (isPolicy ? 'Policies' : 'SurveyAnswers')
@@ -292,12 +287,15 @@ angular.module('greyscaleApp')
                 })
                 .then(function (essences) {
                     if (essences.length) {
-                        $scope.model.policy.essenceId = essences[0].id;
+                        _policy.essenceId = essences[0].id;
                     }
                     return ($scope.model.survey.author) ? greyscaleUsers.get($scope.model.survey.author) : false;
                 })
-                .then(_setAuthor)
+                .then(function (user) {
+                    _setAuthor(user, _policy);
+                })
                 .finally(function () {
+                    $scope.model.policy = _policy;
                     $scope.model.loading = false;
                 });
         }
@@ -381,10 +379,10 @@ angular.module('greyscaleApp')
             }
         }
 
-        function _setAuthor(profile) {
-            if (profile) {
-                $scope.model.policy.author = profile.id;
-                $scope.model.policy.authorName = profile.fullName;
+        function _setAuthor(profile, policy) {
+            if (profile && policy) {
+                policy.author = profile.id;
+                policy.authorName = profile.fullName;
             }
             return profile;
         }

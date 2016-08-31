@@ -5,7 +5,7 @@
 angular.module('greyscaleApp')
     .directive('surveyForm', function (_, $q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
         $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window,
-        greyscaleTaskApi, $log) {
+        greyscaleTaskApi) {
 
         var tasks = {
             survey: 'tasks',
@@ -258,7 +258,6 @@ angular.module('greyscaleApp')
                         if (fResolve) {
                             if (fResolve.draft.entry && fResolve.draft.entry !== fResolve.lastEntry) {
                                 fResolve.lastEntry = fResolve.draft.entry;
-                                $log.debug('saving', fResolve);
                                 reqs.push(_saveFlagCommentDraft(fResolve));
                             }
 

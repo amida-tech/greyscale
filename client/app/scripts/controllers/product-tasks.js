@@ -1,7 +1,7 @@
 angular.module('greyscaleApp')
     .controller('ProductTasksCtrl', function (_, $q, $scope, $state, $stateParams, $timeout, Organization,
         greyscaleProductWorkflowApi, greyscaleProductApi, greyscaleUserApi, greyscaleUtilsSrv, greyscaleUoaTypeApi,
-        greyscaleGroupApi, greyscaleTaskApi, greyscaleModalsSrv, greyscaleSurveyApi, $log) {
+        greyscaleGroupApi, greyscaleTaskApi, greyscaleModalsSrv, greyscaleSurveyApi) {
 
         var tns = 'PRODUCTS.TASKS.TABLE.';
 
@@ -48,8 +48,6 @@ angular.module('greyscaleApp')
             .then(_getTaskTableData);
 
         Organization.$watch('realm', $scope, function () {
-
-            $log.debug(Organization);
 
             $scope.model.projectId = Organization.projectId;
 
@@ -764,7 +762,6 @@ angular.module('greyscaleApp')
         //////////////////// initial loading /////////////////////
 
         function _loadUsersData() {
-            $log.debug('req users');
             var reqs = {
                 users: greyscaleUserApi.list(),
                 groups: greyscaleGroupApi.list(Organization.id)

@@ -16,7 +16,8 @@ angular.module('greyscale.rest')
             getUsers: _users,
             getAnswers: _getAnswers,
             postAnswer: _postAnswer,
-            hide: _hide
+            hide: _hide,
+            listVersionUsers: _listVersionUsers
         };
 
         function _api() {
@@ -83,5 +84,15 @@ angular.module('greyscale.rest')
                 filter: filter,
                 hide: !show
             });
+        }
+
+        function _listVersionUsers(version, params) {
+            var _params = {
+                surveyId: -1
+            };
+
+            angular.extend(_params, params);
+
+            return _api().one('versions', version + '').one('users').get(_params).then(_response);
         }
     });
