@@ -271,15 +271,24 @@ var exportObject = function  (req, realm) {
     };
     this.start = function (taskId, userId) {
         // set taskUserState flag `startedAt` and then modify stateId
-        this.updateStateAt(taskId, userId, 'startedAt');
+        var self = this;
+        return co(function* () {
+            yield self.updateStateAt(taskId, userId, 'startedAt');
+        });
     };
     this.approve = function (taskId, userId) {
         // set taskUserState flag `approvedAt` and then modify stateId
-        this.updateStateAt(taskId, userId, 'approvedAt');
+        var self = this;
+        return co(function* () {
+            yield self.updateStateAt(taskId, userId, 'approvedAt');
+        });
     };
     this.draft = function (taskId, userId) {
         // set taskUserState flag `draftAt` and then modify stateId
-        this.updateStateAt(taskId, userId, 'draftAt');
+        var self = this;
+        return co(function* () {
+            yield self.updateStateAt(taskId, userId, 'draftAt');
+        });
     };
     this.updateEndDate = function (taskId, users, endDate, version) {
         // set taskUserState flag `late` when endDate changed and then set stateId

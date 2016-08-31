@@ -75,7 +75,7 @@ module.exports = {
         co(function* () {
             // TaskUserStates - start task for user
             var oTaskUserState = new sTaskUserState(req);
-            oTaskUserState.start(req.params.id, req.user.id);
+            yield oTaskUserState.start(req.params.id, req.user.id);
         }).then(function () {
             res.status(200).end();
         }, function (err) {
@@ -88,7 +88,7 @@ module.exports = {
         co(function* () {
             // TaskUserStates - set state to approve
             var oTaskUserState = new sTaskUserState(req);
-            oTaskUserState.approve(req.params.id, req.user.id);
+            yield oTaskUserState.approve(req.params.id, req.user.id);
             // Try to move next step (if all users approved task) ToDo: move to service (product)
             var task = yield * common.getTask(req, req.params.id);
             var productId = task.productId;
