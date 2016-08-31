@@ -6,7 +6,15 @@ angular.module('greyscale.core')
     .service('greyscaleUsers', function ($q, greyscaleUserApi, greyscaleUtilsSrv) {
         var _users = {};
 
-        this.get = function (userId) {
+        return {
+            get: _getUser,
+            getFullNameById: _getFullNameById,
+            getFullNameByUser: _getFullNameByUser,
+            nobody: _nobody,
+            setFullName: _setFullName
+        };
+
+        function _getUser(userId) {
             var _res, userIds, i, qty,
                 unknown = [],
                 promises = [];
@@ -36,7 +44,7 @@ angular.module('greyscale.core')
 
                             for (_u = 0; _u < _qty; _u++) {
                                 _users[users[_u].id] = users[_u];
-                                _users[users[_u].id].fullName = greyscaleUtilsSrv.getUserName(users[_u]);
+                                _setFullName(_users[users[_u].id]);
                             }
                         })
                         .catch(function () {
@@ -67,7 +75,35 @@ angular.module('greyscale.core')
                 _res = $q.resolve(_nobody());
             }
             return _res;
-        };
+        }
+
+        function _setFullName(user) {
+            if (user) {
+                var _user = angular.extend(_nobody(), user);
+                console.log(user, _user);
+                angular.extend(user, {
+                    fullName: greyscaleUtilsSrv.getUserName(_user)
+                });
+            }
+        }
+
+        function _getFullNameByUser(user) {
+            var _res = _nobody().fullName;
+
+            if (user) {
+                if (!user.fullName) {
+                    _setFullName(user);
+                }
+                _res = user.fullName;
+            }
+
+            return _res;
+        }
+
+        function _getFullNameById(userId) {
+            return _getUser(userId)
+                .then(_getFullNameByUser);
+        }
 
         function _nobody() {
             return {

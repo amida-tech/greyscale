@@ -166,7 +166,6 @@ angular.module('greyscaleApp')
         }
 
         function _policyUnlocked(data) {
-            $log.debug('_policyUnlocked', data);
             if (_isCurrentRecord(data)) {
                 $scope.model.lock.locked = false;
                 greyscaleUtilsSrv.successMsg('POLICY.UPDATED');

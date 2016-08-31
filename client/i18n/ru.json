@@ -413,11 +413,6 @@
         "COUNT_UOAS": "",
         "DEADLINE": "",
         "DOWNLOAD_DATA": "Загрузить данные",
-        "DOWNLOAD_VERSIONS": {
-            "CHOOSE_VERSION": "",
-            "HEADER": "",
-            "REVIEW": ""
-        },
         "INFO_TITLE": ""
     },
     "PM_PROJECTS": {
@@ -839,6 +834,7 @@
         "USER_GROUPS": ""
     },
     "VERSIONS": {
+        "DOWNLOAD": "",
         "REVIEW": "",
         "SELECT": "",
         "VERSION": "",

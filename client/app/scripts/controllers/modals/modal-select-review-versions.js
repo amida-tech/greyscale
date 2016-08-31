@@ -1,11 +1,12 @@
 'use strict';
 angular.module('greyscaleApp')
-    .controller('ModalDownloadReviewVersionsCtrl', function ($scope, $uibModalInstance, greyscaleSurveyApi, survey,
+    .controller('ModalSelectReviewVersionsCtrl', function ($scope, $uibModalInstance, greyscaleSurveyApi, survey, mode,
         greyscaleUsers, $q, $timeout) {
         $scope.model = {
             selected: -1,
             survey: survey,
-            versions: []
+            versions: [],
+            mode: mode
         };
 
         _getData(survey);
@@ -36,6 +37,7 @@ angular.module('greyscaleApp')
         };
 
         function _getData(survey) {
+            console.log(survey);
             if (!survey.versions) {
                 survey.versions = greyscaleSurveyApi.versions(survey.id);
             }
@@ -43,19 +45,14 @@ angular.module('greyscaleApp')
             $q.when(survey.versions)
                 .then(function (list) {
                     var i,
-                        qty = list.length,
-                        req = [];
+                        qty = list.length;
 
                     for (i = 0; i < qty; i++) {
-                        req.push(greyscaleUsers.get(list[i].creator));
+                        list[i].creator = list[i].creator || {};
+                        greyscaleUsers.setFullName(list[i].creator);
                     }
 
-                    $q.all(req).then(function (resps) {
-                        for (i = 0; i < qty; i++) {
-                            list[i].user = resps[i];
-                        }
-                        $scope.model.versions = list;
-                    });
+                    $scope.model.versions = list;
                 });
         }
     });

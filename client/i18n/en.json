@@ -413,11 +413,6 @@
         "COUNT_UOAS": "Subjects",
         "DEADLINE": "Deadline",
         "DOWNLOAD_DATA": "Download Data",
-        "DOWNLOAD_VERSIONS": {
-            "CHOOSE_VERSION": "Choose version",
-            "HEADER": "Download version of {{title}}",
-            "REVIEW": "review"
-        },
         "INFO_TITLE": "Project Details"
     },
     "PM_PROJECTS": {
@@ -839,6 +834,7 @@
         "USER_GROUPS": "User Groups"
     },
     "VERSIONS": {
+        "DOWNLOAD": "Download version of '{{title}}'",
         "REVIEW": "review",
         "SELECT": "Select version of '{{title}}'",
         "VERSION": "Version",

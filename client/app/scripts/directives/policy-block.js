@@ -132,7 +132,7 @@ angular.module('greyscaleApp')
                 }
 
                 function _listVersions() {
-                    greyscaleModalsSrv.selectPolicyVersion($scope.policyData.survey)
+                    greyscaleModalsSrv.selectPolicyVersion($scope.policyData.survey, 1)
                         .then(function (_survey) {
                             if (_survey) {
                                 $state.go('policy.version', {
