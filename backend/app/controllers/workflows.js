@@ -129,11 +129,21 @@ module.exports = {
                     ') as "usergroupId"',
                     '(' +
                     'CASE ' +
-                    '   WHEN array_length(array(SELECT id FROM "Tasks" WHERE "stepId" = "WorkflowSteps".id), 1) > 0' +
+                    '   WHEN array_length(array(' +
+                    '       SELECT id ' +
+                    '       FROM "Tasks" ' +
+                    '       WHERE "stepId" = "WorkflowSteps".id ' +
+                    '       AND (' +
+                    '           "userIds" IS NOT NULL ' +
+                    '           OR array_length("userIds",1) > 0' +
+                    '           OR "groupIds" IS NOT NULL ' +
+                    '           OR array_length("groupIds",1) > 0' +
+                    '       )' +
+                    '   ), 1) > 0' +
                     '   THEN TRUE' +
                     '   ELSE FALSE ' +
                     'END' +
-                    ')  as hasTasks'
+                    ')  as "hasAssignedTasks"'
                 )
                 .from(WorkflowStep)
                 .where(WorkflowStep.workflowId.equals(req.params.id));
