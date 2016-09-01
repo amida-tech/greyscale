@@ -134,10 +134,9 @@ module.exports = {
                     '       FROM "Tasks" ' +
                     '       WHERE "stepId" = "WorkflowSteps".id ' +
                     '       AND (' +
-                    '           "userIds" IS NOT NULL ' +
-                    '           OR array_length("userIds",1) > 0' +
-                    '           OR "groupIds" IS NOT NULL ' +
-                    '           OR array_length("groupIds",1) > 0' +
+                    '           ("userIds" IS NOT NULL AND array_length("userIds",1) > 0)' +
+                    '           OR ' +
+                    '           ("groupIds" IS NOT NULL AND array_length("groupIds",1) > 0)' +
                     '       )' +
                     '   ), 1) > 0' +
                     '   THEN TRUE' +
