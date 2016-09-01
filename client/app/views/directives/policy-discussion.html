@@ -12,6 +12,6 @@
          options="policy.options"
          remove="removeComment(msg)"
          edit="editComment(msg)"
-         ng-repeat="msg in model.items"></div>
+         ng-repeat="msg in model.items | filter:isVisible"></div>
     <p class="text-center" translate="COMMENTS.NO_MESSAGES" ng-hide="model.items.length > 0"></p>
 </div>

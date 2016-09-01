@@ -42,6 +42,11 @@ angular.module('greyscaleApp')
                 $scope.removeComment = _removeComment;
                 $scope.editComment = _editComment;
 
+                $scope.isVisible = function (item) {
+                    return item && !item.isHidden && item.activated &&
+                        (!item.isResolve && !item.isReturn || item.isReturn);
+                };
+
                 function save(commentBody, isDraft) {
                     var res = $q.reject('SAVE.ERROR');
 
