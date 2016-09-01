@@ -1,7 +1,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .controller('ModalProductWorkflowCtrl', function (_, $scope, $uibModalInstance, i18n, modalData, Organization,
-        greyscaleModalsSrv, greyscaleProductWorkflowTbl, greyscaleWorkflowTemplateApi,greyscaleUtilsSrv, $timeout) {
+        greyscaleModalsSrv, greyscaleProductWorkflowTbl, greyscaleWorkflowTemplateApi,greyscaleUtilsSrv, $timeout, inform) {
 
         var product = modalData.product;
 
@@ -146,7 +146,8 @@ angular.module('greyscaleApp')
                     'id', 'role', 'startDate', 'endDate',
                     'title',
                     'discussionParticipation', 'seeOthersResponses',
-                    'blindReview'
+                    'blindReview',
+                    'hasAssignedTasks'
                 ]);
                 step.usergroupId = _.map(item.groups, 'id');
                 step.position = i;
@@ -212,6 +213,14 @@ angular.module('greyscaleApp')
         }
 
         function _applyWorkflowTemplate() {
+
+            if (_hasAssignedSteps()) {
+                inform.add(i18n.translate('PRODUCTS.WORKFLOW.APPLY_REJECT_HAS_ASSIGNED_TASKS'), {
+                    type: 'danger'
+                });
+                return;
+            }
+
             var template = $scope.model.selectedTemplate;
             var workflow = $scope.model.product.workflow = $scope.model.product.workflow || {};
             workflow.name = template.workflow.name;
@@ -219,6 +228,12 @@ angular.module('greyscaleApp')
 
             _setSteps(template.steps);
             $scope.model.selectedTemplate = undefined;
+        }
+
+        function _hasAssignedSteps() {
+            var steps = _getSteps();
+            var assignedSteps = _.filter(steps, 'hasAssignedTasks');
+            return !!assignedSteps.length;
         }
 
         function _saveCurrentWorkflowAsTemplate() {

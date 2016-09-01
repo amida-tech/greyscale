@@ -529,9 +529,11 @@
             "TYPE": "Тип"
         },
         "WORKFLOW": {
+            "APPLY_REJECT_HAS_ASSIGNED_TASKS": "",
             "DESCRIPTION": "Описание",
             "DESCRIPTION_REQUIRED": "Описание обязательно",
             "LOAD_FROM_WORKFLOW_TEMPLATE": "",
+            "REMOVE_STEP_REJECT_HAS_ASSIGNED_TASKS": "",
             "STEPS": {
                 "ADD_GROUP": "",
                 "ALLOW_EDIT": "Редактирование",

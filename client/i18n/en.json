@@ -529,9 +529,11 @@
             "TYPE": "Type"
         },
         "WORKFLOW": {
+            "APPLY_REJECT_HAS_ASSIGNED_TASKS": "Some steps have assigned tasks. You can't apply workflow template.",
             "DESCRIPTION": "Description",
             "DESCRIPTION_REQUIRED": "Description is required.",
             "LOAD_FROM_WORKFLOW_TEMPLATE": "Select Workflow Template...",
+            "REMOVE_STEP_REJECT_HAS_ASSIGNED_TASKS": "This step have assigned tasks. You can't remove this step.",
             "STEPS": {
                 "ADD_GROUP": "Add Group",
                 "ALLOW_EDIT": "Edit",
