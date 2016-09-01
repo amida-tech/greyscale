@@ -106,12 +106,8 @@ module.exports = {
         var oTask = new sTask(req);
         var oTaskUserState = new sTaskUserState(req);
         co(function* () {
-
-            yield oTask.deleteTask(req.params.id);
-
-            // modify initial TaskUserStates
             yield oTaskUserState.remove(req.params.id);
-
+            yield oTask.deleteTask(req.params.id);
         }).then(function () {
             res.status(204).end();
         }, function (err) {

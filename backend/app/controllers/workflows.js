@@ -5,6 +5,7 @@ var client = require('app/db_bootstrap'),
     bologger = new BoLogger(),
     sTask = require('app/services/tasks'),
     sTaskUserState = require('app/services/taskuserstates'),
+    sWorkflow = require('app/services/workflows'),
     Workflow = require('app/models/workflows'),
     Product = require('app/models/products'),
     ProductUOA = require('app/models/product_uoa'),
@@ -117,39 +118,9 @@ module.exports = {
     },
 
     steps: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
+        var oWorkflow = new sWorkflow(req);
         co(function* () {
-            var q = WorkflowStep
-                .select(
-                    WorkflowStep.star(),
-                    'array(' +
-                    'SELECT "WorkflowStepGroups"."groupId" ' +
-                    'FROM "WorkflowStepGroups" ' +
-                    'WHERE "WorkflowStepGroups"."stepId" = "WorkflowSteps"."id"' +
-                    ') as "usergroupId"',
-                    '(' +
-                    'CASE ' +
-                    '   WHEN array_length(array(' +
-                    '       SELECT id ' +
-                    '       FROM "Tasks" ' +
-                    '       WHERE "stepId" = "WorkflowSteps".id ' +
-                    '       AND (' +
-                    '           ("userIds" IS NOT NULL AND array_length("userIds",1) > 0)' +
-                    '           OR ' +
-                    '           ("groupIds" IS NOT NULL AND array_length("groupIds",1) > 0)' +
-                    '       )' +
-                    '   ), 1) > 0' +
-                    '   THEN TRUE' +
-                    '   ELSE FALSE ' +
-                    'END' +
-                    ')  as "hasAssignedTasks"'
-                )
-                .from(WorkflowStep)
-                .where(WorkflowStep.workflowId.equals(req.params.id));
-            if (!req.query.order) {
-                q = q.order(WorkflowStep.position);
-            }
-            return yield thunkQuery(q);
+            return yield oWorkflow.getSteps(req.params.id);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -159,8 +130,9 @@ module.exports = {
 
     stepsUpdate: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
-        //var oTask = new sTask(req);
-        //var oTaskUserState = new sTaskUserState(req);
+        var oWorkflow = new sWorkflow(req);
+        var oTask = new sTask(req);
+        var oTaskUserState = new sTaskUserState(req);
         co(function* () {
             if (!Array.isArray(req.body)) {
                 throw new HttpError(403, 'You should pass an array of workflow steps objects in request body');
@@ -170,7 +142,6 @@ module.exports = {
             if (!_.first(workflow)) {
                 throw new HttpError(403, 'Workflow with id = ' + req.params.id + ' does not exist');
             }
-            var productId = workflow[0].productId;
 
             var rels = yield thunkQuery(WorkflowStep.select().where(WorkflowStep.workflowId.equals(req.params.id)));
             var relIds = rels.map(function (value) {
@@ -188,58 +159,15 @@ module.exports = {
                     passedIds.push(req.body[i].id);
                     if (Object.keys(updateObj).length && relIds.indexOf(req.body[i].id) !== -1) { // have data to update  and exists
                         updatedIds.push(req.body[i].id);
-                        yield thunkQuery(
-                            WorkflowStep
-                            .update(updateObj)
-                            .where(WorkflowStep.id.equals(req.body[i].id))
-                        );
-                        bologger.log({
-                            req: req,
-                            user: req.user,
-                            action: 'update',
-                            object: 'workflowsteps',
-                            entity: req.body[i].id,
-                            info: 'Update workflow step'
-                        });
-
-/*
-                        // set TaskUserStates if endDate changed
-                        tasks = yield thunkQuery(Task.select().where(Task.stepId.equals(req.body[i].id)));
-                        if (tasks && tasks.length > 0) {
-                            // if task for this step already exist
-                            for (var i in tasks) {
-                                usersIds = yield oTask.getUsersIdsByTask(tasks[i].id);
-                                yield oTaskUserState.updateEndDate(tasks[i].id, usersIds, new Date(req.body[i].endDate));
-                            }
-                        }
-*/
-
-                        yield thunkQuery(
-                            WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(req.body[i].id))
-                        );
-                        bologger.log({
-                            req: req,
-                            user: req.user,
-                            action: 'update',
-                            object: 'workflowstepgroups',
-                            info: 'Delete all workflow step groups for step ' + req.body[i].id
-                        });
+                        yield oWorkflow.updateWorkflowStep(req.body[i].id, updateObj, req.user);
+                        yield oWorkflow.deleteWorkflowStepGroups(req.body[i].id, req.user);
                     }
                 } else {
                     var insertObj = _.pick(req.body[i], WorkflowStep.table._initialConfig.columns);
                     insertObj.workflowId = req.params.id;
-                    var insertId = yield thunkQuery(WorkflowStep.insert(insertObj).returning(WorkflowStep.id));
+                    var insertId = yield oWorkflow.insertWorkflowStep(insertObj, req.user);
                     insertIds.push(insertId[0].id);
                     req.body[i].id = insertId[0].id;
-                    //insertArr.push(insertObj);
-                    bologger.log({
-                        req: req,
-                        user: req.user,
-                        action: 'insert',
-                        object: 'workflowsteps',
-                        entity: req.body[i].id,
-                        info: 'Insert workflow step'
-                    });
                 }
                 var insertGroupObjs = [];
                 for (var groupIndex in req.body[i].usergroupId) {
@@ -250,45 +178,25 @@ module.exports = {
                 }
                 debug(insertGroupObjs);
                 if (insertGroupObjs.length) {
-                    yield thunkQuery(WorkflowStepGroup.insert(insertGroupObjs));
-                    bologger.log({
-                        req: req,
-                        user: req.user,
-                        action: 'insert',
-                        object: 'workflowstepgroups',
-                        entities: insertGroupObjs,
-                        quantity: insertGroupObjs.length,
-                        info: 'Insert workflow step group(s)'
-                    });
+                    yield oWorkflow.insertWorkflowStepGroups(insertGroupObjs);
                 }
             }
 
             var deleteIds = _.difference(relIds, passedIds);
 
             for (i in deleteIds) {
-                yield thunkQuery(WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(deleteIds[i])));
-                bologger.log({
-                    req: req,
-                    user: req.user,
-                    action: 'delete',
-                    object: 'workflowstepgroups',
-                    entities: deleteIds,
-                    quantity: deleteIds.length,
-                    info: 'Delete workflow step group(s)'
-                });
-                yield thunkQuery(WorkflowStep.delete().where(WorkflowStep.id.equals(deleteIds[i])));
-                bologger.log({
-                    req: req,
-                    user: req.user,
-                    action: 'delete',
-                    object: 'workflowsteps',
-                    entities: deleteIds,
-                    quantity: deleteIds.length,
-                    info: 'Delete workflow step(s)'
-                });
+                var hasAssignedTasks = yield oWorkflow.hasAssignedTasks(deleteIds[i]);
+                if(hasAssignedTasks) {
+                    throw new HttpError(403, 'You can not remove workflow step (id=`' + deleteIds[i] + '`) that have task with assigned users.');
+                }
+                var task = yield oWorkflow.getTaskByStep(deleteIds[i], true);
+                if (task) {
+                    yield oTaskUserState.remove(task.id);   // just in case
+                    yield oTask.deleteTask(task.id);
+                }
+                yield oWorkflow.deleteWorkflowStepGroups(deleteIds[i], req.user);
+                yield oWorkflow.deleteWorkflowStep(deleteIds[i]);
             }
-
-            // var result = yield * setCurrentStepToNull(req, productId); - not required, as User could require to adjust certain Step's permissions for running Project
 
             return {
                 deleted: deleteIds,
