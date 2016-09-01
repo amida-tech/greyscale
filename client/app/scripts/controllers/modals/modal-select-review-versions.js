@@ -37,7 +37,6 @@ angular.module('greyscaleApp')
         };
 
         function _getData(survey) {
-            console.log(survey);
             if (!survey.versions) {
                 survey.versions = greyscaleSurveyApi.versions(survey.id);
             }
@@ -48,6 +47,7 @@ angular.module('greyscaleApp')
                         qty = list.length;
 
                     for (i = 0; i < qty; i++) {
+                        list[i].created = new Date(list[i].created);
                         list[i].creator = list[i].creator || {};
                         greyscaleUsers.setFullName(list[i].creator);
                     }
