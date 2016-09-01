@@ -363,35 +363,6 @@ module.exports = {
                     }, req.body[i].id, req.body[i].id, 'Tasks', 'assignTask');
 
                 }
-                if (product[0].workflow) {
-                    var firstStep = yield thunkQuery(
-                        WorkflowStep
-                        .select()
-                        .where(
-                            WorkflowStep.position.in(
-                                WorkflowStep
-                                .subQuery()
-                                .select(sql.functions.MIN(WorkflowStep.position))
-                                .where(WorkflowStep.workflowId.equals(product[0].workflow.id))
-                            )
-                        )
-                        .and(WorkflowStep.workflowId.equals(product[0].workflow.id))
-                    );
-
-                    if (firstStep) {
-                        yield thunkQuery(
-                            ProductUOA
-                            .update({
-                                currentStepId: firstStep[0].id
-                            })
-                            .where(
-                                ProductUOA.productId.equals(product[0].id)
-                                .and(ProductUOA.UOAid.equals(req.body[i].uoaId))
-                                .and(ProductUOA.currentStepId.isNull())
-                            )
-                        );
-                    }
-                }
 
             }
 
