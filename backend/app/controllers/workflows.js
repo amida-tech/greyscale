@@ -126,7 +126,14 @@ module.exports = {
                     'SELECT "WorkflowStepGroups"."groupId" ' +
                     'FROM "WorkflowStepGroups" ' +
                     'WHERE "WorkflowStepGroups"."stepId" = "WorkflowSteps"."id"' +
-                    ') as "usergroupId"'
+                    ') as "usergroupId"',
+                    '(' +
+                    'CASE ' +
+                    '   WHEN array_length(array(SELECT id FROM "Tasks" WHERE "stepId" = "WorkflowSteps".id), 1) > 0' +
+                    '   THEN TRUE' +
+                    '   ELSE FALSE ' +
+                    'END' +
+                    ')  as hasTasks'
                 )
                 .from(WorkflowStep)
                 .where(WorkflowStep.workflowId.equals(req.params.id));
