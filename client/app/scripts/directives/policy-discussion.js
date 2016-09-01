@@ -43,7 +43,7 @@ angular.module('greyscaleApp')
                 $scope.editComment = _editComment;
 
                 $scope.isVisible = function (item) {
-                    return item && !item.isHidden && item.activated &&
+                    return item && !item.isHidden &&
                         (!item.isResolve && !item.isReturn || item.isReturn);
                 };
 
