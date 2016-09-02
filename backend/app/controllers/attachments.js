@@ -189,6 +189,8 @@ module.exports = {
                 throw new HttpError(400, 'You should provide attachment id, essence Id and entity Id');
             }
 
+            var version = req.params.version ? req.params.version : 0;
+
             var attachment = yield oAttachment.getById(req.params.id);
 
             if (!attachment.length) {
@@ -201,7 +203,7 @@ module.exports = {
                 }
             }
 
-            var link = yield oAttachment.getLink(req.params.essenceId, req.params.entityId);
+            var link = yield oAttachment.getLink(req.params.essenceId, req.params.entityId, version);
 
             if (!link.length) {
                 throw new HttpError(400, 'Entity does not have any attachment link');
@@ -220,9 +222,9 @@ module.exports = {
             link[0].attachments.splice(attIndex, 1); // remove attachment from links
 
             if (link[0].attachments.length) { // update attachments array
-                yield oAttachment.updateLinkArray(req.params.essenceId, req.params.entityId, link[0].attachments);
+                yield oAttachment.updateLinkArray(req.params.essenceId, req.params.entityId, link[0].attachments, version);
             } else { // attachments link empty, remove record
-                yield oAttachment.removeLink(req.params.essenceId, req.params.entityId);
+                yield oAttachment.removeLink(req.params.essenceId, req.params.entityId, version);
             }
 
             // check for another records with this attachment id

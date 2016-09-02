@@ -16,7 +16,6 @@ var client = require('app/db_bootstrap'),
     Task = require('app/models/tasks'),
     Product = require('app/models/products'),
     ProductUOA = require('app/models/product_uoa'),
-    Project = require('app/models/projects'),
     Survey = require('app/models/surveys'),
     VError = require('verror'),
     vl = require('validator'),
@@ -842,21 +841,21 @@ module.exports = {
                 'WHERE "UserGroups"."userId" = "Users"."id"' +
                 ') as "usergroupId"';
 
-            var projectReq =
-                '(' +
-                'SELECT "Projects"."id" ' +
-                'FROM "Projects" ' +
-                'WHERE "Projects"."organizationId" = "Users"."organizationId" ' +
-                'LIMIT 1' +
-                ') as "projectId"';
+            //var projectReq =
+            //    '(' +
+            //    'SELECT "Projects"."id" ' +
+            //    'FROM "Projects" ' +
+            //    'WHERE "Projects"."organizationId" = "Users"."organizationId" ' +
+            //    'LIMIT 1' +
+            //    ') as "projectId"';
 
             q = User
                 .select(
                     User.star(),
                     rightsReq,
                     groupReq,
-                    'row_to_json("Organizations".*) as organization',
-                    projectReq
+                    'row_to_json("Organizations".*) as organization'
+                    //projectReq
                 )
                 .from(
                     User
@@ -1114,7 +1113,7 @@ module.exports = {
     tasks: function (req, res, next) {
         co(function* () {
             var oTask = new sTask(req);
-            return yield oTask.getSelfTasks();
+            return yield oTask.getSelfTasks(req.user.id);
         }).then(function (data) {
             res.json(data);
         }, function (err) {

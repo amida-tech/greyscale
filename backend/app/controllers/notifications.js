@@ -4,6 +4,8 @@ var
     fs = require('fs'),
     config = require('config'),
     common = require('app/services/common'),
+    sProduct = require('app/services/products'),
+    sSurvey = require('app/services/surveys'),
     auth = require('app/auth'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
@@ -799,10 +801,14 @@ function* extendNote(req, note, userTo, essenceName, entityId, orgId, taskId) {
     }
     var organization = yield * common.getEntity(req, orgId ? orgId : req.user.organizationId, Organization, 'id');
     var task = yield * common.getTask(req, taskId);
-    var product = yield * common.getEntity(req, task.productId, Product, 'id');
+    var oProduct = new sProduct(req);
+    var product = yield oProduct.getById(task.productId);
+    //var product = yield * common.getEntity(req, task.productId, Product, 'id');
     var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
     var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-    var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+    var oSurvey = new sSurvey(req);
+    var survey = yield oSurvey.getById(product.survey.id);
+    //var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
     //var policy = yield * common.getEntity(req, survey.policyId, Policy, 'id');
 
     note = _.extend(note, {

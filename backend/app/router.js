@@ -63,26 +63,6 @@ router.route('/:realm/v0.2/essences/:id')
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ essences.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
-//    PROJECTS
-//----------------------------------------------------------------------------------------------------------------------
-var projects = require('app/controllers/projects');
-
-router.route('/:realm/v0.2/projects')
-    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ projects.select)
-    .post(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ projects.insertOne);
-
-router.route('/:realm/v0.2/projects/:id')
-    .get(authenticate('token').always, projects.selectOne)
-    .delete(authenticate('token').always, projects.delete)
-    .put(authenticate('token').always, jsonParser, projects.editOne);
-
-router.route('/:realm/v0.2/projects/:id/products')
-    .get(authenticate('token').always, projects.productList);
-
-router.route('/:realm/v0.2/projects/:id/surveys')
-    .get(authenticate('token').always, projects.surveyList);
-
-//----------------------------------------------------------------------------------------------------------------------
 //    SURVEYS
 //----------------------------------------------------------------------------------------------------------------------
 var surveys = require('app/controllers/surveys');
@@ -91,21 +71,27 @@ router.route('/:realm/v0.2/surveys/parsedocx')
     .post( /*authenticate('token').always,*/ surveys.parsePolicyDocx);
 
 router.route('/:realm/v0.2/surveys')
-    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.select)
-    .post(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ surveys.insertOne);
+    .get(authenticate('token').always, surveys.select)
+    .post(authenticate('token').always, jsonParser, surveys.insertOne);
 
 router.route('/:realm/v0.2/surveys/:id')
-    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.selectOne)
-    .put(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ surveys.editOne)
-    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.delete);
+    .get(authenticate('token').always, surveys.selectOne)
+    .put(authenticate('token').always, jsonParser, surveys.editOne)
+    .delete(authenticate('token').always, surveys.delete);
+
+router.route('/:realm/v0.2/surveys/:id/versions')
+    .get(authenticate('token').always, surveys.surveyVersions);
+
+router.route('/:realm/v0.2/surveys/:id/versions/:version')
+    .get(authenticate('token').always, surveys.surveyVersion);
 
 router.route('/:realm/v0.2/surveys/:id/questions')
-    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questions)
-    .post(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ surveys.questionAdd);
+    .get(authenticate('token').always, surveys.questions)
+    .post(authenticate('token').always, jsonParser, surveys.questionAdd);
 
 router.route('/:realm/v0.2/questions/:id')
-    .put(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ surveys.questionEdit)
-    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questionDelete);
+    .put(authenticate('token').always, jsonParser, surveys.questionEdit)
+    .delete(authenticate('token').always, surveys.questionDelete);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEY ANSWERS
@@ -137,6 +123,9 @@ router.route('/:realm/v0.2/uploads/:id/ticket')
     .get(authenticate('token').always, attachments.getTicket);
 
 router.route('/:realm/v0.2/uploads/:id/:essenceId/:entityId')
+    .delete(authenticate('token').always, attachments.delete);
+
+router.route('/:realm/v0.2/uploads/:id/:essenceId/:entityId/:version')
     .delete(authenticate('token').always, attachments.delete);
 
 router.route('/:realm/v0.2/uploads/upload_link')
@@ -241,13 +230,13 @@ router.route('/:realm/v0.2/products')
     .post(authenticate('token').always, jsonParser, products.insertOne);
 
 router.route('/:realm/v0.2/products/:id')
-    .get(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.selectOne)
-    .put(authenticate('token').always, jsonParser, /*checkPermission('product_update', 'products'),*/ products.updateOne)
-    .delete(authenticate('token').always, /*checkPermission('product_delete', 'products'),*/ products.delete);
+    .get(authenticate('token').always, products.selectOne)
+    .put(authenticate('token').always, jsonParser, products.updateOne)
+    .delete(authenticate('token').always, products.delete);
 
 router.route('/:realm/v0.2/products/:id/tasks')
-    .get(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.tasks)
-    .put(authenticate('token').always, jsonParser, /*checkPermission('product_select', 'products'),*/ products.editTasks);
+    .get(authenticate('token').always, products.tasks)
+    .put(authenticate('token').always, jsonParser, products.editTasks);
 
 router.route('/:realm/v0.2/products/:id/aggregate')
     .get( /*authenticate('token').always,*/ products.aggregateIndexes);
@@ -257,14 +246,18 @@ router.route('/:realm/v0.2/products/:id/aggregate.csv')
 
 router.route('/:realm/v0.2/products/:id/indexes')
     .get( /*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.indexes)
-    .put(authenticate('token').always, jsonParser, /*checkPermission('product_update', 'products'),*/ products.editIndexes);
+    .put(authenticate('token').always, jsonParser, products.editIndexes);
 
 router.route('/:realm/v0.2/products/:id/subindexes')
-    .get( /*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.subindexes)
-    .put(authenticate('token').always, jsonParser, /*checkPermission('product_update', 'products'),*/ products.editSubindexes);
+    .get(products.subindexes)
+    .put(authenticate('token').always, jsonParser, products.editSubindexes);
 
 router.route('/:realm/v0.2/products/:ticket/export.csv')
     .get( /*authenticate('token').always,*/ products.export);
+
+router.route('/:realm/v0.2/surveys/:id/savedocx/:version')
+    .get( /*authenticate('token').always,*/ surveys.policyToDocx);
+
 
 router.route('/:realm/v0.2/products/:id/export_ticket')
     .get( /*authenticate('token').always,*/ products.getTicket);
@@ -464,10 +457,10 @@ router.route('/:realm/v0.2/comments')
     .post(authenticate('token').always, jsonParser, comments.insertOne);
 router.route('/:realm/v0.2/comments/users/:taskId')
     .get(authenticate('token').always, comments.getUsers);
-router.route('/:realm/v0.2/comments/entryscope')
-    .get(authenticate('token').always, comments.getEntryScope);
-router.route('/:realm/v0.2/comments/entryscope/:id')
-    .get(authenticate('token').always, comments.getEntryUpdate);
+router.route('/:realm/v0.2/comments/versions/:version/users')
+    .get(authenticate('token').always, comments.getVersionUsers);
+router.route('/:realm/v0.2/comments/versions/:version/tasks')
+    .get(authenticate('token').always, comments.getVersionTasks);
 router.route('/:realm/v0.2/comments/hidden')
     .put(authenticate('token').always, jsonParser, comments.hideUnhide);
 router.route('/:realm/v0.2/comments/:id')

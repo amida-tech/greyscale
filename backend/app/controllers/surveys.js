@@ -3,6 +3,8 @@ var
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     Survey = require('app/models/surveys'),
+    SurveyAnswer = require('app/models/survey_answers'),
+    SurveyMeta = require('app/models/survey_meta'),
     Policy = require('app/models/policies'),
     Product = require('app/models/products'),
     AttachmentLink = require('app/models/attachment_links'),
@@ -10,6 +12,7 @@ var
     User = require('app/models/users'),
     SurveyQuestion = require('app/models/survey_questions'),
     SurveyQuestionOption = require('app/models/survey_question_options'),
+    mc = require('app/mc_helper'),
     co = require('co'),
     Query = require('app/util').Query,
     query = new Query(),
@@ -28,40 +31,32 @@ module.exports = {
 
     select: function (req, res, next) {
         var oSurvey = new sSurvey(req);
-        oSurvey.getList().then(
+        oSurvey.getList(req.query).then(
             (data) => res.json(data),
             (err) => next(err)
         );
     },
 
-    selectOne: function (req, res, next) {
+    surveyVersions: function (req, res, next) {
         var oSurvey = new sSurvey(req);
-        var oPolicy = new sPolicy(req);
-        co(function* () {
-            var item = yield oSurvey.getById(req.params.id);
-            if (!item) {
-                throw new HttpError(404, 'Not found');
-            } else {
-                //if (req.query.forEdit) {
-                //    if (!item.policyId) {
-                //        throw new HttpError(403, '"forEdit" query parameter available only for policies');
-                //    }
-                //    item.locked = true;
-                //    if (!item.editor) {
-                //        yield oPolicy.setEditor(item.policyId, req.user.id);
-                //        item.editor = req.user.id;
-                //        item.locked = false;
-                //    } else if (item.editor == req.user.id) {
-                //        item.locked = false;
-                //    }
-                //}
-                return item;
-            }
-        }).then(function (item) {
-            res.json(item);
-        }, function (err) {
-            next(err);
-        });
+        oSurvey.getVersions(req.params.id).then(
+            (data) => res.json(data),
+            (err) => next(err)
+        );
+    },
+
+    surveyVersion: function (req, res, next) {
+        var oSurvey = new sSurvey(req);
+        oSurvey.getVersion(req.params.id, req.params.version).then(
+            (data) => {
+                if (data) {
+                    res.json(data);
+                } else {
+                    next(new HttpError(404, 'Version does not exist'));
+                }
+            },
+            (err) => next(err)
+        );
     },
 
     parsePolicyDocx: function (req, res, next) {
@@ -128,13 +123,66 @@ module.exports = {
         }
     },
 
+    policyToDocx: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            var oSurvey = new sSurvey(req);
+            var docx = yield oSurvey.policyToDocx(req.params.id, req.params.version);
 
+            return {
+                docx: docx
+            };
+
+        }).then(function (data) {
+            res.writeHead ( 200, {
+                'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'Content-disposition': 'attachment; filename=' + req.params.id + '.docx'
+            });
+
+            //data.docx.pipe ( res );
+            res.end(data.docx);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    selectOne: function (req, res, next) {
+        var oSurvey = new sSurvey(req);
+
+        var data = false;
+        co(function* () {
+
+            if (req.query.forEdit) {
+                if (req.user.roleID !== 2) {
+                    throw new HttpError(403, 'Only admins can edit surveys');
+                }
+
+                data = yield oSurvey.getVersion(req.params.id, -1); // draft
+                if (data) return data;
+            }
+
+            data = yield oSurvey.getById(req.params.id); // max version
+
+            if (data) {
+                return data;
+            } else {
+                throw new HttpError(404, 'Not found');
+            }
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
 
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var products = yield thunkQuery(
-                Product.select().where(Product.surveyId.equals(req.params.id))
+                SurveyMeta
+                    .select()
+                    .where(SurveyMeta.surveyId.equals(req.params.id))
+                    .and(SurveyMeta.productId.isNotNull())
             );
             if (_.first(products)) {
                 throw new HttpError(403, 'This survey has already linked with some product(s), you cannot delete it');
@@ -173,13 +221,10 @@ module.exports = {
                 }
             }
 
-            var survey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.params.id)));
-
+            yield thunkQuery(Policy.delete().where(Policy.surveyId.equals(req.params.id)));
+            yield thunkQuery(SurveyMeta.delete().where(SurveyMeta.surveyId.equals(req.params.id)));
             yield thunkQuery(Survey.delete().where(Survey.id.equals(req.params.id)));
 
-            if (survey[0] && survey[0].policyId) {
-                yield thunkQuery(Policy.delete().where(Policy.id.equals(survey[0].policyId)));
-            }
         }).then(function (data) {
             bologger.log({
                 req: req,
@@ -196,13 +241,29 @@ module.exports = {
     },
 
     editOne: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
         var oSurvey = new sSurvey(req);
-        var oPolicy = new sPolicy(req);
+
         co(function* () {
-            yield * checkSurveyData(req);
-            var isUpdated = yield oSurvey.updateOne(req.params.id, req.body);
-            if (isUpdated) {
+            if (req.query.draft) {
+                return yield oSurvey.saveDraft(req.params.id, req.body);
+            } else {
+                return yield oSurvey.createVersion(req.params.id, req.body);
+            }
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    editOld: function (req, res, next) {
+        co (function* () {
+            if (Object.keys(updateSurvey).length) {
+                yield thunkQuery(
+                    Survey
+                        .update(updateSurvey)
+                        .where(Survey.id.equals(req.params.id))
+                );
                 bologger.log({
                     req: req,
                     user: req.user,
@@ -213,9 +274,16 @@ module.exports = {
                 });
             }
 
-            if (req.body.policyId) {
-                var isPolicyUpdated = yield oPolicy.updateOne(req.body.policyId, req.body);
-                if (isPolicyUpdated) {
+            if (req.body.policyId !== null) {
+                var updatePolicy = _.pick(req.body, Policy.editCols);
+
+                if (Object.keys(updatePolicy).length) {
+                    yield thunkQuery(
+                        Policy
+                            .update(updatePolicy)
+                            .where(Policy.id.equals(req.body.policyId))
+                    );
+
                     if (Array.isArray(req.body.attachments)) {
                         yield * linkAttachments(req, req.body.policyId, req.body.attachments);
                     }
@@ -256,8 +324,8 @@ module.exports = {
                             try {
                                 yield thunkQuery(
                                     SurveyQuestion
-                                    .update(updateObj)
-                                    .where(SurveyQuestion.id.equals(updateSurvey.questions[i].id))
+                                        .update(updateObj)
+                                        .where(SurveyQuestion.id.equals(updateSurvey.questions[i].id))
                                 );
                                 updateSurvey.questions[i].status = 'Ok';
                                 updateSurvey.questions[i].message = 'Updated';
@@ -441,15 +509,18 @@ module.exports = {
                 errors: errorMessages,
                 questions: updateSurvey.questions
             };
-
-        }).then(function (data) {
-            res.status(data.status).json(data);
-        }, function (err) {
-            next(err);
         });
     },
 
     insertOne: function (req, res, next) {
+        var oSurvey = new sSurvey(req);
+        oSurvey.createVersion(null, req.body).then(
+            (data) => res.json(data),
+            (err) => next(err)
+        );
+    },
+
+    insertOneOld: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkSurveyData(req);
@@ -640,60 +711,11 @@ function* addQuestion(req, dataObj) {
 
 function* checkSurveyData(req) {
     var thunkQuery = req.thunkQuery;
-
-    if (!req.params.id) { // create
-        req.body.projectId = req.user.projectId;
-
-        if (!req.body.title) {
-            throw new HttpError(403, 'title field are required');
-        }
-    }
 }
 
-function* checkPolicyData(req) {
-    var thunkQuery = thunkify(new Query(req.params.realm));
 
-    if (!req.body.section || !req.body.subsection) {
-        throw new HttpError(403, 'section and subsection fields are required');
-    }
 
-    req.body.author = req.user.realmUserId;
-}
 
-function* linkAttachments(req, policyId, attachArr) {
-    var thunkQuery = req.thunkQuery;
-
-    var essence = yield thunkQuery(Essence.select().where(Essence.tableName.equals('Policies')));
-
-    if (Array.isArray(attachArr)) {
-
-        var link = yield thunkQuery(AttachmentLink.select().where({
-            essenceId: essence[0].id,
-            entityId: policyId
-        }));
-
-        if (link.length) {
-            yield thunkQuery(
-                AttachmentLink
-                .update({
-                    attachments: attachArr
-                })
-                .where({
-                    essenceId: essence[0].id,
-                    entityId: policyId
-                })
-            );
-        } else {
-            yield thunkQuery(
-                AttachmentLink.insert({
-                    essenceId: essence[0].id,
-                    entityId: policyId,
-                    attachments: attachArr
-                })
-            );
-        }
-    }
-}
 
 function* checkQuestionData(req, dataObj, isCreate) {
     var thunkQuery = req.thunkQuery;

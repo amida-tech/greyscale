@@ -2,6 +2,7 @@
 
 var io = require('socket.io');
 var sPolicy = require('app/services/policies');
+var sSurvey = require('app/services/surveys');
 var Token = require('app/models/token');
 var sUser = require('app/services/users');
 var config = require('config');
@@ -47,7 +48,6 @@ var exportObject = {
 
     send: function (event, data, socketId, isBesides) {
         var clients = ioServer.sockets.sockets;
-        console.log(clients);
         data = data || {};
         for (var i in clients) {
             var currentSocketId = clients[i].id.replace('/#','');
@@ -81,47 +81,59 @@ var exportObject = {
             socket.on('disconnect', function (reason) {
                 debug('Socket disconnected ' + socket.id);
                 if (socket.req) {
-                    var oPolicy = new sPolicy(socket.req);
-                    oPolicy.unlockSocketPolicies(socket.id.replace('/#','') ).then(
+                    var oSurvey = new sSurvey(socket.req);
+                    oSurvey.unlockSocketSurveys(socket.id.replace('/#','') ).then(
                         (data) => {
                             for (var i in data) {
-                                self.send(socketEvents.policyUnlocked, {policyId: data[i].id});
+                                self.send(socketEvents.policyUnlocked, {surveyId: data[i].surveyId});
                             }
                         }
                     );
                 }
-
             });
 
             socket.on(socketEvents.policyLock, function (data) {
                 debug('policyLock');
-                debug(socket.req);
                 if (socket.req && socket.req.user && socket.req.user.id){
                     co(function* () {
-                        var oPolicy = new sPolicy(socket.req);
-                        debug(socket.req.user.id);
-                        var policy;
-                        try{
-                            policy = yield oPolicy.lockPolicy(data.policyId, socket.req.user.id, socket.id.replace('/#',''));
-                        }catch(err){
+                        var oSurvey = new sSurvey(socket.req);
+                        var surveyLock;
+                        try {
+                            surveyLock = yield oSurvey.lockSurvey(data.surveyId, socket.req.user.id, socket.id.replace('/#',''));
+                        } catch(err) {
+                            surveyLock = yield oSurvey.getMeta(data.surveyId);
                             debug(JSON.stringify(err));
-                            policy = yield oPolicy.getById(data.policyId);
                         }
-                        return policy;
+
+                        return surveyLock;
                     }).then(
-                        (policy) => {
+                        (surveyLock) => {
                             var response = {
-                                policyId: policy.id,
-                                editor: policy.editor,
-                                tsLock: policy.startEdit
+                                surveyId: parseInt(data.surveyId),
+                                editor: surveyLock.editor,
+                                tsLock: surveyLock.startEdit
                             };
-                            debug(response);
                             socket.emit(socketEvents.policyLocked, response);
                         },
                         (err) => {
                             // emit policy locked error
                             debug(JSON.stringify(err));
                         }
+                    );
+                }
+            });
+
+            socket.on(socketEvents.policyUnlock, function (data) {
+                debug('policyUnlock');
+                if (socket.req && socket.req.user && socket.req.user.id){
+                    var oSurvey = new sSurvey(socket.req);
+                    oSurvey.unlockSurvey(data.surveyId, socket.id.replace('/#','')).then(
+                        (result) => {
+                            for (var i in result) {
+                                self.send(socketEvents.policyUnlocked, {surveyId: result[i].surveyId});
+                            }
+                        },
+                        (err) => debug(JSON.stringify(err))
                     );
                 }
             });
@@ -148,7 +160,6 @@ var exportObject = {
                             // TODO emit error token invalid
                         }
                         socket.req = req;
-                        debug(socket.req);
                         debug('User set ' + socket.id);
                     }
                 }).then(

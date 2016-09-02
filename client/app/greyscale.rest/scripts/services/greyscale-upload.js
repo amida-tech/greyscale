@@ -40,7 +40,11 @@ angular.module('greyscale.rest')
             }
         }
 
-        function _remove(attachId, essenceId, entityId) {
-            return _api().one(attachId + '', essenceId + '').one(entityId + '').remove().then(_preResp);
+        function _remove(attachId, essenceId, entityId, _version) {
+            var _rest = _api().one(attachId + '', essenceId + '').one(entityId + '');
+            if (_version !== undefined) {
+                _rest.one(_version + '');
+            }
+            return _rest.remove().then(_preResp);
         }
     });

@@ -6,6 +6,8 @@ var columns = [
     'subsection',
     'number',
     'author',
+    'surveyId',
+    'surveyVersion',
     'editor',
     'startEdit',
     'socketId'
@@ -17,7 +19,7 @@ var Policy = sql.define({
 });
 
 Policy.whereCol = columns;
-
+Policy.insertCols = ['section','subsection','number','author','surveyId','surveyVersion'];
 Policy.editCols = ['section', 'subsection', 'number'];
 
 module.exports = Policy;

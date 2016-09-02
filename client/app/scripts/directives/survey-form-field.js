@@ -49,7 +49,7 @@ angular.module('greyscaleApp')
                             '">{{field.qid}}. {{field.label}}</label><p class="subtext field-description">{{field.description}}</p>';
 
                         if (!flags.blindReview && !flags.provideResponses && !flags.isPolicy) {
-                            label = '<a class="fa fa-users version-button" ng-click="showVersion(field)" title="{{\'SURVEYS.VERSION\' | translate}}"></a> ' + label;
+                            label = '<a class="fa fa-users version-button" ng-click="showVersion(field)" title="{{\'SURVEYS.VERSIONS\' | translate}}"></a> ' + label;
                         }
 
                         if (scope.field.flagResolve) {
@@ -222,8 +222,14 @@ angular.module('greyscaleApp')
                         }
 
                         body = '<div class="survey-form-field-input" survey-form-field-type="' + scope.field.type + '">' + body +
-                            '</div><p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
-                            message + '</span><span class="pull-left">' + borders + '</span></p>' + links + attach;
+                            '</div>';
+
+                        if (!scope.isDisabled) {
+                            body += '<p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
+                                message + '</span><span class="pull-left">' + borders + '</span></p>';
+                        }
+
+                        body += links + attach;
 
                         if (flags.isPolicy) {
                             body += '<div gs-co-answers field="field"></div>';
@@ -248,7 +254,7 @@ angular.module('greyscaleApp')
                             }
 
                             if (flags.provideResponses) {
-                                body += '<div translate="SURVEYS.REVIEVER_COMMENT"></div>' +
+                                body += '<div translate="SURVEYS.REVIEWER_COMMENT"></div>' +
                                     '<textarea placeholder="Comment" ng-model="field.response"></textarea>' +
                                     '<div class="field-comment-radio">' +
                                     '<div class="radio"><label><input type="radio" name="{{field.cid}}_agree"' +
