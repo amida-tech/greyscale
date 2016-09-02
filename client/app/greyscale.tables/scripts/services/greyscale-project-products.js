@@ -53,6 +53,7 @@ angular.module('greyscale.tables')
             dataRequired: true,
             dataSet: {
                 getData: _getSurveys,
+                getDisabled: _disabledSurvey,
                 keyField: 'id',
                 valField: 'title',
                 groupBy: function (item) {
@@ -188,8 +189,13 @@ angular.module('greyscale.tables')
 
         function _getSurveys() {
             return !_editProductMode ? _dicts.surveys : _.filter(_dicts.surveys, function (survey) {
-                return _editProductMode.surveyId === survey.id || !survey.policyId || !survey.products || !survey.products.length;
+                return _editProductMode.surveyId === survey.id || !survey.policyId || !survey.products ||
+                    !survey.products.length;
             });
+        }
+
+        function _disabledSurvey(item, rec) {
+            return (rec && rec.policyId && item.id !== rec.surveyId);
         }
 
         function _editProduct(product) {
@@ -325,8 +331,8 @@ angular.module('greyscale.tables')
         }
 
         function _planningNotFinish(product) {
-            return !product.uoas || !product.uoas.length || !product.surveyId ||
-                !product.workflowSteps || !product.workflowSteps.length || !product.tasks || !product.tasks.length;
+            return !product.uoas || !product.uoas.length || !product.surveyId || !product.workflowSteps ||
+                !product.workflowSteps.length || !product.tasks || !product.tasks.length;
         }
 
         function _getDisabledStatus(item, rec) {
