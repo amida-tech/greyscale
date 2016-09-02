@@ -62,7 +62,7 @@
                     <button class="btn pull-right" ng-click="saveDraft()" style="clear:right"
                             title="{{'SURVEYS.LAST_SAVED' | translate}}: {{model.savedAt | date:'medium'}}"
                             ng-disabled="(isLocked() || model.formReadonly || model.locked)"
-                            translate="SURVEYS.SAVE_DRAFT"></button>
+                            translate="{{model.saveDraftBtnTitle || 'SURVEYS.SAVE_DRAFT'}}"></button>
 
                     <button ng-if="!surveyData.task.flagged || surveyData.resolveModeIsDisabled"
                             class="btn btn-primary pull-right"
