@@ -554,6 +554,7 @@
                 "SORT_DISABLED": "Reorder allowed only for project with status \"Planning\"",
                 "SORT_ENABLED": "Drag by this handle to reorder steps list",
                 "START_DATE": "Start Date",
+                "TASKS_ASSIGNED_CANT_MANIPULATE_GROUPS": "Step have assigned tasks.<br>Not allowed to change groups.",
                 "TITLE": "Title",
                 "WRITE_ACCESS_READ": "Read",
                 "WRITE_ACCESS_WRITE": "Read And Write"

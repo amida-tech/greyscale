@@ -554,6 +554,7 @@
                 "SORT_DISABLED": "",
                 "SORT_ENABLED": "",
                 "START_DATE": "Дата начала",
+                "TASKS_ASSIGNED_CANT_MANIPULATE_GROUPS": "",
                 "TITLE": "Шаг",
                 "WRITE_ACCESS_READ": "Чтение",
                 "WRITE_ACCESS_WRITE": "Чтение и запись"
