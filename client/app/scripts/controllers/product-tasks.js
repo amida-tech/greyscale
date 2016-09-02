@@ -683,10 +683,12 @@ angular.module('greyscaleApp')
         }
 
         var _productCached;
+
         function _loadProduct(productId) {
             if (_productCached) {
                 return $q.when(_productCached);
             } else {
+                /*jshint boss:true */
                 return _productCached = greyscaleProductApi.get(productId)
                     .then(function (product) {
                         $state.ext.productName = product.title;
