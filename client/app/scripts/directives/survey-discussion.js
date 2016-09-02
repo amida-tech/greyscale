@@ -31,7 +31,7 @@ angular.module('greyscaleApp')
                     associate: {},
                     assignTo: [],
                     draftFlag: null,
-                    flagDisabled: true
+                    flagDisabled: false
                 };
 
                 $scope.surveyParams = {};
@@ -81,13 +81,16 @@ angular.module('greyscaleApp')
                         id: id
                     });
                     $scope.model.flagDisabled = currentStep.position < item.position;
-                    if ($scope.model.flagDisabled) {
-                        $scope.model.msg.isReturn = false;
-                    }
                 };
 
                 $scope.filterSteps = function (elem) {
-                    return elem.id !== $scope.surveyParams.currentStepId;
+                    if (elem.id === $scope.surveyParams.currentStepId) {
+                        return false;
+                    }
+                    if ($scope.model.msg.isReturn && elem.position > currentStep.position) {
+                        return false;
+                    }
+                    return true;
                 };
 
                 $scope.filterQuests = function (quest) {
