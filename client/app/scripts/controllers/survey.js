@@ -93,7 +93,6 @@ angular.module('greyscaleApp')
                     $q.reject();
             })
             .then(function (steps) {
-                steps = steps.plain();
                 var s, qty = steps.length;
                 for (s = 0; s < qty; s++) {
                     if (data.task.stepId === steps[s].id) {

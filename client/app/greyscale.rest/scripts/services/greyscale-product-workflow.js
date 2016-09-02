@@ -10,15 +10,15 @@ angular.module('greyscale.rest')
         }
 
         function _get(id, params) {
-            return api().one(id + '').get(params);
+            return api().one(id + '').get(params).then(_response);
         }
 
         function _add(workflow) {
-            return api().customPOST(workflow);
+            return api().customPOST(workflow).then(_response);
         }
 
         function _upd(workflow) {
-            return api().one(workflow.id + '').customPUT(workflow);
+            return api().one(workflow.id + '').customPUT(workflow).then(_response);
         }
 
         function _workflowStepsApi(workflowId) {
@@ -27,7 +27,9 @@ angular.module('greyscale.rest')
 
         function _stepsList(workflowId) {
             return function (params) {
-                return _workflowStepsApi(workflowId).get(params)
+                // params=  params || {};
+                // params.cacheboost = Math.random();
+                return _workflowStepsApi(workflowId).get(params).then(_response)
                     .then(function (steps) {
                         angular.forEach(steps, function (step) {
                             step.usergroupId = step.usergroupId || [1, 2];
@@ -40,7 +42,7 @@ angular.module('greyscale.rest')
 
         function _stepsListUpdate(workflowId) {
             return function (stepIds) {
-                return _workflowStepsApi(workflowId).customPUT(stepIds);
+                return _workflowStepsApi(workflowId).customPUT(stepIds).then(_response);
             };
         }
 
@@ -50,6 +52,14 @@ angular.module('greyscale.rest')
                 stepsListUpdate: _stepsListUpdate(workflowId)
             };
         };
+
+        function _response(data) {
+            if (data && typeof data.plain === 'function') {
+                return data.plain();
+            } else {
+                return data;
+            }
+        }
 
         return {
             get: _get,
