@@ -39,9 +39,9 @@
             </div>
             <div ng-repeat="group in row.groups track by $index">
                 {{group.title}}
-                <a ng-click="ext.stepRemoveGroup(row.groups, $index)" class="text-danger">&times;</a>
+                <a ng-if="!row.hasAssignedTasks" ng-click="ext.stepRemoveGroup(row.groups, $index)" class="text-danger">&times;</a>
             </div>
-            <div ng-hide="ext.noFreeGroups(row.groups)">
+            <div ng-hide="ext.noFreeGroups(row.groups) || row.hasAssignedTasks">
                 <a><i class="fa fa-plus"></i> <span translate=".ADD_GROUP"></span></a>
                 <select hidden-select
                         ng-model="ext.selectedGroup"
@@ -50,6 +50,7 @@
                     <option value="" hidden></option>
                 </select>
             </div>
+            <div ng-if="row.hasAssignedTasks"><small translate=".TASKS_ASSIGNED_CANT_MANIPULATE_GROUPS" class="text-muted"></small></div>
 
         </div>
         <div class="col-md-4">
