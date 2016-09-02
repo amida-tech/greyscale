@@ -48,7 +48,6 @@ var exportObject = {
 
     send: function (event, data, socketId, isBesides) {
         var clients = ioServer.sockets.sockets;
-        console.log(clients);
         data = data || {};
         for (var i in clients) {
             var currentSocketId = clients[i].id.replace('/#','');
@@ -95,11 +94,9 @@ var exportObject = {
 
             socket.on(socketEvents.policyLock, function (data) {
                 debug('policyLock');
-                debug(socket.req);
                 if (socket.req && socket.req.user && socket.req.user.id){
                     co(function* () {
                         var oSurvey = new sSurvey(socket.req);
-                        debug(socket.req.user.id);
                         var surveyLock;
                         try {
                             surveyLock = yield oSurvey.lockSurvey(data.surveyId, socket.req.user.id, socket.id.replace('/#',''));
@@ -108,7 +105,6 @@ var exportObject = {
                             debug(JSON.stringify(err));
                         }
 
-                        debug(surveyLock);
                         return surveyLock;
                     }).then(
                         (surveyLock) => {
@@ -117,7 +113,6 @@ var exportObject = {
                                 editor: surveyLock.editor,
                                 tsLock: surveyLock.startEdit
                             };
-                            debug(response);
                             socket.emit(socketEvents.policyLocked, response);
                         },
                         (err) => {
@@ -130,7 +125,6 @@ var exportObject = {
 
             socket.on(socketEvents.policyUnlock, function (data) {
                 debug('policyUnlock');
-                debug(socket.req);
                 if (socket.req && socket.req.user && socket.req.user.id){
                     var oSurvey = new sSurvey(socket.req);
                     oSurvey.unlockSurvey(data.surveyId, socket.id.replace('/#','')).then(
@@ -166,7 +160,6 @@ var exportObject = {
                             // TODO emit error token invalid
                         }
                         socket.req = req;
-                        debug(socket.req);
                         debug('User set ' + socket.id);
                     }
                 }).then(

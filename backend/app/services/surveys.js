@@ -5,6 +5,7 @@ var
     User = require('app/models/users'),
     Workflow = require('app/models/workflows'),
     SurveyQuestion = require('app/models/survey_questions'),
+    SurveyAnswer = require('app/models/survey_answers'),
     SurveyMeta = require('app/models/survey_meta'),
     SurveyQuestionOption = require('app/models/survey_question_options'),
     sAttachment = require('app/services/attachments'),
@@ -565,9 +566,27 @@ var exportObject = function  (req, realm) {
 
     this.deleteVersionQuestionOptions = function (questionId, surveyVersion) {
         return co(function* (){
-            yield thunkQuery(
-                SurveyQuestionOption.delete().where({questionId: questionId, surveyVersion: surveyVersion})
+            var options = yield req.thunkQuery(
+                'SELECT a.*, array_agg(b.id) as answers' +
+                ' FROM "SurveyQuestionOptions" a' +
+                ' LEFT JOIN "SurveyAnswers" b' +
+                ' ON a.id = ANY(b."optionId")' +
+                ' WHERE a."questionId" = ' + questionId +
+                ' AND a."surveyVersion" = ' + surveyVersion +
+                ' group by a.id'
             );
+            for (var i in options) {
+                if (Array.isArray(options[i].answers) && options[i].answers[0]) {
+                    throw new HttpError(
+                        400,
+                        'Cannot delete option (id = ' + options[i].id + '), because there are some answers, contain this option'
+                    );
+                } else {
+                    yield thunkQuery(
+                        SurveyQuestionOption.delete().where({id: options[i].id})
+                    );
+                }
+            }
         });
     };
 
@@ -595,14 +614,9 @@ var exportObject = function  (req, realm) {
     };
 
     this.deleteVersionQuestion = function (questionId, surveyVersion) {
+        var self = this;
         return co(function* (){
-            yield thunkQuery(
-                SurveyQuestionOption.delete()
-                    .where(
-                        SurveyQuestionOption.questionId.equals(questionId)
-                            .and(SurveyQuestionOption.surveyVersion.equals(surveyVersion))
-                    )
-            );
+            yield self.deleteVersionQuestionOptions(questionId, surveyVersion);
             yield thunkQuery(
                 SurveyQuestion.delete()
                     .where(
@@ -616,7 +630,6 @@ var exportObject = function  (req, realm) {
     this.createDraft = function (surveyId, fullSurveyData) {
         var self = this;
         return co(function* () {
-
             var surveyData = _.pick(fullSurveyData, Survey.insertCols);
             var policyData = _.pick(fullSurveyData, Policy.insertCols);
             surveyData.surveyVersion = -1;

@@ -3,6 +3,7 @@ var
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     Survey = require('app/models/surveys'),
+    SurveyAnswer = require('app/models/survey_answers'),
     SurveyMeta = require('app/models/survey_meta'),
     Policy = require('app/models/policies'),
     Product = require('app/models/products'),
@@ -147,8 +148,10 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         var oSurvey = new sSurvey(req);
+
         var data = false;
         co(function* () {
+
             if (req.query.forEdit) {
                 if (req.user.roleID !== 2) {
                     throw new HttpError(403, 'Only admins can edit surveys');
