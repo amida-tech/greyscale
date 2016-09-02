@@ -27,8 +27,6 @@ angular.module('greyscale.rest')
 
         function _stepsList(workflowId) {
             return function (params) {
-                // params=  params || {};
-                // params.cacheboost = Math.random();
                 return _workflowStepsApi(workflowId).get(params).then(_response)
                     .then(function (steps) {
                         angular.forEach(steps, function (step) {
