@@ -11,6 +11,7 @@ var
     sAttachment = require('app/services/attachments'),
     sEssence = require('app/services/essences'),
     sUser = require('app/services/users'),
+    sCom = require('app/services/comments'),
     Task = require('app/models/tasks'),
     Product = require('app/models/products'),
     ProductUOA = require('app/models/product_uoa'),
@@ -855,6 +856,8 @@ var exportObject = function  (req, realm) {
     this.policyToDocx = function (surveyId, version) {
         var self = this;
         var oUser = new sUser(req);
+        var sComment = require('app/services/comments');
+        var oComment = new sComment(req);
         return co(function* () {
 
             // html header & footer
@@ -863,6 +866,7 @@ var exportObject = function  (req, realm) {
             var content = htmlHeader;
 
             var survey = yield self.getVersion(surveyId, version);
+
 
 
             if (survey.policyId) {
@@ -890,8 +894,31 @@ var exportObject = function  (req, realm) {
                         }
                     }
                 }
-            }
 
+                var comments = yield oComment.getComments({surveyId: surveyId}, null, null, null, version);
+                if (comments.length) {
+                    content += '<h1>Comments</h1>';
+                    for (var i in comments) {
+                        var comment = '';
+                        if (comments[i].range) {
+                            comments[i].range = JSON.parse(comments[i].range);
+                            if (comments[i].range) {
+                                comment +=
+                                    '<blockquote>'
+                                    + comments[i].range.entry.replace(/(<([^>]+)>)/ig,"")
+                                    + '</blockquote>';
+                            }
+                        }
+                        content +=
+                            '<p>'
+                            //+ (i+1)  + '.'
+                            + comment
+                            + comments[i].entry.replace(/(<([^>]+)>)/ig,"")
+                            + '</p>';
+                    }
+                }
+
+            }
             content += htmlFooter;
             var docx = htmlDocx.asBlob(content);
             return docx;
