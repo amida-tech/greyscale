@@ -66,6 +66,9 @@ angular.module('greyscale.tables')
                 sortable: 'status',
                 title: tns + 'STATUS',
                 dataFormat: 'option',
+                dataDisabled: function (value) {
+                    return value === 3;
+                },
                 dataNoEmptyOption: true,
                 cellTemplate: '<a ui-sref="pmProductDashboard({productId:row.id})">{{option.name}}</a>',
                 dataRequired: true,
