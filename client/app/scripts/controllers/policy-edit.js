@@ -112,6 +112,7 @@ angular.module('greyscaleApp')
         greyscaleProfileSrv.getProfile()
             .then(function (_user) {
                 user = _user;
+                console.log(user);
                 _setAuthor(_user, $scope.model.policy);
                 return _user;
             });
@@ -382,7 +383,7 @@ angular.module('greyscaleApp')
         function _setAuthor(profile, policy) {
             if (profile && policy) {
                 policy.author = profile.id;
-                policy.authorName = profile.fullName;
+                policy.authorName = profile.fullName || (profile.firstName + ' ' + profile.lastName);
             }
             return profile;
         }
