@@ -1,4 +1,5 @@
-<div class="row policy-edit">
+<rd-loading ng-show="model.loading" class="compact"></rd-loading>
+<div class="row policy-edit" ng-hide="model.loading">
     <div name="dataForm" class="col-sm-12 form-horizontal" ng-form="dataForm">
         <div uib-alert class="alert-warning" ng-if="model.lock.locked">
             <span translate="POLICY.IS_EDITING_BY"></span> {{model.lock.editorUser.fullName}} ({{model.lock.editorUser.email}})
@@ -9,7 +10,7 @@
                 <policy-block policy-data="model.policy"></policy-block>
             </div>
 
-            <div class="col-sm-5" ng-if="model.policy.taskId">
+            <div class="col-sm-5" ng-show="model.policy.taskId">
                 <rd-widget>
                     <rd-widget-header title="{{'SURVEYS.DISCUSSION' | translate}}"></rd-widget-header>
                     <rd-widget-body classes="group-discussion">
@@ -23,8 +24,8 @@
         </div>
         <div class="row">
             <div class="form-builder-control text-right">
-                <button class="btn btn-default" ng-click="save()"
-                        ng-disabled="dataForm.$invalid || !dataForm.$dirty"
+                <button class="btn btn-default" ng-click="save()" ng-if="model.policy.id"
+                        ng-disabled="dataForm.$invalid || !dataForm.$dirty || model.lock.locked"
                         translate="COMMON.SAVE"></button>
                 <button class="btn btn-primary" ng-click="publish()"
                         ng-disabled="publishIsDisabled(dataForm)"

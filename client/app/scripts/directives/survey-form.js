@@ -5,7 +5,7 @@
 angular.module('greyscaleApp')
     .directive('surveyForm', function (_, $q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
         $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window,
-        greyscaleTaskApi, $log) {
+        greyscaleTaskApi) {
 
         var tasks = {
             survey: 'tasks',
@@ -258,7 +258,6 @@ angular.module('greyscaleApp')
                         if (fResolve) {
                             if (fResolve.draft.entry && fResolve.draft.entry !== fResolve.lastEntry) {
                                 fResolve.lastEntry = fResolve.draft.entry;
-                                $log.debug('saving', fResolve);
                                 reqs.push(_saveFlagCommentDraft(fResolve));
                             }
 
@@ -320,7 +319,7 @@ angular.module('greyscaleApp')
         };
 
         function isReadonlyFlags(_flags) {
-            if (_flags.isPolicy && _flags.hasVersion) {
+            if (_flags.isPolicy && (_flags.hasVersion || _flags.isVersion)) {
                 angular.extend(_flags, {
                     allowEdit: false,
                     writeToAnswers: false,
@@ -328,7 +327,7 @@ angular.module('greyscaleApp')
                 });
             }
             return (!_flags.allowEdit && !_flags.writeToAnswers && !_flags.provideResponses) ||
-                (_flags.isPolicy && _flags.hasVersion);
+                (_flags.isPolicy && (_flags.hasVersion || _flags.isVersion));
         }
 
         function initLanguage(scope) {
@@ -396,6 +395,8 @@ angular.module('greyscaleApp')
             if (flags.isPolicy) {
                 scope.model.snsTitle = task.userStatus === userStatuses.approved ?
                     'GLOBALS.POLICYUSERSTATUSES.APPROVED' : 'POLICY.APPROVE';
+                scope.model.saveDraftBtnTitle = [userStatuses.approved, userStatuses.flagged].indexOf(task.userStatus) >= 0 ?
+                    'COMMON.SAVE' : null;
             }
             scope.model.translated = !flags.allowTranslate;
 

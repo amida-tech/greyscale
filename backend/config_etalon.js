@@ -259,7 +259,7 @@ var environments = {
             },
             comment: {
                 subject: '<% if (survey.policyId) ' +
-                '{ %>Indaba. <%= action %>. Policy `<%= survey.title %>`, project `<%= product.title %>`<% } ' +
+                '{ %>Indaba. <%= action %>. Policy `<%= survey.title %>`, project `<%= product.description %>`<% } ' +
                 'else { %>Indaba. <%= action %>. Survey `<%= survey.title %>`, subject `<%= uoa.name %>`, project `<%= product.title %>`<% } %>',
                 notificationBody: './views/notifications/comment.html',
                 emailBody: './views/emails/comment.html'
