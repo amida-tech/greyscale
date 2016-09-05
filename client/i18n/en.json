@@ -48,6 +48,7 @@
         "CURRENT_VALUE": "Current value",
         "DELETE": "Delete",
         "DISAGREE": "Disagree",
+        "DOWNLOAD": "Download",
         "EDIT": "Edit",
         "FURTHER": "Further",
         "GLOBALLY": "Globally",
@@ -64,6 +65,7 @@
         "SAVE": "Save",
         "SAVED": "Saved",
         "SAVE_AND_CONTINUE": "Save And Continue",
+        "SELECT": "Select",
         "SEND": "Send",
         "SEND_MESSAGE": "Send Message",
         "SERVICE_UNAVAILABLE": "Service Unavailable",
@@ -94,6 +96,15 @@
         "PLACEHOLDER": "YYYY/MM/DD",
         "RESET": "Reset",
         "TODAY": "Today"
+    },
+    "DLG": {
+        "POLICY": {
+            "STEP": {
+                "CURRENT": "Restart current step",
+                "NEXT": "Start next step",
+                "TITLE": "What do you want to do?"
+            }
+        }
     },
     "ERROR": {
         "ACCESS_RESTRICTED": "Access restricted to",
@@ -321,7 +332,8 @@
         "POLICY": {
             "EDIT": "Policy edit",
             "REVIEW": "Policy review",
-            "TITLE": "Policies"
+            "TITLE": "Policies",
+            "VERSION": "Policy version"
         },
         "PRODUCT_INDEXES": "\"{{ext.productName}}\" Project Indexes",
         "PRODUCT_TASKS": "\"{{ext.productName}}\" Project Tasks",
@@ -411,6 +423,7 @@
     "POLICY": {
         "APPROVE": "Approve",
         "AUTHOR": "Author",
+        "IS_EDITING_BY": "Policy is editing by:",
         "NEW_POLICY": "New policy",
         "NUMBER": "Number",
         "PUBLISH": "Publish",
@@ -427,6 +440,7 @@
         "SUBSECTION": "Subsection",
         "TEXT": "Draft policy text:",
         "TITLE": "Policy title",
+        "UPDATED": "Policy updated",
         "UPLOAD_TEXT": "Copy and paste text into sections below or upload a draft written using the template to automatically divide it into sections below"
     },
     "PRODUCTS": {
@@ -515,9 +529,11 @@
             "TYPE": "Type"
         },
         "WORKFLOW": {
+            "APPLY_REJECT_HAS_ASSIGNED_TASKS": "Some steps have assigned tasks. You can't apply workflow template.",
             "DESCRIPTION": "Description",
             "DESCRIPTION_REQUIRED": "Description is required.",
             "LOAD_FROM_WORKFLOW_TEMPLATE": "Select Workflow Template...",
+            "REMOVE_STEP_REJECT_HAS_ASSIGNED_TASKS": "This step have assigned tasks. You can't remove this step.",
             "STEPS": {
                 "ADD_GROUP": "Add Group",
                 "ALLOW_EDIT": "Edit",
@@ -538,6 +554,7 @@
                 "SORT_DISABLED": "Reorder allowed only for project with status \"Planning\"",
                 "SORT_ENABLED": "Drag by this handle to reorder steps list",
                 "START_DATE": "Start Date",
+                "TASKS_ASSIGNED_CANT_MANIPULATE_GROUPS": "Step have assigned tasks.<br>Not allowed to change groups.",
                 "TITLE": "Title",
                 "WRITE_ACCESS_READ": "Read",
                 "WRITE_ACCESS_WRITE": "Read And Write"
@@ -697,7 +714,7 @@
         "RESOLVE_COMMENT": "Comment to the reviewer",
         "RESOLVE_ENTRY": "Resolve Entry",
         "RESPONSES": "Responses",
-        "REVIEVER_COMMENT": "Response",
+        "REVIEWER_COMMENT": "Response",
         "SAVE_AND_RESOLVE": "Resolve",
         "SAVE_DRAFT": "Save as Draft",
         "SAVE_DRAFT_SUCCESS": "Draft version saved successfully",
@@ -708,7 +725,9 @@
         "TITLE": "Title",
         "TRANSLATED": "Translation complete",
         "URL_INCORRECT": "URL incorrect",
-        "VERSION": "Versions",
+        "VERSION": "Version",
+        "VERSIONS": "Versions",
+        "VERSION_DRAFT": "draft",
         "VIEW": "View"
     },
     "TABLES": {
@@ -816,6 +835,13 @@
         "USERS_IN_GROUPS": "Users In Groups",
         "USER_GROUP": "User Group",
         "USER_GROUPS": "User Groups"
+    },
+    "VERSIONS": {
+        "DOWNLOAD": "Download version of '{{title}}'",
+        "REVIEW": "review",
+        "SELECT": "Select version of '{{title}}'",
+        "VERSION": "Version",
+        "VERSIONS": "Versions"
     },
     "VISUALIZATIONS": {
         "MODAL_TITLE": "Edit Visualization {{visualization.title}}",

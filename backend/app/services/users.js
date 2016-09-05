@@ -3,7 +3,7 @@ var
     User = require('app/models/users'),
     Role = require('app/models/roles'),
     Organization = require('app/models/organizations'),
-    Project = require('app/models/projects'),
+    /*Project = require('app/models/projects'),*/
     co = require('co'),
     Query = require('app/util').Query,
     thunkify = require('thunkify'),
@@ -37,14 +37,14 @@ var exportObject = function  (req, realm) {
                             ' LEFT JOIN "Rights"' +
                             ' ON ("RolesRights"."rightID" = "Rights"."id")' +
                             ' WHERE "RolesRights"."roleID" = "Users"."roleID"' +
-                        ') AS rights',
-                        Project.id.as('projectId')
+                        ') AS rights'/*,
+                        Project.id.as('projectId')*/
                     )
                     .from(
                         User
                             .leftJoin(Role).on(User.roleID.equals(Role.id))
                             .leftJoin(Organization).on(User.organizationId.equals(Organization.id))
-                            .leftJoin(Project).on(Project.organizationId.equals(Organization.id))
+                            /*.leftJoin(Project).on(Project.organizationId.equals(Organization.id))*/
                     )
                     .where(
                         User.id.equals(id)

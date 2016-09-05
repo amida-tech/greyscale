@@ -1,6 +1,6 @@
 var
     _ = require('underscore'),
-    Essence = require('app/models/attachments'),
+    Essence = require('app/models/essences'),
     config = require('config'),
     co = require('co'),
     Query = require('app/util').Query,
@@ -18,7 +18,13 @@ var exportObject = function  (req, realm) {
         return co(function* () {
             return yield thunkQuery(Essence.select().where(Essence.id.equals(id)));
         });
-    }
+    };
+
+    this.getByTableName = function (tableName) {
+        return co(function* () {
+            return (yield thunkQuery(Essence.select().where(Essence.tableName.equals(tableName))))[0] || false;
+        });
+    };
 
     this.getEssenceModel = function (filename) {
         try {
@@ -27,13 +33,13 @@ var exportObject = function  (req, realm) {
         } catch (err) {
             return false;
         }
-    }
+    };
 
     this.getEntityById = function (modelObject, id) {
         return co(function* () {
             yield thunkQuery(modelObject.select().where(modelObject.id.equals(id)));
         });
-    }
+    };
 
 };
 

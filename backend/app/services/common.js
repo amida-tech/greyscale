@@ -3,7 +3,6 @@ var
     config = require('config'),
     Product = require('app/models/products'),
     ProductUOA = require('app/models/product_uoa'),
-    Project = require('app/models/projects'),
     Workflow = require('app/models/workflows'),
     Essence = require('app/models/essences'),
     EssenceRole = require('app/models/essence_roles'),
@@ -15,6 +14,7 @@ var
     UoaType = require('app/models/uoatypes'),
     Task = require('app/models/tasks'),
     Survey = require('app/models/surveys'),
+    SurveyMeta = require('app/models/survey_meta'),
     Policy = require('app/models/policies'),
     SurveyQuestion = require('app/models/survey_questions'),
     Discussion = require('app/models/discussions'),
@@ -166,15 +166,6 @@ var getDiscussionEntry = function* (req, entryId) {
 };
 exports.getDiscussionEntry = getDiscussionEntry;
 
-var getCommentEntry = function* (req, entryId) {
-    var result = yield * getEntityById(req, entryId, Comment, 'id');
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Comment with id `' + parseInt(entryId).toString() + '` does not exist in comments');
-    }
-    return result[0];
-};
-exports.getCommentEntry = getCommentEntry;
-
 var getUser = function* (req, userId) {
     var result = yield * getEntityById(req, userId, User, 'id');
     if (!_.first(result)) {
@@ -261,8 +252,10 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
             )
             .leftJoin(Product)
             .on(ProductUOA.productId.equals(Product.id))
+            .join(SurveyMeta)
+            .on(SurveyMeta.productId.equals(Product.id))
             .leftJoin(Survey)
-            .on(Product.surveyId.equals(Survey.id))
+            .on(SurveyMeta.surveyId.equals(Survey.id))
         )
         .where(
             ProductUOA.productId.equals(productId)
@@ -445,12 +438,10 @@ var getPolicyAuthorIdByTask = function* (req, taskId) {
             .select(Policy.author)
             .from(
             Task
-                .leftJoin(Product)
-                .on(Product.id.equals(Task.productId))
-                .leftJoin(Survey)
-                .on(Survey.id.equals(Product.surveyId))
-                .leftJoin(Policy)
-                .on(Policy.id.equals(Survey.policyId))
+                .join(SurveyMeta)
+                .on(SurveyMeta.productId.equals(Task.productId))
+                .join(Policy)
+                .on(Policy.surveyId.equals(SurveyMeta.surveyId))
         )
             .where(Task.id.equals(taskId))
     );
