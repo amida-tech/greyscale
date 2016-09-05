@@ -54,9 +54,7 @@ angular.module('greyscaleApp')
                 $scope.cancel = _toggleEdit;
 
                 $scope.fullview = function () {
-                    greyscaleModalsSrv.fullScreenComment($scope.model, {
-                        associate: _associate
-                    });
+                    greyscaleModalsSrv.fullScreenComment($scope.model, $scope.options);
                 };
 
                 $scope.resolveFlag = function () {

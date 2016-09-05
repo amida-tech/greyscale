@@ -475,6 +475,7 @@ ul.sidebar .sidebar-list .menu-icon {
 }
 
 .indicators-table {
+    width: 100%;
     tr {
         td {
             @extend .indicator-box;

@@ -4,6 +4,12 @@
 'use strict';
 angular.module('greyscale.core')
     .provider('greyscaleGlobals', function () {
+        var productActions = {
+            resolve: 'resolve',
+            forceMove: 'force',
+            restart: 'restart'
+        };
+
         var self = {
             events: {
                 common: {
@@ -13,15 +19,19 @@ angular.module('greyscale.core')
                 },
                 survey: {
                     answerDirty: 'ANSWER_DIRTY',
-                    builderFormSaved: 'form-changes-saved'
+                    builderFormSaved: 'form-changes-saved',
+                    extSave: 'EXT_SAVE'
                 },
                 policy: {
                     addComment: 'POLICY_ADD_COMMENT'
                 },
-                webSocket: {
+                ws: { /* webSocket events */
                     notify: 'something-new',
+                    policyLock: 'POLICY_LOCK',
+                    policyUnlock: 'POLICY_UNLOCK',
                     policyLocked: 'POLICY_LOCKED',
-                    policyUnlocked: 'POLICY_UNLOCKED'
+                    policyUnlocked: 'POLICY_UNLOCKED',
+                    setUser: 'setUser'
                 }
             },
             projectStates: [{
@@ -47,6 +57,7 @@ angular.module('greyscale.core')
                 id: 4,
                 name: 'CANCELLED'
             }],
+            productActiveStates: [1, 2],
             uoaVisibility: [{
                 id: 1,
                 name: 'PUBLIC'
@@ -187,6 +198,7 @@ angular.module('greyscale.core')
             adminSchema: 'public',
             tokenTTLsec: 300,
             autosaveSec: 15,
+            wsHeartbeatSec: 20,
             setRolesId: _setRolesId,
             widgetTableDefaults: {
                 pageLength: 0
@@ -215,7 +227,24 @@ angular.module('greyscale.core')
             }, {
                 value: 'started',
                 name: 'STARTED'
-            }]
+            }],
+            dialogs: {
+                policyPublish: {
+                    current: productActions.restart,
+                    next: productActions.forceMove,
+                    header: 'DLG.POLICY.STEP.TITLE',
+                    buttons: [{
+                        type: 'primary',
+                        title: 'DLG.POLICY.STEP.NEXT',
+                        value: productActions.forceMove
+                    }, {
+                        type: 'primary',
+                        title: 'DLG.POLICY.STEP.CURRENT',
+                        value: productActions.restart
+                    }]
+                }
+            },
+            productActions: productActions
         };
 
         return {

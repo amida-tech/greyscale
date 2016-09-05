@@ -1,48 +1,25 @@
 <div translate-namespace="PM_PRODUCT_DASHBOARD">
-
     <div class="row">
-        <div class="col-md-10">
-
+        <div class="col-md-9 col-lg-9 col-sm-10 col-xs-10">
             <table class="indicators-table">
                 <tr class="indicator-header">
-                    <td>
-                        <span translate=".COUNT_UOAS"></span><br>
-                    </td>
-                    <td>
-                        <span translate=".COUNT_ONTRACK"></span> / <span translate=".COUNT_LATE"></span>
-                    </td>
-                    <td>
-                        <span translate=".COUNT_FLAGGED">flagged</span>
-                    </td>
-                    <td>
-                        <span translate=".COUNT_COMPLETE">complete</span>
-                    </td>
+                    <td><span translate=".COUNT_UOAS"></span><br></td>
+                    <td><span translate=".COUNT_ONTRACK"></span> / <span translate=".COUNT_LATE"></span></td>
+                    <td><span translate=".COUNT_FLAGGED">flagged</span></td>
+                    <td><span translate=".COUNT_COMPLETE">complete</span></td>
                 </tr>
-
                 <tr class="indicator-values">
-                    <td>
-                        &nbsp;<strong>{{model.count.uoas}}</strong>&nbsp;
-                    </td>
-                    <td>
-                        &nbsp;<strong>{{model.count.onTime}} / {{model.count.late}}</strong>&nbsp;
-                    </td>
-                    <td>
-                        &nbsp;<strong>{{model.count.flagged}}</strong>&nbsp;
-                    </td>
-                    <td>
-                        &nbsp;<strong>{{model.count.complete}}</strong>&nbsp;
-                    </td>
+                    <td>&nbsp;<strong>{{model.count.uoas}}</strong>&nbsp;</td>
+                    <td>&nbsp;<strong>{{model.count.onTime}} / {{model.count.late}}</strong>&nbsp;</td>
+                    <td>&nbsp;<strong>{{model.count.flagged}}</strong>&nbsp;</td>
+                    <td>&nbsp;<strong>{{model.count.complete}}</strong>&nbsp;</td>
                 </tr>
-
             </table>
-
         </div>
-        <div class="col-md-2 text-right">
-            <a ng-href="{{model.downloadHref}}"
-               ng-click="download($event)"
-               target="_self"
-               download="export.csv"
-               class="btn btn-primary"><i class="fa fa-download"></i><span translate=".DOWNLOAD_DATA"></span></a>
+        <div class="col-lg-3 col-md-3 col-sm-2 col-xs-2 text-right">
+            <a ng-click="download($event)" class="btn btn-primary" title="{{'PM_PRODUCT_DASHBOARD.DOWNLOAD_DATA' | translate}}">
+                <i class="fa fa-download"></i> <span class="hidden-sm hidden-xs" translate=".DOWNLOAD_DATA"></span>
+            </a>
         </div>
     </div>
 
@@ -72,8 +49,8 @@
                                    ui-sref="projects.setup.surveys.edit({projectId: model.product.projectId, surveyId: model.product.surveyId})">
                                     {{model.survey.title}}
                                     <small>
-                                        (<span ng-show="model.survey.isDraft" translate="SURVEYS.IS_DRAFT">
-                                        </span><span ng-show="!model.survey.isDraft" translate="SURVEYS.IS_COMPLETE"></span>)
+                                        (<span ng-show="model.survey.surveyVersion===-1" translate="SURVEYS.IS_DRAFT">
+                                        </span><span ng-show="model.survey.surveyVersion!==-1" translate="SURVEYS.IS_COMPLETE"></span>)
                                     </small>
                                 </a>
                             </td>

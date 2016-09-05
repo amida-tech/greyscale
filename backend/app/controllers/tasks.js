@@ -7,7 +7,6 @@ var
     sTaskUserState = require('app/services/taskuserstates'),
     cProduct = require('app/controllers/products'), // ToDo - move to service
     Product = require('app/models/products'),
-    Project = require('app/models/projects'),
     Workflow = require('app/models/workflows'),
     EssenceRole = require('app/models/essence_roles'),
     WorkflowStep = require('app/models/workflow_steps'),
@@ -76,7 +75,7 @@ module.exports = {
         co(function* () {
             // TaskUserStates - start task for user
             var oTaskUserState = new sTaskUserState(req);
-            oTaskUserState.start(req.params.id, req.user.id);
+            yield oTaskUserState.start(req.params.id, req.user.id);
         }).then(function () {
             res.status(200).end();
         }, function (err) {
@@ -89,7 +88,7 @@ module.exports = {
         co(function* () {
             // TaskUserStates - set state to approve
             var oTaskUserState = new sTaskUserState(req);
-            oTaskUserState.approve(req.params.id, req.user.id);
+            yield oTaskUserState.approve(req.params.id, req.user.id);
             // Try to move next step (if all users approved task) ToDo: move to service (product)
             var task = yield * common.getTask(req, req.params.id);
             var productId = task.productId;
@@ -107,12 +106,8 @@ module.exports = {
         var oTask = new sTask(req);
         var oTaskUserState = new sTaskUserState(req);
         co(function* () {
-
-            yield oTask.deleteTask(req.params.id);
-
-            // modify initial TaskUserStates
             yield oTaskUserState.remove(req.params.id);
-
+            yield oTask.deleteTask(req.params.id);
         }).then(function () {
             res.status(204).end();
         }, function (err) {

@@ -27,6 +27,7 @@ angular.module('greyscaleApp')
             productTask: _productTask,
             userGroups: _userGroups,
             confirm: _confirm,
+            dialog: _dialog,
             showVersion: _showVersion,
             sendNotification: _sendNotification,
             changePassword: _changePassword,
@@ -36,7 +37,8 @@ angular.module('greyscaleApp')
             importDataset: _importDataset,
             policyComment: _policyComment,
             fullScreenComment: _fullScreenComment,
-            saveAsWorkflowTemplate: _saveAsWorkflowTemplate
+            saveAsWorkflowTemplate: _saveAsWorkflowTemplate,
+            selectPolicyVersion: _selectPolicyVersion
         };
 
         function hndlModalErr(err) {
@@ -279,14 +281,15 @@ angular.module('greyscaleApp')
             }).result;
         }
 
-        function _fullScreenComment(comment) {
+        function _fullScreenComment(comment, options) {
             return $uibModal.open({
                 templateUrl: 'views/modals/comment-full-screen.html',
                 controller: 'ModalCommentFullScreenCtrl',
                 size: 'xxl',
                 windowClass: 'modal fade in',
                 resolve: {
-                    comment: comment
+                    comment: comment,
+                    options: options
                 }
             }).result.catch(hndlModalErr);
         }
@@ -299,6 +302,31 @@ angular.module('greyscaleApp')
                 windowClass: 'modal fade in',
                 resolve: {
                     modalData: data
+                }
+            }).result;
+        }
+
+        function _selectPolicyVersion(survey, _mode) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/select-policy-version.html',
+                controller: 'ModalSelectReviewVersionsCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    survey: survey,
+                    mode: _mode
+                }
+            }).result;
+        }
+
+        function _dialog(_params) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/modal-dlg.html',
+                controller: 'ModalDlgCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    params: _params
                 }
             }).result;
         }

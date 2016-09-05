@@ -200,7 +200,9 @@ angular.module('greyscale.tables')
                     }
                 });
                 if (!currentTask) {
-                    currentTask = {};
+                    currentTask = {
+                        progress: []
+                    };
                 }
                 currentTasks.push(currentTask);
             });

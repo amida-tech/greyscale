@@ -7,7 +7,11 @@
 <p>
     Date: <%= date.toLocaleString() %></br>
 <% if (survey.policyId) { %>
-    <a href="<%= config.domain %>/#/policy/review/<%= survey.id %>/task/<%= task.id %>"><%= action %>. Policy `<%= survey.title %>`, project `<%= product.title %>`</a></br>
+    <% if (isFlagged) { %>
+        <a href="<%= config.domain %>/#/policy/review/<%= survey.id %>/task/<%= task.id %>"><%= action %>. Policy `<%= survey.title %>`, project `<%= product.description %>`</a></br>
+    <% } else { %>
+        <a href="<%= config.domain %>/#/policy/version/<%= survey.id %>/<%= survey.surveyVersion %>"><%= action %>. Policy `<%= survey.title %>`, project `<%= product.description %>`</a></br>
+    <% } %>
 <% } else { %>
     <a href="<%= config.domain %>/#/policy/review/<%= survey.id %>/task/<%= task.id %>"><%= action %>. Survey `<%= survey.title %>`, subject `<%= uoa.name %>`, project `<%= product.title %>`</a></br>
 <% } %>
