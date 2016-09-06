@@ -902,7 +902,7 @@ var exportObject = function  (req, realm) {
                         var comment = '';
                         if (comments[i].range) {
                             comments[i].range = JSON.parse(comments[i].range);
-                            if (comments[i].range) {
+                            if (comments[i].range.entry) {
                                 comment +=
                                     '<blockquote>'
                                     + comments[i].range.entry.replace(/(<([^>]+)>)/ig,"")
