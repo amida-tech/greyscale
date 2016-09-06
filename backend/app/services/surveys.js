@@ -884,43 +884,59 @@ var exportObject = function  (req, realm) {
                     '<tr><td>AUTHOR</td><td>' + authorName + '</td></tr>' +
                     '</table>';
 
+                var comments = yield oComment.getComments({surveyId: surveyId}, null, null, null, version);
+                var commentsContent = comments.length ? '<h1>COMMENTS</h1>' : '';
+
                 if (_.first(survey.questions)) {
                     for (var i in survey.questions) {
                         if (survey.questions[i].type == 14) {
                             content += '<p><h1>' + survey.questions[i].label + '</h1></p>';
                             content += '<p>' + survey.questions[i].description + '</p>';
-                        }
-                    }
-                }
+                            var existHeader = false;
+                            for (var j in comments) {
+                                if (comments[j].questionId == survey.questions[i].id) {
+                                    if (!existHeader) {
+                                        commentsContent += '<h2>' + survey.questions[i].label + '</h2>';
+                                        existHeader = true;
+                                    }
+                                    var comment = '';
+                                    var commentAuthor = yield oUser.getById(comments[j].userFromId);
 
-                var comments = yield oComment.getComments({surveyId: surveyId}, null, null, null, version);
-                if (comments.length) {
-                    content += '<h1>Comments</h1>';
-                    for (var i in comments) {
-                        var comment = '';
-                        var commentAuthor = yield oUser.getById(comments[i].userFromId);
+                                    if (comments[j].range) {
+                                        try{
+                                            comments[j].range = JSON.parse(comments[j].range);
+                                        } catch (err) {
+                                            console.log(err);
+                                            comments[j].range = {};
+                                        }
+                                        if (comments[j].range.entry) {
+                                            comment +=
+                                                '<font color="#a9a9a9"><b><i>&laquo;'
+                                                + comments[j].range.entry.replace(/(<([^>]+)>)/ig,"")
+                                                + '&raquo;</i></b></font><br/>';
+                                        }
+                                    }
 
-                        if (comments[i].range) {
-                            comments[i].range = JSON.parse(comments[i].range);
-                            if (comments[i].range.entry) {
-                                comment +=
-                                    '<font color="#a9a9a9"><b><i>&laquo;'
-                                    + comments[i].range.entry.replace(/(<([^>]+)>)/ig,"")
-                                    + '&raquo;</i></b></font><br/>';
+                                    var authorStr = commentAuthor ? (' by ' + commentAuthor.firstName + ' ' + commentAuthor.lastName) : '';
+                                    var dateStr = moment(comments[j].created).format('MM/DD/YYYY HH:mm');
+
+                                    commentsContent +=
+                                        '<p>'
+                                        + comment
+                                        + comments[j].entry.replace(/(<([^>]+)>)/ig,"")
+                                        + ' (' + dateStr + authorStr + ')'
+                                        + '</p>';
+
+                                }
                             }
                         }
 
-                        var authorStr = commentAuthor ? (' by ' + commentAuthor.firstName + ' ' + commentAuthor.lastName) : '';
-                        var dateStr = moment(comments[i].created).format('MM:DD:YYYY HH:mm');
 
-                        content +=
-                            '<p>'
-                            + comment
-                            + comments[i].entry.replace(/(<([^>]+)>)/ig,"")
-                            + ' (' + dateStr + authorStr + ')'
-                            + '</p>';
                     }
                 }
+
+                content += commentsContent;
+
 
             }
             content += htmlFooter;
