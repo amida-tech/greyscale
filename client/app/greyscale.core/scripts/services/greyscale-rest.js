@@ -4,18 +4,19 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleRestSrv', function (Restangular, greyscaleTokenSrv, $rootScope, greyscaleEnv, greyscaleRealmSrv) {
+    .factory('greyscaleRestSrv', function (Restangular, greyscaleTokenSrv, $rootScope, greyscaleEnv,
+        greyscaleRealmSrv) {
+
         return function (headers, realm) {
             headers = headers || {};
 
             var aHeaders = {
                 'Content-Type': 'application/json',
-                'Accept-Language': $rootScope.currentLocale
-                    /*,
-                    'If-Modified-Since': 'Mon, 26 Jul 1997 05:00:00 GMT',
-                    'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache'
-                    */
+                'Accept-Language': $rootScope.currentLocale /*,
+                 'If-Modified-Since': 'Mon, 26 Jul 1997 05:00:00 GMT',
+                 'Cache-Control': 'no-cache',
+                 'Pragma': 'no-cache'
+                 */
             };
 
             angular.extend(aHeaders, headers);

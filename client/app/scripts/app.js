@@ -28,7 +28,8 @@ var _app = angular.module('greyscaleApp', [
     'angularFileUpload',
     'ui.sortable',
     'textAngular',
-    'greyscale.wysiwyg'
+    'greyscale.wysiwyg',
+    'restangular'
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider,
@@ -622,7 +623,11 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
 
 });
 
-_app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv, greyscaleGlobals, _) {
+_app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv, greyscaleGlobals,
+    _, Restangular, greyscaleErrorHandler) {
+
+    Restangular.setErrorInterceptor(greyscaleErrorHandler.errorInterceptor);
+
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
         if (toState.data && toState.data.accessLevel !== greyscaleGlobals.userRoles.all.mask) {
 
