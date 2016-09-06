@@ -923,7 +923,7 @@ var exportObject = function  (req, realm) {
                                     commentsContent +=
                                         '<p>'
                                         + comment
-                                        + comments[j].entry.replace(/(<([^>]+)>)/ig,"")
+                                        + comments[j].entry
                                         + ' (' + dateStr + authorStr + ')'
                                         + '</p>';
 
