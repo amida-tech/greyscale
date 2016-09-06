@@ -1,7 +1,7 @@
 angular.module('greyscaleApp')
     .service('Organization', function (_, $rootScope, greyscaleOrganizationApi) {
         var org = {};
-        var global;
+
         org.$watch = function () {
             var field, targetScope, handler;
             if (typeof arguments[0] === 'string') {
@@ -24,6 +24,7 @@ angular.module('greyscaleApp')
                 off();
             });
         };
+
         org.$setBy = function (field, value) {
             var params = {};
             params[field] = value;
@@ -40,7 +41,7 @@ angular.module('greyscaleApp')
         return org;
     })
     .directive('organizationSelector', function (_, $q, $timeout, $rootScope, greyscaleProfileSrv, greyscaleRealmSrv,
-        greyscaleGlobals, greyscaleProjectApi, greyscaleOrganizationApi, $cookies, Organization, $log) {
+        greyscaleGlobals, greyscaleProjectApi, greyscaleOrganizationApi, $cookies, Organization) {
         return {
             restrict: 'A',
             replace: true,
@@ -92,9 +93,9 @@ angular.module('greyscaleApp')
 
                     $cookies.put('current_realm', Organization.realm);
 
-                    if (!Organization.projectId) {
-                        $log.debug('Organization ' + Organization.realm + ':' + Organization.id + ' has no valid project');
-                    }
+                    // if (!Organization.projectId) {
+                    //     $log.debug('Organization ' + Organization.realm + ':' + Organization.id + ' has no valid project');
+                    // }
 
                     $timeout(function () {
                         $scope.$digest();

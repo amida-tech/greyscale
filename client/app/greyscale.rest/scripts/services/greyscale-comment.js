@@ -14,7 +14,10 @@ angular.module('greyscale.rest')
             update: _update,
             remove: _remove,
             getUsers: _users,
-            hide: _hide
+            getAnswers: _getAnswers,
+            postAnswer: _postAnswer,
+            hide: _hide,
+            listVersionUsers: _listVersionUsers
         };
 
         function _api() {
@@ -66,6 +69,14 @@ angular.module('greyscale.rest')
             return _api().one('users', taskId + '').get().then(_response);
         }
 
+        function _getAnswers(commentId) {
+            return _api().one(commentId + '').one('answers').get().then(_response);
+        }
+
+        function _postAnswer(commentId, answer) {
+            return _api().one(commentId + '').one('answers').customPOST(answer).then(_response);
+        }
+
         function _hide(taskId, filter, show) {
             //filter values - 'all', 'flagged', commentId
             return _api().one('hidden').put({
@@ -73,5 +84,15 @@ angular.module('greyscale.rest')
                 filter: filter,
                 hide: !show
             });
+        }
+
+        function _listVersionUsers(version, params) {
+            var _params = {
+                surveyId: -1
+            };
+
+            angular.extend(_params, params);
+
+            return _api().one('versions', version + '').one('users').get(_params).then(_response);
         }
     });

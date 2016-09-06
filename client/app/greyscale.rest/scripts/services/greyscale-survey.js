@@ -1,14 +1,18 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleSurveyApi', function (greyscaleRestSrv) {
+    .factory('greyscaleSurveyApi', function (greyscaleRestSrv, greyscaleUtilsSrv) {
 
         return {
             list: _surveys,
             get: _getSurvey,
             add: _addSurvey,
             update: _updateSurvey,
-            delete: _deleteSurvey
+            delete: _deleteSurvey,
+            versions: _listVersions,
+            getVersion: _getVersion,
+            getTicket: _getVersionTicket,
+            getDownloadHref: _getHref
         };
 
         function _plainResp(resp) {
@@ -22,23 +26,43 @@ angular.module('greyscale.rest')
             return greyscaleRestSrv().one('surveys');
         }
 
+        function _survey(surveyId) {
+            return _api().one(surveyId + '');
+        }
+
         function _surveys() {
             return _api().get().then(_plainResp);
         }
 
-        function _getSurvey(surveyId) {
-            return _api().one(surveyId + '').get().then(_plainResp);
+        function _getSurvey(surveyId, params) {
+            return _survey(surveyId).get(params).then(_plainResp);
         }
 
-        function _addSurvey(survey) {
-            return _api().customPOST(survey).then(_plainResp);
+        function _addSurvey(survey, params) {
+            return _api().customPOST(survey, null, params).then(_plainResp);
         }
 
         function _deleteSurvey(survey) {
-            return _api().one(survey.id + '').remove().then(_plainResp);
+            return _survey(survey.id).remove().then(_plainResp);
         }
 
-        function _updateSurvey(survey) {
-            return _api().one(survey.id + '').customPUT(survey).then(_plainResp);
+        function _updateSurvey(survey, params) {
+            return _survey(survey.id).customPUT(survey, null, params).then(_plainResp);
+        }
+
+        function _listVersions(surveyId) {
+            return _survey(surveyId).one('versions').get().then(_plainResp);
+        }
+
+        function _getVersion(surveyId, versionId) {
+            return _survey(surveyId).one('versions', versionId + '').get().then(_plainResp);
+        }
+
+        function _getVersionTicket(survey) {
+            return 'direct';
+        }
+
+        function _getHref(survey) {
+            return greyscaleUtilsSrv.getApiBase() + '/surveys/' + survey.id + '/savedocx/' + survey.surveyVersion;
         }
     });

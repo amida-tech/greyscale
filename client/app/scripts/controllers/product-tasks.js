@@ -39,7 +39,7 @@ angular.module('greyscaleApp')
 
         Organization.$lock = true;
 
-        greyscaleProductApi.get(productId)
+        _loadProduct(productId)
             .then(function (product) {
                 if (Organization.projectId !== product.projectId) {
                     Organization.$setBy('projectId', product.projectId);
@@ -48,10 +48,6 @@ angular.module('greyscaleApp')
             .then(_getTaskTableData);
 
         Organization.$watch('realm', $scope, function () {
-
-            if (!Organization.projectId) {
-                return;
-            }
 
             $scope.model.projectId = Organization.projectId;
 
@@ -611,7 +607,8 @@ angular.module('greyscaleApp')
                     $scope.model.uoas = tableData.uoas;
                     if (table) {
                         return _getTasksData(tableData);
-                    } else if (tableData.workflowSteps && tableData.uoas && tableData.workflowSteps.length && tableData.uoas.length) {
+                    } else if (tableData.workflowSteps && tableData.uoas && tableData.workflowSteps.length &&
+                        tableData.uoas.length) {
                         $scope.model.tasks = _initTasksTable(tableData);
                     }
                     $scope.model.$loading = false;
@@ -817,22 +814,31 @@ angular.module('greyscaleApp')
                 },
                 reqs = {
                     product: $q.when(product),
-                    survey: (product.surveyId !== null) ? greyscaleSurveyApi.get(product.surveyId) : $q.resolve(noSurvey),
-                    tasks: greyscaleProductApi.product(productId).tasksList()
+                    survey: (product.survey.id) ? greyscaleSurveyApi.get(product.survey.id) : $q.resolve(noSurvey),
+                    tasks: greyscaleProductApi.product(product.id).tasksList()
                 };
             return $q.all(reqs);
         }
 
-        function _loadProduct(productId) {
-            return greyscaleProductApi.get(productId)
-                .then(function (product) {
-                    $state.ext.productName = product.title;
-                    return product;
-                })
-                .catch(function (error) {
-                    greyscaleUtilsSrv.errorMsg(error, tns + 'PRODUCT_NOT_FOUND');
-                    $state.go('home');
-                });
-        }
+        var _productCached;
 
+        function _loadProduct(productId) {
+            if (!_productCached) {
+                _productCached = greyscaleProductApi.get(productId)
+                    .then(function (product) {
+                        var ttl = product.title;
+                        if (!ttl && product.survey) {
+                            ttl = product.survey.title;
+                        }
+                        $state.ext.productName = ttl;
+                        return product;
+                    })
+                    .catch(function (error) {
+                        greyscaleUtilsSrv.errorMsg(error, tns + 'PRODUCT_NOT_FOUND');
+                        $state.go('home');
+                    });
+            }
+
+            return _productCached;
+        }
     });

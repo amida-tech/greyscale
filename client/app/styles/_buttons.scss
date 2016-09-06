@@ -1,5 +1,7 @@
 .action,
-.action-secondary {
+.action-secondary,
+.list-group-item.action,
+.list-group-item.action-secondary {
     @extend a;
     margin: 0 0 0 5px;
     color: $grey-medium-light;
@@ -8,14 +10,8 @@
     }
 }
 
-a, .action, .action-secondary, .action-primary {
-    cursor: pointer;
-    &:hover {
-        text-decoration: none;
-    }
-}
-
-.action-primary {
+.action-primary,
+.list-group-item.action-primary {
     color: $green;
     &:hover {
         color: $green-dark;
@@ -26,5 +22,17 @@ a, .action, .action-secondary, .action-primary {
     color: $red;
     &:hover {
         color: $red-dark;
+    }
+}
+
+a, .action, .action-secondary, .action-primary {
+    cursor: pointer;
+    &:hover {
+        text-decoration: none;
+    }
+    &.disabled {
+        opacity: 0.5;
+        cursor: default;
+        color: $grey-medium-light;
     }
 }

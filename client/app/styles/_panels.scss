@@ -52,9 +52,8 @@ checkbox-list {
                 cursor: pointer;
             }
 
-            .gs-message-full-view {
+            .gs-message-fader {
                 position: absolute;
-                display: none;
                 left: 0;
                 right: 0;
                 bottom: 0;
@@ -65,7 +64,17 @@ checkbox-list {
                 background: -o-linear-gradient(transparent, $grey-light); /* For Opera 11.1 to 12.0 */
                 background: -moz-linear-gradient(transparent, $grey-light); /* For Firefox 3.6 to 15 */
                 background: linear-gradient(transparent, $grey-light); /* Standard syntax */
+                height: 40px;
             }
+        }
+    }
+
+    .gs-message-full-view {
+        font-size: 15pt;
+        small {
+            font-size: 11pt;
+            color: #ccc;
+            font-weight: normal;
         }
     }
 }
@@ -186,4 +195,35 @@ em.hilitor.current {
 
 fb-policy .panel-title {
     min-height: 1em;
+}
+
+.list-group-item.active, .list-group-item.active:hover {
+    background-color: #777;
+    border-color: #777;
+}
+
+.download-review-versions {
+    margin-bottom: 0;
+}
+
+.line-numbers.section-text, .line-numbers [ta-bind] {
+
+    border-left: 1px solid #ddd;
+    padding-left: 10px;
+    margin-left: 40px;
+    counter-reset: p-counter;
+
+    ln:before, .ln:before {
+        content: counter(p-counter);
+        counter-increment: p-counter;
+        position: absolute;
+        left: 0;
+        width: 35px;
+        text-align: right;
+        font-size: 12px;
+        top: auto;
+        margin-top: 2px;
+        color: #ccc;
+        font-weight: normal;
+    }
 }

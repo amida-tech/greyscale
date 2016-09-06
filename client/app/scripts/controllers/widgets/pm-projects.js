@@ -1,20 +1,19 @@
 'use strict';
 
 angular.module('greyscaleApp')
-.controller('PmProjectsWidgetCtrl', function($scope, greyscaleProjectApi, $q, Organization){
+    .controller('PmProjectsWidgetCtrl', function (_, $scope, greyscaleProjectApi, $q, Organization) {
 
-    $scope.model = {};
+        $scope.model = {};
 
-    Organization.$watch('realm', $scope, _renderProducts);
+        Organization.$watch('realm', $scope, _renderProducts);
 
-    function _renderProducts() {
-        var projectId = Organization.projectId;
-        if (!projectId) {
-            return;
-        }
-        greyscaleProjectApi.productsList(projectId, {}, Organization.realm)
-            .then(function(products){
-                $scope.model.products = products;
+        function _renderProducts() {
+            var req = {
+                products: greyscaleProjectApi.productsList()
+            };
+
+            $q.all(req).then(function (resp) {
+                $scope.model.products = resp.products;
             });
-    }
-});
+        }
+    });

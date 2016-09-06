@@ -6,7 +6,8 @@ var columns = [
     'questionId',
     'weight',
     'type',
-    'aggregateType'
+    'aggregateType',
+    'surveyVersion'
 ];
 
 var IndexQuestionWeight = sql.define({

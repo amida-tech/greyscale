@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('policyDiscussion', function ($q, greyscaleGlobals, greyscaleCommentApi, greyscaleUtilsSrv,
-        greyscaleModalsSrv, greyscaleProfileSrv, i18n, _) {
+        greyscaleModalsSrv, greyscaleProfileSrv, i18n, _, $sanitize) {
 
         return {
             restrict: 'E',
@@ -14,8 +14,8 @@ angular.module('greyscaleApp')
             },
             templateUrl: 'views/directives/policy-discussion.html',
             link: function (scope) {
-                scope.$watch('policy', function (data) {
-                    _updateDiscussion(data, scope);
+                scope.$watch('policy', function (policy) {
+                    _updateDiscussion(policy, scope);
                 });
             },
             controller: function ($scope) {
@@ -25,13 +25,16 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.$on(greyscaleGlobals.events.policy.addComment, function (evt, data) {
+                    var _entry = $sanitize(data.quote) || '';
+
+                    data.range.entry = _entry;
+
                     var _comment = {
                         userFromId: $scope.policy.userId,
                         taskId: $scope.policy.taskId,
                         stepId: null,
                         questionId: data.section.id,
-                        entry: data.quote ? '<blockquote contenteditable="false" readonly="readonly">' +
-                            data.quote + '</blockquote><br/>' : '',
+                        entry: '',
                         range: data.range,
                         tag: [],
                         isReturn: false
@@ -42,26 +45,26 @@ angular.module('greyscaleApp')
                 $scope.removeComment = _removeComment;
                 $scope.editComment = _editComment;
 
-                function save(commentBody, isDraft) {
-                    var _tag = {
-                            users: [],
-                            groups: []
-                        },
-                        i, qty,
-                        res = $q.reject('SAVE.ERROR');
-
-                    qty = commentBody.tag ? commentBody.tag.length : 0;
-
-                    for (i = 0; i < qty; i++) {
-                        if (commentBody.tag[i].userId) {
-                            _tag.users.push(commentBody.tag[i].userId);
-                        } else if (commentBody.tags[i].groupId) {
-                            _tag.groups.push(commentBody.tag[i].groupId);
+                $scope.hideComments = function (filter) {
+                    greyscaleCommentApi.hide($scope.policy.taskId, filter).then(function () {
+                        for (var i = 0; i < $scope.model.items.length; i++) {
+                            if (filter === 'flagged' && !$scope.model.items[i].isReturn) {
+                                continue;
+                            }
+                            $scope.model.items[i].isHidden = true;
                         }
-                    }
+                    });
+                };
+
+                $scope.isAdmin = function () {
+                    return greyscaleProfileSrv.isAdmin();
+                };
+
+                function save(commentBody, isDraft) {
+                    var res = $q.reject('SAVE.ERROR');
 
                     var _newComment = angular.extend({}, commentBody);
-                    _newComment.tags = _tag;
+                    _newComment.tags = greyscaleUtilsSrv.getTagsPostData(commentBody.tag);
                     _newComment.activated = !isDraft;
 
                     if (_newComment.id) {
@@ -83,10 +86,11 @@ angular.module('greyscaleApp')
                             res = greyscaleCommentApi.add(_newComment);
                         }
                         res.then(function (result) {
-                            angular.extend(_newComment, result);
-                            $scope.model.items.unshift(_newComment);
-                            return _newComment;
-                        });
+                                angular.extend(_newComment, result);
+                                $scope.model.items.unshift(_newComment);
+                                return _newComment;
+                            })
+                            .catch(greyscaleUtilsSrv.errorMsg);
                     }
                     return res;
                 }
@@ -102,10 +106,6 @@ angular.module('greyscaleApp')
                         _comment.tag = _getTags(_comment.tags);
                     }
 
-                    while (_comment.range && typeof _comment.range === 'string') {
-                        _comment.range = JSON.parse(_comment.range);
-                    }
-
                     return greyscaleModalsSrv.policyComment(_comment, _opt)
                         .then(save)
                         .catch(function (reason) {
@@ -114,8 +114,7 @@ angular.module('greyscaleApp')
                             } else {
                                 return $q.reject(reason);
                             }
-                        })
-                        .catch(greyscaleUtilsSrv.errorMsg);
+                        });
                 }
 
                 function _removeComment(comment) {
@@ -158,6 +157,7 @@ angular.module('greyscaleApp')
                     }
                     return res;
                 }
+
                 $scope.hideComments = function (filter) {
                     greyscaleCommentApi.hide($scope.policy.taskId, filter).then(function () {
                         for (var i = 0; i < $scope.model.items.length; i++) {
@@ -174,51 +174,51 @@ angular.module('greyscaleApp')
             }
         };
 
-        function _updateDiscussion(data, scope) {
-            if (data && data.sections && data.taskId) {
-                var params = {
-                    surveyId: data.surveyId,
-                    taskId: data.taskId,
+        function _updateDiscussion(policy, scope) {
+            var params, reqs = {};
+
+            if (policy && policy.id) {
+                params = {
+                    surveyId: policy.survey.id,
                     hidden: greyscaleProfileSrv.isAdmin()
                 };
-                var reqs = {
-                    tags: greyscaleCommentApi.getUsers(data.taskId),
-                    messages: greyscaleCommentApi.list(params)
-                };
+
+                if (policy.options && policy.options.review && !policy.options.isVersion) {
+                    params.taskId = policy.taskId;
+                    reqs.tags = greyscaleCommentApi.getUsers(policy.taskId);
+                } else {
+                    params.version = policy.version;
+                    reqs.users = greyscaleCommentApi.listVersionUsers(policy.version, {
+                        surveyId: policy.survey.id
+                    });
+                }
+
+                reqs.messages = greyscaleCommentApi.list(params);
 
                 $q.all(reqs).then(function (resp) {
-                    var tag, i, qty, title;
-                    /* form associate */
-                    scope.model.associate = {
-                        tags: []
-                    };
+                    var i, qty;
 
-                    qty = resp.tags.users.length;
-                    for (i = 0; i < qty; i++) {
-                        tag = resp.tags.users[i];
-                        title = greyscaleUtilsSrv.getUserName(tag);
-                        angular.extend(tag, {
-                            fullName: title
+                    if (resp.users) {
+                        scope.model.associate = greyscaleUtilsSrv.getTagsAssociate({
+                            users: resp.users,
+                            groups: []
                         });
-
-                        scope.model.associate.tags.push(tag);
-                        scope.model.associate[tag.userId] = tag;
-
                     }
 
-                    qty = resp.tags.groups.length;
-                    for (i = 0; i < qty; i++) {
-                        scope.model.associate.tags.push(resp.tags.groups[i]);
-                    }
+                    /* form associate */
+                    if (resp.tags) {
+                        scope.model.associate = greyscaleUtilsSrv.getTagsAssociate(resp.tags);
 
-                    /* comment types */
-                    qty = resp.tags.commentTypes.length;
-                    for (i = 0; i < qty; i++) {
-                        resp.tags.commentTypes[i].name =
-                            i18n.translate('GLOBALS.COMMENTTYPES.' + resp.tags.commentTypes[i].name);
+                        /* comment types */
+                        if (resp.tags.commentTypes) {
+                            qty = resp.tags.commentTypes.length;
+                            for (i = 0; i < qty; i++) {
+                                resp.tags.commentTypes[i].name =
+                                    i18n.translate('GLOBALS.COMMENTTYPES.' + resp.tags.commentTypes[i].name);
+                            }
+                            scope.model.commentTypes = resp.tags.commentTypes;
+                        }
                     }
-                    scope.model.commentTypes = resp.tags.commentTypes;
-
                     /* discussions */
                     scope.model.items = resp.messages;
 

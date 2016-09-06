@@ -4,12 +4,13 @@ var
     Task = require('app/models/tasks'),
     TaskUserState = require('app/models/taskuserstates'),
     Survey = require('app/models/surveys'),
+    SurveyMeta = require('app/models/survey_meta'),
     Product = require('app/models/products'),
+    Policy = require('app/models/policies'),
     Group = require('app/models/groups'),
     WorkflowStep = require('app/models/workflow_steps'),
     ProductUOA = require('app/models/product_uoa'),
     UOA = require('app/models/uoas'),
-    Project = require('app/models/projects'),
     Attachment = require('app/models/attachments'),
     co = require('co'),
     Query = require('app/util').Query,
@@ -20,6 +21,7 @@ var
     bologger = new BoLogger(),
     sTaskUserState = require('app/services/taskuserstates'),
     sProduct = require('app/services/products'),
+    sSurvey = require('app/services/surveys'),
     pgEscape = require('pg-escape');
 
 var exportObject = function  (req, realm) {
@@ -30,6 +32,7 @@ var exportObject = function  (req, realm) {
     }
     var oTaskUserState = new sTaskUserState(req);
     var oProduct = new sProduct(req);
+    var oSurvey = new sSurvey(req);
 
     this.getList = function () {
         return co(function* () {
@@ -109,37 +112,34 @@ var exportObject = function  (req, realm) {
     this.isPolicy = function (taskId) {
         return co(function* () {
             var policyId = yield thunkQuery(
-                Task.select(
-                    Survey.policyId
-                )
-                    .from(
+                Task
+                .select(Policy.id)
+                .from(
                     Task
-                        .leftJoin(Product)
-                        .on(Task.productId.equals(Product.id))
-                        .leftJoin(Survey)
-                        .on(Product.surveyId.equals(Survey.id))
+                        .join(SurveyMeta)
+                        .on(SurveyMeta.productId.equals(Task.productId))
+                        .join(Policy)
+                        .on(Policy.surveyId.equals(SurveyMeta.surveyId))
                 )
                     .where(Task.id.equals(taskId)
                 )
             );
-            return (_.first(policyId) && policyId[0].policyId) ? true : false;
+            return (_.first(policyId)) ? true : false;
         });
     };
     this.isPolicyProduct = function (productId) {
         return co(function* () {
             var policyId = yield thunkQuery(
-                Task.select(
-                    Survey.policyId
+                SurveyMeta
+                .select(Policy.id)
+                .from(
+                    SurveyMeta
+                    .join(Policy)
+                    .on(Policy.surveyId.equals(SurveyMeta.surveyId))
                 )
-                    .from(
-                    Product
-                        .leftJoin(Survey)
-                        .on(Product.surveyId.equals(Survey.id))
-                )
-                    .where(Product.id.equals(productId)
-                )
+                .where(SurveyMeta.productId.equals(productId))
             );
-            return (_.first(policyId) && policyId[0].policyId) ? true : false;
+            return (_.first(policyId)) ? true : false;
         });
     };
     this.getProductTasks = function () {
@@ -149,21 +149,24 @@ var exportObject = function  (req, realm) {
             if (isPolicy) {
                 var taskUsersIds =  yield self.getTaskUsersIdsByProduct(req.params.id);
                 var tasks = yield self.getProductTasksExt('Comments');
-                var tasksUsersStatuses = yield self.getTaskUsersStatuses('Comments', taskUsersIds.userIds);
-                tasks = _.each(tasks, function (task) {
-                    var usersStatus = [];
-                    _.each(tasksUsersStatuses, function(userStatus){
-                        if (userStatus.taskId === task.id) {
-                            if (_.find(taskUsersIds.taskUserIds, function(item){
-                                    return (item.taskId === userStatus.taskId && item.userId === userStatus.userId);
-                                })) {
-                                usersStatus.push(_.omit(userStatus, 'taskId'));
+                if (tasks && tasks.length > 0) {
+                    for (var i in tasks) {
+                    //tasks = _.each(tasks, function (task) {
+                        var tasksUsersStatuses = yield self.getTaskUsersStatuses('Comments', taskUsersIds.userIds, tasks[i].id);
+                        var usersStatus = [];
+                        _.each(tasksUsersStatuses, function (userStatus) {
+                            if (userStatus.taskId === tasks[i].id) {
+                                if (_.find(taskUsersIds.taskUserIds, function (item) {
+                                        return (item.taskId === userStatus.taskId && item.userId === userStatus.userId);
+                                    })) {
+                                    usersStatus.push(_.omit(userStatus, 'taskId'));
+                                }
                             }
-                        }
-                    });
-                    usersStatus = self.getNamedStatuses(usersStatus, 'status');
-                    task.userStatuses = usersStatus;
-                });
+                        });
+                        usersStatus = self.getNamedStatuses(usersStatus, 'status');
+                        tasks[i].userStatuses = usersStatus;
+                    }
+                }
                 return tasks;
             } else {
                 return yield self.getProductTasksExt('Discussions');
@@ -214,13 +217,13 @@ var exportObject = function  (req, realm) {
             );
         });
     };
-    this.getSelfTasks = function () {
+    this.getSelfTasks = function (userId) {
         var self = this;
         return co(function* () {
-            var userTasks = yield self.getUserTasks(req.user.id);
+            var userTasks = yield self.getUserTasks(userId);
             var surveyTasks = yield self.getSelfTasksExt('Discussions', 'curStep', userTasks);
             var policyTasks = yield self.getSelfTasksExt('Comments', 'curStep', userTasks, true);
-            var tasksUserStatus = yield self.getTasksUserStatus('Comments', req.user.id, userTasks);
+            var tasksUserStatus = yield self.getTasksUserStatus('Comments', userId, userTasks);
             policyTasks = self.mergeTasksWithUserStatus(policyTasks, tasksUserStatus, 'userStatus');
             return _.union(surveyTasks, policyTasks);
         });
@@ -263,13 +266,14 @@ var exportObject = function  (req, realm) {
                 Task.endDate,
                 'row_to_json("UnitOfAnalysis".*) as uoa',
                 'row_to_json("Products".*) as product',
-                'row_to_json("Projects".*) as project',
                 'row_to_json("Surveys".*) as survey',
                 'row_to_json("WorkflowSteps") as step',
                 self.taskStatus.flaggedColumn(commentDiscussion),
                 self.taskStatus.flaggedCountColumn(commentDiscussion),
                 self.taskStatus.flaggedFromColumn(commentDiscussion),
-                self.taskStatus.statusColumn(curStepAlias)
+                self.taskStatus.statusColumn(curStepAlias),
+                self.policy.policyId(),
+                self.policy.maxSurveyVersion()
             )
                 .from(
                 Task
@@ -277,17 +281,17 @@ var exportObject = function  (req, realm) {
                     .on(Task.uoaId.equals(UOA.id))
                     .leftJoin(Product)
                     .on(Task.productId.equals(Product.id))
-                    .leftJoin(Project)
-                    .on(Product.projectId.equals(Project.id))
+                    .leftJoin(SurveyMeta)
+                    .on(SurveyMeta.productId.equals(Task.productId))
                     .leftJoin(Survey)
-                    .on(Product.surveyId.equals(Survey.id))
+                    .on(Survey.id.equals(SurveyMeta.surveyId))
                     .leftJoin(WorkflowStep)
                     .on(Task.stepId.equals(WorkflowStep.id))
                     .leftJoin(ProductUOA)
                     .on(
                     ProductUOA.productId.equals(Task.productId)
                         .and(ProductUOA.UOAid.equals(Task.uoaId))
-                )
+                    )
                     .leftJoin(WorkflowStep.as(curStepAlias))
                     .on(
                     ProductUOA.currentStepId.equals(WorkflowStep.as(curStepAlias).id)
@@ -297,16 +301,24 @@ var exportObject = function  (req, realm) {
                 query = query.where(
                     sql.array(Task.id).containedBy('{' + tasks + '}')
                         .and(Product.status.equals(1))
-                        .and(Survey.policyId.isNotNull())
+                        .and(Policy.subQuery().select(Policy.surveyId).from(Policy).where(Policy.surveyId.equals(Survey.id)).exists()
+                    )
                 );
             } else {
                 query = query.where(
                     sql.array(Task.id).containedBy('{' + tasks + '}')
                         .and(Product.status.equals(1))
-                        .and(Survey.policyId.isNull())
+                        .and(Policy.subQuery().select(Policy.surveyId).from(Policy).where(Policy.surveyId.equals(Survey.id)).notExists()
+                    )
                 );
             }
-            return yield thunkQuery(query, req.query);
+            var selfTasksExt = yield thunkQuery(query, req.query);
+            if (_.first(selfTasksExt)) {
+                selfTasksExt = _.filter(selfTasksExt, function(item){
+                    return (item.survey && item.maxSurveyVersion === item.survey.surveyVersion);
+                });
+            }
+            return selfTasksExt;
         });
     };
     this.getTaskExt = function (commentDiscussion, curStepAlias) {
@@ -351,19 +363,29 @@ var exportObject = function  (req, realm) {
     this.getTaskPolicy = function () {
         return this.getTaskExt('Comments', 'curStep');
     };
+    this.getTaskUsersStatuses4Policy = function (users, taskId) {
+        var self = this;
+        return co(function* () {
+            return yield self.getTaskUsersStatuses('Comments', users, taskId);
+        });
+    };
     this.getTaskUsersStatuses = function (commentDiscussion, users, taskId) {
 
-        var tasks = taskId ? [taskId] : null;
-        // 1st update Late status
-        oTaskUserState.updateLate(tasks, users);
-        // get all TaskUserStates for lists of users and tasks
-        return oTaskUserState.getByLists(tasks, users);
+        var taskUsersStatuses = [];
+        if (taskId) {
+            var surveyVersion = oSurvey.getMaxSurveyVersion(taskId);
+            // 1st update Late status
+            oTaskUserState.updateLate([taskId], users, surveyVersion);
+            // get all TaskUserStates for lists of users and tasks
+            taskUsersStatuses = oTaskUserState.getByLists([taskId], users);
+        }
+        return taskUsersStatuses;
 
     };
     this.getTasksUserStatus = function (commentDiscussion, userId, tasks) {
 
         // 1st update Late status
-        oTaskUserState.updateLate(tasks, [userId]);
+        // oTaskUserState.updateLate(tasks, [userId]); // ToDo: !!!! temporary disable
         // get all TaskUserStates for lists of users and tasks
         return oTaskUserState.getByLists(tasks, [userId]);
 
@@ -393,6 +415,18 @@ var exportObject = function  (req, realm) {
             var groups = [];
             var chkUsers = [];
             var chkGroups = [];
+            // add policy author as 1st user to user list
+            var authorId = yield * common.getPolicyAuthorIdByTask(req, taskId);
+            chkUsers.push(authorId);
+            userTo = yield * common.getUser(req, authorId);
+            users.push({
+                userId: userTo.id,
+                firstName: userTo.firstName,
+                lastName: userTo.lastName,
+                email: userTo.email,
+                isAdmin: (userTo.roleID !== 3)
+            });
+            //
             var task = yield * common.getTask(req, taskId);
             var taskUsers = task.userIds;
             for (var i in taskUsers) {
@@ -403,7 +437,8 @@ var exportObject = function  (req, realm) {
                         userId: userTo.id,
                         firstName: userTo.firstName,
                         lastName: userTo.lastName,
-                        email: userTo.email
+                        email: userTo.email,
+                        isAdmin: (userTo.roleID !== 3)
                     });
                 }
             }
@@ -424,7 +459,8 @@ var exportObject = function  (req, realm) {
                                 userId: userTo.id,
                                 firstName: userTo.firstName,
                                 lastName: userTo.lastName,
-                                email: userTo.email
+                                email: userTo.email,
+                                isAdmin: (userTo.roleID !== 3)
                             });
                             chkUsers.push(usersFromGroup[j].userId);
                         }
@@ -438,6 +474,70 @@ var exportObject = function  (req, realm) {
             };
         });
     };
+    this.getUsersFromTasks = function (tasks) {
+        // get unique users from list of tasks
+        return co(function* () {
+            var userTo, usersFromGroup;
+            var users = [];
+            var chkUsers = [];
+            var chkGroups = [];
+            if (!tasks || tasks.length === 0) {
+                return users;
+            }
+            // add policy author as 1st user to user list
+            var authorId = yield * common.getPolicyAuthorIdByTask(req, tasks[0].id);
+            chkUsers.push(authorId);
+            userTo = yield * common.getUser(req, authorId);
+            users.push({
+                userId: userTo.id,
+                firstName: userTo.firstName,
+                lastName: userTo.lastName,
+                email: userTo.email,
+                isAdmin: (userTo.roleID !== 3)
+            });
+            //
+            for (var t in tasks) {
+                var task = yield * common.getTask(req, tasks[t].id);
+                var taskUsers = task.userIds;
+                for (var i in taskUsers) {
+                    if (chkUsers.indexOf(taskUsers[i]) === -1) {
+                        chkUsers.push(taskUsers[i]);
+                        userTo = yield * common.getUser(req, taskUsers[i]);
+                        users.push({
+                            userId: userTo.id,
+                            firstName: userTo.firstName,
+                            lastName: userTo.lastName,
+                            email: userTo.email,
+                            isAdmin: (userTo.roleID !== 3)
+                        });
+                    }
+                }
+                var taskGroups = task.groupIds;
+                for (i in taskGroups) {
+                    if (chkGroups.indexOf(taskGroups[i]) === -1) {
+                        chkGroups.push(taskGroups[i]);
+                        usersFromGroup = yield * common.getUsersFromGroup(req, taskGroups[i]);
+                        for (var j in usersFromGroup) {
+                            if (chkUsers.indexOf(usersFromGroup[j].userId) === -1) {
+                                userTo = yield * common.getUser(req, usersFromGroup[j].userId);
+                                users.push({
+                                    userId: userTo.id,
+                                    firstName: userTo.firstName,
+                                    lastName: userTo.lastName,
+                                    email: userTo.email,
+                                    isAdmin: (userTo.roleID !== 3)
+                                });
+                                chkUsers.push(usersFromGroup[j].userId);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return users;
+        });
+    };
+
     this.getUsersIds = function (userIds, groupIds) {
         return co(function* () {
             var usersFromGroup;
@@ -520,6 +620,7 @@ var exportObject = function  (req, realm) {
             };
         });
     };
+
     this.taskStatus = {
         flaggedColumn : function (commentDiscussion) {
             return 'CASE ' +
@@ -532,6 +633,15 @@ var exportObject = function  (req, realm) {
                 pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
                 pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
                 ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : pgEscape('AND "%s"."taskId" = "Tasks"."id" ', commentDiscussion)) +
+                ((commentDiscussion === 'Discussions') ? '' :
+                        pgEscape(
+                            'AND "%s"."surveyVersion" = (SELECT max("Surveys"."surveyVersion") ' +
+                            'FROM "Tasks" as "subS" ' +
+                            'INNER JOIN "SurveyMeta" ON ("SurveyMeta"."productId" = "subS"."productId") ' +
+                            'INNER JOIN "Surveys" ON ("Surveys"."id" = "SurveyMeta"."surveyId") ' +
+                            'WHERE "subS"."id" = "%s"."taskId") ',
+                            commentDiscussion, commentDiscussion)
+                ) +
                 'LIMIT 1' +
                 ') IS NULL ' +
                 'THEN FALSE ' +
@@ -546,6 +656,15 @@ var exportObject = function  (req, realm) {
                 pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
                 pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
                 ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : pgEscape('AND "%s"."taskId" = "Tasks"."id" ', commentDiscussion)) +
+                ((commentDiscussion === 'Discussions') ? '' :
+                        pgEscape(
+                            'AND "%s"."surveyVersion" = (SELECT max("Surveys"."surveyVersion") ' +
+                            'FROM "Tasks" as "subS" ' +
+                            'INNER JOIN "SurveyMeta" ON ("SurveyMeta"."productId" = "subS"."productId") ' +
+                            'INNER JOIN "Surveys" ON ("Surveys"."id" = "SurveyMeta"."surveyId") ' +
+                            'WHERE "subS"."id" = "%s"."taskId") ',
+                            commentDiscussion, commentDiscussion)
+                ) +
                 ') as "flaggedCount"';
         },
         flaggedFromColumn : function (commentDiscussion) {
@@ -557,6 +676,15 @@ var exportObject = function  (req, realm) {
                 pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
                 pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
                 ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : pgEscape('AND "%s"."taskId" = "Tasks"."id" ', commentDiscussion)) +
+                ((commentDiscussion === 'Discussions') ? '' :
+                        pgEscape(
+                            'AND "%s"."surveyVersion" = (SELECT max("Surveys"."surveyVersion") ' +
+                            'FROM "Tasks" as "subS" ' +
+                            'INNER JOIN "SurveyMeta" ON ("SurveyMeta"."productId" = "subS"."productId") ' +
+                            'INNER JOIN "Surveys" ON ("Surveys"."id" = "SurveyMeta"."surveyId") ' +
+                            'WHERE "subS"."id" = "%s"."taskId") ',
+                            commentDiscussion, commentDiscussion)
+                ) +
                 'LIMIT 1' +
                 ') as "flaggedFrom"';
         },
@@ -578,6 +706,22 @@ var exportObject = function  (req, realm) {
                 'THEN \'current\' ' +
                 'ELSE \'waiting\'' +
                 'END as "status" ';
+        }
+    };
+    this.policy = {
+        policyId : function () {
+            return '(' +
+                'SELECT "Policies"."id" FROM "Policies" WHERE "Policies"."surveyId" = "Surveys"."id" ' +
+                'LIMIT 1' +
+                ') as "policyId"';
+        },
+        maxSurveyVersion : function () {
+            return '( ' +
+            'SELECT max("Surveys"."surveyVersion") ' +
+            'FROM "Surveys" ' +
+            'WHERE "Surveys"."id" = "SurveyMeta"."surveyId" ' +
+            'GROUP BY "Surveys"."id" ' +
+            ') as "maxSurveyVersion"';
         }
     };
     this.modifyUserInGroups = function (delUserFromGroups, newUserToGroups) {

@@ -4,17 +4,19 @@ var
     common = require('app/services/common'),
     sTask = require('app/services/tasks'),
     sProduct = require('app/services/products'),
+    sSurvey = require('app/services/surveys'),
     sTaskUserState = require('app/services/taskuserstates'),
     crypto = require('crypto'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     csv = require('express-csv'),
     Product = require('app/models/products'),
-    Project = require('app/models/projects'),
+    Policy = require('app/models/policies'),
     Organization = require('app/models/organizations'),
     Workflow = require('app/models/workflows'),
     WorkflowStep = require('app/models/workflow_steps'),
     Survey = require('app/models/surveys'),
+    SurveyMeta = require('app/models/survey_meta'),
     SurveyQuestion = require('app/models/survey_questions'),
     SurveyQuestionOption = require('app/models/survey_question_options'),
     SurveyAnswer = require('app/models/survey_answers'),
@@ -24,8 +26,10 @@ var
     AccessMatrix = require('app/models/access_matrices'),
     ProductUOA = require('app/models/product_uoa'),
     Task = require('app/models/tasks'),
+    TaskUserState = require('app/models/taskuserstates'),
     UOA = require('app/models/uoas'),
     Discussion = require('app/models/discussions'),
+    Comment = require('app/models/comments'),
     Index = require('app/models/indexes.js'),
     Subindex = require('app/models/subindexes.js'),
     IndexQuestionWeight = require('app/models/index_question_weights.js'),
@@ -50,18 +54,37 @@ var moveWorkflow = function* (req, productId, UOAid) {
     var essenceId, task, userTo, organization, product, uoa, step, survey, note;
     var thunkQuery = req.thunkQuery;
     var oProduct = new sProduct(req);
+    var oTask = new sTask(req);
+    var oTaskUserState = new sTaskUserState(req);
+    var oSurvey = new sSurvey(req);
+
     //if (req.user.roleID !== 2 && req.user.roleID !== 1) { // TODO check org owner
     //    throw new HttpError(403, 'Access denied');
     //}
     var curStep = yield * common.getCurrentStepExt(req, productId, UOAid);
+    var isPolicy = yield oTask.isPolicy(curStep.task.id);
+
+    if (req.query.restart) { // restart step
+        // add initial TaskUserStates
+        task = yield * common.getTask(req, curStep.task.id);
+        var surveyVersion = yield oSurvey.getMaxSurveyVersion(task.id);
+        var usersIds =  yield oTask.getUsersIdsByTask(task.id);
+        yield oTaskUserState.add(task.id, usersIds, task.endDate, surveyVersion);
+        return;
+    }
+
 
     var autoResolve = false;
     if (req.query.force) { // force to move step
         // if exists entries with return flags then check existing resolve entries and create it if needed
-        autoResolve = yield * doAutoResolve(req, curStep.task.id);
+        if (isPolicy) {
+            autoResolve = yield * doAutoResolveForPolicy(req, curStep.task.id);
+        } else {
+            autoResolve = yield * doAutoResolve(req, curStep.task.id);
+        }
     }
 
-    if (req.query.resolve || autoResolve) { // try to resolve
+    if ((req.query.resolve || autoResolve) && !isPolicy) { // try to resolve (only for survey - not policy)
         // check if resolve is possible
         var resolvePossible = yield * isResolvePossible(req, curStep.task.id);
         if (!resolvePossible) {
@@ -94,28 +117,42 @@ var moveWorkflow = function* (req, productId, UOAid) {
 
     }
 
-    // check if exist return flag(s)
-    var returnStepId = yield * common.getReturnStep(req, curStep.task.id);
-    if (returnStepId && !req.query.force && !req.query.resolve) { // exist discussion`s entries with return flags and not activated (only for !force and !resolve)
-        // set currentStep to step from returnTaskId
-        yield * updateCurrentStep(req, returnStepId, productId, UOAid);
-        // activate discussion`s entry with return flag
-        var flagsCount = yield * activateEntries(req, curStep.task.id, {
-            isReturn: true
-        });
+    if (!isPolicy) {    // only for syrvey - not policy
+        // check if exist return flag(s)
+        var returnStepId = yield * common.getReturnStep(req, curStep.task.id);
+        if (returnStepId && !req.query.force && !req.query.resolve) { // exist discussion`s entries with return flags and not activated (only for !force and !resolve)
+            // set currentStep to step from returnTaskId
+            yield * updateCurrentStep(req, returnStepId, productId, UOAid);
+            // activate discussion`s entry with return flag
+            var flagsCount = yield * activateEntries(req, curStep.task.id, {
+                isReturn: true
+            });
 
-        // notify:  notification that they have [X] flags requiring resolution in the [Subject] survey for the [Project]
-        task = yield * common.getTaskByStep(req, returnStepId, UOAid);
-        oProduct.notify({
-            body: 'flags requiring resolution',
-            action: 'flags requiring resolution',
-            flags: {
-                count: flagsCount
-            }
-        }, null, task.id, '', 'returnFlag');
+            // notify:  notification that they have [X] flags requiring resolution in the [Subject] survey for the [Project]
+            task = yield * common.getTaskByStep(req, returnStepId, UOAid);
+            oProduct.notify({
+                body: 'flags requiring resolution',
+                action: 'flags requiring resolution',
+                flags: {
+                    count: flagsCount
+                }
+            }, null, task.id, '', 'returnFlag');
 
-        return;
+            return;
+        }
+    } else if (!req.query.force) {    // for policy - check all users approved task - only if no force
+        var taskUserStates = yield oTaskUserState.getByLists([curStep.task.id],null);
+        if (!_.first(taskUserStates)) {
+            debug('Error getting taskUserStates - possible obsolete data - don`t move workflow step');
+            return;
+        }
+        var approvedId = TaskUserState.getStateId('approved');
+        if (_.find(taskUserStates, function(item){ return item.stateId !== approvedId; })) {
+            debug('At least one of taskUserStates is  not Approved  - don`t move workflow step');
+            return;
+        }
     }
+
     var minNextStepPosition = yield * common.getMinNextStepPositionWithTask(req, curStep, productId, UOAid);
     var nextStep = null;
     if (minNextStepPosition !== null) { // min next step exists, position is not null
@@ -195,26 +232,11 @@ exports.moveWorkflow = moveWorkflow;
 module.exports = {
 
     select: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-
-        co(function* () {
-            return yield thunkQuery(
-                Product
-                .select(
-                    Product.star(),
-                    'row_to_json("Workflows".*) as workflow'
-                )
-                .from(
-                    Product
-                    .leftJoin(Workflow)
-                    .on(Product.id.equals(Workflow.productId))
-                ), req.query
-            );
-        }).then(function (data) {
-            res.json(data);
-        }, function (err) {
-            next(err);
-        });
+        var oProduct = new sProduct(req);
+        oProduct.getList(req.query).then(
+            (data) => res.json(data),
+            (err) => next(err)
+        );
     },
 
     tasks: function (req, res, next) {
@@ -340,35 +362,6 @@ module.exports = {
                         action: 'Task created'
                     }, req.body[i].id, req.body[i].id, 'Tasks', 'assignTask');
 
-                }
-                if (product[0].workflow) {
-                    var firstStep = yield thunkQuery(
-                        WorkflowStep
-                        .select()
-                        .where(
-                            WorkflowStep.position.in(
-                                WorkflowStep
-                                .subQuery()
-                                .select(sql.functions.MIN(WorkflowStep.position))
-                                .where(WorkflowStep.workflowId.equals(product[0].workflow.id))
-                            )
-                        )
-                        .and(WorkflowStep.workflowId.equals(product[0].workflow.id))
-                    );
-
-                    if (firstStep) {
-                        yield thunkQuery(
-                            ProductUOA
-                            .update({
-                                currentStepId: firstStep[0].id
-                            })
-                            .where(
-                                ProductUOA.productId.equals(product[0].id)
-                                .and(ProductUOA.UOAid.equals(req.body[i].uoaId))
-                                .and(ProductUOA.currentStepId.isNull())
-                            )
-                        );
-                    }
                 }
 
             }
@@ -1025,33 +1018,17 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-
-        co(function* () {
-            var product = yield thunkQuery(
-                Product
-                .select(
-                    Product.star(),
-                    'row_to_json("Workflows".*) as workflow'
-                )
-                .from(
-                    Product
-                    .leftJoin(Workflow)
-                    .on(Product.id.equals(Workflow.productId))
-                )
-                .where(Product.id.equals(req.params.id))
-            );
-
-            if (!_.first(product)) {
-                throw new HttpError(403, 'Not found');
-            }
-
-            return _.first(product);
-        }).then(function (data) {
-            res.json(data);
-        }, function (err) {
-            next(err);
-        });
+        var oProduct = new sProduct(req);
+        oProduct.getById(req.params.id).then(
+            (data) => {
+                if (!data) {
+                    next(new HttpError(404, 'Not found'))
+                } else {
+                    res.json(data)
+                }
+            },
+            (err) => next(err)
+        );
     },
 
     delete: function (req, res, next) {
@@ -1060,6 +1037,7 @@ module.exports = {
         co(function* () {
             var oProduct = new sProduct(req);
             var oTask = new sTask(req);
+            var oSurvey = new sSurvey(req);
             var tasks = yield oTask.getByProductAllUoas(req.params.id);
             // remove all subjects
             if (tasks.length) {
@@ -1068,6 +1046,7 @@ module.exports = {
             yield oTask.deleteTasks(req.params.id);
             yield oProduct.deleteProductAllUoas(req.params.id);
             // ToDo: Check workflow exist before delete
+            yield oSurvey.detachFromProduct(req.params.id);
             return yield thunkQuery(
                 Product.delete().where(Product.id.equals(req.params.id))
             );
@@ -1091,11 +1070,14 @@ module.exports = {
 
         co(function* () {
             var oProduct = new sProduct(req);
-            yield oProduct.checkProductData();
+            var oSurvey = new sSurvey(req);
+            yield oProduct.checkProductData(req.body);
             var policyUoaId = yield * common.getPolicyUoaId(req);
             var product = yield * common.getEntity(req, req.params.id, Product, 'id');
-            var oldSurvey = product.surveyId ? yield * common.getEntity(req, product.surveyId, Survey, 'id') : null;
-            var newSurvey = req.body.surveyId ? yield * common.getEntity(req, req.body.surveyId, Survey, 'id') : null;
+
+            var oldSurveyId = yield oSurvey.getSurveyAssignedToProduct(req.params.id);
+            var oldSurvey = oldSurveyId ? yield oSurvey.getById(oldSurveyId) : null;
+            var newSurvey = req.body.surveyId ? yield oSurvey.getById(req.body.surveyId) : null;
 
             if ((newSurvey && newSurvey.policyId) &&                                        // new survey is policy
                 // AND
@@ -1130,8 +1112,19 @@ module.exports = {
             }
 
             if (parseInt(req.body.status) === 1) { // if status changed to 'STARTED'
+                if (yield oSurvey.getVersion(newSurvey.id, -1)) {
+                    throw new HttpError(403, 'You can not start the project. ' + (newSurvey.policyId ? 'Policy ' : 'Survey ') + 'have status `in Draft`');
+                }
                 var result = oProduct.updateCurrentStepId(product);
             }
+
+            if (oldSurvey && newSurvey && oldSurvey.id !== newSurvey.id) {  // detach old survey from product
+                yield oSurvey.detachFromProduct(req.params.id);
+            }
+            if (req.body.surveyId) {
+                yield oSurvey.assignToProduct(req.body.surveyId, req.params.id);
+            }
+
             return yield oProduct.updateProduct();
         }).then(function (data) {
             res.status(202).end();
@@ -1145,13 +1138,21 @@ module.exports = {
 
         co(function* () {
             var oProduct = new sProduct(req);
-            yield oProduct.checkProductData();
-            var newSurvey = req.body.surveyId ? yield * common.getEntity(req, req.body.surveyId, Survey, 'id') : null;
-            if (newSurvey && newSurvey.policyId) {                                        // new survey is policy
+            var oSurvey = new sSurvey(req);
+            req.body.organizationId = req.user.organizationId;
+            yield oProduct.checkProductData(req.body);
+            var newSurvey = req.body.surveyId ? yield oSurvey.getById(req.body.surveyId) : null;
+
+            if (newSurvey && newSurvey.policyId) { // new survey is policy
                 // check one project - one policy
                 yield oProduct.checkMultipleProjects(req.body.surveyId, newSurvey.policyId);
             }
-            var productId = yield oProduct.insertProduct();
+
+            var productId = yield oProduct.insertProduct(req.body);
+            if (req.body.surveyId) {
+                yield oSurvey.assignToProduct(req.body.surveyId, productId);
+            }
+
             if (productId) {
                 var policyUoaId = yield * common.getPolicyUoaId(req);
                 if (newSurvey && newSurvey.policyId) {  // new survey is policy
@@ -1295,6 +1296,8 @@ module.exports = {
         });
 
     },
+
+    moveWorkflow: moveWorkflow,
 
     productUOAmove: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
@@ -1996,7 +1999,8 @@ function* doAutoResolve(req, taskId) {
             // resolve Entry exist - update it with "Resolved automatically"
             resolveEntry = _.extend(resolveEntry, {
                 entry: resolveEntry.entry.trim() + ' Resolved automatically',
-                updated: new Date()
+                updated: new Date(),
+                activated: false
             });
             var id = resolveEntry.id;
             resolveEntry = _.pick(resolveEntry, Discussion.updateCols); // update only columns that may be updated
@@ -2041,6 +2045,134 @@ function* doAutoResolve(req, taskId) {
             }
 
         }
+    }
+    return true;
+}
+
+function* doAutoResolveForPolicy(req, taskId) {
+    var thunkQuery = req.thunkQuery;
+    var oTaskUserState = new sTaskUserState(req);
+    var query, result;
+    var flaggedUsers = [];
+    // get existing entries with flags
+    query =
+        Comment
+            .select(Comment.star())
+            .from(Comment)
+            .where(
+            Comment.isReturn.equals(true)
+                .and(Comment.activated.equals(true))
+                .and(Comment.isResolve.equals(false))
+                .and(Comment.taskId.equals(taskId))
+        );
+    var flagsEntries = yield thunkQuery(query);
+    if (!_.first(flagsEntries) || flagsEntries.length === 0) {
+        return false; // flags does not exist - resolve is not needed
+    }
+    // get existing entries with Resolve
+    query =
+        Comment
+            .select(Comment.star())
+            .from(Comment)
+            .where(
+            Comment.isReturn.equals(false)
+                .and(Comment.activated.equals(false))
+                .and(Comment.isResolve.equals(true))
+                .and(Comment.taskId.equals(taskId))
+        );
+    var resolveEntries = yield thunkQuery(query);
+
+    if (!_.first(resolveEntries) || resolveEntries.length === 0) {
+        resolveEntries = []; // there are not resolved entries
+    }
+
+    for (var i in flagsEntries) {
+        // add uniq userFromId from flagsEntries
+        if (flaggedUsers.indexOf(flagsEntries[i].userFromId) === -1) {
+            flaggedUsers.push(flagsEntries[i].userFromId);
+        }
+        // find resolve entry corresponding flag entry
+        var resolveEntry = _.find(resolveEntries, function (entry) {
+            return (entry && entry.returnTaskId === flagsEntries[i].id);
+        });
+        if (resolveEntry) {
+            // resolve Entry exist - update it with "Resolved automatically"
+            resolveEntry = _.extend(resolveEntry, {
+                entry: resolveEntry.entry.trim() + ' Resolved automatically',
+                updated: new Date(),
+                activated: true
+            });
+            var id = resolveEntry.id;
+            resolveEntry = _.pick(resolveEntry, Comment.updateCols); // update only columns that may be updated
+            result = yield thunkQuery(Comment.update(resolveEntry).where(Comment.id.equals(id)).returning(Comment.id));
+            if (_.first(result)) {
+                bologger.log({
+                    req: req,
+                    user: req.user,
+                    action: 'update',
+                    object: 'Comments',
+                    entity: result[0].id,
+                    info: 'Update resolve entry (Resolved automatically)'
+                });
+            }
+        } else {
+            // corresponding resolve entry does not exist - create it
+            resolveEntry = _.extend(flagsEntries[i], {
+                taskId: flagsEntries[i].taskId,
+                userId: flagsEntries[i].userFromId,
+                userFromId: req.user.realmUserId,
+                stepFromId: flagsEntries[i].stepId,
+                stepId: flagsEntries[i].stepFromId,
+                isReturn: false,
+                returnTaskId: flagsEntries[i].id,       // returnTaskId is used as reference to flag comment id
+                isResolve: true,
+                activated: true,
+                entry: 'Resolved automatically',
+                order: flagsEntries[i].order + 1,
+                updated: new Date()
+            });
+            resolveEntry = _.pick(resolveEntry, Comment.insertCols); // insert only columns that may be inserted
+            result = yield thunkQuery(Comment.insert(resolveEntry).returning(Comment.id));
+            if (_.first(result)) {
+                bologger.log({
+                    req: req,
+                    user: req.user,
+                    action: 'insert',
+                    object: 'Comments',
+                    entity: result[0].id,
+                    info: 'Insert resolve entry (Resolved automatically)'
+                });
+            }
+
+        }
+    }
+    // update return entries - resolve their
+    result = yield thunkQuery(
+        Comment.update({
+            isResolve: true
+        })
+            .where(
+            Comment.isReturn.equals(true)
+                .and(Comment.activated.equals(true))
+                .and(Comment.isResolve.equals(false))
+                .and(Comment.taskId.equals(taskId))
+        )
+            .returning(Comment.id)
+    );
+    if (_.first(result)) {
+        bologger.log({
+            req: req,
+            action: 'update',
+            entities: result,
+            quantity: result.length,
+            info: 'Autoresolve flags (policy)'
+        });
+    }
+
+
+    // check task user states for unflagged
+    for (i in flaggedUsers) {
+        yield oTaskUserState.tryUnflag(taskId, flaggedUsers[i]);
     }
     return true;
 }

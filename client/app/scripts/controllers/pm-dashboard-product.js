@@ -32,7 +32,7 @@ angular.module('greyscaleApp')
                     tasksTable.dataFilter.policyId = survey.policyId;
                 });
             }
-            greyscaleProjectProductsTbl.methods.fillSurvey(product.projectId);
+            greyscaleProjectProductsTbl.methods.fillSurvey();
 
             $state.ext.productName = product.title;
             return product;
@@ -70,18 +70,8 @@ angular.module('greyscaleApp')
             Organization.$lock = false;
         });
 
-        $scope.download = function (e) {
-            if (!$scope.model.downloadHref) {
-                e.preventDefault();
-                e.stopPropagation();
-                greyscaleProductApi.product(productId).getTicket()
-                    .then(function (ticket) {
-                        $scope.model.downloadHref = greyscaleProductApi.getDownloadDataLink(ticket);
-                        $timeout(function () {
-                            e.currentTarget.click();
-                        });
-                    });
-            }
+        $scope.download = function () {
+            greyscaleModalsSrv.selectPolicyVersion($scope.model.product.survey, 0);
         };
 
         $scope.editProductTasks = function () {

@@ -1,18 +1,34 @@
-<div ng-if="isAdmin() || !model.isHidden" class="gs-message">
+<div ng-if="(!model.isHidden  || isAdmin()) && (model.activated || !options.isVersion)" class="gs-message">
     <span class="gs-message-from">
-        <a ng-if="isAdmin();" ng-click="toggleComment();">
+        <a ng-if="!options.isVersion && isAdmin()" ng-click="toggleComment();">
             <i class="fa" ng-class="{ 'fa-eye-slash': !model.isHidden, 'fa-eye': model.isHidden }"></i>
         </a>
         {{getUserName()}}
-        <i class="fa fa-flag pull-right" ng-show="model.isReturn"
-           ng-class="{'text-success':model.isResolve, 'text-danger':!model.isResolve}"></i>
+        <span ng-if="model.isReturn">
+            <span class="pull-right"
+                ng-class="{'text-success':model.isResolve, 'text-danger':!model.isResolve}">
+                &nbsp;{{getUserName(model.userId)}}
+            </span>
+            <a ng-if="isAdmin() && !model.isResolve" class="pull-right"
+                ng-click="resolveFlag();">
+                <i class="fa fa-flag text-danger"></i>
+            </a>
+            <i ng-if="!isAdmin() || model.isResolve" class="pull-right"
+                ng-class="{'text-success':model.isResolve, 'text-danger':!model.isResolve}">
+                <i class="fa fa-flag"></i>
+            </i>
+        </span>
     </span>
     <div ng-hide="model.isHidden" class="gs-message-body-wrapper">
         <div class="gs-message-body" ng-hide="isEdit">
             <div class="ta-text" ng-bind-html="model.entry"></div>
-            <div class="gs-message-full-view text-right h2"><a ng-click="fullview()" class="action-primary action"><i class="fa fa-eye"></i></a></div>
+            <div class="gs-message-fader"></div>
         </div>
         <textarea ng-show="isEdit" ng-model="entry" class="form-control"></textarea>
+        <a ng-click="fullview()" class="pull-right gs-message-full-view">
+            <small>+{{model.agree||0}}/-{{model.disagree||0}}</small>
+            <i class="fa fa-comments-o"></i>
+        </a>
         <div class="text-right gs-message-actions" ng-hide="model.activated">
             <a ng-click="remove()" ng-hide="isEdit"><i class="fa fa-trash action-danger"></i></a>
             <a ng-click="edit()" ng-hide="isEdit"><i class="fa fa-pencil"></i></a>

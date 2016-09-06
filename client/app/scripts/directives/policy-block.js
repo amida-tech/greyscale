@@ -10,27 +10,35 @@ angular.module('greyscaleApp')
             restrict: 'E',
             templateUrl: 'views/directives/policy-block.html',
             scope: {
-                policyData: '='
+                policyData: '=?'
             },
             controller: function ($scope, $element, greyscaleUtilsSrv, FileUploader, $timeout, greyscaleTokenSrv,
-                greyscaleGlobals) {
+                greyscaleGlobals, greyscaleModalsSrv, $state) {
 
                 var _url = greyscaleUtilsSrv.getApiBase('surveys/parsedocx'),
                     _token = greyscaleTokenSrv();
 
                 $scope.formName = 'f_' + new Date().getTime();
 
-                $scope.model = $scope.model || [];
+                $scope.model = $scope.model || {};
 
                 $scope.inProgress = [];
+
+                $scope.listVersions = _listVersions;
 
                 var uploader = $scope.uploader = new FileUploader({
                     url: _url,
                     withCredentials: false,
                     method: 'POST',
                     removeAfterUpload: true,
-                    autoUpload: true
+                    autoUpload: true,
+                    filters: [{
+                        name: 'docx',
+                        fn: _isDocx
+                    }]
                 });
+
+                uploader.onAfterAddingFile = _addedFile;
 
                 uploader.onBeforeUploadItem = function (item) {
                     if ($scope.formName && $scope[$scope.formName].$$parentForm) {
@@ -54,6 +62,9 @@ angular.module('greyscaleApp')
                             _loadSections(data.sections);
                         }
                         _modifyEvt();
+                        $timeout(function () {
+                            $scope.$broadcast('line-numbers-refresh');
+                        });
                     }
 
                     uploader.clearQueue();
@@ -67,6 +78,8 @@ angular.module('greyscaleApp')
                 uploader.onErrorItem = function (file, response) {
                     greyscaleUtilsSrv.errorMsg(response || 'File too big', 'Upload file');
                 };
+
+                uploader.onWhenAddingFileFailed = _addingFileFailed;
 
                 function _modifyEvt() {
                     $scope.$emit(greyscaleGlobals.events.survey.answerDirty);
@@ -119,6 +132,34 @@ angular.module('greyscaleApp')
                         greyscaleUtilsSrv.errorMsg('ERROR.NO_POLICY_HEADERS');
                     }
                 }
+
+                function _addedFile() {
+                    $scope.model.error = null;
+                }
+
+                function _addingFileFailed(item, filter) {
+                    $scope.model.error = {
+                        msg: 'ERROR.NOT_DOCX'
+                    };
+                }
+
+                function _isDocx(item) {
+                    var re = /.+\.docx$/i;
+                    return re.test(item.name);
+                }
+
+                function _listVersions() {
+                    greyscaleModalsSrv.selectPolicyVersion($scope.policyData.survey, 1)
+                        .then(function (_survey) {
+                            if (_survey) {
+                                $state.go('policy.version', {
+                                    id: _survey.id,
+                                    version: _survey.surveyVersion
+                                });
+                            }
+                        });
+                }
             }
         };
+
     });
