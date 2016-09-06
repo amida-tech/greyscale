@@ -904,9 +904,9 @@ var exportObject = function  (req, realm) {
                             comments[i].range = JSON.parse(comments[i].range);
                             if (comments[i].range.entry) {
                                 comment +=
-                                    '<blockquote>'
+                                    '<b><i>'
                                     + comments[i].range.entry.replace(/(<([^>]+)>)/ig,"")
-                                    + '</blockquote>';
+                                    + '</i></b><br/>';
                             }
                         }
 
