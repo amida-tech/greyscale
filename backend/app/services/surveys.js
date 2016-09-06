@@ -1,5 +1,6 @@
 var
     _ = require('underscore'),
+    moment = require('moment'),
     Policy = require('app/models/policies'),
     Survey = require('app/models/surveys'),
     User = require('app/models/users'),
@@ -11,7 +12,6 @@ var
     sAttachment = require('app/services/attachments'),
     sEssence = require('app/services/essences'),
     sUser = require('app/services/users'),
-    sCom = require('app/services/comments'),
     Task = require('app/models/tasks'),
     Product = require('app/models/products'),
     ProductUOA = require('app/models/product_uoa'),
@@ -867,8 +867,6 @@ var exportObject = function  (req, realm) {
 
             var survey = yield self.getVersion(surveyId, version);
 
-
-
             if (survey.policyId) {
                 var authorName = '';
                 if (survey.author) {
@@ -900,6 +898,8 @@ var exportObject = function  (req, realm) {
                     content += '<h1>Comments</h1>';
                     for (var i in comments) {
                         var comment = '';
+                        var commentAuthor = yield oUser.getById(comments[i].userFromId);
+
                         if (comments[i].range) {
                             comments[i].range = JSON.parse(comments[i].range);
                             if (comments[i].range.entry) {
@@ -909,11 +909,15 @@ var exportObject = function  (req, realm) {
                                     + '</blockquote>';
                             }
                         }
+
+                        var authorStr = commentAuthor ? (' by ' + commentAuthor.firstName + ' ' + commentAuthor.lastName) : '';
+                        var dateStr = moment(comments[i].created).format('MM:DD:YYYY HH:mm');
+
                         content +=
                             '<p>'
-                            //+ (i+1)  + '.'
                             + comment
                             + comments[i].entry.replace(/(<([^>]+)>)/ig,"")
+                            + ' (' + dateStr + authorStr + ')'
                             + '</p>';
                     }
                 }
