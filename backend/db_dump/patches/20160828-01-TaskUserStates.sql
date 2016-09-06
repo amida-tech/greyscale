@@ -19,6 +19,8 @@ BEGIN
             ALTER TABLE "TaskUserStates"
             DROP CONSTRAINT "TaskUserStates_pkey",
             ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0;
+            ALTER TABLE "TaskUserStates"
+            ADD PRIMARY KEY ("taskId", "userId", "surveyVersion");
         $query$;
 
     END LOOP;
