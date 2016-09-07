@@ -638,7 +638,12 @@ var exportObject = function  (req, realm) {
             policyData.author = req.user.realmUserId;
             // check survey/policy data
 
-            surveyData.id = surveyId;
+            if (surveyId) {
+                surveyData.id = surveyId;
+            } else {
+                delete surveyData.id;
+            }
+
             yield self.checkSurveyData(fullSurveyData);
 
             if (fullSurveyData.isPolicy) {
@@ -647,6 +652,10 @@ var exportObject = function  (req, realm) {
 
             yield thunkQuery(Survey.delete().where({id: surveyId, surveyVersion: -1}));
             var surveyDraft = yield thunkQuery(Survey.insert(surveyData).returning(Survey.star()));
+
+            if (!surveyId) {
+                surveyId = surveyDraft[0].id;
+            }
 
             if (fullSurveyData.isPolicy) {
                 policyData.surveyId = surveyId;
