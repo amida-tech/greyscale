@@ -254,7 +254,11 @@ var exportObject = function  (req, realm) {
     this.checkMultipleProjects = function(surveyId, policyId) {
         return co(function* () {
             if (policyId) {
-                var products = yield thunkQuery(SurveyMeta.select().where(SurveyMeta.surveyId.equals(surveyId)));
+                var products = yield thunkQuery(
+                    SurveyMeta.select()
+                    .where(SurveyMeta.surveyId.equals(surveyId))
+                    .and(SurveyMeta.productId.isNotNull())
+                );
                 if (products.length) {
                     throw new HttpError(403, 'Policy cannot be assigned to multiple projects');
                 }
