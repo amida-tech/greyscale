@@ -797,10 +797,11 @@ var exportObject = function  (req, realm) {
                             'SELECT a."id", a."filename", a."size", a."mimetype" ' +
                             'FROM "AttachmentLinks" al ' +
                             'JOIN "Attachments" a ' +
-                            'ON al."entityId" = "Policies"."id" ' +
+                            'ON al."entityId" = "Surveys"."id" ' +
+                            'AND al."version" = "Surveys"."surveyVersion" ' +
                             'JOIN "Essences" e ' +
                             'ON e.id = al."essenceId" ' +
-                            'AND e."tableName" = \'Policies\' ' +
+                            'AND e."tableName" = \'Surveys\' ' +
                             'WHERE a."id" = ANY(al."attachments")' +
                         ') as att) as attachments'
                     )
