@@ -623,10 +623,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
 
 });
 
-_app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv, greyscaleGlobals,
-    _, Restangular, greyscaleErrorHandler) {
-
-    Restangular.setErrorInterceptor(greyscaleErrorHandler.errorInterceptor);
+_app.run(function (_, $state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv,
+    greyscaleGlobals) {
 
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
         if (toState.data && toState.data.accessLevel !== greyscaleGlobals.userRoles.all.mask) {
@@ -650,7 +648,7 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
                     e.preventDefault();
                     if ((_level & greyscaleGlobals.userRoles.any.mask) !== 0) { //if not admin accessing admin level page
                         if (toState.name !== 'login') {
-                            greyscaleUtilsSrv.errorMsg(toState.data.name, 'ERROR.ACCESS_RESTRICTED');
+                            greyscaleUtilsSrv.errorMsg(toState.data.name, 'API_ERROR.403');
                         }
                         $state.go('home', {}, params);
                     } else {

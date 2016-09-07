@@ -4,9 +4,12 @@
 'use strict';
 
 angular.module('greyscale.rest', ['restangular', 'greyscale.core'])
-    .config(function (greyscaleEnv, RestangularProvider, greyscaleGlobalsProvider, greyscaleRolesSrvProvider) {
+    .config(function (greyscaleEnv, RestangularProvider, greyscaleGlobalsProvider, greyscaleRolesSrvProvider,
+        greyscaleErrorHandlerProvider) {
 
-        var realm = 'public';
+        var realm = 'public',
+            greyscaleRolesSrv = greyscaleRolesSrvProvider.$get(),
+            greyscaleErrorHandler = greyscaleErrorHandlerProvider.$get();
 
         RestangularProvider.setBaseUrl(
             (greyscaleEnv.apiProtocol || 'http') + '://' +
@@ -20,6 +23,8 @@ angular.module('greyscale.rest', ['restangular', 'greyscale.core'])
             cache: false,
             withCredentials: false
         });
-        var greyscaleRolesSrv = greyscaleRolesSrvProvider.$get();
+
+        RestangularProvider.setErrorInterceptor(greyscaleErrorHandler.errorInterceptor);
+
         greyscaleRolesSrv().then(greyscaleGlobalsProvider.initRoles);
     });

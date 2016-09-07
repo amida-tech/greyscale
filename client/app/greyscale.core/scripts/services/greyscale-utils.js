@@ -57,7 +57,7 @@ angular.module('greyscale.core')
 
         function _addMsg(msg, prefix, type) {
             var _msg = prefix ? i18n.translate(prefix) + ': ' : '';
-            var msgText = 'Service Not Available';
+            var msgText = 'API_ERRORS.503';
             if (msg) {
                 if (msg.data) {
                     if (msg.data.message) {
@@ -85,7 +85,7 @@ angular.module('greyscale.core')
 
         function _detectSystem(msg) {
             if (msg.match(/^(<!doctype|<html)/i)) {
-                return $translate.instant('COMMON.SERVICE_UNAVAILABLE');
+                return $translate.instant('API_ERRORS.503');
             }
             return msg;
         }
