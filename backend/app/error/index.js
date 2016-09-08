@@ -37,7 +37,8 @@ function DbError(err, httpStatus) {
     var key;
 
     switch (err.code) {
-        case '23503':
+        // Class 23 — Integrity Constraint Violation
+        case '23503': // foreign_key_violation
             mesArr = err.message.split('"');
             if (mesArr && mesArr.length === 7) {
                 key = ((typeof mesArr[1] === 'string') ? mesArr[1].toUpperCase() : '') +
@@ -45,6 +46,14 @@ function DbError(err, httpStatus) {
                     ((typeof mesArr[5] === 'string') ? mesArr[5].toUpperCase() : '') +
                     '_' +
                     ((typeof mesArr[3] === 'string') ? ((typeof mesArr[3].split('_')[1] === 'string') ? mesArr[3].split('_')[1].toUpperCase() : '') : '');
+            } else {
+                key = err.message;
+            }
+            break;
+        case '23505': // unique_violation
+            mesArr = err.message.split('"');
+            if (mesArr && mesArr.length === 3) {
+                key = (typeof mesArr[1] === 'string') ? mesArr[1].toUpperCase() : '';
             } else {
                 key = err.message;
             }
