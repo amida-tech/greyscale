@@ -38,7 +38,7 @@ BEGIN
                         IF NEW."surveyVersion" <> -1 THEN
                             SELECT  COALESCE(MAX("surveyVersion") + 1, 1)
                             INTO    NEW."surveyVersion"
-                            FROM    "Surveys"
+                            FROM    $query$ || schema_name || $query$."Surveys"
                             WHERE id = NEW.id;
                         END IF;
                     ELSE
