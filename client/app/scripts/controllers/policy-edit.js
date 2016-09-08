@@ -288,6 +288,7 @@ angular.module('greyscaleApp')
                 .then(function (essences) {
                     if (essences.length) {
                         _policy.essenceId = essences[0].id;
+                        $log.debug('editing policy. Id',_policy.id, 'essenseId', _policy.essenceId, 'entityId', _policy.answerId );
                     }
                     return ($scope.model.survey.author) ? greyscaleUsers.get($scope.model.survey.author) : false;
                 })

@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscale.rest')
-    .factory('greyscaleUploadApi', function (greyscaleRestSrv, greyscaleUtilsSrv) {
+    .factory('greyscaleUploadApi', function (greyscaleRestSrv, greyscaleUtilsSrv, $log) {
         return {
             getUrl: _getUrl,
             success: _success,
@@ -45,6 +45,7 @@ angular.module('greyscale.rest')
             if (_version !== undefined) {
                 _rest = _rest.one(_version + '');
             }
+            $log.debug('removing attachid',attachId, 'essenceid', essenceId, 'entityId', entityId, 'version', _version);
             return _rest.remove().then(_preResp);
         }
     });
