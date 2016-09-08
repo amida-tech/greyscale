@@ -250,7 +250,7 @@ angular.module('greyscaleApp')
                             section: survey.section,
                             subsection: survey.subsection,
                             number: survey.number,
-                            answerId: survey.policyId,
+                            answerId: survey.id,
                             attachments: survey.attachments || [],
                             survey: $scope.model.survey,
                             version: survey.surveyVersion
