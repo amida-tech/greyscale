@@ -149,6 +149,7 @@ module.exports = {
 
         var adminThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
 
+
         co(function* () {
             yield * checkOrgData(req);
 
@@ -404,9 +405,15 @@ function* checkOrgData(req) {
     var clientThunkQuery = thunkify(new Query(req.params.realm));
     var adminThunkQuery = thunkify(new Query(cpg.adminSchema));
 
+    var pattern = new RegExp("^[a-zA-Z]{1,1}[\w]*");
+
     if (!req.params.id) { //create
         if (!req.body.name || !req.body.realm) {
             throw new HttpError(400, 'name and realm fields are required');
+        }
+
+        if(!pattern.test(req.body.realm)){
+            throw new HttpError(400, 'realm must start from latin symbol and contain only letters and latin symbols');
         }
 
         var schemas = yield adminThunkQuery(pgEscape( // better to select from db instead of memcache
