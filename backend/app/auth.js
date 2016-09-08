@@ -80,7 +80,7 @@ passport.use(new BasicStrategy({
                         return user;
                     }
 
-                    throw new HttpError(300, userInNamespace);
+                    throw new HttpError(300, userInNamespace, 300);
 
                 } else { // situation after found user in several schemas and set one of them
                     user = yield * findUserInNamespace(req.params.realm, email);
