@@ -168,7 +168,7 @@ angular.module('greyscaleApp')
                     return task;
                 })
                 .catch(function (err) {
-                    greyscaleUtilsSrv.errorMsg(err);
+                    greyscaleUtilsSrv.apiErrorMessage(err, 'START_TASK');
                     return task;
                 });
         }

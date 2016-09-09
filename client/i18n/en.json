@@ -30,6 +30,13 @@
             "ERR": "Save {{entry}} error",
             "OK": "Save {{entry}} success"
         },
+        "SEND_MSG": {
+            "ERR": "Send message error"
+        },
+        "START_TASK": {
+            "ERR": "Start task error",
+            "OK": "Start task success"
+        },
         "UPDATE": {
             "ERR": "Update {{entry}} error",
             "OK": "Update {{entry}} success"

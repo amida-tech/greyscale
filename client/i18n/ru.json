@@ -30,6 +30,13 @@
             "ERR": "",
             "OK": ""
         },
+        "SEND_MSG": {
+            "ERR": ""
+        },
+        "START_TASK": {
+            "ERR": "",
+            "OK": ""
+        },
         "UPDATE": {
             "ERR": "",
             "OK": ""

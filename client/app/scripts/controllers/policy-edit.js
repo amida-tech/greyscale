@@ -340,7 +340,7 @@ angular.module('greyscaleApp')
 
             return _savePromise
                 .catch(function (err) {
-                    greyscaleUtilsSrv.errorMsg(err, 'UPDATE', 'PRODUCTS.TABLE.POLICY');
+                    greyscaleUtilsSrv.apiErrorMessage(err, 'UPDATE', 'PRODUCTS.TABLE.POLICY');
                 });
         }
 
