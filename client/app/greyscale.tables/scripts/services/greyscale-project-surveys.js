@@ -108,7 +108,7 @@ angular.module('greyscale.tables')
                 okText: 'COMMON.DELETE'
             }).then(function () {
                 greyscaleSurveyApi.delete(_survey).then(_reload).catch(function (err) {
-                    greyscaleUtilsSrv.errorMsg(err, 'Survey delete error');
+                    greyscaleUtilsSrv.apiErrorMessage(err, 'DELETE', 'PRODUCTS.TABLE.SURVEY');
                 });
             });
         }

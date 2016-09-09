@@ -169,20 +169,20 @@ angular.module('greyscale.tables')
                 _tableRestSrv.delete(entityRole.id)
                     .then(reloadTable)
                     .catch(function (err) {
-                        errorHandler(err, 'API_ACTIONS.DELETE');
+                        errorHandler(err, 'DELETE');
                     });
             });
         }
 
         function _editRecord(rec) {
-            var action = (typeof rec === 'undefined') ? 'API_ACTIONS.ADD' : 'API_ACTIONS.EDIT';
+            var action = (typeof rec === 'undefined') ? 'ADD' : 'UPDATE';
             if (!rec) {
                 rec = {};
             }
             rec = angular.extend(rec, _table.dataFilter);
             return greyscaleModalsSrv.editRec(rec, _table)
                 .then(function (newRec) {
-                    if (action === 'API_ACTIONS.EDIT') {
+                    if (action === 'UPDATE') {
                         return _tableRestSrv.update(newRec);
                     } else {
                         return _tableRestSrv.add(newRec);
@@ -230,7 +230,7 @@ angular.module('greyscale.tables')
         }
 
         function errorHandler(err, action) {
-            greyscaleUtilsSrv.tableErrorHandler(err, action + '.ERR', _table.formTitle);
+            greyscaleUtilsSrv.apiErrorMessage(err, action + '.ERR', _table.formTitle);
         }
 
         return _table;

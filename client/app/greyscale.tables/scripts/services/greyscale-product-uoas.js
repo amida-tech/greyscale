@@ -1,13 +1,7 @@
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleProductUoasTbl', function ($q,
-        _,
-        greyscaleProfileSrv,
-        greyscaleProductApi,
-        greyscaleUoaTypeApi,
-        greyscaleUtilsSrv,
-        greyscaleModalsSrv,
-        greyscaleLanguageApi) {
+    .factory('greyscaleProductUoasTbl', function ($q, _, greyscaleProfileSrv, greyscaleProductApi, greyscaleUoaTypeApi,
+        greyscaleUtilsSrv, greyscaleModalsSrv, greyscaleLanguageApi) {
 
         var tns = 'PRODUCTS.UOAS.';
 
@@ -17,46 +11,41 @@ angular.module('greyscale.tables')
         };
 
         var resDescr = [{
-                field: 'name',
-                title: tns + 'NAME',
-                show: true,
-                sortable: 'name'
-            }, {
-                field: 'description',
-                title: tns + 'DESCRIPTION',
-                show: true,
-                dataFormat: 'text'
-            }, {
-                field: 'shortName',
-                title: tns + 'SHORT_NAME',
-                show: true
-            },
-            /*
-             field: 'HASC',
-             */
-            {
-                field: 'unitOfAnalysisType',
-                title: tns + 'TYPE',
-                show: true,
-                sortable: 'unitOfAnalysisType',
-                dataFormat: 'option',
-                dataSet: {
-                    getData: getUoaTypes,
-                    keyField: 'id',
-                    valField: 'name'
-                }
-            }, {
-                field: '',
-                title: '',
-                show: true,
-                dataFormat: 'action',
-                actions: [{
-                    icon: 'fa-trash',
-                    tooltip: 'COMMON.DELETE',
-                    handler: _delRecord
-                }]
+            field: 'name',
+            title: tns + 'NAME',
+            show: true,
+            sortable: 'name'
+        }, {
+            field: 'description',
+            title: tns + 'DESCRIPTION',
+            show: true,
+            dataFormat: 'text'
+        }, {
+            field: 'shortName',
+            title: tns + 'SHORT_NAME',
+            show: true
+        }, {
+            field: 'unitOfAnalysisType',
+            title: tns + 'TYPE',
+            show: true,
+            sortable: 'unitOfAnalysisType',
+            dataFormat: 'option',
+            dataSet: {
+                getData: getUoaTypes,
+                keyField: 'id',
+                valField: 'name'
             }
-        ];
+        }, {
+            field: '',
+            title: '',
+            show: true,
+            dataFormat: 'action',
+            actions: [{
+                icon: 'fa-trash',
+                tooltip: 'COMMON.DELETE',
+                handler: _delRecord
+            }]
+        }];
 
         var _table = {
             title: tns + 'TABLE_TITLE',
@@ -129,7 +118,7 @@ angular.module('greyscale.tables')
                 greyscaleProductApi.product(productId).uoasDel(uoa.id)
                     .then(_reloadTable)
                     .catch(function (err) {
-                        errHandler(err, 'deleting');
+                        errHandler(err, 'DELETE');
                     });
             });
         }
@@ -138,9 +127,8 @@ angular.module('greyscale.tables')
             return dicts.uoaTypes;
         }
 
-        function errHandler(err, operation) {
-            var msg = _table.formTitle + ' ' + operation + ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
+        function errHandler(err, action) {
+            greyscaleUtilsSrv.apiErrorMessage(err, action, _table.formTitle);
         }
 
         function _filterUoasDuplicates(uoasIds) {

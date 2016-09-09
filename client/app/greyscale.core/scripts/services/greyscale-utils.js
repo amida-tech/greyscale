@@ -22,7 +22,7 @@ angular.module('greyscale.core')
             getTagsAssociate: _getTagsAssociate,
             getTagsPostData: _getTagsPostData,
             getElemOffset: _getOffset,
-            tableErrorHandler: _tblErrHdlr
+            apiErrorMessage: _cmnErrHdlr
         };
 
         function _decode(dict, key, code, name) {
@@ -102,9 +102,9 @@ angular.module('greyscale.core')
             _addMsg(msg, prefix, 'success', extData);
         }
 
-        function _tblErrHdlr(msg, action, entry) {
-            _errMsg(msg, action + '.ERR', {
-                entry: entry
+        function _cmnErrHdlr(msg, action, entry) {
+            _errMsg(msg, 'API_ACTIONS.' + action + '.ERR', {
+                entry: i18n.translate(entry)
             });
         }
 

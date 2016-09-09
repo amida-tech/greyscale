@@ -8,10 +8,7 @@ angular.module('greyscale.tables')
         greyscaleWorkflowTemplateApi,
         greyscaleUserApi,
         greyscaleProfileSrv,
-        greyscaleModalsSrv,
-        greyscaleRolesSrv,
-        greyscaleGlobals,
-        $rootScope) {
+        greyscaleModalsSrv) {
 
         var tns = 'WORKFLOW_TEMPLATES.';
 
@@ -94,7 +91,7 @@ angular.module('greyscale.tables')
         }
 
         function _saveWorkflowTemplate(action, template) {
-            var method = template.id ? 'update' : 'add';
+            var method = template.id ? 'UPDATE' : 'ADD';
             greyscaleWorkflowTemplateApi[method](template)
                 .catch(function (err) {
                     errorHandler(err, action);
@@ -112,7 +109,7 @@ angular.module('greyscale.tables')
                 greyscaleWorkflowTemplateApi.remove(rec.id)
                     .then(reloadTable)
                     .catch(function (err) {
-                        errorHandler(err, 'deleting');
+                        errorHandler(err, 'DELETE');
                     });
             });
         }
@@ -136,12 +133,7 @@ angular.module('greyscale.tables')
         }
 
         function errorHandler(err, action) {
-            var msg = _table.formTitle;
-            if (action) {
-                msg += ' ' + action;
-            }
-            msg += ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
+            greyscaleUtilsSrv.apiErrorMessage(err, action, _table.formTitle);
         }
 
         function _getSteps(template) {

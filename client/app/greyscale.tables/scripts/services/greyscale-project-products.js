@@ -2,7 +2,7 @@
 angular.module('greyscale.tables')
     .factory('greyscaleProjectProductsTbl', function ($q, _, greyscaleProjectApi, greyscaleSurveyApi,
         greyscaleProductApi, greyscaleModalsSrv, greyscaleUtilsSrv, greyscaleProductWorkflowApi, greyscaleGlobals,
-        $state, i18n, greyscaleProductSrv) {
+        $state, i18n, greyscaleProductSrv, greyscaleWorkflowTemplateApi) {
 
         var tns = 'PRODUCTS.TABLE.';
 
@@ -40,16 +40,27 @@ angular.module('greyscale.tables')
                 dataRequired: true,
                 dataFormat: 'textarea'
             }, {
-                field: 'workflow.name',
                 sortable: 'workflow.name',
                 title: tns + 'WORKFLOW',
                 show: true,
-                cellTemplate: '{{cell}}<span ng-if="!cell" class="action" translate="' + tns +
-                    'CREATE_WORKFLOW"></span>',
+                cellTemplate: '{{row.workflow.name}}<span ng-show="!row.workflow.name" class="action">{{ext.getWorkflowTemplateName(row)}}</span>',
+                cellTemplateExtData: {
+                    getWorkflowTemplateName: _getWorkflowTemplateName,
+                },
                 link: {
                     handler: _editProductWorkflow
                 },
                 dataHide: true
+            }, {
+                field: 'workflowTemplateId',
+                title: tns + 'WORKFLOW_TEMPLATE',
+                show: false,
+                dataFormat: 'option',
+                dataSet: {
+                    getData: _getWorkflowTemplates,
+                    keyField: 'id',
+                    valField: 'templateName'
+                }
             }, {
                 show: true,
                 dataFormat: 'action',
@@ -66,6 +77,9 @@ angular.module('greyscale.tables')
                 sortable: 'status',
                 title: tns + 'STATUS',
                 dataFormat: 'option',
+                dataDisabled: function (value) {
+                    return value === 3;
+                },
                 dataNoEmptyOption: true,
                 cellTemplate: '<a ui-sref="pmProductDashboard({productId:row.id})">{{option.name}}</a>',
                 dataRequired: true,
@@ -158,6 +172,13 @@ angular.module('greyscale.tables')
         //     return _table.dataFilter.projectId;
         // }
 
+        function _getWorkflowTemplateName(row) {
+            var template = _.find(_dicts.workflowTemplates, {
+                id: row.workflowTemplateId
+            });
+            return template ? template.workflow.name : i18n.translate(tns + 'CREATE_WORKFLOW');
+        }
+
         function _getData() {
             // var projectId = _getProjectId();
             // if (!projectId) {
@@ -165,10 +186,12 @@ angular.module('greyscale.tables')
             // } else {
             var req = {
                 surveys: greyscaleSurveyApi.list(),
-                products: greyscaleProjectApi.productsList( /*projectId*/ )
+                products: greyscaleProjectApi.productsList( /*projectId*/ ),
+                workflowTemplates: greyscaleWorkflowTemplateApi.list()
             };
             return $q.all(req).then(function (resp) {
                 _dicts.surveys = resp.surveys;
+                _dicts.workflowTemplates = resp.workflowTemplates;
                 return _setAddData(resp.products);
             });
             // }
@@ -202,9 +225,16 @@ angular.module('greyscale.tables')
             });
         }
 
+        function _getWorkflowTemplates() {
+            return _.map(_dicts.workflowTemplates, function (template) {
+                template.templateName = template.workflow.name;
+                return template;
+            });
+        }
+
         function _editProduct(product) {
             _editProductMode = product || {};
-            var op = 'API_ACTIONS.UPDATE';
+            var op = 'UPDATE';
             return _loadProductExtendedData(product)
                 .then(function (extendedProduct) {
                     var _editTable = angular.copy(_table);
@@ -214,7 +244,7 @@ angular.module('greyscale.tables')
                     if (newProduct.id) {
                         return greyscaleProductApi.update(newProduct);
                     } else {
-                        op = 'API_ACTIONS.ADD';
+                        op = 'ADD';
                         newProduct.matrixId = 4;
                         return greyscaleProductApi.add(newProduct);
                     }
@@ -238,7 +268,7 @@ angular.module('greyscale.tables')
                 greyscaleProductApi.delete(product.id)
                     .then(_reload)
                     .catch(function (err) {
-                        return _errHandler(err, 'API_ACTIONS.DELETE');
+                        return _errHandler(err, 'DELETE');
                     });
             });
         }
@@ -280,7 +310,7 @@ angular.module('greyscale.tables')
          }
          */
         function _errHandler(err, operation) {
-            greyscaleUtilsSrv.tableErrorHandler(err, operation, _table.formTitle);
+            greyscaleUtilsSrv.apiErrorMessage(err, operation, _table.formTitle);
         }
 
         function _loadProductExtendedData(product) {
@@ -331,7 +361,7 @@ angular.module('greyscale.tables')
         }
 
         function _statusDisabledForPolicy(status, product) {
-            var res = status.id !== product.status && (product.status > _const.STATUS_PLANNING &&
+            var res = status.id !== product.status && (status.id !== _const.STATUS_CANCELLED) && (product.status > _const.STATUS_PLANNING &&
                 !!~[_const.STATUS_PLANNING, _const.STATUS_STARTED, _const.STATUS_SUSPENDED].indexOf(status.id) ||
                 product.status === _const.STATUS_PLANNING && status.id === _const.STATUS_SUSPENDED);
             return res;
@@ -344,7 +374,8 @@ angular.module('greyscale.tables')
 
         function _getDisabledStatus(item, rec) {
             if (rec.policy) {
-                return _statusDisabledForPolicy(item, rec);
+                return item.id !== _const.STATUS_PLANNING && item.id !== _const.STATUS_CANCELLED &&
+                    _planningNotFinish(rec) || _statusDisabledForPolicy(item, rec);
             } else {
                 return item.id !== _const.STATUS_PLANNING && item.id !== _const.STATUS_CANCELLED &&
                     _planningNotFinish(rec);
@@ -377,7 +408,7 @@ angular.module('greyscale.tables')
         }
 
         function _startOrPauseProduct(product) {
-            var op = 'API_ACTIONS.UPDATE',
+            var op = 'UPDATE',
                 _publishDlg = $q.resolve(false),
                 _product = angular.copy(product),
                 newStatus;

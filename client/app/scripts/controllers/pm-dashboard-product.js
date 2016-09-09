@@ -12,7 +12,8 @@ angular.module('greyscaleApp')
         tasksTable.expandedRowTemplateUrl = 'views/controllers/pm-dashboard-product-tasks-extended-row.html';
         tasksTable.expandedRowExtData = {
             notifyUser: _notifyUser,
-            moveNextStep: _moveNextStep
+            moveNextStep: _moveNextStep,
+            $state: $state
         };
 
         var _exportUri = '/products/' + productId + '/export.csv?token=' + greyscaleTokenSrv();
@@ -25,10 +26,10 @@ angular.module('greyscaleApp')
 
         greyscaleProductApi.get(productId).then(function (product) {
             $scope.model.product = product;
-
-            if (product.surveyId) {
-                greyscaleSurveyApi.get(product.surveyId).then(function (survey) {
+            if (product.survey) {
+                greyscaleSurveyApi.get(product.survey.id).then(function (survey) {
                     $scope.model.survey = survey;
+                    $scope.model.surveyEdit = _handleSurveyEdit(survey);
                     tasksTable.dataFilter.policyId = survey.policyId;
                 });
             }
@@ -100,6 +101,20 @@ angular.module('greyscaleApp')
             });
         };
 
+        function _handleSurveyEdit(survey) {
+            return function () {
+                if (survey.policyId) {
+                    $state.go('policy.edit', {
+                        id: survey.id
+                    });
+                } else {
+                    $state.go('projects.setup.surveys.edit', {
+                        surveyId: survey.id
+                    });
+                }
+            };
+        }
+
         function _moveNextStep(task) {
             var params = {
                 force: true
@@ -109,7 +124,7 @@ angular.module('greyscaleApp')
                     tasksTable.tableParams.reload();
                 })
                 .catch(function (err) {
-                    greyscaleUtilsSrv.errorMsg(err, 'Step moving');
+                    greyscaleUtilsSrv.apiErrorMessage(err, 'UPDATE');
                 });
         }
 
