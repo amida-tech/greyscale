@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv, greyscaleSelection, $timeout,
-        greyscaleProfileSrv, greyscaleCommentApi) {
+        greyscaleProfileSrv, greyscaleCommentApi, $sce) {
         var _associate = [];
         return {
             restrict: 'A',
@@ -107,6 +107,10 @@ angular.module('greyscaleApp')
                             _highlightSource(scope.model, e.type);
                         });
                 });
+
+                scope.getHtml = function(html){
+                    return $sce.trustAsHtml(html);
+                };
             }
         };
 
