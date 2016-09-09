@@ -12,7 +12,7 @@ angular.module('greyscale.rest')
         };
 
         function api(realm) {
-            return greyscaleRestSrv({}, realm).one('notifications');
+            return greyscaleRestSrv.api({}, realm).one('notifications');
         }
 
         function _list(param, realm) {

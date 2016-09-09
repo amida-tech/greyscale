@@ -10,6 +10,10 @@
         "PASSWORD": "Password",
         "PASSWORD_ERROR": "Password must be 8 characters or more."
     },
+    "API": {
+        "ATTACHMENT": "Attachment",
+        "USER": "User"
+    },
     "API_ACTIONS": {
         "ADD": {
             "ERR": "Add {{entry}} error",
@@ -18,6 +22,10 @@
         "DELETE": {
             "ERR": "Delete {{entry}} error",
             "OK": "Delete {{entry}} success"
+        },
+        "GET": {
+            "ERR": "Get {{entry}} error",
+            "OK": "Get {{entry}} success"
         },
         "INSERT": {
             "ERR": "Insert {{entry}} error",

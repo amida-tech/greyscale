@@ -10,12 +10,20 @@
         "PASSWORD": "",
         "PASSWORD_ERROR": ""
     },
+    "API": {
+        "ATTACHMENT": "",
+        "USER": ""
+    },
     "API_ACTIONS": {
         "ADD": {
             "ERR": "",
             "OK": ""
         },
         "DELETE": {
+            "ERR": "",
+            "OK": ""
+        },
+        "GET": {
             "ERR": "",
             "OK": ""
         },

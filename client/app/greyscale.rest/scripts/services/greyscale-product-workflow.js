@@ -13,7 +13,7 @@ angular.module('greyscale.rest')
         };
 
         function api() {
-            return greyscaleRestSrv().one('workflows');
+            return greyscaleRestSrv.api().one('workflows');
         }
 
         function _prepareData(resp) {

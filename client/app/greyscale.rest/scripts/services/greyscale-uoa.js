@@ -15,7 +15,7 @@ angular.module('greyscale.rest')
         };
 
         function _api() {
-            return greyscaleRestSrv().one('uoas');
+            return greyscaleRestSrv.api().one('uoas');
         }
 
         function _plain(resp) {

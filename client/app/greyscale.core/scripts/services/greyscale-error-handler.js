@@ -14,6 +14,10 @@ angular.module('greyscale.core')
         function _errorInterceptor(response, deferred, handler) {
             if (response.status > 399) {
                 // set error message for standard errors, not from API
+                if (typeof response.data === 'string') {
+                    response.data = {};
+                }
+
                 if (!response.data || !response.data.message) {
                     response.data = angular.extend(response.data || {}, {
                         message: response.status

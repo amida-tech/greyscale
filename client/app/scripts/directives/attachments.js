@@ -88,10 +88,7 @@ angular.module('greyscaleApp')
                         .then(function () {
                             return $scope.field.attachments.splice(idx, 1);
                         })
-                        .then(_modifyEvt)
-                        .catch(function (err) {
-                            greyscaleUtilsSrv.errorMsg(err, 'Delete attachment');
-                        });
+                        .then(_modifyEvt);
                 }
 
                 function _modifyEvt() {

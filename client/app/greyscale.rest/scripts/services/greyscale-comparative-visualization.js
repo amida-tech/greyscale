@@ -5,7 +5,7 @@ angular.module('greyscale.rest')
 
         // comparative visualizations
         function api(organizationId) {
-            return greyscaleRestSrv().one('organizations', organizationId).one('comparative_visualizations');
+            return greyscaleRestSrv.api().one('organizations', organizationId).one('comparative_visualizations');
         }
 
         function _list(organizationId) {

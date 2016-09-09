@@ -23,7 +23,7 @@ angular.module('greyscale.rest')
         }
 
         function _api() {
-            return greyscaleRestSrv().one('surveys');
+            return greyscaleRestSrv.api().one('surveys');
         }
 
         function _survey(surveyId) {

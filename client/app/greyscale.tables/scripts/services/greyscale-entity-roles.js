@@ -127,7 +127,7 @@ angular.module('greyscale.tables')
         //                        fields: 'id,' + fieldName
         //                    };
         //
-        //                    return greyscaleRestSrv().one(apiName)
+        //                    return greyscaleRestSrv.api().one(apiName)
         //                        .get(params)
         //                        .then(function (items) {
         //                            var res = [];
