@@ -4,9 +4,8 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUsersTbl',
-        function (_, $q, greyscaleModalsSrv, greyscaleUserApi, greyscaleUtilsSrv, inform, i18n,
-            greyscaleProfileSrv, greyscaleGlobals, greyscaleRolesSrv, greyscaleNotificationApi, greyscaleGroupApi) {
+    .factory('greyscaleUsersTbl', function (_, $q, greyscaleModalsSrv, greyscaleUserApi, greyscaleUtilsSrv, inform,
+        i18n, greyscaleProfileSrv, greyscaleGlobals, greyscaleRolesSrv, greyscaleNotificationApi, greyscaleGroupApi) {
 
             var tns = 'USERS.';
 
@@ -84,7 +83,9 @@ angular.module('greyscale.tables')
                 cellClass: 'col-sm-2',
                 dataReadOnly: 'both',
                 dataHide: true,
-                cellTemplate: '<small>{{ext.getGroups(row)}}</small><small class="text-muted" ng-hide="row.usergroupId.length" translate="' + tns + 'NO_GROUPS"></small> <a ng-show="widgetCell" class="action" ng-click="ext.editGroups(row); $event.stopPropagation()"><i class="fa fa-pencil"></i></a>',
+                cellTemplate: '<small>{{ext.getGroups(row)}}</small><small class="text-muted" ng-hide="row.usergroupId.length" translate="' +
+                    tns +
+                    'NO_GROUPS"></small> <a ng-show="widgetCell" class="action" ng-click="ext.editGroups(row); $event.stopPropagation()"><i class="fa fa-pencil"></i></a>',
                 cellTemplateExtData: {
                     getGroups: _getGroups,
                     editGroups: _editGroups
@@ -93,7 +94,8 @@ angular.module('greyscale.tables')
                 title: '',
                 show: false,
                 dataHide: true,
-                cellTemplate: '<span ng-show="!row.isActive"><a ng-click="ext.resendActivation(row)" class="btn btn-primary" translate="' + tns + 'RESEND_ACTIVATION"></a></span>',
+                cellTemplate: '<span ng-show="!row.isActive"><a ng-click="ext.resendActivation(row)" class="btn btn-primary" translate="' +
+                    tns + 'RESEND_ACTIVATION"></a></span>',
                 cellTemplateExtData: {
                     resendActivation: _resendActivation
                 }
@@ -178,7 +180,7 @@ angular.module('greyscale.tables')
                     greyscaleUserApi.delete(rec.id)
                         .then(reloadTable)
                         .catch(function (err) {
-                            errorHandler(err, 'deleting');
+                            errorHandler(err, 'API_ACTIONS.DELETE');
                         });
                 });
             }
@@ -196,14 +198,14 @@ angular.module('greyscale.tables')
             }
 
             function _editRecord(user) {
-                var action = 'adding';
+                var action = 'API_ACTIONS.ADD';
                 return greyscaleModalsSrv.editRec(user, _table)
                     .then(function (newRec) {
                         if (newRec.password) {
                             delete(newRec.password);
                         }
                         if (newRec.id) {
-                            action = 'editing';
+                            action = 'API_ACTIONS.UPDATE';
                             return greyscaleUserApi.update(newRec);
                         } else {
                             newRec.organizationId = _getOrganizationId();
@@ -231,7 +233,7 @@ angular.module('greyscale.tables')
                         });
                     })
                     .catch(function (err) {
-                        greyscaleUtilsSrv.errorMsg(err, 'Resend Activation');
+                        errorHandler(err, 'API_ACTIONS.RESEND_ACTIVATION');
                     });
             }
 
@@ -269,7 +271,8 @@ angular.module('greyscale.tables')
                     dicts.profile = profile;
                     return $q.all(reqs).then(function (promises) {
                         var _roles = _.filter(promises.roles, function (o) {
-                            return o.isSystem && o.id !== greyscaleGlobals.userRoles.superAdmin.id && o.id >= dicts.profile.roleID;
+                            return o.isSystem && o.id !== greyscaleGlobals.userRoles.superAdmin.id &&
+                                o.id >= dicts.profile.roleID;
                         });
 
                         dicts.roles = _addTitles(_roles);
@@ -290,12 +293,7 @@ angular.module('greyscale.tables')
             }
 
             function errorHandler(err, action) {
-                var msg = _table.formTitle;
-                if (action) {
-                    msg += ' ' + action;
-                }
-                msg += ' error';
-                greyscaleUtilsSrv.errorMsg(err, msg);
+                greyscaleUtilsSrv.tableErrorHandler(err, action, _table.formTitle);
             }
 
             function _isProfileEdit() {

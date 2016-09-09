@@ -10,6 +10,31 @@
         "PASSWORD": "Password",
         "PASSWORD_ERROR": "Password must be 8 characters or more."
     },
+    "API_ACTIONS": {
+        "ADD": {
+            "ERR": "Add {{entry}} error",
+            "OK": "Add {{entry}} success"
+        },
+        "DELETE": {
+            "ERR": "Delete {{entry}} error",
+            "OK": "Delete {{entry}} success"
+        },
+        "INSERT": {
+            "ERR": "Insert {{entry}} error",
+            "OK": "Insert {{entry}} success"
+        },
+        "RESEND_ACTIVATION": {
+            "ERR": "Resend Activation error"
+        },
+        "SAVE": {
+            "ERR": "Save {{entry}} error",
+            "OK": "Save {{entry}} success"
+        },
+        "UPDATE": {
+            "ERR": "Update {{entry}} error",
+            "OK": "Update {{entry}} success"
+        }
+    },
     "API_ERRORS": {
         "401": "Unauthorized",
         "403": "Forbidden",

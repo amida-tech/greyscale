@@ -10,6 +10,31 @@
         "PASSWORD": "",
         "PASSWORD_ERROR": ""
     },
+    "API_ACTIONS": {
+        "ADD": {
+            "ERR": "",
+            "OK": ""
+        },
+        "DELETE": {
+            "ERR": "",
+            "OK": ""
+        },
+        "INSERT": {
+            "ERR": "",
+            "OK": ""
+        },
+        "RESEND_ACTIVATION": {
+            "ERR": ""
+        },
+        "SAVE": {
+            "ERR": "",
+            "OK": ""
+        },
+        "UPDATE": {
+            "ERR": "",
+            "OK": ""
+        }
+    },
     "API_ERRORS": {
         "401": "",
         "403": "",

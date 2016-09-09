@@ -197,13 +197,14 @@ angular.module('greyscale.tables')
 
         function _getSurveys() {
             return !_editProductMode ? _dicts.surveys : _.filter(_dicts.surveys, function (survey) {
-                return _editProductMode.surveyId === survey.id || !survey.policyId || !survey.products || !survey.products.length;
+                return _editProductMode.surveyId === survey.id || !survey.policyId || !survey.products ||
+                    !survey.products.length;
             });
         }
 
         function _editProduct(product) {
             _editProductMode = product || {};
-            var op = 'editing';
+            var op = 'API_ACTIONS.UPDATE';
             return _loadProductExtendedData(product)
                 .then(function (extendedProduct) {
                     var _editTable = angular.copy(_table);
@@ -213,7 +214,7 @@ angular.module('greyscale.tables')
                     if (newProduct.id) {
                         return greyscaleProductApi.update(newProduct);
                     } else {
-                        op = 'adding';
+                        op = 'API_ACTIONS.ADD';
                         newProduct.matrixId = 4;
                         return greyscaleProductApi.add(newProduct);
                     }
@@ -237,7 +238,7 @@ angular.module('greyscale.tables')
                 greyscaleProductApi.delete(product.id)
                     .then(_reload)
                     .catch(function (err) {
-                        return _errHandler(err, 'delete');
+                        return _errHandler(err, 'API_ACTIONS.DELETE');
                     });
             });
         }
@@ -279,8 +280,7 @@ angular.module('greyscale.tables')
          }
          */
         function _errHandler(err, operation) {
-            var msg = _table.formTitle + ' ' + operation + ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
+            greyscaleUtilsSrv.tableErrorHandler(err, operation, _table.formTitle);
         }
 
         function _loadProductExtendedData(product) {
@@ -343,7 +343,6 @@ angular.module('greyscale.tables')
         }
 
         function _getDisabledStatus(item, rec) {
-            var res;
             if (rec.policy) {
                 return _statusDisabledForPolicy(item, rec);
             } else {
@@ -378,7 +377,7 @@ angular.module('greyscale.tables')
         }
 
         function _startOrPauseProduct(product) {
-            var op = 'changing status',
+            var op = 'API_ACTIONS.UPDATE',
                 _publishDlg = $q.resolve(false),
                 _product = angular.copy(product),
                 newStatus;
@@ -408,7 +407,7 @@ angular.module('greyscale.tables')
                             }
                         })
                         .catch(function (err) {
-                            return errHandler(err, op);
+                            return _errHandler(err, op);
                         });
                 });
             }
@@ -416,11 +415,6 @@ angular.module('greyscale.tables')
 
         function _showUoaSetting(row) {
             return !row.policy;
-        }
-
-        function errHandler(err, operation) {
-            var msg = _table.formTitle + ' ' + operation + ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
         }
 
         _table.methods = {
