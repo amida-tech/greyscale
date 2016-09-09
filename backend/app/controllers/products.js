@@ -70,7 +70,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
         task = yield * common.getTask(req, curStep.task.id);
         var surveyVersion = yield oSurvey.getMaxSurveyVersion(task.id);
         var usersIds =  yield oTask.getUsersIdsByTask(task.id);
-        yield oTaskUserState.add(task.id, usersIds, task.endDate, surveyVersion);
+        yield oTaskUserState.modify(task.id, usersIds, task.endDate, surveyVersion);
         return;
     }
 
