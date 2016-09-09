@@ -143,7 +143,7 @@ angular.module('greyscaleApp')
                     },
                     workflowId = data.product.workflow.id,
                     reqs = {
-                        steps: greyscaleProductWorkflowApi.workflow(workflowId).stepsList(),
+                        steps: greyscaleProductWorkflowApi.workflow(workflowId).stepsList({}, {cache: true}),
                         users: greyscaleDiscussionApi.getUsers(task.id),
                         messages: greyscaleDiscussionApi.list(params),
                         entryscope: greyscaleDiscussionApi.scopeList({
