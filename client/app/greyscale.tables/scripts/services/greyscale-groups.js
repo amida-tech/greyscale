@@ -19,7 +19,10 @@ angular.module('greyscale.tables')
             title: tns + 'NAME',
             show: true,
             sortable: 'title',
-            dataRequired: true
+            dataRequired: true,
+            dataValidate: {
+                maxLength: 80
+            }
         }, {
             show: true,
             dataFormat: 'action',

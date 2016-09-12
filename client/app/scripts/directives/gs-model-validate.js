@@ -27,7 +27,7 @@ angular.module('greyscaleApp')
                 validators: '=gsModelValidate'
             },
             link: function (scope, el, attr, ngModel) {
-                var validators = gsModelValidators.parse(scope.validators);
+                var validators = gsModelValidators.parse(scope.validators) || [];
                 angular.forEach(validators, function (validator) {
                     gsModelValidators.apply(ngModel, validator, scope.$parent.modalFormRec);
                 });
@@ -65,6 +65,12 @@ angular.module('greyscaleApp')
                         return objVal === checkVal && (config.noExclude || obj[idField] !== rec[idField]);
                     });
                 };
+            },
+            maxLength: function (config) {
+                return function(val, rec, validator){
+                    var str = String(val);
+                    return str.length <= config;
+                }
             }
         };
 
@@ -79,13 +85,14 @@ angular.module('greyscaleApp')
         }
 
         function _apply(model, validator, rec) {
+            validator.data = {};
             model.$parsers.unshift(function (value) {
-                var valid = _isEmpty(value) || validator.isValidFn(value, rec);
+                var valid = _isEmpty(value) || validator.isValidFn(value, rec, validator);
                 model.$setValidity(validator.key, valid);
                 return valid ? value : undefined;
             });
             model.$formatters.unshift(function (value) {
-                var valid = _isEmpty(value) || validator.isValidFn(value, rec);
+                var valid = _isEmpty(value) || validator.isValidFn(value, rec, validator);
                 model.$setValidity(validator.key, valid);
                 return value;
             });
@@ -101,12 +108,12 @@ angular.module('greyscaleApp')
 
             angular.forEach(validatorsData || [], function (item, name) {
                 var isObject = angular.isObject(item);
-                var isTrue = item === true;
-                var isString = typeof item === 'string';
+                var isBoolean = typeof item === 'boolean';
+                var isValidatorKeyOnly = inArray && typeof item === 'string' &&  _validators[item];
                 var isFunction = typeof item === 'function';
                 var hasName = !inArray && typeof name === 'string';
 
-                if (inArray && isString && _validators[item]) {
+                if (isValidatorKeyOnly) {
                     validators.push({
                         key: item,
                         isValidFn: _validators[item]
@@ -114,15 +121,18 @@ angular.module('greyscaleApp')
                 } else if (inArray && isObject) {
                     validators = validators.concat(_parse(item));
 
-                } else if (hasName && _validators[name] && isTrue) {
+                } else if (hasName && _validators[name] && isBoolean) {
+                    if (item) {
+                        validators.push({
+                            key: name,
+                            isValidFn: _validators[name]
+                        });
+                    }
+                } else if (hasName && _validators[name] && !isFunction) {
                     validators.push({
                         key: name,
-                        isValidFn: _validators[name]
-                    });
-                } else if (hasName && _validators[name] && isObject) {
-                    validators.push({
-                        key: name,
-                        isValidFn: _validators[name](item),
+                        limit: item,
+                        isValidFn: _validators[name](item)
                     });
                 } else if (hasName && isFunction) {
                     validators.push({
