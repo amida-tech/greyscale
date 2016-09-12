@@ -22,6 +22,7 @@
         "IS_AGREED": "Agreed",
         "IS_DISAGREED": "Disagreed",
         "NO_MESSAGES": "no messages",
+        "QUOTE_CHANGED": "Quoted text has changed.",
         "TAG_ANSWER": "Tag Answer",
         "TAG_COMMENT": "Tag comment",
         "TITLE": "Make comment",

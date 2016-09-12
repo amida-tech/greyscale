@@ -81,9 +81,10 @@ angular.module('greyscaleApp')
 
                 $scope.toggleComment = function () {
                     //hide $scope.model
-                    greyscaleCommentApi.hide($scope.model.taskId, $scope.model.id, $scope.model.isHidden).then(function () {
-                        $scope.model.isHidden = !$scope.model.isHidden;
-                    });
+                    greyscaleCommentApi.hide($scope.model.taskId, $scope.model.id, $scope.model.isHidden).then(
+                        function () {
+                            $scope.model.isHidden = !$scope.model.isHidden;
+                        });
                 };
 
                 function _toggleEdit() {
@@ -102,7 +103,7 @@ angular.module('greyscaleApp')
 
                     var msgBody = (elem.find('.gs-message-body'));
 
-                    msgBody.find('.ta-text')
+                    msgBody.find('.gs-message-fader')
                         .on('click', function (e) {
                             _highlightSource(scope.model, e.type);
                         });
@@ -113,23 +114,38 @@ angular.module('greyscaleApp')
         function _highlightSource(model) {
             var questionBlock = $('#Q' + model.questionId);
             if (!questionBlock.length) {
+                _notifyEditedQuote();
                 return;
             }
             questionBlock.closest('.panel:not(.panel-open)').find('.accordion-toggle').click();
             $timeout(function () {
                 var startNode,
-                    range = model.range;
+                    range = model.range,
+                    _html;
 
-                while (typeof range === 'string') {
-                    range = JSON.parse(range);
-                }
                 startNode = greyscaleSelection.restore(questionBlock[0], range);
+                _html = greyscaleSelection.html(true);
+
+                if (!_isSamelQoutes(_html, model.range.entry) || !startNode) {
+                    _notifyEditedQuote();
+                }
+
                 if (startNode) {
                     var parent = startNode.parentNode;
                     var scrollPos = parent.getBoundingClientRect().top + window.scrollY;
                     angular.element('body').scrollTop(scrollPos);
                 }
             });
+        }
+
+        function _isSamelQoutes(s1, s2) {
+            var _e1 = s1 ? angular.element(s1).text() || '' : '',
+                _e2 = s2 ? angular.element(s2).text() || '' : '';
+            return _e1 === _e2;
+        }
+
+        function _notifyEditedQuote() {
+            greyscaleUtilsSrv.warningMsg('COMMENTS.QUOTE_CHANGED');
         }
 
         function _getUser(userId) {

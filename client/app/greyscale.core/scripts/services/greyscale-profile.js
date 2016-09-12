@@ -5,7 +5,7 @@
 
 angular.module('greyscale.core')
     .service('greyscaleProfileSrv', function ($q, greyscaleTokenSrv, greyscaleUserApi, greyscaleRolesSrv,
-        greyscaleUtilsSrv, greyscaleGlobals, $log, $rootScope, greyscaleRealmSrv, $interval, greyscaleEnv) {
+        greyscaleUtilsSrv, greyscaleGlobals, $rootScope, greyscaleRealmSrv, $interval, greyscaleEnv) {
 
         var _tokenChecker,
             _profile = null,
@@ -82,7 +82,6 @@ angular.module('greyscale.core')
                 .then(this.getAccessLevelMask)
                 .catch(function (err) {
                     _logout();
-                    $log.debug('getAccessLevel says:', err);
                     return _accessLevel;
                 });
         };

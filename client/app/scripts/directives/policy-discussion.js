@@ -21,6 +21,7 @@ angular.module('greyscaleApp')
             controller: function ($scope) {
                 $scope.model = {
                     items: [],
+                    groups: [],
                     associate: []
                 };
 
@@ -45,19 +46,8 @@ angular.module('greyscaleApp')
                 $scope.removeComment = _removeComment;
                 $scope.editComment = _editComment;
 
-                $scope.hideComments = function (filter) {
-                    greyscaleCommentApi.hide($scope.policy.taskId, filter).then(function () {
-                        for (var i = 0; i < $scope.model.items.length; i++) {
-                            if (filter === 'flagged' && !$scope.model.items[i].isReturn) {
-                                continue;
-                            }
-                            $scope.model.items[i].isHidden = true;
-                        }
-                    });
-                };
-
-                $scope.isAdmin = function () {
-                    return greyscaleProfileSrv.isAdmin();
+                $scope.isVisible = function (item) {
+                    return item && (!item.isResolve && !item.isReturn || item.isReturn);
                 };
 
                 function save(commentBody, isDraft) {
@@ -76,6 +66,7 @@ angular.module('greyscaleApp')
 
                                 if (~_idx) {
                                     $scope.model.items[_idx] = _newComment;
+                                    _updateSections($scope);
                                 }
                                 return _newComment;
                             });
@@ -88,6 +79,7 @@ angular.module('greyscaleApp')
                         res.then(function (result) {
                                 angular.extend(_newComment, result);
                                 $scope.model.items.unshift(_newComment);
+                                _updateSections($scope);
                                 return _newComment;
                             })
                             .catch(greyscaleUtilsSrv.errorMsg);
@@ -125,6 +117,7 @@ angular.module('greyscaleApp')
                             });
                             if (!!~idx) {
                                 $scope.model.items.splice(idx, 1);
+                                _updateSections($scope);
                             }
                         });
                 }
@@ -166,6 +159,7 @@ angular.module('greyscaleApp')
                             }
                             $scope.model.items[i].isHidden = true;
                         }
+                        _updateSections($scope);
                     });
                 };
                 $scope.isAdmin = function () {
@@ -183,7 +177,7 @@ angular.module('greyscaleApp')
                     hidden: greyscaleProfileSrv.isAdmin()
                 };
 
-                if (policy.options && policy.options.review && !policy.options.isVersion) {
+                if (policy.options && !policy.options.isVersion) {
                     params.taskId = policy.taskId;
                     reqs.tags = greyscaleCommentApi.getUsers(policy.taskId);
                 } else {
@@ -219,10 +213,23 @@ angular.module('greyscaleApp')
                             scope.model.commentTypes = resp.tags.commentTypes;
                         }
                     }
-                    /* discussions */
+                    /* discussion messages */
                     scope.model.items = resp.messages;
-
+                    _updateSections(scope);
                 });
             }
+        }
+
+        function _updateSections(scope) {
+            var groupedItems = _.groupBy(scope.model.items, 'questionId');
+            var sections = [];
+            angular.forEach(groupedItems, function (groupItems, groupId) {
+                var groupData = _.find(scope.policy.sections, {
+                    id: parseInt(groupId)
+                });
+                groupData.comments = groupItems;
+                sections.push(groupData);
+            });
+            scope.model.sections = sections;
         }
     });
