@@ -11,6 +11,7 @@
 var _app = angular.module('greyscaleApp', [
     'ngCookies',
     'ngResource',
+    'ngSanitize',
     'ngTouch',
     'ngTable',
     'ngMessages',
