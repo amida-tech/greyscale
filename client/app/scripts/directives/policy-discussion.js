@@ -45,6 +45,8 @@ angular.module('greyscaleApp')
 
                 $scope.removeComment = _removeComment;
                 $scope.editComment = _editComment;
+                $scope.hideComments = _hideComments;
+                $scope.isAdmin = greyscaleProfileSrv.isAdmin;
 
                 $scope.isVisible = function (item) {
                     return item && (!item.isResolve && !item.isReturn || item.isReturn);
@@ -151,20 +153,18 @@ angular.module('greyscaleApp')
                     return res;
                 }
 
-                $scope.hideComments = function (filter) {
+                function _hideComments(filter) {
                     greyscaleCommentApi.hide($scope.policy.taskId, filter).then(function () {
                         for (var i = 0; i < $scope.model.items.length; i++) {
-                            if (filter === 'flagged' && !$scope.model.items[i].isReturn) {
-                                continue;
+                            if ($scope.model.items[i].activated &&
+                                $scope.policy.options.surveyVersion === $scope.model.items[i].surveyVersion) {
+                                $scope.model.items[i].isHidden =
+                                    (filter !== 'flagged' || $scope.model.items[i].isReturn);
                             }
-                            $scope.model.items[i].isHidden = true;
                         }
                         _updateSections($scope);
                     });
-                };
-                $scope.isAdmin = function () {
-                    return greyscaleProfileSrv.isAdmin();
-                };
+                }
             }
         };
 

@@ -18,16 +18,17 @@ angular.module('greyscaleApp')
             },
             templateUrl: 'views/directives/gs-message.html',
             controller: function ($scope) {
+                var _isAdmin = greyscaleProfileSrv.isAdmin();
                 $scope.isEdit = false;
                 $scope.entry = '';
+
                 $scope.getUserName = function (userId) {
                     return _getUserName(userId || $scope.model.userFromId);
                 };
 
                 $scope.model.created = $scope.model.created ? $scope.model.created : new Date();
-                $scope.isAdmin = function () {
-                    return greyscaleProfileSrv.isAdmin();
-                };
+                $scope.isAdmin = _isAdmin;
+                $scope.showToggleComment = _showToggleComment;
 
                 if (!$scope.edit || typeof $scope.edit !== 'function') {
                     $scope.edit = function () {
@@ -92,6 +93,12 @@ angular.module('greyscaleApp')
                 }
 
                 _associate = $scope.associate;
+
+                function _showToggleComment() {
+                    return _isAdmin && !$scope.options.isVersion && $scope.model.activated &&
+                        $scope.options.surveyVersion === $scope.model.surveyVersion;
+                }
+
             },
             link: function (scope, elem) {
 
