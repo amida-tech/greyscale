@@ -20,12 +20,14 @@ angular.module('greyscale.tables')
             field: 'realm',
             show: true,
             title: 'Realm',
-            dataReadOnly: 'edit'
+            dataReadOnly: 'edit',
+            dataRequired: true
         }, {
             field: 'name',
             show: true,
             sortable: 'name',
-            title: tns + 'NAME'
+            title: tns + 'NAME',
+            dataRequired: true
         }, {
             field: 'address',
             show: true,

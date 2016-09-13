@@ -6,6 +6,7 @@ var client = require('../db_bootstrap'),
     vl = require('validator'),
     UnitOfAnalysis = require('../models/uoas'),
     UnitOfAnalysisType = require('../models/uoatypes'),
+    UnitOfAnalysisTagLink = require('../models/uoataglinks'),
     AccessMatrix = require('../models/access_matrices'),
     Translation = require('../models/translations'),
     Language = require('../models/languages'),
@@ -111,6 +112,10 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+            var result = yield thunkQuery(UnitOfAnalysisTagLink.select().where(UnitOfAnalysisTagLink.uoaId.equals(req.params.id)));
+            if (_.first(result)) {
+                throw new HttpError(403, 'Subject used in Subject to Tag link. Could not delete Subject');
+            }
             return yield thunkQuery(UnitOfAnalysis.delete().where(UnitOfAnalysis.id.equals(req.params.id)));
         }).then(function () {
             bologger.log({
@@ -175,11 +180,11 @@ module.exports = {
             });
         };
 
-        var parser = function* (data) {
+        var parser = function* (data) { // ToDo: move to service
             return yield new Promise(function (resolve, reject) {
-                csv.parse(data, function (err, data) {
+                csv.parse(data, {relax_column_count: true}, function (err, data) {
                     if (err) {
-                        reject(new HttpError(403, 'Cannot parse data from file'));
+                        reject(new HttpError(403, 'Cannot parse data from file: ' + err.message));
                     }
                     resolve(data);
                 });
@@ -199,7 +204,7 @@ module.exports = {
                     return result;
                 }
             } catch (e) {
-                throw new HttpError(500, e);
+                throw e;
             }
             for (var i = 0; i < parsed.length; i++) {
                 if (i !== 0) { // skip first string

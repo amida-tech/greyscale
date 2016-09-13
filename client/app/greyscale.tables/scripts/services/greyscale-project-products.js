@@ -46,7 +46,9 @@ angular.module('greyscale.tables')
             sortable: 'surveyId',
             dataFormat: 'option',
             cellTemplate: '<span ng-if="option.id">{{option.title}} <small>(<span ng-show="option.isDraft" translate="SURVEYS.IS_DRAFT"></span><span ng-show="!option.isDraft" translate="SURVEYS.IS_COMPLETE"></span>)</small></span>',
-            //dataRequired: true,
+            dataPlaceholder: tns + 'SELECT_SURVEY',
+            //dataNoEmptyOption: true,
+            dataRequired: true,
             dataSet: {
                 getData: _getSurveys,
                 keyField: 'id',
@@ -68,12 +70,23 @@ angular.module('greyscale.tables')
             },
             dataHide: true
         }, {
+            show: true,
+            dataFormat: 'action',
+            dataHide: true,
+            actions: [{
+                getIcon: _getStatusIcon,
+                getTooltip: _getStartOrPauseProductTooltip,
+                class: 'info',
+                handler: _startOrPauseProduct
+            }]
+        }, {
             field: 'status',
             show: true,
             sortable: 'status',
             title: tns + 'STATUS',
             dataFormat: 'option',
             dataNoEmptyOption: true,
+            dataRequired: true,
             dataSet: {
                 getData: _getStatus,
                 keyField: 'id',
@@ -85,13 +98,8 @@ angular.module('greyscale.tables')
             show: true,
             dataFormat: 'action',
             dataHide: true,
+            textLeft: true,
             actions: [{
-                title: '',
-                getIcon: _getStatusIcon,
-                getTooltip: _getStartOrPauseProductTooltip,
-                class: 'info',
-                handler: _startOrPauseProduct
-            }, {
                 title: tns + 'UOAS',
                 class: 'info',
                 handler: _editProductUoas
@@ -197,7 +205,7 @@ angular.module('greyscale.tables')
                 greyscaleProductApi.delete(product.id)
                     .then(_reload)
                     .catch(function (err) {
-                        inform.add('Product delete error: ' + err);
+                        return _errHandler(err, 'delete');
                     });
             });
         }

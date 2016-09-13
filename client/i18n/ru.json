@@ -78,7 +78,9 @@
     },
     "FILE": {
         "CONTINUE": "Продолжить",
-        "SELECT": "Выберите файл для загрузки"
+        "ERROR_FILTER_CSV": "",
+        "SELECT": "Выберите файл для загрузки",
+        "SELECT_CSV": ""
     },
     "FORMBUILDER": {
         "ABOVE": "Выше",
@@ -146,6 +148,8 @@
     },
     "FORMS": {
         "FIELD_REQUIRED": "Обязательное поле",
+        "INVALID_EMAIL": "",
+        "INVALID_UNIQUE": "",
         "MUST_BE_INT": "",
         "MUST_BE_NUMBER": "",
         "WRONG_DATE_FORMAT": "Неправильный формат даты"
@@ -209,6 +213,7 @@
             "ISO2": "",
             "NAME": "",
             "NAMEISO": "Название ISO",
+            "RESULT": "",
             "RESULTS_TITLE": "Результаты",
             "SHORT_NAME": "Короткое название",
             "STATUS": "Статус",
@@ -392,6 +397,7 @@
             "PAUSE_PRODUCT": "Приостановить проект",
             "PLANNING_NOT_FINISH": "Планирование не окончено",
             "PRODUCT": "Проект",
+            "SELECT_SURVEY": "",
             "SETTINGS": "Настройки",
             "START_PRODUCT": "Запустить проект",
             "STATUS": "Состояние",

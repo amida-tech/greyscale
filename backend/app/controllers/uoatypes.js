@@ -4,6 +4,7 @@ var client = require('../db_bootstrap'),
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),
     UnitOfAnalysisType = require('../models/uoatypes'),
+    UnitOfAnalysis = require('../models/uoas'),
     AccessMatrix = require('../models/access_matrices'),
     Translation = require('../models/translations'),
     Language = require('../models/languages'),
@@ -100,6 +101,10 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+            var result = yield thunkQuery(UnitOfAnalysis.select().where(UnitOfAnalysis.unitOfAnalysisType.equals(req.params.id)));
+            if (_.first(result)) {
+                throw new HttpError(403, 'Subject with this type exists. Could not delete subject type');
+            }
             return yield thunkQuery(UnitOfAnalysisType.delete().where(UnitOfAnalysisType.id.equals(req.params.id)));
         }).then(function () {
             bologger.log({

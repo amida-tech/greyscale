@@ -78,7 +78,9 @@
     },
     "FILE": {
         "CONTINUE": "",
-        "SELECT": ""
+        "ERROR_FILTER_CSV": "",
+        "SELECT": "",
+        "SELECT_CSV": ""
     },
     "FORMBUILDER": {
         "ABOVE": "",
@@ -146,6 +148,8 @@
     },
     "FORMS": {
         "FIELD_REQUIRED": "",
+        "INVALID_EMAIL": "",
+        "INVALID_UNIQUE": "",
         "MUST_BE_INT": "",
         "MUST_BE_NUMBER": "",
         "WRONG_DATE_FORMAT": ""
@@ -209,6 +213,7 @@
             "ISO2": "",
             "NAME": "",
             "NAMEISO": "",
+            "RESULT": "",
             "RESULTS_TITLE": "",
             "SHORT_NAME": "",
             "STATUS": "",
@@ -392,6 +397,7 @@
             "PAUSE_PRODUCT": "",
             "PLANNING_NOT_FINISH": "",
             "PRODUCT": "",
+            "SELECT_SURVEY": "",
             "SETTINGS": "",
             "START_PRODUCT": "",
             "STATUS": "",

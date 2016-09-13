@@ -251,11 +251,11 @@ module.exports = {
             });
         };
 
-        var parser = function* (data) {
+        var parser = function* (data) { // ToDo: move to service
             return yield new Promise(function (resolve, reject) {
-                csv.parse(data, function (err, data) {
+                csv.parse(data, {relax_column_count: true}, function (err, data) {
                     if (err) {
-                        reject(new HttpError(403, 'Cannot parse data from file'));
+                        reject(new HttpError(403, 'Cannot parse data from file: ' + err.message));
                     }
                     resolve(data);
                 });
@@ -454,6 +454,9 @@ function* checkOrgData(req) {
             throw new HttpError(400, 'Realm \'' + req.body.realm + '\' already exists');
         }
     } else {
+        if (!req.body.name) {
+            throw new HttpError(400, 'name field is required');
+        }
         delete req.body.realm; // do not allow to edit realm in organization
     }
 

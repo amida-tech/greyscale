@@ -10,7 +10,9 @@ angular.module('greyscale.tables')
 
             var tns = 'USERS.';
 
-            var dicts = {};
+            var dicts = {
+                users: []
+            };
 
             var _fields = [{
                 field: 'id',
@@ -24,7 +26,15 @@ angular.module('greyscale.tables')
                 title: tns + 'EMAIL',
                 show: false,
                 sortable: 'email',
-                dataRequired: true
+                dataRequired: true,
+                dataValidate: ['email', {
+                    unique: {
+                        storage: dicts,
+                        dict: 'users',
+                        field: 'email',
+                        caseSensitive: false
+                    }
+                }]
             }, {
                 field: 'firstName',
                 title: tns + 'FIRST_NAME',
@@ -57,6 +67,7 @@ angular.module('greyscale.tables')
                 field: 'isActive',
                 title: tns + 'IS_ACTIVE',
                 show: true,
+                textCenter: true,
                 sortable: 'isActive',
                 dataFormat: 'boolean',
                 dataReadOnly: 'new'
@@ -64,12 +75,13 @@ angular.module('greyscale.tables')
                 field: 'isAnonymous',
                 title: tns + 'ANONYMOUS',
                 show: true,
+                textCenter: true,
                 sortable: 'isAnonymous',
                 dataFormat: 'boolean'
             }, {
                 show: true,
                 title: tns + 'GROUPS',
-                cellClass: 'text-center col-sm-2',
+                cellClass: 'col-sm-2',
                 dataReadOnly: 'both',
                 dataHide: true,
                 cellTemplate: '<small>{{ext.getGroups(row)}}</small><small class="text-muted" ng-hide="row.usergroupId.length" translate="' + tns + 'NO_GROUPS"></small> <a ng-show="widgetCell" class="action" ng-click="ext.editGroups(row); $event.stopPropagation()"><i class="fa fa-pencil"></i></a>',
@@ -88,10 +100,10 @@ angular.module('greyscale.tables')
             }, {
                 title: 'COMMON.SEND_MESSAGE',
                 viewHide: true,
-                cellTemplate: '<div class="text-center">' +
-                    '   <a ng-click="ext.sendMessageTo(row); $event.stopPropagation()" class="action">' +
+                textCenter: true,
+                cellTemplate: '<a ng-click="ext.sendMessageTo(row); $event.stopPropagation()" class="action">' +
                     '       <i ng-if="ext.anotherUser(row)" class="fa fa-envelope"></i>' +
-                    '   </a></div>',
+                    '   </a>',
                 dataHide: true,
                 cellTemplateExtData: {
                     anotherUser: _isAnotherUser,
@@ -101,9 +113,7 @@ angular.module('greyscale.tables')
                 field: 'notifyLevel',
                 title: tns + 'NOTIFY_LEVEL',
                 dataFormat: 'option',
-                cellTemplate: '<div class="text-center">' +
-                    '       {{cell}}' +
-                    '   </div>',
+                //cellTemplate: '{{cell}}',
                 dataNoEmptyOption: true,
                 dataSet: {
                     getData: _getNotifyLevels,
@@ -265,6 +275,7 @@ angular.module('greyscale.tables')
                         dicts.roles = _addTitles(_roles);
                         dicts.groups = promises.groups;
                         greyscaleUtilsSrv.prepareFields(promises.users, _fields);
+                        dicts.users = promises.users;
                         return promises.users;
                     });
 

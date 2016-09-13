@@ -515,7 +515,8 @@ module.exports = {
                 'LEFT JOIN "UnitOfAnalysis" ON ("Tasks"."uoaId" = "UnitOfAnalysis"."id") ' +
                 'LEFT JOIN "UnitOfAnalysisType" ON ("UnitOfAnalysisType"."id" = "UnitOfAnalysis"."unitOfAnalysisType") ' +
                 'LEFT JOIN "WorkflowSteps" ON ("Tasks"."stepId" = "WorkflowSteps"."id") ' +
-                'LEFT JOIN "Users" ON ("Tasks"."userId" = "Users"."id") ' +
+                //'LEFT JOIN "Users" ON ("Tasks"."userId" = "Users"."id") ' +
+                'LEFT JOIN "Users" ON ("Tasks"."userIds"[1] = "Users"."id") ' +
                 //'LEFT JOIN "Roles" ON ("EssenceRoles"."roleId" = "Roles"."id") ' +
                 'LEFT JOIN "Surveys" ON ("Products"."surveyId" = "Surveys"."id") ' +
                 'LEFT JOIN "SurveyQuestions" ON ("Surveys"."id" = "SurveyQuestions"."surveyId") ' +
@@ -1205,6 +1206,11 @@ module.exports = {
         co(function* () {
             yield * checkProductData(req);
             if (parseInt(req.body.status) === 1) { // if status changed to 'STARTED'
+                var product = yield * common.getEntity(req, req.params.id, Product, 'id');
+                var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+                if (survey.isDraft) {
+                    throw new HttpError(403, 'You can not start the project. Survey have status `in Draft`');
+                }
                 var result = yield * updateCurrentStepId(req);
                 if (typeof result === 'object') {
                     bologger.log({
