@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv, greyscaleSelection, $timeout,
-        greyscaleProfileSrv, greyscaleCommentApi) {
+        greyscaleProfileSrv, greyscaleCommentApi, $sce) {
         var _associate = [];
         return {
             restrict: 'A',
@@ -58,7 +58,6 @@ angular.module('greyscaleApp')
                     greyscaleModalsSrv.fullScreenComment($scope.model, $scope.options);
                 };
 
-                $scope.highlightSource = _highlightSource;
                 $scope.resolveFlag = function () {
                     if ($scope.model.isResolve) {
                         return;
@@ -82,8 +81,9 @@ angular.module('greyscaleApp')
 
                 $scope.toggleComment = function () {
                     //hide $scope.model
-                    greyscaleCommentApi.hide($scope.model.taskId, $scope.model.id, $scope.model.isHidden).then(
-                        function () {
+                    greyscaleCommentApi
+                        .hide($scope.model.taskId, $scope.model.id, $scope.model.isHidden)
+                        .then(function () {
                             $scope.model.isHidden = !$scope.model.isHidden;
                         });
                 };
@@ -115,6 +115,10 @@ angular.module('greyscaleApp')
                             _highlightSource(scope.model, e.type);
                         });
                 });
+
+                scope.getHtml = function(html){
+                    return $sce.trustAsHtml(html);
+                };
             }
         };
 

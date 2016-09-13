@@ -6,6 +6,7 @@ var
     sProduct = require('app/services/products'),
     sSurvey = require('app/services/surveys'),
     sTaskUserState = require('app/services/taskuserstates'),
+    sWorkflow = require('app/services/workflows'),
     crypto = require('crypto'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
@@ -1038,14 +1039,18 @@ module.exports = {
             var oProduct = new sProduct(req);
             var oTask = new sTask(req);
             var oSurvey = new sSurvey(req);
+            var oWorkflow = new sWorkflow(req);
             var tasks = yield oTask.getByProductAllUoas(req.params.id);
-            // remove all subjects
             if (tasks.length) {
                 throw new HttpError(403, 'You cannot delete project, because there are already some tasks assigned to project');
             }
+            var workflow = yield oWorkflow.getWorkflowByProduct(req.params.id, true);
+            if (workflow.id) {
+                throw new HttpError(403, 'You cannot delete project, because there is workflow assigned to project');
+            }
             yield oTask.deleteTasks(req.params.id);
+            // remove all subjects
             yield oProduct.deleteProductAllUoas(req.params.id);
-            // ToDo: Check workflow exist before delete
             yield oSurvey.detachFromProduct(req.params.id);
             return yield thunkQuery(
                 Product.delete().where(Product.id.equals(req.params.id))
@@ -1071,6 +1076,7 @@ module.exports = {
         co(function* () {
             var oProduct = new sProduct(req);
             var oSurvey = new sSurvey(req);
+            var oTask = new sTask(req);
             yield oProduct.checkProductData(req.body);
             var policyUoaId = yield * common.getPolicyUoaId(req);
             var product = yield * common.getEntity(req, req.params.id, Product, 'id');
@@ -1078,6 +1084,7 @@ module.exports = {
             var oldSurveyId = yield oSurvey.getSurveyAssignedToProduct(req.params.id);
             var oldSurvey = oldSurveyId ? yield oSurvey.getById(oldSurveyId) : null;
             var newSurvey = req.body.surveyId ? yield oSurvey.getById(req.body.surveyId) : null;
+            var tasks = yield oTask.getByProductAllUoas(product.id);
 
             if ((newSurvey && newSurvey.policyId) &&                                        // new survey is policy
                 // AND
@@ -1092,8 +1099,6 @@ module.exports = {
                                                                                                                 // OR
                 ((oldSurvey && oldSurvey.policyId) && (!newSurvey || (newSurvey && !newSurvey.policyId)))       // old  survey is policy AND new survey is empty or not policy (P -> 0 or P -> S)
             ) {
-                var oTask = new sTask(req);
-                var tasks = yield oTask.getByProductAllUoas(product.id);
                 // 1. remove all subjects
                 if (tasks.length) {
                     throw new HttpError(403, 'You cannot change survey (remove all targets), because there are already some tasks assigned to project');
@@ -1103,7 +1108,7 @@ module.exports = {
                 // 2. set project status to planning
                 req.body.status = 0; // 0: Planning
             }
-            if (!oldSurvey || (oldSurvey && !oldSurvey.policyId) &&     // old survey is empty or old survey is not policy
+            if ((!oldSurvey || (oldSurvey && !oldSurvey.policyId)) &&   // old survey is empty or old survey is not policy
                                                                         // AND
                 (newSurvey && newSurvey.policyId)                       // new survey is policy
             ) {
@@ -1112,8 +1117,14 @@ module.exports = {
             }
 
             if (parseInt(req.body.status) === 1) { // if status changed to 'STARTED'
+                if (!newSurvey) {
+                    throw new HttpError(403, 'You can not start the project, because there is no Survey or Policy attached to project');
+                }
                 if (yield oSurvey.getVersion(newSurvey.id, -1)) {
                     throw new HttpError(403, 'You can not start the project. ' + (newSurvey.policyId ? 'Policy ' : 'Survey ') + 'have status `in Draft`');
+                }
+                if (tasks.length === 0) {
+                    throw new HttpError(403, 'You can not start the project, because there are no users assigned to tasks');
                 }
                 var result = oProduct.updateCurrentStepId(product);
             }
