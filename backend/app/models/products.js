@@ -4,10 +4,8 @@ var columns = [
     'id',
     'title',
     'description',
-    'projectId',
-    'originalLangId',
-    'surveyId',
-    'status'
+    'status',
+    'organizationId'
 ];
 
 var Product = sql.define({
@@ -23,8 +21,8 @@ Product.statuses = {
     4: 'Cancelled'
 };
 
-Product.editCols = ['title', 'description', 'projectId', 'surveyId', 'status'];
-Product.whereCol = [ 'projectId', 'surveyId', 'status'];
+Product.editCols = ['title', 'description', 'status'];
+Product.whereCol = ['status'];
 
 Product.translate = [
     'title',

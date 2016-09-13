@@ -1,4 +1,5 @@
 var sql = require('sql');
+var _ = require('underscore');
 
 var columns = [
     'id',
@@ -7,7 +8,8 @@ var columns = [
     'label',
     'skip',
     'isSelected',
-    'langId'
+    'langId',
+    'surveyVersion'
 ];
 
 var SurveyQuestionOption = sql.define({
@@ -15,11 +17,13 @@ var SurveyQuestionOption = sql.define({
     columns: columns
 });
 
+SurveyQuestionOption.insertCols = _.without(columns, 'id');
+
+SurveyQuestionOption.editCols = ['value', 'label', 'isSelected'];
+
 SurveyQuestionOption.translate = [
     'value',
     'label'
 ];
-
-//SurveyQuestionOption.whereCol = columns;
 
 module.exports = SurveyQuestionOption;

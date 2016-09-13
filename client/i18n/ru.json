@@ -48,6 +48,7 @@
         "CURRENT_VALUE": "",
         "DELETE": "Удалить",
         "DISAGREE": "",
+        "DOWNLOAD": "",
         "EDIT": "Изменить",
         "FURTHER": "Далее",
         "GLOBALLY": "",
@@ -64,6 +65,7 @@
         "SAVE": "Сохранить",
         "SAVED": "",
         "SAVE_AND_CONTINUE": "Сохранить и продолжить",
+        "SELECT": "",
         "SEND": "",
         "SEND_MESSAGE": "",
         "SERVICE_UNAVAILABLE": "",
@@ -94,6 +96,15 @@
         "PLACEHOLDER": "ДД.ММ.ГГГГ",
         "RESET": "Сброс",
         "TODAY": "Сегодня"
+    },
+    "DLG": {
+        "POLICY": {
+            "STEP": {
+                "CURRENT": "",
+                "NEXT": "",
+                "TITLE": ""
+            }
+        }
     },
     "ERROR": {
         "ACCESS_RESTRICTED": "Доступ ограничен к",
@@ -321,7 +332,8 @@
         "POLICY": {
             "EDIT": "",
             "REVIEW": "",
-            "TITLE": ""
+            "TITLE": "",
+            "VERSION": ""
         },
         "PRODUCT_INDEXES": "",
         "PRODUCT_TASKS": "Задачи проекта \"{{ext.productName}}\"",
@@ -412,6 +424,7 @@
     "POLICY": {
         "APPROVE": "",
         "AUTHOR": "",
+        "IS_EDITING_BY": "",
         "NEW_POLICY": "",
         "NUMBER": "",
         "PUBLISH": "",
@@ -428,6 +441,7 @@
         "SUBSECTION": "",
         "TEXT": "",
         "TITLE": "",
+        "UPDATED": "",
         "UPLOAD_TEXT": ""
     },
     "PRODUCTS": {
@@ -516,9 +530,11 @@
             "TYPE": "Тип"
         },
         "WORKFLOW": {
+            "APPLY_REJECT_HAS_ASSIGNED_TASKS": "",
             "DESCRIPTION": "Описание",
             "DESCRIPTION_REQUIRED": "Описание обязательно",
             "LOAD_FROM_WORKFLOW_TEMPLATE": "",
+            "REMOVE_STEP_REJECT_HAS_ASSIGNED_TASKS": "",
             "STEPS": {
                 "ADD_GROUP": "",
                 "ALLOW_EDIT": "Редактирование",
@@ -539,6 +555,7 @@
                 "SORT_DISABLED": "",
                 "SORT_ENABLED": "",
                 "START_DATE": "Дата начала",
+                "TASKS_ASSIGNED_CANT_MANIPULATE_GROUPS": "",
                 "TITLE": "Шаг",
                 "WRITE_ACCESS_READ": "Чтение",
                 "WRITE_ACCESS_WRITE": "Чтение и запись"
@@ -698,7 +715,7 @@
         "RESOLVE_COMMENT": "",
         "RESOLVE_ENTRY": "",
         "RESPONSES": "Обратная связь",
-        "REVIEVER_COMMENT": "Комментарий проверяющего",
+        "REVIEWER_COMMENT": "Комментарий проверяющего",
         "SAVE_AND_RESOLVE": "",
         "SAVE_DRAFT": "",
         "SAVE_DRAFT_SUCCESS": "",
@@ -710,6 +727,8 @@
         "TRANSLATED": "",
         "URL_INCORRECT": "",
         "VERSION": "Версии",
+        "VERSIONS": "",
+        "VERSION_DRAFT": "",
         "VIEW": "Просмотр"
     },
     "TABLES": {
@@ -817,6 +836,13 @@
         "USERS_IN_GROUPS": "",
         "USER_GROUP": "",
         "USER_GROUPS": ""
+    },
+    "VERSIONS": {
+        "DOWNLOAD": "",
+        "REVIEW": "",
+        "SELECT": "",
+        "VERSION": "",
+        "VERSIONS": ""
     },
     "VISUALIZATIONS": {
         "MODAL_TITLE": "",

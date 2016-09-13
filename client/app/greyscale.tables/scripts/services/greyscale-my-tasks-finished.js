@@ -12,8 +12,7 @@ angular.module('greyscale.tables')
         }, {
             title: tns + 'SURVEY_POLICY',
             show: true,
-            cellTemplateUrl: 'my-tasks-cell-survey.html'
-
+            cellTemplateUrl: 'my-tasks-cell-view-survey.html'
         }, {
             title: tns + 'UOA',
             show: true,
@@ -30,7 +29,7 @@ angular.module('greyscale.tables')
             cellTemplateUrl: 'my-tasks-cell-product.html'
         }];
 
-        var _table = {
+        return {
             title: tns + 'FINISHED_TITLE',
             icon: 'fa-tasks',
             sorting: {
@@ -48,6 +47,4 @@ angular.module('greyscale.tables')
                 });
             });
         }
-
-        return _table;
     });

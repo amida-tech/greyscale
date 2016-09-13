@@ -14,7 +14,7 @@ angular.module('greyscaleApp')
     })
     .directive('userNotifications', function (_, greyscaleProfileSrv, greyscaleNotificationApi, Organization,
         greyscaleWebSocketSrv, userNotificationsSrv, greyscaleGlobals, greyscaleRealmSrv, $sce) {
-        var wsEvents = greyscaleGlobals.events.webSocket;
+        var wsEvents = greyscaleGlobals.events.ws;
 
         return {
             restrict: 'A',

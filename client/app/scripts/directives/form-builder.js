@@ -6,14 +6,23 @@
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 
 angular.module('greyscaleApp')
-    .directive('formBuilder', function (greyscaleGlobals, $compile, $timeout, i18nData) {
+    .directive('formBuilder', function (greyscaleGlobals, $timeout, i18nData, $window) {
+        var formbuilder,
+            surveyEvents = greyscaleGlobals.events.survey,
+            types = greyscaleGlobals.formBuilder.fieldTypes,
+            sizes = ['small', 'medium', 'large'];
+
         return {
             templateUrl: 'views/directives/form-builder.html',
             restrict: 'E',
-            link: function (scope, elem, attr) {
-                var formbuilder;
-                var types = greyscaleGlobals.formBuilder.fieldTypes;
-                var sizes = ['small', 'medium', 'large'];
+            scope: {},
+            require: 'ng-model',
+            link: function (scope, elem, attr, ngModel) {
+                var extSaveEvt;
+
+                scope.model = {};
+
+                scope.$watch(attr.ngModel, createFormBuilder);
 
                 function formBuilderSave(json) {
                     var fields = JSON.parse(json).fields;
@@ -79,8 +88,8 @@ angular.module('greyscaleApp')
                     if (!scope.model.survey.questions) {
                         scope.model.survey.questions = [];
                     }
-
-                    for (i = scope.model.survey.questions.length - 1; i >= 0; i--) {
+                    i = scope.model.survey.questions.length;
+                    for (; i--;) {
                         if (!scope.model.survey.questions[i]) {
                             scope.model.survey.questions.splice(i, 1);
                             continue;
@@ -90,7 +99,8 @@ angular.module('greyscaleApp')
                         }
 
                         var isAvaliable = false;
-                        for (j = questions.length - 1; j >= 0; j--) {
+                        j = questions.length - 1;
+                        for (; j--;) {
                             if ('c' + scope.model.survey.questions[i].id !== questions[j].cid) {
                                 continue;
                             }
@@ -119,16 +129,20 @@ angular.module('greyscaleApp')
                         return a.position - b.position;
                     });
 
-                    scope.$emit(greyscaleGlobals.events.survey.builderFormSaved);
+                    scope.$emit(surveyEvents.builderFormSaved);
+
                     $timeout(function () {
                         scope.$apply();
                     });
                 }
 
                 function createFormBuilder() {
-                    var data = [];
-                    var i, j,
-                        policyQty = 0;
+                    var data = [],
+                        i, j;
+
+                    scope.model = {
+                        survey: ngModel.$modelValue
+                    };
 
                     if (scope.model.survey && scope.model.survey.questions) {
                         for (i = 0; i < scope.model.survey.questions.length; i++) {
@@ -150,7 +164,7 @@ angular.module('greyscaleApp')
                                 withLinks: question.withLinks,
                                 field_options: {
                                     description: question.description,
-                                    size: question.size && question.size > -1 ? sizes[question.size] : 'small',
+                                    size: question.size && question.size > -1 ? sizes[question.size] : sizes[0],
                                     minlength: question.minLength ? question.minLength : undefined,
                                     maxlength: question.maxLength ? question.maxLength : undefined,
                                     min_max_length_units: question.isWordmml ? 'words' : 'charecters',
@@ -189,50 +203,35 @@ angular.module('greyscaleApp')
                         formbuilder.off('save');
                     }
 
-                    if (window.Formbuilder) {
-                        angular.extend(window.Formbuilder.options.dict, i18nData.translations.FORMBUILDER || {});
-                        formbuilder = new window.Formbuilder({
+                    if ($window.Formbuilder) {
+                        angular.extend($window.Formbuilder.options.dict, i18nData.translations.FORMBUILDER || {});
+                        formbuilder = new $window.Formbuilder({
                             selector: '#formbuilder',
                             withPolicies: scope.model.survey.isPolicy,
                             bootstrapData: data
                         });
-                        scope.saveFormbuilder = function () {
-                            if (formbuilder.mainView.formSaved) {
-                                scope.$emit(greyscaleGlobals.events.survey.builderFormSaved);
-                            } else {
-                                formbuilder.mainView.saveForm();
-                            }
-                        };
                         formbuilder.on('save', formBuilderSave);
                     }
 
-                    var control = $('[form-builder-control]');
-                    var controlCopy;
-                    if (control.length) {
-                        controlCopy = control.clone().html();
-                        elem.find('.fb-form').after($compile(controlCopy)(scope));
-                    }
-
+                    //hide policy question types, will show in separate block
                     if (scope.model.survey.isPolicy) {
                         elem.find('.fb-policy-wrapper').remove();
-                        /*
-                                                var _policyBlocks = elem.find('.fb-policy-blocks');
-
-                                                _policyBlocks.before($compile(
-                                                    '<fb-policy ng-model="item" ng-repeat="item in model.policy.sections"></fb-policy>')(scope));
-
-                                                elem.find('.fb-policy-attachments-label').remove();
-                                                elem.find('.fb-btn-policy-attach').remove();
-                                                elem.find('.fb-btn-policy-upload').remove()
-                                                    .attr('disabled', 'disabled')
-                                                    .addClass('btn btn-default');
-                                                _policyBlocks.after($compile(
-                                                    '<attachments model="model.attachments" item-id="{{model.survey.policyId}}" essence-id="{{model.essenceId}}"></attachments>')(scope));
-                        */
                     }
-                }
 
-                scope.$watch(attr.ngModel, createFormBuilder);
+                    extSaveEvt = scope.$on(surveyEvents.extSave, function () {
+                        _saveFormbuilder(scope);
+                    });
+                }
             }
         };
+
+        function _saveFormbuilder(scope) {
+            if (formbuilder) {
+                if (formbuilder.mainView.formSaved) {
+                    scope.$emit(surveyEvents.builderFormSaved);
+                } else {
+                    formbuilder.mainView.saveForm();
+                }
+            }
+        }
     });
