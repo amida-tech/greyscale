@@ -38,7 +38,8 @@ angular.module('greyscaleApp')
                         entry: '',
                         range: data.range,
                         tag: [],
-                        isReturn: false
+                        isReturn: false,
+                        surveyVersion: $scope.policy.options.surveyVersion
                     };
                     _editComment(_comment);
                 });
