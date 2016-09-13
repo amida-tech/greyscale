@@ -885,7 +885,7 @@ var exportObject = function  (req, realm) {
                     '</table>';
 
                 var comments = yield oComment.getComments({surveyId: surveyId}, null, null, null, version);
-                var commentsContent = comments.length ? '<h1>COMMENTS</h1>' : '';
+                var commentsContent = comments.length ? '<hr/><h1>COMMENTS</h1>' : '';
 
                 if (_.first(survey.questions)) {
                     for (var i in survey.questions) {
@@ -922,10 +922,10 @@ var exportObject = function  (req, realm) {
 
                                     commentsContent +=
                                         '<p>'
+                                        + ' (' + dateStr + authorStr + ')'
                                         + comment
                                         + comments[j].entry
-                                        + ' (' + dateStr + authorStr + ')'
-                                        + '</p>';
+                                        + '</p><hr/>';
 
                                 }
                             }
