@@ -25,7 +25,7 @@
             <div class="gs-message-fader"></div>
         </div>
         <textarea ng-show="isEdit" ng-model="entry" class="form-control"></textarea>
-        <a ng-click="fullview()" class="pull-right gs-message-full-view">
+        <a ng-click="fullview()" class="pull-right gs-message-full-view" ng-if="model.activated">
             <small>+{{model.agree||0}}/-{{model.disagree||0}}</small>
             <i class="fa fa-comments-o"></i>
         </a>
