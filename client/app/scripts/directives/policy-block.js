@@ -87,7 +87,8 @@ angular.module('greyscaleApp')
 
                 function _loadSections(data) {
                     var _sectionName,
-                        i = 0;
+                        i = 0,
+                        qty = $scope.policyData.sections.length;
 
                     for (_sectionName in data) {
                         if ($scope.policyData.sections.length <= i) {
@@ -99,8 +100,22 @@ angular.module('greyscaleApp')
                         if (data.hasOwnProperty(_sectionName) && $scope.policyData.sections[i]) {
                             $scope.policyData.sections[i].label = _sectionName || $scope.policyData.sections[i].label;
                             $scope.policyData.sections[i].description = data[_sectionName];
+                            $scope.policyData.options.canImport = $scope.policyData.options.canImport &&
+                                (!data[_sectionName]);
                             i++;
                         }
+                    }
+
+                    if (i) { //if one or more sections were imported
+                        if ($scope.policyData.id) {
+                            for (; i < qty; i++) {
+                                $scope.policyData.sections[i].deleted = true;
+                            }
+                        } else {
+                            $scope.policyData.sections.splice(i);
+                        }
+                    } else {
+                        greyscaleUtilsSrv.errorMsg('ERROR.NO_POLICY_SECTIONS');
                     }
                 }
 
@@ -108,11 +123,15 @@ angular.module('greyscaleApp')
                     var i, key,
                         qty = _headers.length;
 
-                    for (i = 0; i < qty; i++) {
-                        key = _headers[i];
-                        if (headers.hasOwnProperty(key)) {
-                            $scope.policyData[key.toLowerCase()] = headers[key];
+                    if (qty) {
+                        for (i = 0; i < qty; i++) {
+                            key = _headers[i];
+                            if (headers.hasOwnProperty(key)) {
+                                $scope.policyData[key.toLowerCase()] = headers[key];
+                            }
                         }
+                    } else {
+                        greyscaleUtilsSrv.errorMsg('ERROR.NO_POLICY_HEADERS');
                     }
                 }
 

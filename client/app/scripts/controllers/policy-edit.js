@@ -268,7 +268,6 @@ angular.module('greyscaleApp')
                         survey.questions = _questions;
                         angular.extend($scope.model.survey, survey);
 
-                        _policiesGenerate(_sections);
                         angular.extend(_policy, {
                             sections: _sections,
                             options: {
