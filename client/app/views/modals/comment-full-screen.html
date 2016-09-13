@@ -8,7 +8,10 @@
 <div class="modal-body">
     <div class="gs-message-body-warpper">
         <div class="ta-text ta-scroll-window form-control">
-            <div class="ta-bind" ng-bind-html="model.entry"></div>
+            <div class="ta-bind">
+                <blockquote class="taa-bind" ng-bind-html="model.range.entry"></blockquote>
+                <ng-bind-html ng-bind-html="model.entry"></ng-bind-html>
+            </div>
         </div>
     </div>
     <p class="subtext">{{model.created | date : 'short'}}</p>
@@ -42,11 +45,18 @@
         <button class="btn btn-primary" ng-click="answers.submit()" translate="COMMON.SUBMIT"></button>
     </div>
     <div ng-if="!answers.state.adding">
-        <span ng-if="user.isOwner" translate="COMMENTS.YOU_ARE_THE_OWNER"></span>
-        <span ng-if="!user.isOwner && user.hasAnswered" translate="COMMENTS.YOU_ANSWERED_ALREADY"></span>
+        <span ng-if="user.isOwner && !view.options.isVersion" translate="COMMENTS.YOU_ARE_THE_OWNER"></span>
+        <span ng-if="!user.isOwner && user.hasAnswered && !view.options.isVersion"
+              translate="COMMENTS.YOU_ANSWERED_ALREADY"></span>
         &nbsp;
-        <button class="btn btn-primary" ng-click="answers.add(true)" ng-disabled="user.isOwner || user.hasAnswered">{{'COMMON.AGREE'|translate}} ({{model.agree||0}})</button>
-        <button class="btn btn-default" ng-click="answers.add(false)" ng-disabled="user.isOwner || user.hasAnswered">{{'COMMON.DISAGREE'|translate}} ({{model.disagree||0}})</button>
+        <button class="btn btn-primary"
+                ng-if="!view.options.isVersion"
+                ng-click="answers.add(true)"
+                ng-disabled="user.isOwner || user.hasAnswered">{{'COMMON.AGREE'|translate}} ({{model.agree||0}})</button>
+        <button class="btn btn-default"
+                ng-if="!view.options.isVersion"
+                ng-click="answers.add(false)"
+                ng-disabled="user.isOwner || user.hasAnswered">{{'COMMON.DISAGREE'|translate}} ({{model.disagree||0}})</button>
         <button class="btn btn-default" ng-click="close()" translate="COMMON.CLOSE"></button>
     </div>
 </div>

@@ -4,10 +4,8 @@ var columns = [
     'id',
     'title',
     'description',
-    'projectId',
-    'originalLangId',
-    'surveyId',
     'status',
+    'organizationId',
     'workflowTemplateId'
 ];
 
@@ -24,8 +22,8 @@ Product.statuses = {
     4: 'Cancelled'
 };
 
-Product.editCols = ['title', 'description', 'projectId', 'surveyId', 'status', 'workflowTemplateId'];
-Product.whereCol = [ 'projectId', 'surveyId', 'status'];
+Product.editCols = ['title', 'description', 'status', 'workflowTemplateId'];
+Product.whereCol = ['status'];
 
 Product.translate = [
     'title',

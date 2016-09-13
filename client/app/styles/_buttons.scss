@@ -1,5 +1,7 @@
 .action,
-.action-secondary {
+.action-secondary,
+.list-group-item.action,
+.list-group-item.action-secondary {
     @extend a;
     margin: 0 0 0 5px;
     color: $grey-medium-light;
@@ -8,7 +10,8 @@
     }
 }
 
-.action-primary {
+.action-primary,
+.list-group-item.action-primary {
     color: $green;
     &:hover {
         color: $green-dark;
@@ -35,5 +38,5 @@ a, .action, .action-secondary, .action-primary {
 }
 
 .ta-toolbar .btn {
-    padding: 0px 6px;
+    padding: 0 6px;
 }
