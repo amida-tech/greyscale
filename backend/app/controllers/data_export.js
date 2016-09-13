@@ -1,5 +1,4 @@
 var Product = require('app/models/products'),
-    Project = require('app/models/projects'),
     DataApiKey = require('app/models/data_api_keys'),
     products = require('app/controllers/products'),
     co = require('co'),
@@ -50,8 +49,8 @@ module.exports = {
                     Product.id,
                     Product.title
                 )
-                .from(Product.join(Project).on(Product.projectId.equals(Project.id)))
-                .where(Project.organizationId.equals(req.organizationId))
+                .from(Product)
+                .where(Product.organizationId.equals(req.organizationId))
             );
         }).then(function (data) {
             res.json(data);
@@ -69,9 +68,9 @@ module.exports = {
                 .select(
                     Product.id
                 )
-                .from(Product.join(Project).on(Product.projectId.equals(Project.id)))
+                .from(Product)
                 .where(
-                    Product.id.equals(productId).and(Project.organizationId.equals(req.organizationId))
+                    Product.id.equals(productId).and(Product.organizationId.equals(req.organizationId))
                 )
             ))[0];
             if (!product) {

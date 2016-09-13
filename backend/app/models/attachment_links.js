@@ -3,7 +3,8 @@ var sql = require('sql');
 var columns = [
     'essenceId',
     'entityId',
-    'attachments'
+    'attachments',
+    'version'
 ];
 
 var AttachmentLink = sql.define({

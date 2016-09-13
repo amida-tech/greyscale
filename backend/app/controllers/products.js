@@ -4,17 +4,20 @@ var
     common = require('app/services/common'),
     sTask = require('app/services/tasks'),
     sProduct = require('app/services/products'),
+    sSurvey = require('app/services/surveys'),
     sTaskUserState = require('app/services/taskuserstates'),
+    sWorkflow = require('app/services/workflows'),
     crypto = require('crypto'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     csv = require('express-csv'),
     Product = require('app/models/products'),
-    Project = require('app/models/projects'),
+    Policy = require('app/models/policies'),
     Organization = require('app/models/organizations'),
     Workflow = require('app/models/workflows'),
     WorkflowStep = require('app/models/workflow_steps'),
     Survey = require('app/models/surveys'),
+    SurveyMeta = require('app/models/survey_meta'),
     SurveyQuestion = require('app/models/survey_questions'),
     SurveyQuestionOption = require('app/models/survey_question_options'),
     SurveyAnswer = require('app/models/survey_answers'),
@@ -53,12 +56,24 @@ var moveWorkflow = function* (req, productId, UOAid) {
     var thunkQuery = req.thunkQuery;
     var oProduct = new sProduct(req);
     var oTask = new sTask(req);
+    var oTaskUserState = new sTaskUserState(req);
+    var oSurvey = new sSurvey(req);
 
     //if (req.user.roleID !== 2 && req.user.roleID !== 1) { // TODO check org owner
     //    throw new HttpError(403, 'Access denied');
     //}
     var curStep = yield * common.getCurrentStepExt(req, productId, UOAid);
     var isPolicy = yield oTask.isPolicy(curStep.task.id);
+
+    if (req.query.restart) { // restart step
+        // add initial TaskUserStates
+        task = yield * common.getTask(req, curStep.task.id);
+        var surveyVersion = yield oSurvey.getMaxSurveyVersion(task.id);
+        var usersIds =  yield oTask.getUsersIdsByTask(task.id);
+        yield oTaskUserState.modify(task.id, usersIds, task.endDate, surveyVersion);
+        return;
+    }
+
 
     var autoResolve = false;
     if (req.query.force) { // force to move step
@@ -127,7 +142,6 @@ var moveWorkflow = function* (req, productId, UOAid) {
             return;
         }
     } else if (!req.query.force) {    // for policy - check all users approved task - only if no force
-        var oTaskUserState = new sTaskUserState(req);
         var taskUserStates = yield oTaskUserState.getByLists([curStep.task.id],null);
         if (!_.first(taskUserStates)) {
             debug('Error getting taskUserStates - possible obsolete data - don`t move workflow step');
@@ -219,26 +233,11 @@ exports.moveWorkflow = moveWorkflow;
 module.exports = {
 
     select: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-
-        co(function* () {
-            return yield thunkQuery(
-                Product
-                .select(
-                    Product.star(),
-                    'row_to_json("Workflows".*) as workflow'
-                )
-                .from(
-                    Product
-                    .leftJoin(Workflow)
-                    .on(Product.id.equals(Workflow.productId))
-                ), req.query
-            );
-        }).then(function (data) {
-            res.json(data);
-        }, function (err) {
-            next(err);
-        });
+        var oProduct = new sProduct(req);
+        oProduct.getList(req.query).then(
+            (data) => res.json(data),
+            (err) => next(err)
+        );
     },
 
     tasks: function (req, res, next) {
@@ -364,35 +363,6 @@ module.exports = {
                         action: 'Task created'
                     }, req.body[i].id, req.body[i].id, 'Tasks', 'assignTask');
 
-                }
-                if (product[0].workflow) {
-                    var firstStep = yield thunkQuery(
-                        WorkflowStep
-                        .select()
-                        .where(
-                            WorkflowStep.position.in(
-                                WorkflowStep
-                                .subQuery()
-                                .select(sql.functions.MIN(WorkflowStep.position))
-                                .where(WorkflowStep.workflowId.equals(product[0].workflow.id))
-                            )
-                        )
-                        .and(WorkflowStep.workflowId.equals(product[0].workflow.id))
-                    );
-
-                    if (firstStep) {
-                        yield thunkQuery(
-                            ProductUOA
-                            .update({
-                                currentStepId: firstStep[0].id
-                            })
-                            .where(
-                                ProductUOA.productId.equals(product[0].id)
-                                .and(ProductUOA.UOAid.equals(req.body[i].uoaId))
-                                .and(ProductUOA.currentStepId.isNull())
-                            )
-                        );
-                    }
                 }
 
             }
@@ -1049,33 +1019,17 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-
-        co(function* () {
-            var product = yield thunkQuery(
-                Product
-                .select(
-                    Product.star(),
-                    'row_to_json("Workflows".*) as workflow'
-                )
-                .from(
-                    Product
-                    .leftJoin(Workflow)
-                    .on(Product.id.equals(Workflow.productId))
-                )
-                .where(Product.id.equals(req.params.id))
-            );
-
-            if (!_.first(product)) {
-                throw new HttpError(403, 'Not found');
-            }
-
-            return _.first(product);
-        }).then(function (data) {
-            res.json(data);
-        }, function (err) {
-            next(err);
-        });
+        var oProduct = new sProduct(req);
+        oProduct.getById(req.params.id).then(
+            (data) => {
+                if (!data) {
+                    next(new HttpError(404, 'Not found'))
+                } else {
+                    res.json(data)
+                }
+            },
+            (err) => next(err)
+        );
     },
 
     delete: function (req, res, next) {
@@ -1084,14 +1038,20 @@ module.exports = {
         co(function* () {
             var oProduct = new sProduct(req);
             var oTask = new sTask(req);
+            var oSurvey = new sSurvey(req);
+            var oWorkflow = new sWorkflow(req);
             var tasks = yield oTask.getByProductAllUoas(req.params.id);
-            // remove all subjects
             if (tasks.length) {
                 throw new HttpError(403, 'You cannot delete project, because there are already some tasks assigned to project');
             }
+            var workflow = yield oWorkflow.getWorkflowByProduct(req.params.id, true);
+            if (workflow.id) {
+                throw new HttpError(403, 'You cannot delete project, because there is workflow assigned to project');
+            }
             yield oTask.deleteTasks(req.params.id);
+            // remove all subjects
             yield oProduct.deleteProductAllUoas(req.params.id);
-            // ToDo: Check workflow exist before delete
+            yield oSurvey.detachFromProduct(req.params.id);
             return yield thunkQuery(
                 Product.delete().where(Product.id.equals(req.params.id))
             );
@@ -1115,11 +1075,16 @@ module.exports = {
 
         co(function* () {
             var oProduct = new sProduct(req);
-            yield oProduct.checkProductData();
+            var oSurvey = new sSurvey(req);
+            var oTask = new sTask(req);
+            yield oProduct.checkProductData(req.body);
             var policyUoaId = yield * common.getPolicyUoaId(req);
             var product = yield * common.getEntity(req, req.params.id, Product, 'id');
-            var oldSurvey = product.surveyId ? yield * common.getEntity(req, product.surveyId, Survey, 'id') : null;
-            var newSurvey = req.body.surveyId ? yield * common.getEntity(req, req.body.surveyId, Survey, 'id') : null;
+
+            var oldSurveyId = yield oSurvey.getSurveyAssignedToProduct(req.params.id);
+            var oldSurvey = oldSurveyId ? yield oSurvey.getById(oldSurveyId) : null;
+            var newSurvey = req.body.surveyId ? yield oSurvey.getById(req.body.surveyId) : null;
+            var tasks = yield oTask.getByProductAllUoas(product.id);
 
             if ((newSurvey && newSurvey.policyId) &&                                        // new survey is policy
                 // AND
@@ -1134,8 +1099,6 @@ module.exports = {
                                                                                                                 // OR
                 ((oldSurvey && oldSurvey.policyId) && (!newSurvey || (newSurvey && !newSurvey.policyId)))       // old  survey is policy AND new survey is empty or not policy (P -> 0 or P -> S)
             ) {
-                var oTask = new sTask(req);
-                var tasks = yield oTask.getByProductAllUoas(product.id);
                 // 1. remove all subjects
                 if (tasks.length) {
                     throw new HttpError(403, 'You cannot change survey (remove all targets), because there are already some tasks assigned to project');
@@ -1145,7 +1108,7 @@ module.exports = {
                 // 2. set project status to planning
                 req.body.status = 0; // 0: Planning
             }
-            if (!oldSurvey || (oldSurvey && !oldSurvey.policyId) &&     // old survey is empty or old survey is not policy
+            if ((!oldSurvey || (oldSurvey && !oldSurvey.policyId)) &&   // old survey is empty or old survey is not policy
                                                                         // AND
                 (newSurvey && newSurvey.policyId)                       // new survey is policy
             ) {
@@ -1154,11 +1117,25 @@ module.exports = {
             }
 
             if (parseInt(req.body.status) === 1) { // if status changed to 'STARTED'
-                if (newSurvey.isDraft) {
+                if (!newSurvey) {
+                    throw new HttpError(403, 'You can not start the project, because there is no Survey or Policy attached to project');
+                }
+                if (yield oSurvey.getVersion(newSurvey.id, -1)) {
                     throw new HttpError(403, 'You can not start the project. ' + (newSurvey.policyId ? 'Policy ' : 'Survey ') + 'have status `in Draft`');
+                }
+                if (tasks.length === 0) {
+                    throw new HttpError(403, 'You can not start the project, because there are no users assigned to tasks');
                 }
                 var result = oProduct.updateCurrentStepId(product);
             }
+
+            if (oldSurvey && newSurvey && oldSurvey.id !== newSurvey.id) {  // detach old survey from product
+                yield oSurvey.detachFromProduct(req.params.id);
+            }
+            if (req.body.surveyId) {
+                yield oSurvey.assignToProduct(req.body.surveyId, req.params.id);
+            }
+
             return yield oProduct.updateProduct();
         }).then(function (data) {
             res.status(202).end();
@@ -1172,13 +1149,21 @@ module.exports = {
 
         co(function* () {
             var oProduct = new sProduct(req);
-            yield oProduct.checkProductData();
-            var newSurvey = req.body.surveyId ? yield * common.getEntity(req, req.body.surveyId, Survey, 'id') : null;
-            if (newSurvey && newSurvey.policyId) {                                        // new survey is policy
+            var oSurvey = new sSurvey(req);
+            req.body.organizationId = req.user.organizationId;
+            yield oProduct.checkProductData(req.body);
+            var newSurvey = req.body.surveyId ? yield oSurvey.getById(req.body.surveyId) : null;
+
+            if (newSurvey && newSurvey.policyId) { // new survey is policy
                 // check one project - one policy
                 yield oProduct.checkMultipleProjects(req.body.surveyId, newSurvey.policyId);
             }
-            var productId = yield oProduct.insertProduct();
+
+            var productId = yield oProduct.insertProduct(req.body);
+            if (req.body.surveyId) {
+                yield oSurvey.assignToProduct(req.body.surveyId, productId);
+            }
+
             if (productId) {
                 var policyUoaId = yield * common.getPolicyUoaId(req);
                 if (newSurvey && newSurvey.policyId) {  // new survey is policy

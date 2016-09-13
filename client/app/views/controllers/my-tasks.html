@@ -25,10 +25,21 @@
 </script>
 
 <script type="text/ng-template" id="my-tasks-cell-survey.html">
-    <a ui-sref="survey({surveyId: row.survey.id, taskId: row.id})" ng-hide="row.survey.policyId">
+    <a ui-sref="survey({surveyId: row.survey.id, taskId: row.id})" ng-hide="row.policyId">
         <i class="fa fa-list"></i> {{row.survey.title}}
     </a>
-    <a ui-sref="policy.review({id: row.survey.id, taskId: row.id})" ng-show="row.survey.policyId">
+    <a ui-sref="policy.review({id: row.survey.id, taskId: row.id})" ng-show="row.policyId">
+        <i class="fa fa-file"></i> {{row.survey.title}}
+    </a>
+    <br>
+    <small>{{row.survey.description}}</small>
+</script>
+
+<script type="text/ng-template" id="my-tasks-cell-view-survey.html">
+    <a ui-sref="survey({surveyId: row.survey.id, taskId: row.id})" ng-hide="row.policyId">
+        <i class="fa fa-list"></i> {{row.survey.title}}
+    </a>
+    <a ui-sref="policy.version({id: row.survey.id, version: row.survey.surveyVersion})" ng-show="row.policyId">
         <i class="fa fa-file"></i> {{row.survey.title}}
     </a>
     <br>
@@ -48,7 +59,7 @@
 </script>
 
 <script type="text/ng-template" id="my-tasks-cell-uoa.html">
-    <span ng-hide="row.survey.policyId">
+    <span ng-hide="row.policyId">
         <b>{{row.uoa.name}}</b>
         <br>
         <small>{{row.uoa.shortName}}</small>

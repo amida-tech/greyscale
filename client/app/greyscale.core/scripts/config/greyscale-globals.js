@@ -4,6 +4,12 @@
 'use strict';
 angular.module('greyscale.core')
     .provider('greyscaleGlobals', function () {
+        var productActions = {
+            resolve: 'resolve',
+            forceMove: 'force',
+            restart: 'restart'
+        };
+
         var self = {
             events: {
                 common: {
@@ -51,6 +57,7 @@ angular.module('greyscale.core')
                 id: 4,
                 name: 'CANCELLED'
             }],
+            productActiveStates: [1, 2],
             uoaVisibility: [{
                 id: 1,
                 name: 'PUBLIC'
@@ -220,7 +227,24 @@ angular.module('greyscale.core')
             }, {
                 value: 'started',
                 name: 'STARTED'
-            }]
+            }],
+            dialogs: {
+                policyPublish: {
+                    current: productActions.restart,
+                    next: productActions.forceMove,
+                    header: 'DLG.POLICY.STEP.TITLE',
+                    buttons: [{
+                        type: 'primary',
+                        title: 'DLG.POLICY.STEP.NEXT',
+                        value: productActions.forceMove
+                    }, {
+                        type: 'primary',
+                        title: 'DLG.POLICY.STEP.CURRENT',
+                        value: productActions.restart
+                    }]
+                }
+            },
+            productActions: productActions
         };
 
         return {

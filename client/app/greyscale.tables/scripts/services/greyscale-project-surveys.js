@@ -19,10 +19,10 @@ angular.module('greyscale.tables')
             dataRequired: false,
             dataFormat: 'text'
         }, {
-            field: 'isDraft',
+            field: 'surveyVersion',
             title: tns + 'STATUS',
             show: true,
-            cellTemplate: '<span ng-if="cell" class="text-warning" translate="SURVEYS.IS_DRAFT"></span><span ng-if="!cell" class="text-success" translate="SURVEYS.IS_COMPLETE"></span>'
+            cellTemplate: '<span ng-if="cell===-1" class="text-warning" translate="SURVEYS.IS_DRAFT"></span><span ng-if="(cell!==-1)" class="text-success" translate="SURVEYS.IS_COMPLETE"></span>'
         }, {
             field: '',
             title: '',
@@ -56,22 +56,22 @@ angular.module('greyscale.tables')
             }
         };
 
-        function _getProjectId() {
-            return _table.dataFilter.projectId;
-        }
+        // function _getProjectId() {
+        //     return _table.dataFilter.projectId;
+        // }
 
         function _getData() {
-            var projectId = _getProjectId();
-            if (!projectId) {
-                return $q.reject();
-            } else {
-                return greyscaleSurveyApi.list()
-                    .then(function (data) {
-                        return $filter('filter')(data, function (item) {
-                            return (_isPolicy() && item.policyId || _isSurvey() && !item.policyId);
-                        });
+            // var projectId = _getProjectId();
+            // if (!projectId) {
+            //     return $q.reject();
+            // } else {
+            return greyscaleSurveyApi.list()
+                .then(function (data) {
+                    return $filter('filter')(data, function (item) {
+                        return (_isPolicy() && item.policyId || _isSurvey() && !item.policyId);
                     });
-            }
+                });
+            // }
         }
 
         function _reload() {
@@ -86,8 +86,7 @@ angular.module('greyscale.tables')
                     });
                 } else {
                     $state.go('projects.setup.surveys.edit', {
-                        surveyId: _survey.id,
-                        projectId: _getProjectId()
+                        surveyId: _survey.id
                     });
                 }
             } else {
@@ -95,8 +94,7 @@ angular.module('greyscale.tables')
                     $state.go('policy.edit');
                 } else {
                     $state.go('projects.setup.surveys.edit', {
-                        surveyId: 'new',
-                        projectId: _getProjectId()
+                        surveyId: 'new'
                     });
                 }
             }
@@ -117,7 +115,7 @@ angular.module('greyscale.tables')
 
         function _viewSurvey(_survey) {
             if (_isPolicy()) {
-                $state.go('policy.review', {
+                $state.go('policy.version', {
                     id: _survey.id
                 });
             } else {

@@ -34,32 +34,42 @@ var exportObject = function  (req, realm) {
         });
     };
 
-    this.updateLinkArray = function (essenceId, entityId, attArr) {
+    this.updateLinkArray = function (essenceId, entityId, attArr, version) {
         return co(function* () {
             if (!Array.isArray(attArr)) {
                 throw new Error('You should provide an array of attachment ids');
             }
 
-            yield thunkQuery(
-                AttachmentLink
-                    .update({
-                        attachments: attArr
-                    }).where(
+            var query = AttachmentLink
+                .update({
+                    attachments: attArr
+                }).where(
                     AttachmentLink.essenceId.equals(essenceId)
-                        .and(AttachmentLink.entityId.equals(entityId))
-                )
-            );
+                    .and(AttachmentLink.entityId.equals(entityId))
+                );
+
+            if (typeof version !== 'undefined') {
+                query = query.where({version : version});
+            }
+
+            yield thunkQuery(query);
         });
     };
 
-    this.removeLink = function (essenceId, entityId) {
+    this.removeLink = function (essenceId, entityId, version) {
         return co(function* (){
-            yield thunkQuery(
-                AttachmentLink.delete().where(
+            var query = AttachmentLink
+                .delete()
+                .where(
                     AttachmentLink.essenceId.equals(essenceId)
-                        .and(AttachmentLink.entityId.equals(entityId))
-                )
-            );
+                    .and(AttachmentLink.entityId.equals(entityId))
+                );
+
+            if (typeof version !== 'undefined') {
+                query = query.where({version : version});
+            }
+
+            yield thunkQuery(query);
         });
     };
 
@@ -70,16 +80,20 @@ var exportObject = function  (req, realm) {
 
     };
 
-    this.getLink = function (essenceId, entityId) {
+    this.getLink = function (essenceId, entityId, version) {
         return co(function* () {
-            return yield thunkQuery(
-                AttachmentLink
-                    .select()
-                    .where(
-                        AttachmentLink.essenceId.equals(essenceId)
-                            .and(AttachmentLink.entityId.equals(entityId))
-                    )
-            );
+            var query = AttachmentLink
+                .select()
+                .where(
+                    AttachmentLink.essenceId.equals(essenceId)
+                    .and(AttachmentLink.entityId.equals(entityId))
+                );
+
+            if (typeof version !== 'undefined') {
+                query = query.where({version : version});
+            }
+
+            return yield thunkQuery(query);
         });
     };
 
