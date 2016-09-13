@@ -66,6 +66,9 @@ angular.module('greyscale.tables')
                 sortable: 'status',
                 title: tns + 'STATUS',
                 dataFormat: 'option',
+                dataDisabled: function (value) {
+                    return value === 3;
+                },
                 dataNoEmptyOption: true,
                 cellTemplate: '<a ui-sref="pmProductDashboard({productId:row.id})">{{option.name}}</a>',
                 dataRequired: true,
@@ -331,7 +334,7 @@ angular.module('greyscale.tables')
         }
 
         function _statusDisabledForPolicy(status, product) {
-            var res = status.id !== product.status && (product.status > _const.STATUS_PLANNING &&
+            var res = status.id !== product.status && (status.id !== _const.STATUS_CANCELLED) && (product.status > _const.STATUS_PLANNING &&
                 !!~[_const.STATUS_PLANNING, _const.STATUS_STARTED, _const.STATUS_SUSPENDED].indexOf(status.id) ||
                 product.status === _const.STATUS_PLANNING && status.id === _const.STATUS_SUSPENDED);
             return res;
@@ -343,9 +346,9 @@ angular.module('greyscale.tables')
         }
 
         function _getDisabledStatus(item, rec) {
-            var res;
             if (rec.policy) {
-                return _statusDisabledForPolicy(item, rec);
+                return item.id !== _const.STATUS_PLANNING && item.id !== _const.STATUS_CANCELLED &&
+                    _planningNotFinish(rec) || _statusDisabledForPolicy(item, rec);
             } else {
                 return item.id !== _const.STATUS_PLANNING && item.id !== _const.STATUS_CANCELLED &&
                     _planningNotFinish(rec);
