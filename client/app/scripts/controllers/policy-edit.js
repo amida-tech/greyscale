@@ -274,6 +274,7 @@ angular.module('greyscaleApp')
                             options: {
                                 canImport: canImport,
                                 readonly: survey.locked,
+                                surveyVersion: survey.surveyVersion,
                                 isVersion: false
                             }
                         });
