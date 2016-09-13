@@ -19,7 +19,8 @@ var columns = [
     'attachments',
     'answerComment',
     'links',
-    'updated'
+    'updated',
+    'surveyVersion'
 ];
 
 var SurveyAnswer = sql.define({

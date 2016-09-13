@@ -65,7 +65,7 @@ angular.module('greyscaleApp')
                         scope.model.data = {
                             range: $window.getSelection().getRangeAt(0),
                             selection: greyscaleSelection.get($window.document.getElementById(scope.qid)),
-                            selectedHtml: greyscaleSelection.html()
+                            selectedHtml: greyscaleSelection.html(true)
                         };
 
                         $timeout(function () {

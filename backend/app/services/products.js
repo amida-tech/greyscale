@@ -6,11 +6,13 @@ var
     notifications = require('app/controllers/notifications'),
     ProductUOA = require('app/models/product_uoa'),
     Product = require('app/models/products'),
+    Workflow = require('app/models/workflows'),
+    Policy = require('app/models/policies'),
+    Organization = require('app/models/organizations'),
     Survey = require('app/models/surveys'),
-    Project = require('app/models/projects'),
+    SurveyMeta = require('app/models/survey_meta'),
     Task = require('app/models/tasks'),
     WorkflowStep = require('app/models/workflow_steps'),
-    Task = require('app/models/tasks'),
     sTask = require('app/services/tasks'),
     co = require('co'),
     Query = require('app/util').Query,
@@ -29,6 +31,89 @@ var exportObject = function  (req, realm) {
     if (!realm) {
         thunkQuery = req.thunkQuery;
     }
+
+    this.getList = function (options) {
+        return co(function* () {
+            var query = Product
+                    .select(
+                    Product.star(),
+                    'row_to_json("Workflows".*) as workflow',
+                    'row_to_json("Surveys".*) as survey',
+                    'row_to_json("Policies".*) as policy',
+                    'ARRAY (SELECT "UOAid" FROM "ProductUOA" WHERE "productId" = "Products"."id") as uoas'
+                )
+                    .from(
+                    Product
+                        .leftJoin(Workflow)
+                        .on(Product.id.equals(Workflow.productId))
+                        .leftJoin(SurveyMeta)
+                        .on(Product.id.equals(SurveyMeta.productId))
+                        .leftJoin(Survey)
+                        .on(
+                        Survey.id.equals(SurveyMeta.surveyId)
+                            .and(
+                            Survey.surveyVersion.in(
+                                Survey.as('subS')
+                                    .subQuery()
+                                    .select(Survey.as('subS').surveyVersion.max())
+                                    .where(Survey.as('subS').id.equals(Survey.id))
+                            )
+                        )
+                    )
+                        .leftJoin(Policy)
+                        .on(
+                        Policy.surveyId.equals(Survey.id)
+                            .and(Policy.surveyVersion.equals(Survey.surveyVersion))
+                    )
+                );
+            if (options.surveyId) {
+                query = query.where(SurveyMeta.surveyId.equals(options.surveyId));
+            }
+            return yield thunkQuery(query, options);
+        });
+    };
+
+    this.getById = function (id) {
+        return co(function* () {
+            var product = yield thunkQuery(
+                Product
+                .select(
+                    Product.star(),
+                    'row_to_json("Workflows".*) as workflow',
+                    'row_to_json("Surveys".*) as survey',
+                    'row_to_json("Policies".*) as policy',
+                    'ARRAY (SELECT "UOAid" FROM "ProductUOA" WHERE "productId" = "Products"."id") as uoas'
+                )
+                .from(
+                    Product
+                        .leftJoin(Workflow)
+                        .on(Product.id.equals(Workflow.productId))
+                        .leftJoin(SurveyMeta)
+                        .on(Product.id.equals(SurveyMeta.productId))
+                        .leftJoin(Survey)
+                        .on(
+                            Survey.id.equals(SurveyMeta.surveyId)
+                                .and(
+                                    Survey.surveyVersion.in(
+                                        Survey.as('subS')
+                                            .subQuery()
+                                            .select(Survey.as('subS').surveyVersion.max())
+                                            .where(Survey.as('subS').id.equals(Survey.id))
+                                    )
+                                )
+                        )
+                        .leftJoin(Policy)
+                        .on(
+                            Policy.surveyId.equals(Survey.id)
+                                .and(Policy.surveyVersion.equals(Survey.surveyVersion))
+                        )
+                )
+                .where(Product.id.equals(id))
+            );
+            return product[0] || false;
+        });
+    };
+
     this.addProductUoa = function (productId, uoaId) {
         return co(function* () {
             yield thunkQuery(
@@ -52,6 +137,7 @@ var exportObject = function  (req, realm) {
             });
         });
     };
+
     this.deleteProductUoa = function (productId, uoaId) {
         return co(function* () {
             yield thunkQuery(
@@ -75,6 +161,7 @@ var exportObject = function  (req, realm) {
             });
         });
     };
+
     this.deleteProductAllUoas = function (productId) {
         return co(function* () {
             yield thunkQuery(
@@ -96,11 +183,12 @@ var exportObject = function  (req, realm) {
             });
         });
     };
-    this.insertProduct = function () {
+
+    this.insertProduct = function (data) {
         return co(function* () {
             var product = yield thunkQuery(
                 Product
-                    .insert(_.pick(req.body, Product.table._initialConfig.columns))
+                    .insert(_.pick(data, Product.table._initialConfig.columns))
                     .returning(Product.id)
             );
             if (_.first(product)) {
@@ -116,6 +204,7 @@ var exportObject = function  (req, realm) {
             }
         });
     };
+
     this.updateProduct = function () {
         return co(function* () {
             yield thunkQuery(
@@ -133,48 +222,51 @@ var exportObject = function  (req, realm) {
             });
         });
     };
-    this.checkProductData = function() {
+
+    this.checkProductData = function(data) {
         return co(function* () {
-            if (!req.params.id) { // create
-                if (!req.body.projectId) {
-                    throw new HttpError(403, 'Project id is required');
+            if (!data.organizationId) {
+                throw new HttpError(
+                    403,
+                    'Organization id is required'
+                );
+            } else {
+                var org = yield thunkQuery(Organization.select().where(Organization.id.equals(data.organizationId)));
+                if (!org.length) {
+                    throw new HttpError(
+                        403,
+                        'Organization with id = ' + data.organizationId + ' does not exist'
+                    );
                 }
             }
 
-            if (typeof req.body.status !== 'undefined') {
-                if (typeof Product.statuses[req.body.status] === 'undefined') {
+            if (typeof data.status !== 'undefined') {
+                if (typeof Product.statuses[data.status] === 'undefined') {
                     throw new HttpError(
                         403,
                         'Status can be only: ' + JSON.stringify(Product.statuses)
                     );
                 }
             }
-
-            if (req.body.surveyId) {
-                var isExistSurvey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.body.surveyId)));
-                if (!_.first(isExistSurvey)) {
-                    throw new HttpError(403, 'Survey with id = ' + req.body.surveyId + ' does not exist');
-                }
-            }
-
-            if (req.body.projectId) {
-                var isExistProject = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
-                if (!_.first(isExistProject)) {
-                    throw new HttpError(403, 'Project with this id does not exist');
-                }
-            }
         });
     };
+
     this.checkMultipleProjects = function(surveyId, policyId) {
         return co(function* () {
             if (policyId) {
-                var products = yield thunkQuery(Product.select().where(Product.surveyId.equals(surveyId)));
+                var products = yield thunkQuery(
+                    SurveyMeta
+                        .select()
+                        .where(SurveyMeta.surveyId.equals(surveyId))
+                    .and(SurveyMeta.productId.isNotNull())
+                );
                 if (products.length) {
                     throw new HttpError(403, 'Policy cannot be assigned to multiple projects');
                 }
             }
         });
     };
+
     this.updateCurrentStepId = function(product) {
         var self = this;
         return co(function* () {
@@ -313,6 +405,7 @@ var exportObject = function  (req, realm) {
             };
         });
     };
+
     this.notify = function (note0, entryId, taskId, essenceName, templateName) {
         var self = this;
         co(function* () {
@@ -345,7 +438,8 @@ var exportObject = function  (req, realm) {
             error(JSON.stringify(err));
         });
     };
-    this.notifyOneUser = function (userId, note0, entryId, taskId, essenceName, templateName) {
+
+    this.notifyOneUser = function (userId, note0, entryId, taskId, essenceName, templateName) { // ToDo: move to notification service when refactored
         var self = this;
         return co(function* () {
             var userTo = yield * common.getUser(req, userId);

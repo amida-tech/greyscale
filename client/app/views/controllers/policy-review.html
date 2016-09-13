@@ -1,14 +1,16 @@
 <div class="row">
-    <div ng-class="{'col-sm-7': model.isTaskMode, 'col-sm-12': !model.isTaskMode}">
+    <div ng-class="{'col-sm-7': model.isTaskMode || model.isVersion, 'col-sm-12': !model.isTaskMode && !model.isVersion}">
         <rd-widget ng-show="model.title">
             <rd-widget-header title="{{model.title}}"></rd-widget-header>
             <rd-widget-body>
                 <policy-block policy-data="model.surveyData.policy"></policy-block>
-                <survey-form survey-data="model.surveyData" ng-class="{'flagged-survey':model.surveyData.resolveData}"></survey-form>
+                <survey-form survey-data="model.surveyData"
+                             ng-class="{'flagged-survey':model.surveyData.resolveData}"
+                             ng-if="model.isTaskMode || model.isVersion"></survey-form>
             </rd-widget-body>
         </rd-widget>
     </div>
-    <div class="col-sm-5" ng-show="model.isTaskMode">
+    <div class="col-sm-5" ng-show="model.isTaskMode || model.isVersion">
         <div fixed-on-scroll="{fitHeight: true}">
             <rd-widget ng-show="model.title" >
                 <rd-widget-header title="{{'SURVEYS.DISCUSSION' | translate}}"></rd-widget-header>

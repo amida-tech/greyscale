@@ -199,3 +199,34 @@ em.hilitor.current {
 fb-policy .panel-title {
     min-height: 1em;
 }
+
+.list-group-item.active, .list-group-item.active:hover {
+    background-color: #777;
+    border-color: #777;
+}
+
+.download-review-versions {
+    margin-bottom: 0;
+}
+
+.line-numbers.section-text, .line-numbers [ta-bind] {
+
+    border-left: 1px solid #ddd;
+    padding-left: 10px;
+    margin-left: 40px;
+    counter-reset: p-counter;
+
+    ln:before, .ln:before {
+        content: counter(p-counter);
+        counter-increment: p-counter;
+        position: absolute;
+        left: 0;
+        width: 35px;
+        text-align: right;
+        font-size: 12px;
+        top: auto;
+        margin-top: 2px;
+        color: #ccc;
+        font-weight: normal;
+    }
+}

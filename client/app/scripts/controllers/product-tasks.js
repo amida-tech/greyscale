@@ -49,10 +49,6 @@ angular.module('greyscaleApp')
 
         Organization.$watch('realm', $scope, function () {
 
-            if (!Organization.projectId) {
-                return;
-            }
-
             $scope.model.projectId = Organization.projectId;
 
             _loadUsersData()
@@ -136,7 +132,6 @@ angular.module('greyscaleApp')
                             uoaIds: [taskViewModel.uoaId],
                             item: _assignItem
                         };
-
                     if (_isAcceptableGroup(taskViewModel.step, _assignItem) &&
                         _isAcceptableAssign(taskViewModel, _assignItem)) {
                         ui.helper.remove();
@@ -409,20 +404,31 @@ angular.module('greyscaleApp')
             for (i = 0; i < qty; i++) {
                 task = _findTask(_uoaIds[i], _stepId);
                 if (_isAcceptableAssign(task, _item)) {
+                    var noDuplicates = true;
                     taskCopy = angular.extend(taskData, task || {});
                     switch (_item.type) {
                     case 'u':
-                        taskCopy.userIds.push(_item.id);
+                        if (~taskCopy.userIds.indexOf(_item.id)) {
+                            noDuplicates = false;
+                        } else {
+                            taskCopy.userIds.push(_item.id);
+                        }
                         break;
                     case 'g':
-                        taskCopy.groupIds.push(_item.id);
+                        if (~taskCopy.groupIds.indexOf(_item.id)) {
+                            noDuplicates = false;
+                        } else {
+                            taskCopy.groupIds.push(_item.id);
+                        }
                         break;
                     }
-                    taskCopy.uoaId = _uoaIds[i];
-                    if (!task) {
-                        newTasks.push(taskCopy);
+                    if (noDuplicates) {
+                        taskCopy.uoaId = _uoaIds[i];
+                        if (!task) {
+                            newTasks.push(taskCopy);
+                        }
+                        saveTasks.push(taskCopy);
                     }
-                    saveTasks.push(taskCopy);
                 }
             }
 
@@ -611,7 +617,8 @@ angular.module('greyscaleApp')
                     $scope.model.uoas = tableData.uoas;
                     if (table) {
                         return _getTasksData(tableData);
-                    } else if (tableData.workflowSteps && tableData.uoas && tableData.workflowSteps.length && tableData.uoas.length) {
+                    } else if (tableData.workflowSteps && tableData.uoas && tableData.workflowSteps.length &&
+                        tableData.uoas.length) {
                         $scope.model.tasks = _initTasksTable(tableData);
                     }
                     $scope.model.$loading = false;
@@ -817,20 +824,23 @@ angular.module('greyscaleApp')
                 },
                 reqs = {
                     product: $q.when(product),
-                    survey: (product.surveyId !== null) ? greyscaleSurveyApi.get(product.surveyId) : $q.resolve(noSurvey),
-                    tasks: greyscaleProductApi.product(productId).tasksList()
+                    survey: (product.survey.id) ? greyscaleSurveyApi.get(product.survey.id) : $q.resolve(noSurvey),
+                    tasks: greyscaleProductApi.product(product.id).tasksList()
                 };
             return $q.all(reqs);
         }
 
         var _productCached;
+
         function _loadProduct(productId) {
-            if (_productCached) {
-                return $q.when(_productCached);
-            } else {
-                return _productCached = greyscaleProductApi.get(productId)
+            if (!_productCached) {
+                _productCached = greyscaleProductApi.get(productId)
                     .then(function (product) {
-                        $state.ext.productName = product.title;
+                        var ttl = product.title;
+                        if (!ttl && product.survey) {
+                            ttl = product.survey.title;
+                        }
+                        $state.ext.productName = ttl;
                         return product;
                     })
                     .catch(function (error) {
@@ -838,6 +848,6 @@ angular.module('greyscaleApp')
                         $state.go('home');
                     });
             }
+            return _productCached;
         }
-
     });

@@ -14,7 +14,8 @@ const TaskUserState = sql.define({
         'approvedAt',
         'startedAt',
         'draftAt',
-        'endDate'
+        'endDate',
+        'surveyVersion'
     ]
 });
 
