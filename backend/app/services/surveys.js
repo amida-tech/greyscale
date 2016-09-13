@@ -639,7 +639,12 @@ var exportObject = function  (req, realm) {
             policyData.author = req.user.realmUserId;
             // check survey/policy data
 
-            surveyData.id = surveyId;
+            if (surveyId) {
+                surveyData.id = surveyId;
+            } else {
+                delete surveyData.id;
+            }
+
             yield self.checkSurveyData(fullSurveyData);
 
             if (fullSurveyData.isPolicy) {
@@ -648,6 +653,10 @@ var exportObject = function  (req, realm) {
 
             yield thunkQuery(Survey.delete().where({id: surveyId, surveyVersion: -1}));
             var surveyDraft = yield thunkQuery(Survey.insert(surveyData).returning(Survey.star()));
+
+            if (!surveyId) {
+                surveyId = surveyDraft[0].id;
+            }
 
             if (fullSurveyData.isPolicy) {
                 policyData.surveyId = surveyId;
@@ -789,10 +798,11 @@ var exportObject = function  (req, realm) {
                             'SELECT a."id", a."filename", a."size", a."mimetype" ' +
                             'FROM "AttachmentLinks" al ' +
                             'JOIN "Attachments" a ' +
-                            'ON al."entityId" = "Policies"."id" ' +
+                            'ON al."entityId" = "Surveys"."id" ' +
+                            'AND al."version" = "Surveys"."surveyVersion" ' +
                             'JOIN "Essences" e ' +
                             'ON e.id = al."essenceId" ' +
-                            'AND e."tableName" = \'Policies\' ' +
+                            'AND e."tableName" = \'Surveys\' ' +
                             'WHERE a."id" = ANY(al."attachments")' +
                         ') as att) as attachments'
                     )
@@ -847,6 +857,19 @@ var exportObject = function  (req, realm) {
                     .on(Survey.id.equals(SurveyMeta.surveyId))
             )
                 .where(Task.id.equals(taskId)
+            );
+            var result = yield thunkQuery(query);
+            return _.first(result) ? result[0].max : 0;
+        });
+    };
+
+    this.getLastSurveyVersion = function (surveyId) {
+        var self = this;
+        return co(function* () {
+            var query = Survey
+                .select(sql.functions.MAX(Survey.surveyVersion))
+                .from(Survey)
+                .where(Survey.id.equals(surveyId)
             );
             var result = yield thunkQuery(query);
             return _.first(result) ? result[0].max : 0;
@@ -922,7 +945,7 @@ var exportObject = function  (req, realm) {
 
                                     commentsContent +=
                                         '<p>'
-                                        + ' (' + dateStr + authorStr + ')'
+                                        + '(' + dateStr + authorStr + ') '
                                         + comment
                                         + comments[j].entry
                                         + '</p><hr/>';
