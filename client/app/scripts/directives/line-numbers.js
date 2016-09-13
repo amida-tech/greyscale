@@ -14,7 +14,7 @@ function paragraphNumbersDirective(_, $timeout) {
             ];
 
             var textTags = [
-                'FONT', 'B', 'I', 'U', 'strong'
+                'FONT', 'B', 'I', 'U', 'STRONG'
             ];
 
             $timeout(function () {

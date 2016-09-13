@@ -590,7 +590,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
         })
         .state('policy.version', {
             parent: 'policy',
-            url: '/version/:id/:version',
+            url: '/version/:id/:version?',
             views: {
                 'body@dashboard': {
                     templateUrl: 'views/controllers/policy-review.html',

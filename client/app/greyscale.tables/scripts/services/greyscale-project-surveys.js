@@ -115,7 +115,7 @@ angular.module('greyscale.tables')
 
         function _viewSurvey(_survey) {
             if (_isPolicy()) {
-                $state.go('policy.review', {
+                $state.go('policy.version', {
                     id: _survey.id
                 });
             } else {
