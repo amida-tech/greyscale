@@ -838,7 +838,6 @@ angular.module('greyscaleApp')
                         $state.go('home');
                     });
             }
-
             return _productCached;
         }
     });

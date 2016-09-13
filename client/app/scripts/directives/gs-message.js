@@ -57,7 +57,6 @@ angular.module('greyscaleApp')
                     greyscaleModalsSrv.fullScreenComment($scope.model, $scope.options);
                 };
 
-                $scope.highlightSource = _highlightSource;
                 $scope.resolveFlag = function () {
                     if ($scope.model.isResolve) {
                         return;
@@ -81,9 +80,11 @@ angular.module('greyscaleApp')
 
                 $scope.toggleComment = function () {
                     //hide $scope.model
-                    greyscaleCommentApi.hide($scope.model.taskId, $scope.model.id, $scope.model.isHidden).then(function () {
-                        $scope.model.isHidden = !$scope.model.isHidden;
-                    });
+                    greyscaleCommentApi
+                        .hide($scope.model.taskId, $scope.model.id, $scope.model.isHidden)
+                        .then(function () {
+                            $scope.model.isHidden = !$scope.model.isHidden;
+                        });
                 };
 
                 function _toggleEdit() {
@@ -102,7 +103,7 @@ angular.module('greyscaleApp')
 
                     var msgBody = (elem.find('.gs-message-body'));
 
-                    msgBody.find('.ta-text')
+                    msgBody.find('.gs-message-fader')
                         .on('click', function (e) {
                             _highlightSource(scope.model, e.type);
                         });
@@ -120,9 +121,6 @@ angular.module('greyscaleApp')
                 var startNode,
                     range = model.range;
 
-                while (typeof range === 'string') {
-                    range = JSON.parse(range);
-                }
                 startNode = greyscaleSelection.restore(questionBlock[0], range);
                 if (startNode) {
                     var parent = startNode.parentNode;
