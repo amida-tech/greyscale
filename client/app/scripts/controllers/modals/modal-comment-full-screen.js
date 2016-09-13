@@ -8,7 +8,6 @@ angular.module('greyscaleApp')
             $uibModalInstance.dismiss();
         };
 
-        console.log(comment);
         $scope.model = comment;
         $scope.view = {
             options: options

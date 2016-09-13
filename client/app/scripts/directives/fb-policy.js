@@ -28,7 +28,7 @@ angular.module('greyscaleApp')
                 scope.$watch(attrs.ngModel, _setModel);
                 scope.$watch('associate', _setAssociate);
 
-                scope.getHtml = function(html){
+                scope.getHtml = function (html) {
                     return $sce.trustAsHtml(html);
                 };
 
@@ -43,7 +43,7 @@ angular.module('greyscaleApp')
                 }
 
                 function _setContextMenu() {
-                    if (scope.model.canComment) {
+                    if (scope.options && scope.options.canComment) {
                         scope.contextMenu = [{
                             title: 'CONTEXT_MENU.COMMENT',
                             action: function (data) {

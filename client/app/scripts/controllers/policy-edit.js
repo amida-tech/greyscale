@@ -112,7 +112,6 @@ angular.module('greyscaleApp')
         greyscaleProfileSrv.getProfile()
             .then(function (_user) {
                 user = _user;
-                console.log(user);
                 _setAuthor(_user, $scope.model.policy);
                 return _user;
             });
@@ -273,6 +272,7 @@ angular.module('greyscaleApp')
                             sections: _sections,
                             options: {
                                 canImport: canImport,
+                                canComment: true, // let admins to comment policy
                                 readonly: survey.locked,
                                 isVersion: false
                             }
