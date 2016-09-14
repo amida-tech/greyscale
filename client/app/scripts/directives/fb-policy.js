@@ -28,7 +28,7 @@ angular.module('greyscaleApp')
                 scope.$watch(attrs.ngModel, _setModel);
                 scope.$watch('associate', _setAssociate);
 
-                scope.getHtml = function(html){
+                scope.getHtml = function (html) {
                     return $sce.trustAsHtml(html);
                 };
 

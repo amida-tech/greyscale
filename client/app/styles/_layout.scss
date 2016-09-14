@@ -11,9 +11,21 @@
             font-size: 11pt;
         }
         th, td {
-            word-break: break-word;
+            word-break: normal;
             padding-left: 5px;
             padding-right: 5px;
         }
     }
+}
+
+.text-collapse {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+}
+
+.text-wrap {
+    word-break: break-all;
+    line-break: auto;
 }

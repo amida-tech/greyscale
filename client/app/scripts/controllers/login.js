@@ -24,13 +24,13 @@ angular.module('greyscaleApp')
             });
 
         /* fix for chrome autofill */
-        var timer = setInterval(function(){
+        var timer = setInterval(function () {
             var login = $('#login');
             if (login.length && login.val() !== '') {
                 clearInterval(timer);
                 var form = login.closest('form').scope().loginForm;
                 form.$invalid = false;
-                $timeout(function(){
+                $timeout(function () {
                     $scope.$digest();
                 });
             }

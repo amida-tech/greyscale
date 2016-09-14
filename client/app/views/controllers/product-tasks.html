@@ -35,7 +35,7 @@
                     <table class="table table-bordered table-hover">
                         <tbody>
                             <tr ng-repeat="item in model.usersSearchResult track by item.id">
-                                <td class="drag-item" ng-bind-html="item.fullName + ' (' + item.email + ')' | highlight:model.searchText"></td>
+                                <td class="drag-item text-wrap" ng-bind-html="item.fullName + ' (' + item.email + ')' | highlight:model.searchText"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -44,7 +44,7 @@
                     <table class="table table-bordered table-hover">
                         <tbody>
                         <tr ng-repeat="item in model.filteredGroups track by item.id">
-                            <td class="drag-item" ng-bind-html="item.title | highlight:model.searchText"></td>
+                            <td class="drag-item text-wrap" ng-bind-html="item.title | highlight:model.searchText"></td>
                         </tr>
                         </tbody>
                     </table>
