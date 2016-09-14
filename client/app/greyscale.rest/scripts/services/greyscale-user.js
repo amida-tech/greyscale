@@ -7,7 +7,7 @@ angular.module('greyscale.rest')
     .factory('greyscaleUserApi', function ($q, greyscaleRestSrv, greyscaleTokenSrv, greyscaleBase64Srv,
         greyscaleRealmSrv, greyscaleGlobals, greyscaleUtilsSrv) {
 
-        var entry = 'API.ATTACHMENT';
+        var entry = 'API.USER';
 
         return {
             login: _login,
