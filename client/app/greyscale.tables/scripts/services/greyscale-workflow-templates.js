@@ -68,7 +68,7 @@ angular.module('greyscale.tables')
         };
 
         function _editWorkflowTemplate(template) {
-            var action = template && template.id ? 'editing' : 'adding';
+            var action = template && template.id ? 'UPDATE' : 'ADD';
 
             var modalData = {
                 title: tns + 'WORKFLOW_TEMPLATE',
@@ -91,7 +91,7 @@ angular.module('greyscale.tables')
         }
 
         function _saveWorkflowTemplate(action, template) {
-            var method = template.id ? 'UPDATE' : 'ADD';
+            var method = template.id ? 'update' : 'add';
             greyscaleWorkflowTemplateApi[method](template)
                 .catch(function (err) {
                     errorHandler(err, action);
