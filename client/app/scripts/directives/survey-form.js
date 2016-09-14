@@ -311,7 +311,6 @@ angular.module('greyscaleApp')
                         });
                         _locked = resolved !== flagged;
                     }
-                    console.log(flags.isPolicy, flags.policyApproved);
                     _locked = _locked || (flags.isPolicy && flags.policyApproved);
                     return _locked;
                 };
@@ -395,7 +394,7 @@ angular.module('greyscaleApp')
             if (flags.isPolicy) {
 
                 flags.policyApproved = task.userStatus === userStatuses.approved;
-                scope.model.snsTitle =  flags.policyApproved ?
+                scope.model.snsTitle = flags.policyApproved ?
                     'GLOBALS.POLICYUSERSTATUSES.APPROVED' : 'POLICY.APPROVE';
                 scope.model.saveDraftBtnTitle = [userStatuses.approved, userStatuses.flagged].indexOf(task.userStatus) >= 0 ?
                     'COMMON.SAVE' : null;
