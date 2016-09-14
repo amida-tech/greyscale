@@ -945,7 +945,7 @@ var exportObject = function  (req, realm) {
 
                                     commentsContent +=
                                         '<p>'
-                                        + '(' + dateStr + authorStr + ') '
+                                        + '(' + dateStr + authorStr + ') <br/>'
                                         + comment
                                         + comments[j].entry
                                         + '</p><hr/>';
