@@ -194,3 +194,20 @@ option.disabled {
         height: auto !important;
     }
 }
+
+.groups-list {
+    position: relative;
+    margin-right: 20px;
+    span {
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-right: 15px;
+    }
+    a {
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+}

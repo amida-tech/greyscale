@@ -37,8 +37,8 @@
             <div ng-if="!row.groups.length">
                 <i class="text-warning" translate=".NO_GROUPS"></i>
             </div>
-            <div ng-repeat="group in row.groups track by $index">
-                {{group.title}}
+            <div ng-repeat="group in row.groups track by $index" class="groups-list">
+                <span class="truncate-wide">{{group.title}}</span>
                 <a ng-if="!row.hasAssignedTasks" ng-click="ext.stepRemoveGroup(row.groups, $index)" class="text-danger">&times;</a>
             </div>
             <div ng-hide="ext.noFreeGroups(row.groups) || row.hasAssignedTasks">
