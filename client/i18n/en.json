@@ -61,6 +61,7 @@
         "504": "Gateway Timeout",
         "505": "HTTP Version Not Supported",
         "-1": "Connection Issue",
+        "UNITOFANALYSIS_HAS_PRODUCTUOA_UOAID": "Subject has link with project(s)",
         "USERS_HAS_ANSWERATTACHMENTS_OWNER": "User is owner of the some answer`s attachment(s)",
         "USERS_HAS_COMMENTS_USERFROMID": "User is author of the some comment(s)",
         "USERS_HAS_COMMENTS_USERHIDEID": "User is hide the some comment(s)",
