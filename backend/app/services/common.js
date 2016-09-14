@@ -260,6 +260,7 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
         .where(
             ProductUOA.productId.equals(productId)
             .and(ProductUOA.UOAid.equals(uoaId))
+            .and(ProductUOA.currentStepId.isNotNull())
         )
     );
 

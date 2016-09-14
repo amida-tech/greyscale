@@ -96,9 +96,11 @@ angular.module('greyscaleApp')
                         case 'option':
                             var grouping = clmn.dataSet.groupBy ? 'group by item.group ' : '';
 
+                            var isDisabled = clmn.dataDisabled && clmn.dataDisabled(scope.modalFormFieldModel) ? ' disabled="disabled" ' : '';
+
                             field += '<select class="form-control" id="' + clmn.field + '" name="' + clmn.field + '" ' +
                                 'ng-options="item.id as item.title ' + grouping + 'disable when model.getDisabled(item) for item in model.options" ' +
-                                'ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired" ng-change="fieldChange(modalFormRec, \'' + clmn.field + '\')" gs-model-validate="modalFormField.dataValidate">';
+                                'ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired" ng-change="fieldChange(modalFormRec, \'' + clmn.field + '\')" gs-model-validate="modalFormField.dataValidate" ' + isDisabled + ' >';
 
                             var hiddenAttr = clmn.dataNoEmptyOption && !clmn.dataPlaceholder ? ' style="display: none" ' : '';
                             var disableAttr = clmn.dataNoEmptyOption || clmn.dataPlaceholder ? ' disabled ' : '';
