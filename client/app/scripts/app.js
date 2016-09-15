@@ -289,6 +289,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
                 //name: '{{ext.projectName}}'
             }
         })
@@ -297,7 +298,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             templateUrl: 'views/controllers/project-setup-surveys.html',
             controller: 'ProjectSetupSurveysCtrl',
             data: {
-                name: 'NAV.PROJECTS.SURVEYS'
+                name: 'NAV.PROJECTS.SURVEYS',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('projects.setup.surveys.edit', {
@@ -309,7 +311,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: '{{ext.surveyName}}'
+                name: '{{ext.surveyName}}',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('projects.setup.products', {
@@ -319,7 +322,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 //name: 'NAV.PROJECTS.PRODUCTS'
                 name: 'NAV.PROJECT_MANAGEMENT',
-                icon: 'fa-paper-plane'
+                icon: 'fa-paper-plane',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('projects.setup.tasks', {
@@ -552,7 +556,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.POLICY.TITLE',
                 icon: 'fa-file',
-                accessLevel: systemRoles.any.mask,
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask,
                 customAccess: {
                     enableFeaturePolicy: true
                 }
@@ -570,7 +574,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.POLICY.EDIT',
                 icon: 'fa-pencil',
-                accessLevel: systemRoles.any.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('policy.review', {
