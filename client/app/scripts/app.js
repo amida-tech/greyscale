@@ -290,7 +290,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
-                //name: '{{ext.projectName}}'
+                    //name: '{{ext.projectName}}'
             }
         })
         .state('projects.setup.surveys', {
@@ -414,20 +414,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             }
         })
         /*.state('visualization', {
-            parent: 'home',
-            url: 'visualization',
-            views: {
-                'body@dashboard': {
-                    templateUrl: 'views/controllers/visualization.html',
-                    controller: 'VisualizationCtrl'
-                }
-            },
-            data: {
-                name: 'NAV.VISUALIZATION',
-                icon: 'fa-globe',
-                accessLevel: systemRoles.superAdmin.mask
-            }
-        })*/
+         parent: 'home',
+         url: 'visualization',
+         views: {
+         'body@dashboard': {
+         templateUrl: 'views/controllers/visualization.html',
+         controller: 'VisualizationCtrl'
+         }
+         },
+         data: {
+         name: 'NAV.VISUALIZATION',
+         icon: 'fa-globe',
+         accessLevel: systemRoles.superAdmin.mask
+         }
+         })*/
         .state('graph', {
             parent: 'home',
             url: 'graph',
@@ -459,20 +459,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             }
         })
         /*.state('index-visualization', {
-            parent: 'home',
-            url: 'index-visualization',
-            views: {
-                'body@dashboard': {
-                    templateUrl: 'views/controllers/index-visualization.html',
-                    controller: 'IndexVisualizationCtrl'
-                }
-            },
-            data: {
-                name: 'NAV.INDEX-VISUALIZATION',
-                icon: 'fa-globe',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
-            }
-        })*/
+         parent: 'home',
+         url: 'index-visualization',
+         views: {
+         'body@dashboard': {
+         templateUrl: 'views/controllers/index-visualization.html',
+         controller: 'IndexVisualizationCtrl'
+         }
+         },
+         data: {
+         name: 'NAV.INDEX-VISUALIZATION',
+         icon: 'fa-globe',
+         accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+         }
+         })*/
         .state('visualizations', {
             parent: 'home',
             url: 'visualizations',
@@ -627,64 +627,65 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
 
 });
 
-_app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv, greyscaleGlobals, _) {
-    $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
-        if (toState.data && toState.data.accessLevel !== greyscaleGlobals.userRoles.all.mask) {
+_app.run(
+    function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv, greyscaleGlobals, _) {
+        $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
+            if (toState.data && toState.data.accessLevel !== greyscaleGlobals.userRoles.all.mask) {
 
-            var params = {
-                reload: true,
-                inherit: false
-            };
+                var params = {
+                    reload: true,
+                    inherit: false
+                };
 
-            greyscaleProfileSrv.getAccessLevel().then(function (_level) {
+                greyscaleProfileSrv.getAccessLevel().then(function (_level) {
 
-                if (toParams.returnTo) {
-                    var redirect = $state.get(toParams.returnTo);
-                    if ((_level & redirect.data.accessLevel) !== 0) {
+                    if (toParams.returnTo) {
+                        var redirect = $state.get(toParams.returnTo);
+                        if ((_level & redirect.data.accessLevel) !== 0) {
+                            e.preventDefault();
+                            $state.go(redirect.name, {}, params);
+                        }
+                    }
+
+                    if ((_level & toState.data.accessLevel) === 0) {
                         e.preventDefault();
-                        $state.go(redirect.name, {}, params);
-                    }
-                }
-
-                if ((_level & toState.data.accessLevel) === 0) {
-                    e.preventDefault();
-                    if ((_level & greyscaleGlobals.userRoles.any.mask) !== 0) { //if not admin accessing admin level page
-                        if (toState.name !== 'login') {
-                            greyscaleUtilsSrv.errorMsg(toState.data.name, 'ERROR.ACCESS_RESTRICTED');
+                        if ((_level & greyscaleGlobals.userRoles.any.mask) !== 0) { //if not admin accessing admin level page
+                            if (toState.name !== 'login') {
+                                greyscaleUtilsSrv.errorMsg(toState.data.name, 'ERROR.ACCESS_RESTRICTED');
+                            }
+                            $state.go('home', {}, params);
+                        } else {
+                            if (toState.name !== 'home') {
+                                $stateParams.returnTo = toState.name;
+                            }
+                            $state.go('login');
                         }
-                        $state.go('home', {}, params);
-                    } else {
-                        if (toState.name !== 'home') {
-                            $stateParams.returnTo = toState.name;
-                        }
-                        $state.go('login');
+                    } else if (fromParams.returnTo && fromParams.returnTo !== toState.name) {
+                        e.preventDefault();
+                        $state.go(fromParams.returnTo, {}, params);
                     }
-                } else if (fromParams.returnTo && fromParams.returnTo !== toState.name) {
-                    e.preventDefault();
-                    $state.go(fromParams.returnTo, {}, params);
-                }
-            });
-        }
-    });
-
-    $rootScope.$on(greyscaleGlobals.events.common.logout, function () {
-        greyscaleProfileSrv.logout()
-            .finally(function () {
-                $state.go('login');
-            });
-    });
-
-    $rootScope.$on(greyscaleGlobals.events.common.login, function () {
-        greyscaleProfileSrv.getProfile()
-            .then(function (profile) {
-                var roleId = profile.roleID;
-                var roles = greyscaleGlobals.userRoles;
-                var role = _.find(roles, {
-                    id: roleId
                 });
-                $state.go((role && role.homeState) ? role.homeState : 'home');
-            });
-    });
+            }
+        });
 
-    $state.ext = {};
-});
+        $rootScope.$on(greyscaleGlobals.events.common.logout, function () {
+            greyscaleProfileSrv.logout()
+                .finally(function () {
+                    $state.go('login');
+                });
+        });
+
+        $rootScope.$on(greyscaleGlobals.events.common.login, function () {
+            greyscaleProfileSrv.getProfile()
+                .then(function (profile) {
+                    var roleId = profile.roleID;
+                    var roles = greyscaleGlobals.userRoles;
+                    var role = _.find(roles, {
+                        id: roleId
+                    });
+                    $state.go((role && role.homeState) ? role.homeState : 'home');
+                });
+        });
+
+        $state.ext = {};
+    });

@@ -31,7 +31,7 @@ angular.module('greyscaleApp')
                 }
 
                 function init() {
-                    _minigrid = new Minigrid({
+                    _minigrid = new $window.Minigrid({
                         skipWindowOnLoad: true,
                         container: el[0],
                         item: attr.minigridItem || '.card',
