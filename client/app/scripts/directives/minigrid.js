@@ -6,6 +6,8 @@ angular.module('greyscaleApp')
             restrict: 'A',
             link: function (scope, el, attr) {
 
+                var _minigrid;
+
                 var collection = attr.minigridCollection;
                 if (collection) {
                     scope.$watchCollection(collection, function (v) {
@@ -29,12 +31,13 @@ angular.module('greyscaleApp')
                 }
 
                 function init() {
-                    window.minigrid({
+                    _minigrid = new Minigrid({
                         skipWindowOnLoad: true,
                         container: el[0],
                         item: attr.minigridItem || '.card',
                         gutter: attr.minigrigGutter || 10
                     });
+                    _minigrid.mount();
                 }
             }
         };
