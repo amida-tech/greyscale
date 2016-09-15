@@ -627,65 +627,65 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
 
 });
 
-_app.run(
-    function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv, greyscaleGlobals, _) {
-        $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
-            if (toState.data && toState.data.accessLevel !== greyscaleGlobals.userRoles.all.mask) {
+_app.run(function (_, $state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv,
+    greyscaleGlobals) {
+    $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
+        if (toState.data && toState.data.accessLevel !== greyscaleGlobals.userRoles.all.mask) {
 
-                var params = {
-                    reload: true,
-                    inherit: false
-                };
+            var params = {
+                reload: true,
+                inherit: false
+            };
 
-                greyscaleProfileSrv.getAccessLevel().then(function (_level) {
+            greyscaleProfileSrv.getAccessLevel().then(function (_level) {
 
-                    if (toParams.returnTo) {
-                        var redirect = $state.get(toParams.returnTo);
-                        if ((_level & redirect.data.accessLevel) !== 0) {
-                            e.preventDefault();
-                            $state.go(redirect.name, {}, params);
-                        }
-                    }
-
-                    if ((_level & toState.data.accessLevel) === 0) {
+                if (toParams.returnTo) {
+                    var redirect = $state.get(toParams.returnTo);
+                    if ((_level & redirect.data.accessLevel) !== 0) {
                         e.preventDefault();
-                        if ((_level & greyscaleGlobals.userRoles.any.mask) !== 0) { //if not admin accessing admin level page
-                            if (toState.name !== 'login') {
-                                greyscaleUtilsSrv.errorMsg(toState.data.name, 'ERROR.ACCESS_RESTRICTED');
-                            }
-                            $state.go('home', {}, params);
-                        } else {
-                            if (toState.name !== 'home') {
-                                $stateParams.returnTo = toState.name;
-                            }
-                            $state.go('login');
-                        }
-                    } else if (fromParams.returnTo && fromParams.returnTo !== toState.name) {
-                        e.preventDefault();
-                        $state.go(fromParams.returnTo, {}, params);
+                        $state.go(redirect.name, {}, params);
                     }
-                });
-            }
-        });
+                }
 
-        $rootScope.$on(greyscaleGlobals.events.common.logout, function () {
-            greyscaleProfileSrv.logout()
-                .finally(function () {
-                    $state.go('login');
-                });
-        });
-
-        $rootScope.$on(greyscaleGlobals.events.common.login, function () {
-            greyscaleProfileSrv.getProfile()
-                .then(function (profile) {
-                    var roleId = profile.roleID;
-                    var roles = greyscaleGlobals.userRoles;
-                    var role = _.find(roles, {
-                        id: roleId
-                    });
-                    $state.go((role && role.homeState) ? role.homeState : 'home');
-                });
-        });
-
-        $state.ext = {};
+                if ((_level & toState.data.accessLevel) === 0) {
+                    e.preventDefault();
+                    if ((_level & greyscaleGlobals.userRoles.any.mask) !== 0) { //if not admin accessing admin level page
+                        if (toState.name !== 'login') {
+                            greyscaleUtilsSrv.errorMsg(toState.data.name, 'ERROR.ACCESS_RESTRICTED');
+                        }
+                        $state.go('home', {}, params);
+                    } else {
+                        if (toState.name !== 'home') {
+                            $stateParams.returnTo = toState.name;
+                        }
+                        $state.go('login');
+                    }
+                } else if (fromParams.returnTo && fromParams.returnTo !== toState.name) {
+                    e.preventDefault();
+                    $state.go(fromParams.returnTo, {}, params);
+                }
+            });
+        }
     });
+
+    $rootScope.$on(greyscaleGlobals.events.common.logout, function () {
+        greyscaleProfileSrv.logout()
+            .finally(function () {
+                $state.go('login');
+            });
+    });
+
+    $rootScope.$on(greyscaleGlobals.events.common.login, function () {
+        greyscaleProfileSrv.getProfile()
+            .then(function (profile) {
+                var roleId = profile.roleID;
+                var roles = greyscaleGlobals.userRoles;
+                var role = _.find(roles, {
+                    id: roleId
+                });
+                $state.go((role && role.homeState) ? role.homeState : 'home');
+            });
+    });
+
+    $state.ext = {};
+});
