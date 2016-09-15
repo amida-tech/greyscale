@@ -11,6 +11,8 @@ angular.module('greyscale.tables')
             field: 'title',
             show: true,
             title: tns + 'NAME',
+            class: 'full-width',
+            cellClass: 'truncate-line',
             sortable: 'title'
         }, {
             show: true,
@@ -22,7 +24,7 @@ angular.module('greyscale.tables')
             title: '',
             cols: _fields,
             dataPromise: getData,
-            multiselect: {},
+            multiselect: {}
         };
 
         function getData() {
