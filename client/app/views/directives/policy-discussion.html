@@ -7,11 +7,19 @@
             <i class="fa fa-eye-slash"></i> <span translate="COMMENTS.HIDE_ALL_FLAGGED"></span>
         </a>
     </div>
-    <div gs-message="msg"
-         associate="model.associate"
-         options="policy.options"
-         remove="removeComment(msg)"
-         edit="editComment(msg)"
-         ng-repeat="msg in model.items | filter:isVisible"></div>
-    <p class="text-center" translate="COMMENTS.NO_MESSAGES" ng-hide="model.items.length > 0"></p>
+    <uib-accordion>
+        <uib-accordion-group ng-repeat="section in model.sections track by $index">
+            <uib-accordion-heading is-open="sectionOpen">
+                <span translate="{{section.label}}"></span><i class="fa pull-right" ng-class="{'fa-caret-up': sectionOpen,
+                'fa-caret-down': !sectionOpen}"></i>
+            </uib-accordion-heading>
+            <div gs-message="msg"
+                 associate="model.associate"
+                 options="policy.options"
+                 remove="removeComment(msg)"
+                 edit="editComment(msg)"
+                 ng-repeat="msg in section.comments | filter:isVisible"></div>
+        </uib-accordion-group>
+    </uib-accordion>
+    <p class="text-center" translate="COMMENTS.NO_MESSAGES" ng-hide="model.sections.length > 0"></p>
 </div>

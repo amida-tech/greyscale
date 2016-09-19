@@ -24,6 +24,7 @@ angular.module('greyscaleApp')
             options = {
                 isPolicy: true,
                 isVersion: isVersion,
+                surveyVersion: NaN,
                 readonly: true,
                 review: true
             };
@@ -50,6 +51,8 @@ angular.module('greyscaleApp')
             .then(function (resp) {
                 var _user = resp.profile,
                     g, qty;
+
+                options.surveyVersion = resp.survey.surveyVersion;
 
                 if (isVersion && !version) {
                     version = resp.survey.surveyVersion;
@@ -173,7 +176,7 @@ angular.module('greyscaleApp')
                     return task;
                 })
                 .catch(function (err) {
-                    greyscaleUtilsSrv.errorMsg(err);
+                    greyscaleUtilsSrv.apiErrorMessage(err, 'START_TASK');
                     return task;
                 });
         }

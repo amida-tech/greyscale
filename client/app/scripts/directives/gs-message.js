@@ -18,16 +18,17 @@ angular.module('greyscaleApp')
             },
             templateUrl: 'views/directives/gs-message.html',
             controller: function ($scope) {
+                var _isAdmin = greyscaleProfileSrv.isAdmin();
                 $scope.isEdit = false;
                 $scope.entry = '';
+
                 $scope.getUserName = function (userId) {
                     return _getUserName(userId || $scope.model.userFromId);
                 };
 
                 $scope.model.created = $scope.model.created ? $scope.model.created : new Date();
-                $scope.isAdmin = function () {
-                    return greyscaleProfileSrv.isAdmin();
-                };
+                $scope.isAdmin = _isAdmin;
+                $scope.showToggleComment = _showToggleComment;
 
                 if (!$scope.edit || typeof $scope.edit !== 'function') {
                     $scope.edit = function () {
@@ -92,6 +93,12 @@ angular.module('greyscaleApp')
                 }
 
                 _associate = $scope.associate;
+
+                function _showToggleComment() {
+                    return _isAdmin && !$scope.options.isVersion && $scope.model.activated &&
+                        $scope.options.surveyVersion === $scope.model.surveyVersion;
+                }
+
             },
             link: function (scope, elem) {
 
@@ -118,20 +125,38 @@ angular.module('greyscaleApp')
         function _highlightSource(model) {
             var questionBlock = $('#Q' + model.questionId);
             if (!questionBlock.length) {
+                _notifyEditedQuote();
                 return;
             }
             questionBlock.closest('.panel:not(.panel-open)').find('.accordion-toggle').click();
             $timeout(function () {
                 var startNode,
-                    range = model.range;
+                    range = model.range,
+                    _html;
 
                 startNode = greyscaleSelection.restore(questionBlock[0], range);
+                _html = greyscaleSelection.html(true);
+
+                if (!_isSamelQoutes(_html, model.range.entry) || !startNode) {
+                    _notifyEditedQuote();
+                }
+
                 if (startNode) {
                     var parent = startNode.parentNode;
                     var scrollPos = parent.getBoundingClientRect().top + window.scrollY;
                     angular.element('body').scrollTop(scrollPos);
                 }
             });
+        }
+
+        function _isSamelQoutes(s1, s2) {
+            var _e1 = s1 ? angular.element(s1).text() || '' : '',
+                _e2 = s2 ? angular.element(s2).text() || '' : '';
+            return _e1 === _e2;
+        }
+
+        function _notifyEditedQuote() {
+            greyscaleUtilsSrv.warningMsg('COMMENTS.QUOTE_CHANGED');
         }
 
         function _getUser(userId) {

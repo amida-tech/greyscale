@@ -48,9 +48,11 @@ module.exports = {
                 yield oComment.checkOneId(req.query.surveyId, Survey, 'id', 'surveyId', 'Survey');
             }
             var oSurvey = new sSurvey(req);
-            var surveyVersion = req.query.version ? parseInt(req.query.version) : yield oSurvey.getMaxSurveyVersion(taskId);
+            var lastVersion = yield oSurvey.getLastSurveyVersion(req.query.surveyId);
+            var surveyVersion = req.query.version ? parseInt(req.query.version) : lastVersion;
+            var commentVersion = parseInt(req.query.version) === -1 ? lastVersion : req.query.version;
             var isAdmin = auth.checkAdmin(req.user);
-            return oComment.getComments(req.query, taskId, req.user.id, isAdmin, surveyVersion);
+            return oComment.getComments(req.query, taskId, req.user.id, isAdmin, surveyVersion, commentVersion);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -63,11 +65,8 @@ module.exports = {
         co(function* () {
             var oComment = new sComment(req);
             var commentId = yield oComment.checkOneId(req.params.commentId, Comment, 'id', 'commentId', 'Comment');
-            var comment = yield oComment.getComment(commentId);
-            var oSurvey = new sSurvey(req);
-            var surveyVersion = req.query.version ? parseInt(req.query.version) : yield oSurvey.getMaxSurveyVersion(comment.taskId);
             var isAdmin = auth.checkAdmin(req.user);
-            return oComment.getAnswerComments(req.query, commentId, req.user.id, isAdmin, surveyVersion);
+            return oComment.getAnswerComments(req.query, commentId, req.user.id, isAdmin);
 
         }).then(function (data) {
             res.json(data);

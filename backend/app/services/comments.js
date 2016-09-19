@@ -66,9 +66,10 @@ var exportObject = function  (req, realm) {
         });
     };
 
-    this.getComments = function (reqQuery, taskId, userId, isAdmin, version) {
+    this.getComments = function (reqQuery, taskId, userId, isAdmin, maxVersion, version) {
         var self = this;
         return co(function* () {
+            var surveyVersion = version || maxVersion;
             var query = Comment
                 .select(
                 Comment.star(),
@@ -86,10 +87,13 @@ var exportObject = function  (req, realm) {
                     .leftJoin(SurveyMeta)
                     .on(SurveyMeta.productId.equals(Task.productId))
                     .leftJoin(Survey)
-                    .on(Survey.id.equals(SurveyMeta.surveyId).and(Survey.surveyVersion.equals(version)))
+                    .on(Survey.id.equals(SurveyMeta.surveyId).and(Survey.surveyVersion.equals(surveyVersion)))
                 )
-                .where(Comment.surveyVersion.equals(version)
+                .where(Comment.activated.equals(true).or(Comment.userFromId.equals(userId)) //return only activated comments and draft comments for current user
             );
+            if (version) {
+                query = query.and(Comment.surveyVersion.equals(version));
+            }
             if (taskId) {
                 query = query.and(Comment.taskId.equals(taskId));
             }
@@ -105,8 +109,6 @@ var exportObject = function  (req, realm) {
             if (reqQuery.surveyId) {
                 query = query.and(Survey.id.equals(reqQuery.surveyId));
             }
-            //return only activated comments and draft comments for current user
-            query = query.and(Comment.activated.equals(true).or(Comment.userFromId.equals(userId)));
             if (!(reqQuery.hidden === 'true')) {
                 // show only unhidden comments
                 query = query.and(Comment.isHidden.equals(false));
@@ -187,7 +189,7 @@ var exportObject = function  (req, realm) {
         });
     };
 
-    this.getAnswerComments = function (reqQuery, commentId, userId, isAdmin, version) {
+    this.getAnswerComments = function (reqQuery, commentId, userId, isAdmin) {
         var self = this;
         return co(function* () {
 
@@ -199,7 +201,6 @@ var exportObject = function  (req, realm) {
             )
                 .where(Comment.parentId.equals(commentId) // select answers
                     .and(Comment.activated.equals(true).or(Comment.userFromId.equals(userId)))
-                    .and(Comment.surveyVersion.equals(version))
             );
             if (!(reqQuery.hidden === 'true')) {
                 // show only unhidden comments

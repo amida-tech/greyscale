@@ -852,6 +852,19 @@ var exportObject = function  (req, realm) {
         });
     };
 
+    this.getLastSurveyVersion = function (surveyId) {
+        var self = this;
+        return co(function* () {
+            var query = Survey
+                .select(sql.functions.MAX(Survey.surveyVersion))
+                .from(Survey)
+                .where(Survey.id.equals(surveyId)
+            );
+            var result = yield thunkQuery(query);
+            return _.first(result) ? result[0].max : 0;
+        });
+    };
+
     this.policyToDocx = function (surveyId, version) {
         var self = this;
         var oUser = new sUser(req);

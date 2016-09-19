@@ -44,7 +44,6 @@ angular.module('greyscaleApp')
                 };
 
                 uploader.onBeforeUploadItem = function (item) {
-                    console.log(item);
                     item.url = _getAbsoluteUrl($scope.uploadEndpoint);
                     item.headers.token = _token;
                     if (typeof $scope.uploadBefore === 'function') {
