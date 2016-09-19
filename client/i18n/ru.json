@@ -111,6 +111,8 @@
         "BAD_TOKEN": "",
         "CHANGES_UNSAVED": "",
         "NOT_DOCX": "",
+        "NO_POLICY_HEADERS": "",
+        "NO_POLICY_SECTIONS": "",
         "STEP_READONLY": "",
         "STEP_SUBMIT": "",
         "SURVEY_UPDATE_ERROR": "",

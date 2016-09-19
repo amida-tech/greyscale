@@ -111,6 +111,8 @@
         "BAD_TOKEN": "Authentication check error",
         "CHANGES_UNSAVED": "Changes unsaved",
         "NOT_DOCX": "File must be .docx",
+        "NO_POLICY_HEADERS": "No policy headers found",
+        "NO_POLICY_SECTIONS": "No policy section found",
         "STEP_READONLY": "Task is readonly",
         "STEP_SUBMIT": "Task submit error",
         "SURVEY_UPDATE_ERROR": "Survey update error",

@@ -122,3 +122,24 @@ $dropdown-link-active-bg: $component-active-bg;
         background-color: $dropdown-link-active-bg;
     }
 }
+
+.ta-toolbar .btn {
+    padding: 0 6px;
+}
+
+.ta-text {
+    .ta-bind {
+        white-space: pre-wrap;
+        word-wrap: normal;
+        background-color: transparent;
+    }
+    table {
+        @extend .table;
+        @extend .table-bordered;
+        @extend .table-condensed;
+    }
+    blockquote,
+    .blockquote {
+        font: inherit;
+    }
+}
