@@ -6,7 +6,7 @@
         <text-angular ng-model="model.description" ng-if="!options.readonly" class="line-numbers"></text-angular>
         <div gs-context-menu="contextMenu" qid="{{model.qid}}" class="gs-contextmenu-wrapper dropdown">
             <div id="{{model.qid}}" class="line-numbers section-text ta-text" ng-show="options.readonly"
-                 ng-bind-html="model.description"></div>
+                 ng-bind-html="getHtml(model.description)"></div>
         </div>
     </uib-accordion-group>
 </uib-accordion>

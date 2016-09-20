@@ -12,6 +12,7 @@ angular.module('greyscaleApp')
             taskId = $stateParams.taskId,
             surveyId = $stateParams.id,
             version = $stateParams.version,
+            isVersion = ($state.current.name === 'policy.version'),
             reqs = {
                 survey: (version ? greyscaleSurveyApi.getVersion(surveyId, version) : greyscaleSurveyApi.get(surveyId)),
                 profile: greyscaleProfileSrv.getProfile(),
@@ -22,7 +23,7 @@ angular.module('greyscaleApp')
             },
             options = {
                 isPolicy: true,
-                isVersion: !!version,
+                isVersion: isVersion,
                 readonly: true,
                 review: true
             };
@@ -33,7 +34,7 @@ angular.module('greyscaleApp')
             title: '',
             surveyData: null,
             isTaskMode: !!taskId,
-            isVersion: !!version
+            isVersion: isVersion
         };
 
         if (!$scope.model.id) {
@@ -50,6 +51,10 @@ angular.module('greyscaleApp')
                 var _user = resp.profile,
                     g, qty;
 
+                if (isVersion && !version) {
+                    version = resp.survey.surveyVersion;
+                }
+
                 data = {
                     survey: resp.survey,
                     userId: _user.id,
@@ -57,7 +62,7 @@ angular.module('greyscaleApp')
                     essenceId: resp.essence[0] ? resp.essence[0].id : null,
                     flags: {
                         allowEdit: !!resp.task,
-                        isVersion: !!version
+                        isVersion: isVersion
                     },
                     policy: {
                         id: resp.survey.policyId,

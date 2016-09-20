@@ -45,8 +45,9 @@
                         <tr>
                             <td>{{model.product.description}}</td>
                             <td>
-                                <a ng-if="model.product.surveyId"
-                                   ui-sref="projects.setup.surveys.edit({projectId: model.product.projectId, surveyId: model.product.surveyId})">
+                                <a ng-if="model.product.survey"
+                                   ng-click="model.surveyEdit()">
+                                    <i class="fa" ng-class="{'fa-list': !model.survey.policyId, 'fa-file': model.survey.policyId}"></i>
                                     {{model.survey.title}}
                                     <small>
                                         (<span ng-show="model.survey.surveyVersion===-1" translate="SURVEYS.IS_DRAFT">

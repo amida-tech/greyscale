@@ -5,6 +5,7 @@ var
     //sSurvey = require('app/services/surveys'),
     //TaskUserState = require('app/models/taskuserstates'),
     Task = require('app/models/tasks'),
+    Workflow = require('app/models/workflows'),
     WorkflowStep = require('app/models/workflow_steps'),
     WorkflowStepGroup = require('app/models/workflow_step_groups'),
     co = require('co'),
@@ -58,6 +59,17 @@ var exportObject = function  (req, realm) {
                 throw new HttpError(403, 'Task with stepId `' + workflowStepId + '` does not exist');
             }
             return _.first(task) ? task[0] : null;
+        });
+    };
+
+    this.getWorkflowByProduct = function (productId, checkOnly) {
+        var self = this;
+        return co(function* () {
+            var workflow = yield thunkQuery(Workflow.select().where(Workflow.productId.equals(productId)));
+            if (!_.first(workflow) && !checkOnly) {
+                throw new HttpError(403, 'Workflow for productId `' + productId + '` does not exist');
+            }
+            return _.first(workflow) ? workflow[0] : null;
         });
     };
 
