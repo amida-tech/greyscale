@@ -14,7 +14,6 @@ var
     UOA = require('app/models/uoas'),
     Task = require('app/models/tasks'),
     Product = require('app/models/products'),
-    Project = require('app/models/projects'),
     Organization = require('app/models/organizations'),
     ProductUOA = require('app/models/product_uoa'),
     User = require('app/models/users'),
@@ -132,10 +131,8 @@ module.exports = {
                     .select(Organization.star())
                     .from(
                         Product
-                        .leftJoin(Project)
-                        .on(Product.projectId.equals(Project.id))
                         .leftJoin(Organization)
-                        .on(Project.organizationId.equals(Organization.id))
+                        .on(Product.organizationId.equals(Organization.id))
                     )
                     .where(Product.id.equals(req.params.productId))
                 );
@@ -387,25 +384,6 @@ module.exports = {
 
                 result.push(req.body[i]);
             }
-
-/* move approve to survey controller: GET /tasks/:id/approve ('draft' status does not exist now)
-            // TaskUserStates - check and set state to approve/draft if possible
-            var oTaskUserState = new sTaskUserState(req);
-            var task = yield * common.getTaskByStep(req, result[0].wfStepId, result[0].UOAid);
-            if (req.query.autosave) {
-                // draft
-                if (_.findWhere(result, {status: 'Ok'})) {
-                    // if at least one of answer is Ok - set task state as draft
-                    oTaskUserState.draft(task.id, req.user.id);
-                }
-            } else {
-                // approve (save&submit) - save answers with version
-                if (!_.findWhere(result, {status: 'Fail'})) {
-                    // if at least one of answer is Fail  - does not set task state as approve
-                    oTaskUserState.approve(task.id, req.user.id); // all answers is Ok
-                }
-            }
-*/
 
             return result;
         }).then(function (data) {

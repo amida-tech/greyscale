@@ -1,6 +1,6 @@
-<div ng-if="isAdmin() || !model.isHidden" class="gs-message">
+<div ng-if="(!model.isHidden  || isAdmin()) && (model.activated || !options.isVersion)" class="gs-message">
     <span class="gs-message-from">
-        <a ng-if="isAdmin();" ng-click="toggleComment();">
+        <a ng-if="!options.isVersion && isAdmin()" ng-click="toggleComment();">
             <i class="fa" ng-class="{ 'fa-eye-slash': !model.isHidden, 'fa-eye': model.isHidden }"></i>
         </a>
         {{getUserName()}}
@@ -21,7 +21,7 @@
     </span>
     <div ng-hide="model.isHidden" class="gs-message-body-warpper">
         <div class="gs-message-body" ng-hide="isEdit">
-            <div class="ta-text" ng-bind-html="model.entry"></div>
+            <div class="ta-text" ng-bind-html="getHtml(model.entry)"></div>
             <div class="gs-message-fader"></div>
         </div>
         <textarea ng-show="isEdit" ng-model="entry" class="form-control"></textarea>

@@ -10,10 +10,11 @@
 </p>
 <p>
     Organisation: <%= organization.name %></br>
-    Project: <%= product.title %></br>
 <% if (survey.policyId) { %>
+    Project: <%= product.description %></br>
     Policy: <%= survey.title %></br>
 <% } else { %>
+    Project: <%= product.title %></br>
     Survey: <%= survey.title %></br>
     Subject: <%= uoa.name %></br>
 <% } %>

@@ -4,7 +4,6 @@ var _ = require('underscore'),
     User = require('app/models/users'),
     Organization = require('app/models/organizations'),
     Language = require('app/models/languages'),
-    Project = require('app/models/projects'),
     Product = require('app/models/products'),
     crypto = require('crypto'),
     vl = require('validator'),
@@ -56,8 +55,8 @@ module.exports = {
                 .select(
                     Product.star()
                 )
-                .from(Product.join(Project).on(Product.projectId.equals(Project.id)))
-                .where(Project.organizationId.equals(req.params.id))
+                .from(Product)
+                .where(Product.organizationId.equals(req.params.id))
             );
         }).then(function (data) {
             res.json(data);
@@ -77,13 +76,7 @@ module.exports = {
                     var org = yield thunkQuery(
                         Organization
                         .select(
-                            Organization.star(),
-                            '(SELECT ' +
-                            '"Projects"."id" ' +
-                            'FROM "Projects"' +
-                            'WHERE ' +
-                            '"Projects"."organizationId" = "Organizations"."id"' +
-                            'LIMIT 1) as "projectId"'
+                            Organization.star()
                         )
                         .where(
                             Organization.realm.equals(req.schemas[i])
@@ -101,13 +94,7 @@ module.exports = {
                 data = yield thunkQuery(
                     Organization
                     .select(
-                        Organization.star(),
-                        '(SELECT ' +
-                        '"Projects"."id" ' +
-                        'FROM "Projects"' +
-                        'WHERE ' +
-                        '"Projects"."organizationId" = "Organizations"."id"' +
-                        'LIMIT 1) as "projectId"'
+                        Organization.star()
                     )
                     .from(Organization),
                     _.omit(req.query, 'offset', 'limit', 'order')
@@ -201,23 +188,6 @@ module.exports = {
                 info: 'Add organization'
             });
 
-            // TODO creates project in background, may be need to disable in future
-
-            var project = yield clientThunkQuery(
-                Project.insert({
-                    organizationId: org[0].id,
-                    codeName: 'Org_' + org[0].id + '_project'
-                })
-                .returning(Project.id)
-            );
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'insert',
-                object: 'projects',
-                entity: project[0].id,
-                info: 'Add project to organization `' + org[0].id + '`'
-            });
             return org;
         }).then(function (data) {
             res.status(201).json(_.first(data));

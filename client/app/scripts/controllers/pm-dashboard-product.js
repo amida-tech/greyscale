@@ -25,14 +25,14 @@ angular.module('greyscaleApp')
 
         greyscaleProductApi.get(productId).then(function (product) {
             $scope.model.product = product;
-
-            if (product.surveyId) {
-                greyscaleSurveyApi.get(product.surveyId).then(function (survey) {
+            if (product.survey) {
+                greyscaleSurveyApi.get(product.survey.id).then(function (survey) {
                     $scope.model.survey = survey;
+                    $scope.model.surveyEdit = _handleSurveyEdit(survey);
                     tasksTable.dataFilter.policyId = survey.policyId;
                 });
             }
-            greyscaleProjectProductsTbl.methods.fillSurvey(product.projectId);
+            greyscaleProjectProductsTbl.methods.fillSurvey();
 
             $state.ext.productName = product.title;
             return product;
@@ -70,18 +70,8 @@ angular.module('greyscaleApp')
             Organization.$lock = false;
         });
 
-        $scope.download = function (e) {
-            if (!$scope.model.downloadHref) {
-                e.preventDefault();
-                e.stopPropagation();
-                greyscaleProductApi.product(productId).getTicket()
-                    .then(function (ticket) {
-                        $scope.model.downloadHref = greyscaleProductApi.getDownloadDataLink(ticket);
-                        $timeout(function () {
-                            e.currentTarget.click();
-                        });
-                    });
-            }
+        $scope.download = function () {
+            greyscaleModalsSrv.selectPolicyVersion($scope.model.product.survey, 0);
         };
 
         $scope.editProductTasks = function () {
@@ -109,6 +99,20 @@ angular.module('greyscaleApp')
                 }
             });
         };
+
+        function _handleSurveyEdit(survey) {
+            return function () {
+                if (survey.policyId) {
+                    $state.go('policy.edit', {
+                        id: survey.id
+                    });
+                } else {
+                    $state.go('projects.setup.surveys.edit', {
+                        surveyId: survey.id
+                    });
+                }
+            };
+        }
 
         function _moveNextStep(task) {
             var params = {

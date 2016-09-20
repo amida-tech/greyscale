@@ -11,13 +11,21 @@ angular.module('greyscaleApp')
             _title = [],
             taskId = $stateParams.taskId,
             surveyId = $stateParams.id,
+            version = $stateParams.version,
+            isVersion = ($state.current.name === 'policy.version'),
             reqs = {
-                survey: greyscaleSurveyApi.get(surveyId),
+                survey: (version ? greyscaleSurveyApi.getVersion(surveyId, version) : greyscaleSurveyApi.get(surveyId)),
                 profile: greyscaleProfileSrv.getProfile(),
                 languages: greyscaleLanguageApi.list(),
                 essence: greyscaleEntityTypeApi.list({
                     tableName: 'SurveyAnswers'
                 })
+            },
+            options = {
+                isPolicy: true,
+                isVersion: isVersion,
+                readonly: true,
+                review: true
             };
 
         $scope.loading = true;
@@ -25,7 +33,8 @@ angular.module('greyscaleApp')
             id: surveyId,
             title: '',
             surveyData: null,
-            isTaskMode: !!taskId
+            isTaskMode: !!taskId,
+            isVersion: isVersion
         };
 
         if (!$scope.model.id) {
@@ -42,13 +51,18 @@ angular.module('greyscaleApp')
                 var _user = resp.profile,
                     g, qty;
 
+                if (isVersion && !version) {
+                    version = resp.survey.surveyVersion;
+                }
+
                 data = {
                     survey: resp.survey,
                     userId: _user.id,
                     languages: resp.languages,
                     essenceId: resp.essence[0] ? resp.essence[0].id : null,
                     flags: {
-                        allowEdit: !!resp.task
+                        allowEdit: !!resp.task,
+                        isVersion: isVersion
                     },
                     policy: {
                         id: resp.survey.policyId,
@@ -57,16 +71,15 @@ angular.module('greyscaleApp')
                         section: resp.survey.section,
                         subsection: resp.survey.subsection,
                         number: resp.survey.number,
-                        options: {
-                            readonly: true,
-                            isPolicy: true
-                        },
+                        options: options,
+                        survey: resp.survey,
                         surveyId: resp.survey.id,
                         answerId: resp.survey.id,
                         taskId: resp.task ? resp.task.id : null,
                         userId: _user.id,
                         sections: [],
-                        attachments: resp.survey.attachments || []
+                        attachments: resp.survey.attachments || [],
+                        version: resp.survey.surveyVersion
                     },
                     collaboratorIds: [],
                     collaborators: {},
@@ -114,12 +127,14 @@ angular.module('greyscaleApp')
                     if (_data.task) {
                         greyscaleCommentApi.getUsers(_data.task.id)
                             .then(function (commentData) {
-                                var _u, _qty = commentData.users.length;
+                                var _u,
+                                    _usr,
+                                    _qty = commentData.users.length;
 
                                 for (_u = 0; _u < _qty; _u++) {
-                                    _data.collaborators[commentData.users[_u].userId] = _.pick(commentData.users[_u], ['userId', 'firstName', 'lastName']);
-                                    _data.collaborators[commentData.users[_u].userId].fullName = greyscaleUtilsSrv.getUserName(
-                                        commentData.users[_u]);
+                                    _usr = _.pick(commentData.users[_u], ['userId', 'firstName', 'lastName']);
+                                    _usr.fullName = greyscaleUtilsSrv.getUserName(commentData.users[_u]);
+                                    _data.collaborators[commentData.users[_u].userId] = _usr;
                                 }
                             });
                     }
@@ -138,7 +153,7 @@ angular.module('greyscaleApp')
                 _survey = data.survey,
                 _questions = [],
                 _sections = [],
-                qty = _survey.questions.length;
+                qty = _survey && _survey.questions ? _survey.questions.length : -1;
 
             for (q = 0; q < qty; q++) {
                 _survey.questions[q].canComment = $scope.model.isTaskMode;

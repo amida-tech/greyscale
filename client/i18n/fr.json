@@ -48,6 +48,7 @@
         "CURRENT_VALUE": "",
         "DELETE": "",
         "DISAGREE": "",
+        "DOWNLOAD": "",
         "EDIT": "",
         "FURTHER": "",
         "GLOBALLY": "",
@@ -64,6 +65,7 @@
         "SAVE": "",
         "SAVED": "",
         "SAVE_AND_CONTINUE": "",
+        "SELECT": "",
         "SEND": "",
         "SEND_MESSAGE": "",
         "SERVICE_UNAVAILABLE": "",
@@ -94,6 +96,15 @@
         "PLACEHOLDER": "",
         "RESET": "",
         "TODAY": ""
+    },
+    "DLG": {
+        "POLICY": {
+            "STEP": {
+                "CURRENT": "",
+                "NEXT": "",
+                "TITLE": ""
+            }
+        }
     },
     "ERROR": {
         "ACCESS_RESTRICTED": "",
@@ -321,7 +332,8 @@
         "POLICY": {
             "EDIT": "",
             "REVIEW": "",
-            "TITLE": ""
+            "TITLE": "",
+            "VERSION": ""
         },
         "PRODUCT_INDEXES": "",
         "PRODUCT_TASKS": "",
@@ -411,6 +423,7 @@
     "POLICY": {
         "APPROVE": "",
         "AUTHOR": "",
+        "IS_EDITING_BY": "",
         "NEW_POLICY": "",
         "NUMBER": "",
         "PUBLISH": "",
@@ -427,6 +440,7 @@
         "SUBSECTION": "",
         "TEXT": "",
         "TITLE": "",
+        "UPDATED": "",
         "UPLOAD_TEXT": ""
     },
     "PRODUCTS": {
@@ -515,9 +529,11 @@
             "TYPE": ""
         },
         "WORKFLOW": {
+            "APPLY_REJECT_HAS_ASSIGNED_TASKS": "",
             "DESCRIPTION": "",
             "DESCRIPTION_REQUIRED": "",
             "LOAD_FROM_WORKFLOW_TEMPLATE": "",
+            "REMOVE_STEP_REJECT_HAS_ASSIGNED_TASKS": "",
             "STEPS": {
                 "ADD_GROUP": "",
                 "ALLOW_EDIT": "",
@@ -538,6 +554,7 @@
                 "SORT_DISABLED": "",
                 "SORT_ENABLED": "",
                 "START_DATE": "",
+                "TASKS_ASSIGNED_CANT_MANIPULATE_GROUPS": "",
                 "TITLE": "",
                 "WRITE_ACCESS_READ": "",
                 "WRITE_ACCESS_WRITE": ""
@@ -697,7 +714,7 @@
         "RESOLVE_COMMENT": "",
         "RESOLVE_ENTRY": "",
         "RESPONSES": "",
-        "REVIEVER_COMMENT": "",
+        "REVIEWER_COMMENT": "",
         "SAVE_AND_RESOLVE": "",
         "SAVE_DRAFT": "",
         "SAVE_DRAFT_SUCCESS": "",
@@ -709,6 +726,8 @@
         "TRANSLATED": "",
         "URL_INCORRECT": "",
         "VERSION": "",
+        "VERSIONS": "",
+        "VERSION_DRAFT": "",
         "VIEW": ""
     },
     "TABLES": {
@@ -816,6 +835,13 @@
         "USERS_IN_GROUPS": "",
         "USER_GROUP": "",
         "USER_GROUPS": ""
+    },
+    "VERSIONS": {
+        "DOWNLOAD": "",
+        "REVIEW": "",
+        "SELECT": "",
+        "VERSION": "",
+        "VERSIONS": ""
     },
     "VISUALIZATIONS": {
         "MODAL_TITLE": "",

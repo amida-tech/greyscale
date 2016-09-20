@@ -10,7 +10,6 @@ angular.module('greyscaleApp')
         Organization.$watch($scope, _renderProductsTable);
 
         function _renderProductsTable() {
-            products.dataFilter.projectId = Organization.projectId;
             if ($scope.model.products) {
                 products.tableParams.reload();
             } else {

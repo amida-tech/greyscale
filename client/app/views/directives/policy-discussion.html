@@ -1,5 +1,5 @@
 <div>
-    <div ng-if="isAdmin() && model.items.length > 0">
+    <div ng-if="isAdmin() && model.items.length > 0 && !policy.options.isVersion">
         <a ng-click="hideComments('all');">
             <i class="fa fa-eye-slash"></i> <span translate="COMMENTS.HIDE_ALL"></span>
         </a><br />
@@ -18,7 +18,7 @@
                  options="policy.options"
                  remove="removeComment(msg)"
                  edit="editComment(msg)"
-                 ng-repeat="msg in section.comments"></div>
+                 ng-repeat="msg in section.comments | filter:isVisible"></div>
             <p class="text-center" translate="COMMENTS.NO_MESSAGES" ng-hide="model.items.length > 0"></p>
         </uib-accordion-group>
     </uib-accordion>

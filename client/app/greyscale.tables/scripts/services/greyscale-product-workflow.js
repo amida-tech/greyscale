@@ -4,9 +4,8 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleProductWorkflowTbl', function (_, $q, greyscaleModalsSrv,
-        greyscaleProductApi, greyscaleUtilsSrv, greyscaleRoleApi,
-        greyscaleProductWorkflowApi, greyscaleGlobals, $timeout, greyscaleGroupApi) {
+    .factory('greyscaleProductWorkflowTbl', function (_, $q, greyscaleModalsSrv, greyscaleProductApi, greyscaleUtilsSrv,
+        greyscaleRoleApi, greyscaleProductWorkflowApi, greyscaleGlobals, $timeout, greyscaleGroupApi, inform, i18n) {
 
         var tns = 'PRODUCTS.WORKFLOW.STEPS.';
 
@@ -28,7 +27,7 @@ angular.module('greyscale.tables')
                 title: tns + 'ROLE',
                 showDataInput: true,
                 show: true,
-                dataFormat: 'text',
+                dataFormat: 'text'
             },
             startDate: {
                 field: 'startDate',
@@ -193,7 +192,6 @@ angular.module('greyscale.tables')
                 steps: _getWorkStepsPromise(workflowId),
                 groups: greyscaleGroupApi.list(organizationId)
             };
-
             return $q.all(req).then(function (promises) {
                 _dicts.groups = promises.groups;
                 _table._dicts = _dicts;
@@ -251,8 +249,14 @@ angular.module('greyscale.tables')
         function _deleteWorkflowStep(delStep) {
             angular.forEach(_table.tableParams.data, function (item, i) {
                 if (angular.equals(item, delStep)) {
-                    _table.tableParams.data.splice(i, 1);
-                    _table.refreshDataMap();
+                    if (item.hasAssignedTasks) {
+                        inform.add(i18n.translate('PRODUCTS.WORKFLOW.REMOVE_STEP_REJECT_HAS_ASSIGNED_TASKS'), {
+                            type: 'danger'
+                        });
+                    } else {
+                        _table.tableParams.data.splice(i, 1);
+                        _table.refreshDataMap();
+                    }
                 }
             });
         }
@@ -270,13 +274,12 @@ angular.module('greyscale.tables')
 
         function _getOrderHandleTooltip() {
             var product = _getProduct();
-            return (!product.projectId || product.status === 0) ? tns + 'SORT_ENABLED' : tns + 'SORT_DISABLED';
+            return (product.status === 0) ? tns + 'SORT_ENABLED' : tns + 'SORT_DISABLED';
         }
 
         function _getOrderHandleClass() {
             var product = _getProduct();
-            var cl = (!product.projectId || product.status === 0) ? 'drag-sortable' : 'disabled';
-            return cl;
+            return (product.status === 0) ? 'drag-sortable' : 'disabled';
         }
 
         return _table;
