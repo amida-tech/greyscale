@@ -78,10 +78,10 @@ angular.module('greyscaleApp')
                             res = greyscaleCommentApi.add(_newComment);
                         }
                         res.then(function (result) {
-                            angular.extend(_newComment, result);
-                            $scope.model.items.unshift(_newComment);
-                            _updateSections($scope);
-                            return _newComment;
+                                angular.extend(_newComment, result);
+                                $scope.model.items.unshift(_newComment);
+                                _updateSections($scope);
+                                return _newComment;
                             })
                             .catch(greyscaleUtilsSrv.errorMsg);
                     }
