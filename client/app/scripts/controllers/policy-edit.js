@@ -112,7 +112,6 @@ angular.module('greyscaleApp')
         greyscaleProfileSrv.getProfile()
             .then(function (_user) {
                 user = _user;
-                console.log(user);
                 _setAuthor(_user, $scope.model.policy);
                 return _user;
             });

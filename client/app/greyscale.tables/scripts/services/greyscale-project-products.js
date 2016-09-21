@@ -181,7 +181,9 @@ angular.module('greyscale.tables')
         // }
 
         function _getWorkflowTemplateName(row) {
-            var template = _.find(_dicts.workflowTemplates, {id: row.workflowTemplateId});
+            var template = _.find(_dicts.workflowTemplates, {
+                id: row.workflowTemplateId
+            });
             return template ? template.workflow.name : i18n.translate(tns + 'CREATE_WORKFLOW');
         }
 
