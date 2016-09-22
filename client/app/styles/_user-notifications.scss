@@ -10,7 +10,12 @@
     .notification {
         min-width: 400px;
         padding: 10px 15px 5px 15px;
-        border-bottom: 1px solid #eee;
+        border-top: 1px solid #eee;
+
+        &:first-child, &.first {
+            border: 0;
+        }
+
         .sender {
             font-size: 11pt;
             font-weight: bold;
@@ -23,14 +28,15 @@
             margin: 0;
             padding: 3px 0;
         }
-        .control {
-            font-size: 10pt;
-            padding-right: 10px;
-        }
+    }
+    .control {
+        font-size: 10pt;
+        padding-right: 10px;
     }
     .go-history {
+        border-top: 1px solid #eee;
         padding: 10px 15px 5px 15px;
-        text-align: center;
+        text-align: left;
         a, a:hover {
             display: inline;
             background: transparent;

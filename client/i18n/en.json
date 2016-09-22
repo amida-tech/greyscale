@@ -372,6 +372,7 @@
     "NOTIFICATIONS": {
         "DATE_TIME": "Date / Time",
         "GO_HISTORY": "All Notifications",
+        "MARK_ALL_AS_READ": "Mark All as Read",
         "MARK_AS_READ": "Mark as Read",
         "MESSAGE": "Message",
         "NOTIFICATIONS": "Notifications",
