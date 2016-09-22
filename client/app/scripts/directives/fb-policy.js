@@ -43,7 +43,7 @@ angular.module('greyscaleApp')
                 }
 
                 function _setContextMenu() {
-                    if (scope.options && scope.options.canComment) {
+                    if (scope.model.canComment) {
                         scope.contextMenu = [{
                             title: 'CONTEXT_MENU.COMMENT',
                             action: function (data) {

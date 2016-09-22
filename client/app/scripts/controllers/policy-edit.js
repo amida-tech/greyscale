@@ -272,7 +272,6 @@ angular.module('greyscaleApp')
                             sections: _sections,
                             options: {
                                 canImport: canImport,
-                                canComment: true, // let admins to comment policy
                                 readonly: survey.locked,
                                 isVersion: false
                             }

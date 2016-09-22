@@ -22,7 +22,6 @@ angular.module('greyscaleApp')
                 })
             },
             options = {
-                canComment: false,
                 isPolicy: true,
                 isVersion: isVersion,
                 readonly: true,
@@ -100,7 +99,6 @@ angular.module('greyscaleApp')
                         data.task = resp.task;
                     }
                 }
-                options.canComment = $scope.model.isTaskMode;
                 _separatePolicy(data);
 
                 _title = [data.survey.title];
