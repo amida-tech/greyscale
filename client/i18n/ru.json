@@ -311,6 +311,7 @@
     "NOTIFICATIONS": {
         "DATE_TIME": "",
         "GO_HISTORY": "",
+        "MARK_ALL_AS_READ": "",
         "MARK_AS_READ": "",
         "MESSAGE": "",
         "NOTIFICATIONS": "",

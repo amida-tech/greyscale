@@ -24,20 +24,23 @@ angular.module('greyscaleApp')
                 '       <span ng-if="model.notifications.length" class="counter">{{model.notifications.length}}</span>' +
                 '   </a>' +
                 '   <ul class="dropdown-menu dropdown-menu-right">' +
-                '       <li class="scroll">' +
-                '           <div>' +
-                '               <div class="notification" ng-repeat="notification in model.notifications track by $index">' +
-                '                   <div class="sender">{{notification.userFromName}}</div>' +
-                '                   <div class="send-time">{{notification.created|date:\'medium\'}}</div>' +
-                '                   <p><b>{{notification.subject}}</b><br><span ng-bind-html="sanitize(notification.note)"></span></p>' +
-                '                   <div class="control pull-right"><a ng-click="markAsRead(notification, $index); $event.stopPropagation()" translate=".MARK_AS_READ"></a></div>' +
-                '                   <div class="clearfix"></div>' +
+                '       <li>' +
+                '           <div class="scroll">' +
+                '               <div>' +
+                '                   <div class="notification" ng-repeat="notification in model.notifications track by $index">' +
+                '                       <div class="sender">{{notification.userFromName}}</div>' +
+                '                       <div class="send-time">{{notification.created|date:\'medium\'}}</div>' +
+                '                       <p><b>{{notification.subject}}</b><br><span ng-bind-html="sanitize(notification.note)"></span></p>' +
+                '                       <div class="control pull-right"><a ng-click="markAsRead(notification, $index); $event.stopPropagation()" translate=".MARK_AS_READ"></a></div>' +
+                '                       <div class="clearfix"></div>' +
+                '                   </div>' +
+                '               </div>' +
+                '               <div ng-if="!model.notifications.length" class="notification first">' +
+                '                   <p translate=".NO_UNREAD"></p>' +
                 '               </div>' +
                 '           </div>' +
-                '           <div ng-if="!model.notifications.length" class="notification">' +
-                '               <p translate=".NO_UNREAD"></p>' +
-                '           </div>' +
                 '           <div class="go-history">' +
+                '               <a ng-if="model.notifications.length" class="control pull-right" ng-click="markAllAsRead(); $event.stopPropagation()" translate=".MARK_ALL_AS_READ"></a>' +
                 '               <a ui-sref="notifications" translate=".GO_HISTORY"></a>' +
                 '           </div>' +
                 '       </li>' +
@@ -58,22 +61,25 @@ angular.module('greyscaleApp')
                     .then(function (profile) {
                         user = profile;
                         _accessLevel = greyscaleProfileSrv.getAccessLevelMask();
-                        _realm = _isSuperAdmin() ? greyscaleGlobals.adminSchema : Organization.realm;
+                        //_realm = _isSuperAdmin() ? greyscaleGlobals.adminSchema : Organization.realm;
                         _getUnreadNotifications();
                         greyscaleWebSocketSrv.on('something-new', _getUnreadNotifications);
-                        userNotificationsSrv.setUpdate(_getUnreadNotifications, _realm);
+                        userNotificationsSrv.setUpdate(_getUnreadNotifications);
                     });
 
                 scope.markAsRead = function (notification, index) {
-                    greyscaleNotificationApi.setRead(notification.id, _realm)
+                    greyscaleNotificationApi.setRead(notification.id)
                         .then(function () {
                             scope.model.notifications.splice(index, 1);
                         });
                 };
 
-                function _isSuperAdmin() {
-                    return ((_accessLevel & greyscaleGlobals.userRoles.superAdmin.mask) !== 0);
-                }
+                scope.markAllAsRead = function () {
+                    greyscaleNotificationApi.setAllRead()
+                        .then(function () {
+                            scope.model.notifications.splice(0);
+                        });
+                };
 
                 function _getUnreadNotifications() {
                     greyscaleNotificationApi.list({
