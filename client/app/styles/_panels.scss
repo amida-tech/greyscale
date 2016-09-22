@@ -123,13 +123,13 @@ div.disabled {
 .gs-contextmenu-wrapper {
     position: relative;
 
-    .context-menu {
+    .dropdown-menu {
         display: none;
         position: absolute;
     }
 
     &.open {
-        .context-menu {
+        .dropdown-menu {
             display: block;
         }
     }

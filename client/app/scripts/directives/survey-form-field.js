@@ -209,7 +209,7 @@ angular.module('greyscaleApp')
                             break;
 
                         default:
-                            $log.warn('not rendered', scope.field);
+                            $log.debug('not rendered', scope.field);
                             body = '<p class="subtext error">field type "{{field.type}}" rendering is not implemented yet</p>';
                         }
 
