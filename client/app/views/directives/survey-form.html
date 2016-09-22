@@ -69,7 +69,7 @@
                             class="btn btn-primary pull-right"
                             ng-hide="surveyData.flags.allowTranslate && !model.translated"
                             ng-click="save()"
-                            ng-disabled="surveyData.resolveModeIsDisabled ? false : surveyForm.$invalid || isLocked() || model.locked"
+                            ng-disabled="surveyData.resolveModeIsDisabled ? surveyData.flags.policyApproved : surveyForm.$invalid || isLocked() || model.locked"
                             translate="{{model.snsTitle}}">
                     </button>
 

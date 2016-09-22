@@ -775,6 +775,9 @@ var exportObject = function  (req, realm) {
                         'row_to_json("Products".*) as product',
                         'row_to_json("Workflows".*) as workflow',
                         'ARRAY (SELECT "UOAid" FROM "ProductUOA" WHERE "productId" = "SurveyMeta"."productId") as uoas, ' +
+                        '(WITH usr AS ' +
+                        '(SELECT "id", "firstName", "lastName", "email" FROM "Users" WHERE "id" = "Policies"."author")' +
+                        'SELECT row_to_json(usr.*) as author FROM usr), ' +
                         '(WITH sq AS ' +
                         '( ' +
                             'SELECT ' +

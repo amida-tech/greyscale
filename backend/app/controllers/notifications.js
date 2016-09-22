@@ -107,15 +107,15 @@ function* createNotification(req, note, template) {
     note4insert.note = yield * renderFile(config.notificationTemplates[template].notificationBody, note4insert);
     note4insert = _.pick(note4insert, Notification.insertCols); // insert only columns that may be inserted
     var noteInserted = yield thunkQuery(Notification.insert(note4insert).returning(Notification.id));
-    if (parseInt(note.notifyLevel) > 1) { // onsite notification
-        socketController.sendNotification(note.userTo);
-    }
     var userTo = yield * common.getUser(req, note.userTo);
     if (!vl.isEmail(userTo.email)) {
         throw new HttpError(403, 'Email is not valid: ' + userTo.email); // just in case - I think, it is not possible
     }
     if (typeof note.notifyLevel === 'undefined') {
         note.notifyLevel = userTo.notifyLevel;
+    }
+    if (parseInt(note.notifyLevel) > 0) { // onsite notification
+        socketController.sendNotification(note.userTo);
     }
     note.subject = note.subject || '';
     note.subject = ejs.render(config.notificationTemplates[template].subject, note);
@@ -743,15 +743,15 @@ function notify(req, userTo, note, template) {
         note4insert.note = yield * renderFile(config.notificationTemplates[template].notificationBody, note4insert);
         note4insert = _.pick(note4insert, Notification.insertCols); // insert only columns that may be inserted
         var noteInserted = yield thunkQuery(Notification.insert(note4insert).returning(Notification.id));
-        if (parseInt(note.notifyLevel) > 1) { // onsite notification
-            socketController.sendNotification(note.userTo);
-        }
         var userTo = yield * common.getUser(req, note.userTo);
         if (!vl.isEmail(userTo.email)) {
             throw new HttpError(403, 'Email is not valid: ' + userTo.email); // just in case - I think, it is not possible
         }
         if (typeof note.notifyLevel === 'undefined') {
             note.notifyLevel = userTo.notifyLevel;
+        }
+        if (parseInt(note.notifyLevel) > 0) { // onsite notification
+            socketController.sendNotification(note.userTo);
         }
         note.subject = note.subject || '';
         note.subject = ejs.render(config.notificationTemplates[template].subject, note);
