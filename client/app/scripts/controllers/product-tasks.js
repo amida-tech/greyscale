@@ -847,6 +847,7 @@ angular.module('greyscaleApp')
                         greyscaleUtilsSrv.errorMsg(error, tns + 'PRODUCT_NOT_FOUND');
                         $state.go('home');
                     });
+                return _productCached;
             }
             return _productCached;
         }

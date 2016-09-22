@@ -5,12 +5,12 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleProductWorkflowTbl', function (_, $q, greyscaleModalsSrv, greyscaleProductApi, greyscaleUtilsSrv,
-        greyscaleRoleApi, greyscaleProductWorkflowApi, greyscaleGlobals, $timeout, greyscaleGroupApi, inform, i18n) {
+        greyscaleRoleApi, greyscaleProductWorkflowApi, greyscaleGlobals, $timeout, greyscaleGroupApi) {
 
         var tns = 'PRODUCTS.WORKFLOW.STEPS.';
 
         var _dicts = {
-            roles: []
+            groups: []
         };
 
         var formFields = {
@@ -92,6 +92,7 @@ angular.module('greyscale.tables')
         };
 
         var _table = {
+            _dicts: _dicts,
             dataFilter: {}
         };
 
@@ -192,11 +193,15 @@ angular.module('greyscale.tables')
                 steps: _getWorkStepsPromise(workflowId),
                 groups: greyscaleGroupApi.list(organizationId)
             };
-            return $q.all(req).then(function (promises) {
-                _dicts.groups = promises.groups;
-                _table._dicts = _dicts;
-                return _prepareSteps(promises.steps);
-            });
+
+            return $q.all(req)
+                .then(function (resp) {
+                    _dicts.groups = resp.groups;
+                    return _prepareSteps(resp.steps);
+                })
+                .catch(function (err) {
+                    $q.reject(err);
+                });
 
         }
 
@@ -250,9 +255,7 @@ angular.module('greyscale.tables')
             angular.forEach(_table.tableParams.data, function (item, i) {
                 if (angular.equals(item, delStep)) {
                     if (item.hasAssignedTasks) {
-                        inform.add(i18n.translate('PRODUCTS.WORKFLOW.REMOVE_STEP_REJECT_HAS_ASSIGNED_TASKS'), {
-                            type: 'danger'
-                        });
+                        greyscaleUtilsSrv.errorMsg('PRODUCTS.WORKFLOW.REMOVE_STEP_REJECT_HAS_ASSIGNED_TASKS');
                     } else {
                         _table.tableParams.data.splice(i, 1);
                         _table.refreshDataMap();
