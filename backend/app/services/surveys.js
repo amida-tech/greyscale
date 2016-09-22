@@ -1,5 +1,6 @@
 var
     _ = require('underscore'),
+    moment = require('moment'),
     Policy = require('app/models/policies'),
     Survey = require('app/models/surveys'),
     User = require('app/models/users'),
@@ -782,6 +783,9 @@ var exportObject = function  (req, realm) {
                         'row_to_json("Products".*) as product',
                         'row_to_json("Workflows".*) as workflow',
                         'ARRAY (SELECT "UOAid" FROM "ProductUOA" WHERE "productId" = "SurveyMeta"."productId") as uoas, ' +
+                        '(WITH usr AS ' +
+                        '(SELECT "id", "firstName", "lastName", "email" FROM "Users" WHERE "id" = "Policies"."author")' +
+                        'SELECT row_to_json(usr.*) as author FROM usr), ' +
                         '(WITH sq AS ' +
                         '( ' +
                             'SELECT ' +
@@ -805,10 +809,11 @@ var exportObject = function  (req, realm) {
                             'SELECT a."id", a."filename", a."size", a."mimetype" ' +
                             'FROM "AttachmentLinks" al ' +
                             'JOIN "Attachments" a ' +
-                            'ON al."entityId" = "Policies"."id" ' +
+                            'ON al."entityId" = "Surveys"."id" ' +
+                            'AND al."version" = "Surveys"."surveyVersion" ' +
                             'JOIN "Essences" e ' +
                             'ON e.id = al."essenceId" ' +
-                            'AND e."tableName" = \'Policies\' ' +
+                            'AND e."tableName" = \'Surveys\' ' +
                             'WHERE a."id" = ANY(al."attachments")' +
                         ') as att) as attachments'
                     )
@@ -869,9 +874,24 @@ var exportObject = function  (req, realm) {
         });
     };
 
+    this.getLastSurveyVersion = function (surveyId) {
+        var self = this;
+        return co(function* () {
+            var query = Survey
+                .select(sql.functions.MAX(Survey.surveyVersion))
+                .from(Survey)
+                .where(Survey.id.equals(surveyId)
+            );
+            var result = yield thunkQuery(query);
+            return _.first(result) ? result[0].max : 0;
+        });
+    };
+
     this.policyToDocx = function (surveyId, version) {
         var self = this;
         var oUser = new sUser(req);
+        var sComment = require('app/services/comments');
+        var oComment = new sComment(req);
         return co(function* () {
 
             // html header & footer
@@ -880,7 +900,6 @@ var exportObject = function  (req, realm) {
             var content = htmlHeader;
 
             var survey = yield self.getVersion(surveyId, version);
-
 
             if (survey.policyId) {
                 var authorName = '';
@@ -899,16 +918,61 @@ var exportObject = function  (req, realm) {
                     '<tr><td>AUTHOR</td><td>' + authorName + '</td></tr>' +
                     '</table>';
 
+                var comments = yield oComment.getComments({surveyId: surveyId}, null, null, null, version);
+                var commentsContent = comments.length ? '<hr/><h1>COMMENTS</h1>' : '';
+
                 if (_.first(survey.questions)) {
                     for (var i in survey.questions) {
                         if (survey.questions[i].type == 14) {
                             content += '<p><h1>' + survey.questions[i].label + '</h1></p>';
                             content += '<p>' + survey.questions[i].description + '</p>';
+                            var existHeader = false;
+                            for (var j in comments) {
+                                if (comments[j].questionId == survey.questions[i].id) {
+                                    if (!existHeader) {
+                                        commentsContent += '<h2>' + survey.questions[i].label + '</h2>';
+                                        existHeader = true;
+                                    }
+                                    var comment = '';
+                                    var commentAuthor = yield oUser.getById(comments[j].userFromId);
+
+                                    if (comments[j].range) {
+                                        try{
+                                            comments[j].range = JSON.parse(comments[j].range);
+                                        } catch (err) {
+                                            console.log(err);
+                                            comments[j].range = {};
+                                        }
+                                        if (comments[j].range.entry) {
+                                            comment +=
+                                                '<font color="#a9a9a9"><b><i>&laquo;'
+                                                + comments[j].range.entry.replace(/(<([^>]+)>)/ig,"")
+                                                + '&raquo;</i></b></font><br/>';
+                                        }
+                                    }
+
+                                    var authorStr = commentAuthor ? (' by ' + commentAuthor.firstName + ' ' + commentAuthor.lastName) : '';
+                                    var dateStr = moment(comments[j].created).format('MM/DD/YYYY HH:mm');
+
+                                    commentsContent +=
+                                        '<p>'
+                                        + '(' + dateStr + authorStr + ') <br/>'
+                                        + comment
+                                        + comments[j].entry
+                                        + '</p><hr/>';
+
+                                }
+                            }
                         }
+
+
                     }
                 }
-            }
 
+                content += commentsContent;
+
+
+            }
             content += htmlFooter;
             var docx = htmlDocx.asBlob(content);
             return docx;

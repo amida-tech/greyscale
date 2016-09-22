@@ -1045,7 +1045,7 @@ module.exports = {
                 throw new HttpError(403, 'You cannot delete project, because there are already some tasks assigned to project');
             }
             var workflow = yield oWorkflow.getWorkflowByProduct(req.params.id, true);
-            if (workflow.id) {
+            if (workflow && workflow.id) {
                 throw new HttpError(403, 'You cannot delete project, because there is workflow assigned to project');
             }
             yield oTask.deleteTasks(req.params.id);

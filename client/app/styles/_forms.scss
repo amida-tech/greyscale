@@ -189,8 +189,59 @@ option.disabled {
 }
 
 .gs-message-answer-form {
-    .ta-editor, .ta-editor > .ta-bind{
+    .ta-editor, .ta-editor > .ta-bind {
         min-height: 90px;
         height: auto !important;
     }
+}
+
+.groups-list {
+    position: relative;
+    margin-right: 20px;
+    span,
+    small {
+        display: block;
+        padding-right: 15px;
+    }
+    a {
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+}
+
+.truncate-line {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.truncate-line-container {
+    display: block;
+    position: relative;
+    min-height: 1.2em;
+    & > .truncate-line {
+        position: absolute;
+        display: block;
+        max-width: 100%;
+    }
+}
+
+td.truncate-line {
+    max-width: 1px;
+}
+
+th.full-width {
+    width: 100%;
+}
+
+.ui-draggable-dragging {
+    td.truncate-line {
+        max-width: 100%;
+    }
+}
+
+.text-word-break {
+    word-break: break-all;
+    line-break: auto;
 }

@@ -139,7 +139,6 @@ module.exports = {
                 'Content-disposition': 'attachment; filename=' + req.params.id + '.docx'
             });
 
-            //data.docx.pipe ( res );
             res.end(data.docx);
         }, function (err) {
             next(err);
