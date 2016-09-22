@@ -1,4 +1,5 @@
-<div ng-if="!row.subjectCompleted && !row.allCompleted" translate-namespace="PRODUCT_TASKS" ng-cloak>
+<div ng-if="!row.subjectCompleted && !row.allCompleted && !row.planningMode && !row.noActiveTask"
+     translate-namespace="PRODUCT_TASKS" ng-cloak>
     <div class="row">
         <div class="col-md-4"><b translate=".ROLE"></b><b>: {{row.step.role}}</b></div>
         <div class="col-md-2"><b translate=".STATUS" ng-if="row.user && row.user.length"></b></div>
@@ -16,7 +17,8 @@
         </div>
         <div class="col-md-2">{{user.status}}</div>
         <div class="col-md-1">
-            <a ng-click="ext.notifyUser(user)" title="{{'PRODUCT_TASKS.NOTIFY_USER' | translate}}">
+            <a ng-click="!user.current && ext.notifyUser(user)" title="{{'PRODUCT_TASKS.NOTIFY_USER' | translate}}"
+               ng-class="{disabled:user.current}">
                 <i class="fa fa-envelope-o"></i>
             </a>
         </div>
