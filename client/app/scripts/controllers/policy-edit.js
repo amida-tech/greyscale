@@ -59,7 +59,7 @@ angular.module('greyscaleApp')
         $scope.publishIsDisabled = _publishIsDisabled;
 
         greyscaleEntityTypeApi.list({
-                tableName: (isPolicy ? 'Policies' : 'SurveyAnswers')
+                tableName: (isPolicy ? 'Surveys' : 'SurveyAnswers')
             })
             .then(function (essences) {
                 if (essences.length) {
@@ -250,7 +250,7 @@ angular.module('greyscaleApp')
                             section: survey.section,
                             subsection: survey.subsection,
                             number: survey.number,
-                            answerId: survey.policyId,
+                            answerId: survey.id,
                             attachments: survey.attachments || [],
                             survey: $scope.model.survey,
                             version: survey.surveyVersion
@@ -281,7 +281,7 @@ angular.module('greyscaleApp')
                     $state.ext.surveyName = survey ? survey.title : $state.ext.surveyName;
 
                     return greyscaleEntityTypeApi.list({
-                        tableName: (isPolicy ? 'Policies' : 'SurveyAnswers')
+                        tableName: (isPolicy ? 'Surveys' : 'SurveyAnswers')
                     });
                 })
                 .then(function (essences) {
