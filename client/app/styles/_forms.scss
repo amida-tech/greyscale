@@ -217,6 +217,7 @@ option.disabled {
 }
 
 .truncate-line-container {
+    display: block;
     position: relative;
     min-height: 1.2em;
     & > .truncate-line {

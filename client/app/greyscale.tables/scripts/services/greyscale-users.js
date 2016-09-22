@@ -84,10 +84,10 @@ angular.module('greyscale.tables')
                 cellClass: 'col-sm-2',
                 dataReadOnly: 'both',
                 dataHide: true,
-                cellTemplate: '<div class="truncate-line-container groups-list"><small class="truncate-line">' +
-                    '{{ext.getGroups(row)}}</small><small class="text-muted" ng-hide="row.usergroupId.length" translate="' +
-                    tns + 'NO_GROUPS"></small><a ng-show="widgetCell" class="action" ' +
-                    'ng-click="ext.editGroups(row); $event.stopPropagation()"><i class="fa fa-pencil"></i></a></div>',
+                cellTemplate: '<span class="truncate-line-container groups-list"><small class="truncate-line">' +
+                    '{{ext.getGroups(row)}}</small><small class="text-muted" ng-if="row.usergroupId.length<1" translate="' +
+                    tns + 'NO_GROUPS"></small><a ng-if="widgetCell" class="action" ' +
+                    'ng-click="ext.editGroups(row); $event.stopPropagation()"><i class="fa fa-pencil"></i></a></span>',
                 cellTemplateExtData: {
                     getGroups: _getGroups,
                     editGroups: _editGroups
