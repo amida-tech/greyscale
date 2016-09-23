@@ -132,7 +132,7 @@ angular.module('greyscaleApp')
                             var validators = gsModelValidators.parse(clmn.dataValidate);
                             angular.forEach(validators, function (validator) {
                                 var translationKey = 'FORMS.INVALID_' + validator.key.toUpperCase();
-                                field += '<span ng-message="' + validator.key + '" class="help-block"><span translate="' + translationKey + '" translate-values="{field: \'' + fieldTitle + '\', limit: \''+ validator.limit +'\'}"></span></span>';
+                                field += '<span ng-message="' + validator.key + '" class="help-block"><span translate="' + translationKey + '" translate-values="{field: \'' + fieldTitle + '\', limit: \'' + validator.limit + '\'}"></span></span>';
                             });
                         }
                         field += '</div>';

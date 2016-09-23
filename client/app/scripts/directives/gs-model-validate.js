@@ -67,14 +67,14 @@ angular.module('greyscaleApp')
                 };
             },
             maxLength: function (config) {
-                return function(val, rec, validator){
+                return function (val, rec, validator) {
                     var str = String(val);
                     return str.length <= config;
-                }
+                };
             }
         };
 
-        var _pub = {
+        return {
             addValidator: _addValidator,
             parse: _parse,
             apply: _apply
@@ -109,7 +109,7 @@ angular.module('greyscaleApp')
             angular.forEach(validatorsData || [], function (item, name) {
                 var isObject = angular.isObject(item);
                 var isBoolean = typeof item === 'boolean';
-                var isValidatorKeyOnly = inArray && typeof item === 'string' &&  _validators[item];
+                var isValidatorKeyOnly = inArray && typeof item === 'string' && _validators[item];
                 var isFunction = typeof item === 'function';
                 var hasName = !inArray && typeof name === 'string';
 
@@ -143,6 +143,4 @@ angular.module('greyscaleApp')
             });
             return validators;
         }
-
-        return _pub;
     });
