@@ -19,31 +19,7 @@ angular.module('greyscaleApp')
         return {
             restrict: 'A',
             replace: true,
-            template: '<div class="user-notifications dropdown" translate-namespace="NOTIFICATIONS">' +
-                '   <a class="dropdown-toggle" data-toggle="dropdown">' +
-                '       <i class="fa fa-bell-o" ng-class="{disabled:!model.notifications.length}"></i>' +
-                '       <span ng-if="model.notifications.length" class="counter">{{model.notifications.length}}</span>' +
-                '   </a>' +
-                '   <ul class="dropdown-menu dropdown-menu-right">' +
-                '       <li class="scroll">' +
-                '           <div>' +
-                '               <div class="notification" ng-repeat="notification in model.notifications track by $index">' +
-                '                   <div class="sender">{{notification.userFromName}}</div>' +
-                '                   <div class="send-time">{{notification.created|date:\'medium\'}}</div>' +
-                '                   <p><b>{{notification.subject}}</b><br><span ng-bind-html="sanitize(notification.note)"></span></p>' +
-                '                   <div class="control pull-right"><a ng-click="markAsRead(notification, $index); $event.stopPropagation()" translate=".MARK_AS_READ"></a></div>' +
-                '                   <div class="clearfix"></div>' +
-                '               </div>' +
-                '           </div>' +
-                '           <div ng-if="!model.notifications.length" class="notification">' +
-                '               <p translate=".NO_UNREAD"></p>' +
-                '           </div>' +
-                '           <div class="go-history">' +
-                '               <a ui-sref="notifications" translate=".GO_HISTORY"></a>' +
-                '           </div>' +
-                '       </li>' +
-                '   </ul>' +
-                '</div>',
+            templateUrl: 'views/directives/user-notifications.html',
             scope: true,
             link: function (scope) {
                 scope.model = {
@@ -52,18 +28,10 @@ angular.module('greyscaleApp')
 
                 scope.sanitize = $sce.trustAsHtml;
 
-                var user = function () {};
-                var _accessLevel, _realm;
+                var user = {},
+                    _realm;
 
-                greyscaleProfileSrv.getProfile()
-                    .then(function (profile) {
-                        user = profile;
-                        _accessLevel = greyscaleProfileSrv.getAccessLevelMask();
-                        _realm = _isSuperAdmin() ? greyscaleGlobals.adminSchema : Organization.realm;
-                        _getUnreadNotifications();
-                        greyscaleWebSocketSrv.on(wsEvents.notify, _getUnreadNotifications);
-                        userNotificationsSrv.setUpdate(_getUnreadNotifications, _realm);
-                    });
+                scope.$on('$destroy', _stopNotifyUpdate);
 
                 scope.markAsRead = function (notification, index) {
                     greyscaleNotificationApi.setRead(notification.id, _realm)
@@ -72,20 +40,37 @@ angular.module('greyscaleApp')
                         });
                 };
 
-                function _isSuperAdmin() {
-                    return ((_accessLevel & greyscaleGlobals.userRoles.superAdmin.mask) !== 0);
-                }
+                _startNotifyUpdate();
 
-                function _getUnreadNotifications() {
-                    greyscaleNotificationApi.list({
-                            userTo: user.id,
-                            read: false
-                        }, _realm)
-                        .then(function (notifications) {
-                            scope.model.notifications = _.sortBy(notifications, 'created').reverse();
+                function _startNotifyUpdate() {
+                    greyscaleProfileSrv.getProfile()
+                        .then(function (profile) {
+                            user = profile;
+                            _realm = greyscaleProfileSrv.isSuperAdmin() ? greyscaleGlobals.adminSchema : Organization.realm;
+                            greyscaleWebSocketSrv.on(wsEvents.notify, _getUnreadNotifications);
+                            userNotificationsSrv.setUpdate(_getUnreadNotifications);
+                            _getUnreadNotifications();
                         });
                 }
 
+                function _stopNotifyUpdate() {
+                    user = {};
+                    _realm = null;
+                    greyscaleWebSocketSrv.off(wsEvents.notify, _getUnreadNotifications);
+                    userNotificationsSrv.setUpdate(null);
+                }
+
+                function _getUnreadNotifications() {
+                    if (_realm && user.id) {
+                        greyscaleNotificationApi.list({
+                                userTo: user.id,
+                                read: false
+                            }, _realm)
+                            .then(function (notifications) {
+                                scope.model.notifications = _.sortBy(notifications, 'created').reverse();
+                            });
+                    }
+                }
             }
         };
     });
