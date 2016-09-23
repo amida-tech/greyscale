@@ -25,11 +25,33 @@ angular.module('greyscale.rest')
         }
 
         function _response(data) {
-            if (data && typeof data.plain === 'function') {
-                return data.plain();
-            } else {
-                return data;
+            var i, qty, _entry,
+                _quote = /^<blockquote>(.*?)<\/blockquote>/i;
+
+            if (data) {
+                if (typeof data.plain === 'function') {
+                    data = data.plain();
+                }
+
+                qty = data.length;
+
+                for (i = 0; i < qty; i++) {
+                    // fix range format
+                    while (data[i].range && typeof data[i].range === 'string') {
+                        data[i].range = JSON.parse(data[i].range);
+                    }
+
+                    // fix quoted text: move it to the range object
+                    if (data[i].range && !data[i].range.entry) {
+                        _entry = _quote.exec(data[i].entry);
+                        if (_entry && _entry[1]) {
+                            data[i].range.entry = _entry[1];
+                            data[i].entry = data[i].entry.replace(_entry[0], '');
+                        }
+                    }
+                }
             }
+            return data;
         }
 
         function _list(params) {

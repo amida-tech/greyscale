@@ -8,31 +8,36 @@ angular.module('greyscale.rest')
             resendUserInvite: _resendUserInvite,
             send: _send,
             setRead: _setRead,
+            setAllRead: _setAllRead,
             setUnread: _setUnread
         };
 
-        function api(realm) {
-            return greyscaleRestSrv.api({}, realm).one('notifications');
+        function api() {
+            return greyscaleRestSrv.api().one('notifications');
         }
 
-        function _list(param, realm) {
-            return api(realm).get(param);
+        function _list(param) {
+            return api().get(param);
         }
 
-        function _resendUserInvite(userId, realm) {
-            return api(realm).one('resenduserinvite').one('' + userId).customPUT();
+        function _resendUserInvite(userId) {
+            return api().one('resenduserinvite').one('' + userId).customPUT();
         }
 
-        function _send(data, realm) {
-            return api(realm).customPOST(data);
+        function _send(data) {
+            return api().customPOST(data);
         }
 
-        function _setRead(id, realm) {
-            return api(realm).one('markread').one('' + id).customPUT();
+        function _setRead(id) {
+            return api().one('markread').one('' + id).customPUT();
         }
 
-        function _setUnread(id, realm) {
-            return api(realm).one('markunread').one('' + id).customPUT();
+        function _setAllRead() {
+            return api().one('markallread').customPUT();
+        }
+
+        function _setUnread(id) {
+            return api().one('markunread').one('' + id).customPUT();
         }
 
     });

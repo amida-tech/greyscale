@@ -440,6 +440,7 @@
     "NOTIFICATIONS": {
         "DATE_TIME": "Date / Time",
         "GO_HISTORY": "All Notifications",
+        "MARK_ALL_AS_READ": "Mark All as Read",
         "MARK_AS_READ": "Mark as Read",
         "MESSAGE": "Message",
         "NOTIFICATIONS": "Notifications",
@@ -564,7 +565,8 @@
             "TASKS": "Tasks",
             "TITLE": "Title",
             "UOAS": "Subjects",
-            "WORKFLOW": "Workflow"
+            "WORKFLOW": "Workflow",
+            "WORKFLOW_TEMPLATE": "Workflow Template"
         },
         "TASKS": {
             "DRAG_USER": "Drag And Drop User To Task",

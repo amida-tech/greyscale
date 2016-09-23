@@ -232,6 +232,13 @@ angular.module('greyscale.tables')
             });
         }
 
+        function _getWorkflowTemplates() {
+            return _.map(_dicts.workflowTemplates, function (template) {
+                template.templateName = template.workflow.name;
+                return template;
+            });
+        }
+
         function _editProduct(product) {
             _editProductMode = product || {};
             var op = 'UPDATE';

@@ -440,6 +440,7 @@
     "NOTIFICATIONS": {
         "DATE_TIME": "",
         "GO_HISTORY": "",
+        "MARK_ALL_AS_READ": "",
         "MARK_AS_READ": "",
         "MESSAGE": "",
         "NOTIFICATIONS": "",
@@ -564,7 +565,8 @@
             "TASKS": "Задачи",
             "TITLE": "Название",
             "UOAS": "Субъекты",
-            "WORKFLOW": "Процесс"
+            "WORKFLOW": "Процесс",
+            "WORKFLOW_TEMPLATE": ""
         },
         "TASKS": {
             "DRAG_USER": "Перетащите пользователя на задачу",

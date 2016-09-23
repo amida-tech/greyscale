@@ -45,19 +45,9 @@ angular.module('greyscaleApp')
                 $scope.removeComment = _removeComment;
                 $scope.editComment = _editComment;
 
-                $scope.hideComments = function (filter) {
-                    greyscaleCommentApi.hide($scope.policy.taskId, filter).then(function () {
-                        for (var i = 0; i < $scope.model.items.length; i++) {
-                            if (filter === 'flagged' && !$scope.model.items[i].isReturn) {
-                                continue;
-                            }
-                            $scope.model.items[i].isHidden = true;
-                        }
-                    });
-                };
-
-                $scope.isAdmin = function () {
-                    return greyscaleProfileSrv.isAdmin();
+                $scope.isVisible = function (item) {
+                    return item && !item.isHidden &&
+                        (!item.isResolve && !item.isReturn || item.isReturn);
                 };
 
                 function save(commentBody, isDraft) {

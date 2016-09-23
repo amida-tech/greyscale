@@ -59,7 +59,7 @@ angular.module('greyscaleApp')
         $scope.publishIsDisabled = _publishIsDisabled;
 
         greyscaleEntityTypeApi.list({
-                tableName: (isPolicy ? 'Policies' : 'SurveyAnswers')
+                tableName: (isPolicy ? 'Surveys' : 'SurveyAnswers')
             })
             .then(function (essences) {
                 if (essences.length) {
@@ -250,7 +250,7 @@ angular.module('greyscaleApp')
                             section: survey.section,
                             subsection: survey.subsection,
                             number: survey.number,
-                            answerId: survey.policyId,
+                            answerId: survey.id,
                             attachments: survey.attachments || [],
                             survey: $scope.model.survey,
                             version: survey.surveyVersion
@@ -268,7 +268,6 @@ angular.module('greyscaleApp')
                         survey.questions = _questions;
                         angular.extend($scope.model.survey, survey);
 
-                        _policiesGenerate(_sections);
                         angular.extend(_policy, {
                             sections: _sections,
                             options: {
@@ -282,14 +281,14 @@ angular.module('greyscaleApp')
                     $state.ext.surveyName = survey ? survey.title : $state.ext.surveyName;
 
                     return greyscaleEntityTypeApi.list({
-                        tableName: (isPolicy ? 'Policies' : 'SurveyAnswers')
+                        tableName: (isPolicy ? 'Surveys' : 'SurveyAnswers')
                     });
                 })
                 .then(function (essences) {
                     if (essences.length) {
                         _policy.essenceId = essences[0].id;
                     }
-                    return ($scope.model.survey.author) ? greyscaleUsers.get($scope.model.survey.author) : false;
+                    return ($scope.model.survey.author);
                 })
                 .then(function (user) {
                     _setAuthor(user, _policy);
@@ -382,7 +381,7 @@ angular.module('greyscaleApp')
         function _setAuthor(profile, policy) {
             if (profile && policy) {
                 policy.author = profile.id;
-                policy.authorName = profile.fullName;
+                policy.authorName = profile.fullName || (profile.firstName + ' ' + profile.lastName);
             }
             return profile;
         }
