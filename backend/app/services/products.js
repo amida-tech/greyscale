@@ -255,9 +255,8 @@ var exportObject = function  (req, realm) {
         return co(function* () {
             if (policyId) {
                 var products = yield thunkQuery(
-                    SurveyMeta
-                        .select()
-                        .where(SurveyMeta.surveyId.equals(surveyId))
+                    SurveyMeta.select()
+                    .where(SurveyMeta.surveyId.equals(surveyId))
                     .and(SurveyMeta.productId.isNotNull())
                 );
                 if (products.length) {
