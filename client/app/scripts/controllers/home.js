@@ -5,5 +5,4 @@
 
 angular.module('greyscaleApp')
     .controller('HomeCtrl', function ($scope, greyscaleNotificationApi, greyscaleProfileSrv, greyscaleGlobals,
-        Organization) {
-    });
+        Organization) {});
