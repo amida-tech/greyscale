@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUsersTbl', function (_, $q, greyscaleModalsSrv, greyscaleUserApi, greyscaleUtilsSrv, inform,
+    .factory('greyscaleUsersTbl', function (_, $q, greyscaleModalsSrv, greyscaleUserApi, greyscaleUtilsSrv,
         i18n, greyscaleProfileSrv, greyscaleGlobals, greyscaleRolesSrv, greyscaleNotificationApi, greyscaleGroupApi) {
 
         var tns = 'USERS.';
@@ -84,9 +84,9 @@ angular.module('greyscale.tables')
             dataReadOnly: 'both',
             dataHide: true,
             cellTemplate: '<span class="truncate-line-container groups-list"><small class="truncate-line">' +
-            '{{ext.getGroups(row)}}</small><small class="text-muted" ng-if="row.usergroupId.length<1" translate="' +
-            tns + 'NO_GROUPS"></small><a ng-if="widgetCell" class="action" ' +
-            'ng-click="ext.editGroups(row); $event.stopPropagation()"><i class="fa fa-pencil"></i></a></span>',
+                '{{ext.getGroups(row)}}</small><small class="text-muted" ng-if="row.usergroupId.length<1" translate="' +
+                tns + 'NO_GROUPS"></small><a ng-if="widgetCell" class="action" ' +
+                'ng-click="ext.editGroups(row); $event.stopPropagation()"><i class="fa fa-pencil"></i></a></span>',
             cellTemplateExtData: {
                 getGroups: _getGroups,
                 editGroups: _editGroups
@@ -96,7 +96,7 @@ angular.module('greyscale.tables')
             show: false,
             dataHide: true,
             cellTemplate: '<span ng-show="!row.isActive"><a ng-click="ext.resendActivation(row)" class="btn btn-primary" translate="' +
-            tns + 'RESEND_ACTIVATION"></a></span>',
+                tns + 'RESEND_ACTIVATION"></a></span>',
             cellTemplateExtData: {
                 resendActivation: _resendActivation
             }
@@ -105,8 +105,8 @@ angular.module('greyscale.tables')
             viewHide: true,
             textCenter: true,
             cellTemplate: '<a ng-click="ext.sendMessageTo(row); $event.stopPropagation()" class="action">' +
-            '       <i ng-if="ext.anotherUser(row)" class="fa fa-envelope"></i>' +
-            '   </a>',
+                '       <i ng-if="ext.anotherUser(row)" class="fa fa-envelope"></i>' +
+                '   </a>',
             dataHide: true,
             cellTemplateExtData: {
                 anotherUser: _isAnotherUser,
@@ -229,9 +229,7 @@ angular.module('greyscale.tables')
         function _resendActivation(user) {
             greyscaleNotificationApi.resendUserInvite(user.id)
                 .then(function () {
-                    inform.add(i18n.translate(tns + 'RESEND_ACTIVATION_DONE'), {
-                        type: 'success'
-                    });
+                    greyscaleUtilsSrv.successMsg(tns + 'RESEND_ACTIVATION_DONE');
                 })
                 .catch(function (err) {
                     errorHandler(err, 'RESEND_ACTIVATION');
