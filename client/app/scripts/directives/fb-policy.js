@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('fbPolicy', function (greyscaleModalsSrv, greyscaleGlobals, greyscaleSelection, greyscaleCommentApi,
-        $rootScope) {
+        $rootScope, $sce) {
         return {
             restrict: 'E',
             require: 'ngModel',
@@ -27,6 +27,10 @@ angular.module('greyscaleApp')
 
                 scope.$watch(attrs.ngModel, _setModel);
                 scope.$watch('associate', _setAssociate);
+
+                scope.getHtml = function (html) {
+                    return $sce.trustAsHtml(html);
+                };
 
                 function _setModel() {
                     if (ngModel) {

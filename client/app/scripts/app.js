@@ -11,6 +11,7 @@
 var _app = angular.module('greyscaleApp', [
     'ngCookies',
     'ngResource',
+    'ngSanitize',
     'ngTouch',
     'ngTable',
     'ngMessages',
@@ -288,7 +289,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                //name: '{{ext.projectName}}'
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                    //name: '{{ext.projectName}}'
             }
         })
         .state('projects.setup.surveys', {
@@ -296,7 +298,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             templateUrl: 'views/controllers/project-setup-surveys.html',
             controller: 'ProjectSetupSurveysCtrl',
             data: {
-                name: 'NAV.PROJECTS.SURVEYS'
+                name: 'NAV.PROJECTS.SURVEYS',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('projects.setup.surveys.edit', {
@@ -308,7 +311,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: '{{ext.surveyName}}'
+                name: '{{ext.surveyName}}',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('projects.setup.products', {
@@ -318,7 +322,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 //name: 'NAV.PROJECTS.PRODUCTS'
                 name: 'NAV.PROJECT_MANAGEMENT',
-                icon: 'fa-paper-plane'
+                icon: 'fa-paper-plane',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('projects.setup.tasks', {
@@ -409,20 +414,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             }
         })
         /*.state('visualization', {
-            parent: 'home',
-            url: 'visualization',
-            views: {
-                'body@dashboard': {
-                    templateUrl: 'views/controllers/visualization.html',
-                    controller: 'VisualizationCtrl'
-                }
-            },
-            data: {
-                name: 'NAV.VISUALIZATION',
-                icon: 'fa-globe',
-                accessLevel: systemRoles.superAdmin.mask
-            }
-        })*/
+         parent: 'home',
+         url: 'visualization',
+         views: {
+         'body@dashboard': {
+         templateUrl: 'views/controllers/visualization.html',
+         controller: 'VisualizationCtrl'
+         }
+         },
+         data: {
+         name: 'NAV.VISUALIZATION',
+         icon: 'fa-globe',
+         accessLevel: systemRoles.superAdmin.mask
+         }
+         })*/
         .state('graph', {
             parent: 'home',
             url: 'graph',
@@ -454,20 +459,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             }
         })
         /*.state('index-visualization', {
-            parent: 'home',
-            url: 'index-visualization',
-            views: {
-                'body@dashboard': {
-                    templateUrl: 'views/controllers/index-visualization.html',
-                    controller: 'IndexVisualizationCtrl'
-                }
-            },
-            data: {
-                name: 'NAV.INDEX-VISUALIZATION',
-                icon: 'fa-globe',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
-            }
-        })*/
+         parent: 'home',
+         url: 'index-visualization',
+         views: {
+         'body@dashboard': {
+         templateUrl: 'views/controllers/index-visualization.html',
+         controller: 'IndexVisualizationCtrl'
+         }
+         },
+         data: {
+         name: 'NAV.INDEX-VISUALIZATION',
+         icon: 'fa-globe',
+         accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+         }
+         })*/
         .state('visualizations', {
             parent: 'home',
             url: 'visualizations',
@@ -551,7 +556,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.POLICY.TITLE',
                 icon: 'fa-file',
-                accessLevel: systemRoles.any.mask,
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask,
                 customAccess: {
                     enableFeaturePolicy: true
                 }
@@ -569,7 +574,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.POLICY.EDIT',
                 icon: 'fa-pencil',
-                accessLevel: systemRoles.any.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('policy.review', {
@@ -589,7 +594,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
         })
         .state('policy.version', {
             parent: 'policy',
-            url: '/version/:id/:version',
+            url: '/version/:id/:version?',
             views: {
                 'body@dashboard': {
                     templateUrl: 'views/controllers/policy-review.html',
@@ -622,7 +627,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
 
 });
 
-_app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv, greyscaleGlobals, _) {
+_app.run(function (_, $state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv,
+    greyscaleGlobals) {
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
         if (toState.data && toState.data.accessLevel !== greyscaleGlobals.userRoles.all.mask) {
 

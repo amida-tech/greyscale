@@ -435,16 +435,51 @@ var exportObject = function  (req, realm) {
                 query = query.and(Comment.id.equals(parseInt(filter)));
             } // else hide/unhide all comments for specified task
 
-            var result = yield thunkQuery(query);
-            if (_.first(result)) {
+            var updatedComments = yield thunkQuery(query);
+
+            // hide/unhide answers
+
+            yield self.hideUnhideAnswers(_.map(updatedComments, function(item){ return item.id; }), hide, user, version);
+
+            if (_.first(updatedComments)) {
                 bologger.log({
                     req: req,
                     user: user,
                     action: 'update',
                     object: 'Comments',
-                    entities: result,
-                    quantity: result.length,
+                    entities: updatedComments,
+                    quantity: updatedComments.length,
                     info: 'Hide/unhide comment(s)'
+                });
+            }
+        });
+    };
+
+    this.hideUnhideAnswers = function(updatedComments, hide, user, version) {
+        var self = this;
+        return co(function* () {
+            var query = Comment
+                .update({
+                    isHidden: hide,
+                    userHideId: user.id,
+                    hiddenAt: new Date()
+                })
+                .where(sql.array(Comment.parentId).containedBy('{' + updatedComments + '}'))
+                .and(Comment.activated.equals(true))
+                .and(Comment.surveyVersion.equals(version))
+                .returning(Comment.id, Comment.isHidden, Comment.userHideId, Comment.hiddenAt);
+
+            var updatedAnswers = yield thunkQuery(query);
+
+            if (_.first(updatedAnswers)) {
+                bologger.log({
+                    req: req,
+                    user: user,
+                    action: 'update',
+                    object: 'Comments',
+                    entities: updatedAnswers,
+                    quantity: updatedAnswers.length,
+                    info: 'Hide/unhide answer(s)'
                 });
             }
         });

@@ -16,11 +16,17 @@ BEGIN
         RAISE NOTICE 'db_user = %, schema = %', db_user, schema_name;
         EXECUTE $query$
             SET search_path TO $query$ || schema_name || $query$;
-            ALTER TABLE "TaskUserStates"
-            DROP CONSTRAINT "TaskUserStates_pkey",
-            ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0;
-            ALTER TABLE "TaskUserStates"
-            ADD PRIMARY KEY ("taskId", "userId", "surveyVersion");
+            UPDATE "Comments" SET "isHidden" = false
+            WHERE "Comments"."parentId" IS NOT NULL
+            AND "Comments".activated = true
+            AND "Comments"."isHidden" = true
+            AND "Comments"."parentId" in
+            (
+            SELECT "Comments"."id" FROM "Comments"
+            WHERE "Comments".activated = true
+            AND "Comments"."isHidden" = false
+            )
+            RETURNING "id"
         $query$;
 
     END LOOP;

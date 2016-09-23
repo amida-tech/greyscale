@@ -1,18 +1,14 @@
 'use strict';
 angular.module('greyscaleApp')
     .controller('ModalProductWorkflowCtrl', function (_, $scope, $uibModalInstance, i18n, modalData, Organization,
-        greyscaleModalsSrv, greyscaleProductWorkflowTbl, greyscaleWorkflowTemplateApi,greyscaleUtilsSrv, $timeout, inform) {
+        greyscaleModalsSrv, greyscaleProductWorkflowTbl, greyscaleWorkflowTemplateApi, greyscaleUtilsSrv, $timeout) {
 
         var product = modalData.product;
-
         var productWorkflow = greyscaleProductWorkflowTbl;
 
         var workflowId = product.workflow ? product.workflow.id : undefined;
-        productWorkflow.dataFilter.workflowId = workflowId;
-        productWorkflow.dataFilter.organizationId = Organization.id;
-        productWorkflow.dataFilter.product = product;
-
-        productWorkflow.dragSortable = {onChange: _validateDates};
+        var ctrl = this;
+        var tplEdit = $scope.tplEdit = productWorkflow.dataFilter.tplEdit = (product.title === undefined);
 
         $scope.modalData = angular.copy(modalData);
         $scope.model = {
@@ -20,8 +16,16 @@ angular.module('greyscaleApp')
             productWorkflow: productWorkflow
         };
 
-        var ctrl = this;
-        var tplEdit = $scope.tplEdit = productWorkflow.dataFilter.tplEdit = (product.title === undefined);
+        productWorkflow.dataFilter.workflowId = workflowId;
+        productWorkflow.dataFilter.organizationId = Organization.id;
+        productWorkflow.dataFilter.product = $scope.model.product;
+        productWorkflow.dataFilter.templateMode = tplEdit;
+        productWorkflow.dataFilter.saveAsTemplate = _saveCurrentWorkflowAsTemplate;
+        productWorkflow.dataFilter.saveAsTemplateDisable = function () {
+            return !_validateWorkflowSteps(true);
+        };
+
+        productWorkflow.dragSortable = {onChange: _validateDates};
 
         if (tplEdit) {
             $timeout(function () {
@@ -31,14 +35,6 @@ angular.module('greyscaleApp')
         } else {
             _refreshTemplatesList();
         }
-
-        productWorkflow.dataFilter.templateMode = tplEdit;
-
-        productWorkflow.dataFilter.saveAsTemplate = _saveCurrentWorkflowAsTemplate;
-
-        productWorkflow.dataFilter.saveAsTemplateDisable = function () {
-            return !_validateWorkflowSteps(true);
-        };
 
         $scope.close = function () {
             $uibModalInstance.dismiss();
@@ -74,7 +70,7 @@ angular.module('greyscaleApp')
         });
 
         var _allDatesValid = true;
-        var  _dateSequenceErrors = 0;
+        var _dateSequenceErrors = 0;
         var errorMsgTimer;
 
         function _validateDates() {
@@ -197,7 +193,7 @@ angular.module('greyscaleApp')
 
                 productWorkflow.tableParams.data.push(item);
             });
-            productWorkflow.refreshDataMap();
+            $timeout(productWorkflow.refreshDataMap);
         }
 
         function _refreshTemplatesList(currentTemplateId) {
@@ -205,19 +201,32 @@ angular.module('greyscaleApp')
                 .then(function (data) {
                     $scope.model.workflowTemplates = data;
                     if (!tplEdit) {
-                        $scope.model.selectedTemplate = currentTemplateId ? _.find(data,
-                            {id: currentTemplateId}) : undefined;
+                        var apply;
+
+                        if (!product.workflow && product.workflowTemplateId && !currentTemplateId) {
+                            currentTemplateId = product.workflowTemplateId;
+                            apply = true;
+                        }
+
+                        $scope.model.selectedTemplate = currentTemplateId ?
+                            _.find(data, {id: currentTemplateId}) : undefined;
+
+                        if (apply && $scope.model.selectedTemplate) {
+                            productWorkflow.$loading = true;
+                            productWorkflow.dataPromise()
+                                .then(function () {
+                                    _applyWorkflowTemplate(true);
+                                    productWorkflow.$loading = false;
+                                });
+                        }
                     }
                 })
                 .catch(greyscaleUtilsSrv.errorMsg);
         }
 
-        function _applyWorkflowTemplate() {
-
+        function _applyWorkflowTemplate(force) {
             if (_hasAssignedSteps()) {
-                inform.add(i18n.translate('PRODUCTS.WORKFLOW.APPLY_REJECT_HAS_ASSIGNED_TASKS'), {
-                    type: 'danger'
-                });
+                greyscaleUtilsSrv.errorMsg('PRODUCTS.WORKFLOW.APPLY_REJECT_HAS_ASSIGNED_TASKS');
                 return;
             }
 
@@ -227,7 +236,10 @@ angular.module('greyscaleApp')
             workflow.description = template.workflow.description;
 
             _setSteps(template.steps);
-            $scope.model.selectedTemplate = undefined;
+
+            if (!force) {
+                $scope.model.selectedTemplate = undefined;
+            }
         }
 
         function _hasAssignedSteps() {
@@ -243,7 +255,7 @@ angular.module('greyscaleApp')
             var template = {
                 workflow: {
                     name: workflowTemplateName,
-                    description: $scope.model.product.workflow.description,
+                    description: $scope.model.product.workflow.description
                 },
                 steps: _getSteps()
             };

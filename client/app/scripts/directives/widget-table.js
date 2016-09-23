@@ -73,6 +73,7 @@ angular.module('greyscaleApp')
                                                 params.page() * params.count()) : false);
                                     }
                                     endLoading();
+                                    return data;
                                 })
                                 .catch(endLoading);
                         }

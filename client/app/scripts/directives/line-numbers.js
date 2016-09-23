@@ -14,8 +14,10 @@ function paragraphNumbersDirective(_, $timeout) {
             ];
 
             var textTags = [
-                'FONT', 'B', 'I', 'U', 'strong'
+                'FONT', 'B', 'I', 'U', 'STRONG'
             ];
+
+            var ln = 'ln';
 
             $timeout(function () {
                 if ((attr.contenteditable && attr.taBind) || el.hasClass('line-numbers')) {
@@ -29,34 +31,37 @@ function paragraphNumbersDirective(_, $timeout) {
                         _setLineNumbers(el[0]);
                     });
                 }
-
             });
 
             function _setLineNumbers(parentNode, insideLine) {
                 _loopChildNodes(parentNode, function (node) {
+                    var _node = angular.element(node);
                     if (_isEmpty(node)) {
+                        if (!_node.html()) {
+                            _node.remove();
+                        }
                         return;
                     }
+
                     var isText = _isText(node);
                     var isLine = _isLine(node);
                     var hasTextChild = _hasTextChild(node);
                     var hasLineChild = _hasLineChild(node);
                     var hasDeepLineChild = _hasDeepLineChild(node);
-                    var isTable = node.tagName === 'TABLE';
+                    var isTable = node.nodeName === 'TABLE';
+
                     if (isText) {
                         if (!insideLine) {
                             _setLn(node);
                         }
-
                     } else if (isTable) {
-                        $(node).find('tr:not(.ln)').addClass('ln');
-
+                        $(node).find('tr:not(.ln)').addClass(ln);
                     } else if (hasDeepLineChild) {
-                        if (hasTextChild) {
+                        _node.removeClass(ln);
+                        if (hasTextChild && !hasLineChild) {
                             _setLn(node);
                         }
-                        _setLineNumbers(node, !hasLineChild);
-
+                        _setLineNumbers(node, hasTextChild && !hasLineChild);
                     } else if (isLine && hasTextChild) {
                         if (!insideLine) {
                             _setLn(node);
@@ -67,25 +72,25 @@ function paragraphNumbersDirective(_, $timeout) {
             }
 
             function _isEmpty(node) {
-                return $(node).text() === '';
+                return !angular.element(node).text();
             }
 
             function _isText(node) {
                 return node.nodeType === 3 || (!_isLine(node) &&
-                    ($(node).text() === $(node).html() || textTags.indexOf(node.tagName) >= 0));
+                    ($(node).text() === $(node).html() || textTags.indexOf(node.nodeName) >= 0));
             }
 
             function _isLine(node) {
-                return lineTags.indexOf(node.tagName) >= 0;
+                return lineTags.indexOf(node.nodeName) >= 0;
             }
 
             function _hasDeepLineChild(node) {
                 var has = false;
                 _loopChildNodes(node, function (n) {
-                    if (!has && (n.tagName === 'BR' || (_isLine(n) || _hasDeepLineChild(n)))) {
+                    if (!has && (n.nodeName === 'BR' || (_isLine(n) || _hasDeepLineChild(n)))) {
                         has = true;
                     }
-                    if (n.tagName === 'BR') {
+                    if (n.nodeName === 'BR') {
                         n.remove();
                     }
 
@@ -96,10 +101,10 @@ function paragraphNumbersDirective(_, $timeout) {
             function _hasLineChild(node) {
                 var has = false;
                 _loopChildNodes(node, function (n) {
-                    if (!has && (n.tagName === 'BR' || _isLine(n))) {
+                    if (!has && (n.nodeName === 'BR' || _isLine(n))) {
                         has = true;
                     }
-                    if (n.tagName === 'BR') {
+                    if (n.nodeName === 'BR') {
                         n.remove();
                     }
 
@@ -118,14 +123,15 @@ function paragraphNumbersDirective(_, $timeout) {
             }
 
             function _setLn(node) {
+                var _node = angular.element(node);
                 if (node.nodeType === 3) {
                     var parent = node.parentNode;
                     var wrapper = document.createElement('p');
-                    wrapper.className += 'ln';
+                    wrapper.className += ln;
                     parent.replaceChild(wrapper, node);
                     wrapper.appendChild(node);
-                } else if (_isLine(node) && !$(node).hasClass('ln')) {
-                    $(node).addClass('ln');
+                } else if (_isLine(node) && !_node.hasClass(ln)) {
+                    _node.addClass(ln);
                 }
             }
 

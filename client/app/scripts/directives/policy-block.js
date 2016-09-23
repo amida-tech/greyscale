@@ -100,6 +100,8 @@ angular.module('greyscaleApp')
                         if (data.hasOwnProperty(_sectionName) && $scope.policyData.sections[i]) {
                             $scope.policyData.sections[i].label = _sectionName || $scope.policyData.sections[i].label;
                             $scope.policyData.sections[i].description = data[_sectionName];
+                            $scope.policyData.options.canImport = $scope.policyData.options.canImport &&
+                                (!data[_sectionName]);
                             i++;
                         }
                     }

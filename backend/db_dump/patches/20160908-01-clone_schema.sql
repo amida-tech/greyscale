@@ -1,4 +1,29 @@
-﻿CREATE OR REPLACE FUNCTION clone_schema(
+DO
+$do$
+DECLARE
+    schema_name text;
+    trigger_sql text;
+    db_user constant text := 'indaba'; -- HAVE TO SET CORRECT DB USER
+BEGIN
+	FOR schema_name IN
+		SELECT pg_catalog.pg_namespace.nspname
+		FROM pg_catalog.pg_namespace
+		INNER JOIN pg_catalog.pg_user
+		ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid)
+		AND ((pg_catalog.pg_user.usename = 'indaba') -- HAVE TO SET CORRECT DB USER
+            OR (pg_catalog.pg_namespace.nspname = 'public')
+        )
+    LOOP
+        RAISE NOTICE 'db_user = %, schema = %', db_user, schema_name;
+
+        EXECUTE $query$
+            SET search_path TO $query$ || schema_name || $query$;
+
+            -- Function: clone_schema(text, text)
+
+            -- DROP FUNCTION clone_schema(text, text);
+
+            CREATE OR REPLACE FUNCTION clone_schema(
                 source_schema text,
                 dest_schema text,
                 include_recs boolean)
@@ -213,3 +238,11 @@
               COST 100;
             ALTER FUNCTION clone_schema(text, text, boolean)
               OWNER TO postgres;
+
+
+        $query$;
+    END LOOP;
+
+END
+$do$
+LANGUAGE plpgsql;

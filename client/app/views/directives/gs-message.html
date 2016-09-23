@@ -21,7 +21,7 @@
     </span>
     <div ng-hide="model.isHidden" class="gs-message-body-wrapper">
         <div class="gs-message-body" ng-hide="isEdit">
-            <div class="ta-text" ng-bind-html="model.entry"></div>
+            <div class="ta-text" ng-bind-html="getHtml(model.entry)"></div>
             <div class="gs-message-fader"></div>
         </div>
         <textarea ng-show="isEdit" ng-model="entry" class="form-control"></textarea>

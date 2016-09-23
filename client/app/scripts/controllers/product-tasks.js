@@ -132,7 +132,6 @@ angular.module('greyscaleApp')
                             uoaIds: [taskViewModel.uoaId],
                             item: _assignItem
                         };
-
                     if (_isAcceptableGroup(taskViewModel.step, _assignItem) &&
                         _isAcceptableAssign(taskViewModel, _assignItem)) {
                         ui.helper.remove();
@@ -405,20 +404,31 @@ angular.module('greyscaleApp')
             for (i = 0; i < qty; i++) {
                 task = _findTask(_uoaIds[i], _stepId);
                 if (_isAcceptableAssign(task, _item)) {
+                    var noDuplicates = true;
                     taskCopy = angular.extend(taskData, task || {});
                     switch (_item.type) {
                     case 'u':
-                        taskCopy.userIds.push(_item.id);
+                        if (~taskCopy.userIds.indexOf(_item.id)) {
+                            noDuplicates = false;
+                        } else {
+                            taskCopy.userIds.push(_item.id);
+                        }
                         break;
                     case 'g':
-                        taskCopy.groupIds.push(_item.id);
+                        if (~taskCopy.groupIds.indexOf(_item.id)) {
+                            noDuplicates = false;
+                        } else {
+                            taskCopy.groupIds.push(_item.id);
+                        }
                         break;
                     }
-                    taskCopy.uoaId = _uoaIds[i];
-                    if (!task) {
-                        newTasks.push(taskCopy);
+                    if (noDuplicates) {
+                        taskCopy.uoaId = _uoaIds[i];
+                        if (!task) {
+                            newTasks.push(taskCopy);
+                        }
+                        saveTasks.push(taskCopy);
                     }
-                    saveTasks.push(taskCopy);
                 }
             }
 
@@ -814,7 +824,7 @@ angular.module('greyscaleApp')
                 },
                 reqs = {
                     product: $q.when(product),
-                    survey: (product.survey.id) ? greyscaleSurveyApi.get(product.survey.id) : $q.resolve(noSurvey),
+                    survey: (product.survey && product.survey.id) ? greyscaleSurveyApi.get(product.survey.id) : $q.resolve(noSurvey),
                     tasks: greyscaleProductApi.product(product.id).tasksList()
                 };
             return $q.all(reqs);
@@ -837,8 +847,8 @@ angular.module('greyscaleApp')
                         greyscaleUtilsSrv.errorMsg(error, tns + 'PRODUCT_NOT_FOUND');
                         $state.go('home');
                     });
+                return _productCached;
             }
-
             return _productCached;
         }
     });

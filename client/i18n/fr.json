@@ -374,6 +374,7 @@
     "NOTIFICATIONS": {
         "DATE_TIME": "",
         "GO_HISTORY": "",
+        "MARK_ALL_AS_READ": "",
         "MARK_AS_READ": "",
         "MESSAGE": "",
         "NOTIFICATIONS": "",
@@ -498,7 +499,8 @@
             "TASKS": "",
             "TITLE": "",
             "UOAS": "",
-            "WORKFLOW": ""
+            "WORKFLOW": "",
+            "WORKFLOW_TEMPLATE": ""
         },
         "TASKS": {
             "DRAG_USER": "",

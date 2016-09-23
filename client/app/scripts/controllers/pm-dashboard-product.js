@@ -25,16 +25,16 @@ angular.module('greyscaleApp')
 
         greyscaleProductApi.get(productId).then(function (product) {
             $scope.model.product = product;
-
-            if (product.surveyId) {
-                greyscaleSurveyApi.get(product.surveyId).then(function (survey) {
+            if (product.survey) {
+                greyscaleSurveyApi.get(product.survey.id).then(function (survey) {
                     $scope.model.survey = survey;
+                    $scope.model.surveyEdit = _handleSurveyEdit(survey);
                     tasksTable.dataFilter.policyId = survey.policyId;
                 });
             }
             greyscaleProjectProductsTbl.methods.fillSurvey();
 
-            $state.ext.productName = product.title;
+            $state.ext.productName = product.description;
             return product;
         });
 
@@ -99,6 +99,20 @@ angular.module('greyscaleApp')
                 }
             });
         };
+
+        function _handleSurveyEdit(survey) {
+            return function () {
+                if (survey.policyId) {
+                    $state.go('policy.edit', {
+                        id: survey.id
+                    });
+                } else {
+                    $state.go('projects.setup.surveys.edit', {
+                        surveyId: survey.id
+                    });
+                }
+            };
+        }
 
         function _moveNextStep(task) {
             var params = {
