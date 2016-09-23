@@ -224,6 +224,7 @@ angular.module('greyscaleApp')
                                 return tasks[i].id;
                             }
                         }
+                        return tasks[0].id;
                     }
                     return null;
                 })
