@@ -18,6 +18,8 @@ angular.module('greyscale.tables')
             field: 'title',
             title: tns + 'NAME',
             show: true,
+            class: 'full-width',
+            cellClass: 'truncate-line',
             sortable: 'title',
             dataRequired: true,
             dataValidate: {

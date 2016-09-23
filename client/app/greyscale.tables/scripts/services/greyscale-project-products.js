@@ -1,8 +1,16 @@
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleProjectProductsTbl', function ($q, _, greyscaleProjectApi, greyscaleSurveyApi,
-        greyscaleProductApi, greyscaleModalsSrv, greyscaleUtilsSrv, greyscaleProductWorkflowApi, greyscaleGlobals,
-        $state, i18n, greyscaleProductSrv) {
+    .factory('greyscaleProjectProductsTbl', function ($q, _,
+        greyscaleProjectApi,
+        greyscaleSurveyApi,
+        greyscaleProductApi,
+        greyscaleModalsSrv,
+        greyscaleUtilsSrv,
+        greyscaleProductWorkflowApi,
+        greyscaleWorkflowTemplateApi,
+        greyscaleGlobals,
+        $state,
+        inform, i18n, greyscaleProductSrv) {
 
         var tns = 'PRODUCTS.TABLE.';
 
@@ -40,16 +48,27 @@ angular.module('greyscale.tables')
                 dataRequired: true,
                 dataFormat: 'textarea'
             }, {
-                field: 'workflow.name',
                 sortable: 'workflow.name',
                 title: tns + 'WORKFLOW',
                 show: true,
-                cellTemplate: '{{cell}}<span ng-if="!cell" class="action" translate="' + tns +
-                    'CREATE_WORKFLOW"></span>',
+                cellTemplate: '{{row.workflow.name}}<span ng-show="!row.workflow.name" class="action">{{ext.getWorkflowTemplateName(row)}}</span>',
+                cellTemplateExtData: {
+                    getWorkflowTemplateName: _getWorkflowTemplateName,
+                },
                 link: {
                     handler: _editProductWorkflow
                 },
                 dataHide: true
+            }, {
+                field: 'workflowTemplateId',
+                title: tns + 'WORKFLOW_TEMPLATE',
+                show: false,
+                dataFormat: 'option',
+                dataSet: {
+                    getData: _getWorkflowTemplates,
+                    keyField: 'id',
+                    valField: 'templateName'
+                }
             }, {
                 show: true,
                 dataFormat: 'action',
@@ -161,6 +180,13 @@ angular.module('greyscale.tables')
         //     return _table.dataFilter.projectId;
         // }
 
+        function _getWorkflowTemplateName(row) {
+            var template = _.find(_dicts.workflowTemplates, {
+                id: row.workflowTemplateId
+            });
+            return template ? template.workflow.name : i18n.translate(tns + 'CREATE_WORKFLOW');
+        }
+
         function _getData() {
             // var projectId = _getProjectId();
             // if (!projectId) {
@@ -168,10 +194,12 @@ angular.module('greyscale.tables')
             // } else {
             var req = {
                 surveys: greyscaleSurveyApi.list(),
-                products: greyscaleProjectApi.productsList( /*projectId*/ )
+                products: greyscaleProjectApi.productsList( /*projectId*/ ),
+                workflowTemplates: greyscaleWorkflowTemplateApi.list()
             };
             return $q.all(req).then(function (resp) {
                 _dicts.surveys = resp.surveys;
+                _dicts.workflowTemplates = resp.workflowTemplates;
                 return _setAddData(resp.products);
             });
             // }
@@ -201,6 +229,13 @@ angular.module('greyscale.tables')
         function _getSurveys() {
             return !_editProductMode ? _dicts.surveys : _.filter(_dicts.surveys, function (survey) {
                 return _editProductMode.surveyId === survey.id || !survey.policyId || !survey.products || !survey.products.length;
+            });
+        }
+
+        function _getWorkflowTemplates() {
+            return _.map(_dicts.workflowTemplates, function (template) {
+                template.templateName = template.workflow.name;
+                return template;
             });
         }
 

@@ -311,15 +311,14 @@ angular.module('greyscaleApp')
                         });
                         _locked = resolved !== flagged;
                     }
-
-                    _locked = _locked || (flags.isPolicy && flags.hasVersion);
+                    _locked = _locked || (flags.isPolicy && flags.policyApproved);
                     return _locked;
                 };
             }
         };
 
         function isReadonlyFlags(_flags) {
-            if (_flags.isPolicy && (_flags.hasVersion || _flags.isVersion)) {
+            if (_flags.isPolicy && (_flags.policyApproved || _flags.isVersion)) {
                 angular.extend(_flags, {
                     allowEdit: false,
                     writeToAnswers: false,
@@ -327,7 +326,7 @@ angular.module('greyscaleApp')
                 });
             }
             return (!_flags.allowEdit && !_flags.writeToAnswers && !_flags.provideResponses) ||
-                (_flags.isPolicy && (_flags.hasVersion || _flags.isVersion));
+                (_flags.isPolicy && (_flags.policyApproved || _flags.isVersion));
         }
 
         function initLanguage(scope) {
@@ -393,7 +392,9 @@ angular.module('greyscaleApp')
 
             flags.isPolicy = !!scope.surveyData.policy;
             if (flags.isPolicy) {
-                scope.model.snsTitle = task.userStatus === userStatuses.approved ?
+
+                flags.policyApproved = task.userStatus === userStatuses.approved;
+                scope.model.snsTitle = flags.policyApproved ?
                     'GLOBALS.POLICYUSERSTATUSES.APPROVED' : 'POLICY.APPROVE';
                 scope.model.saveDraftBtnTitle = [userStatuses.approved, userStatuses.flagged].indexOf(task.userStatus) >= 0 ?
                     'COMMON.SAVE' : null;
@@ -609,7 +610,7 @@ angular.module('greyscaleApp')
                             _addValToKey(surveyAnswers, qId, _answers[v]);
 
                             if (_answers[v].userId === currentUserId) {
-                                flags.hasVersion = true;
+                                flags.policyApproved = true;
                             } else if (scope.surveyData.collaboratorIds &&
                                 scope.surveyData.collaboratorIds.indexOf(_answers[v].userId) > -1) {
                                 _addValToKey(coAnswers, qId, _answers[v], coAnswerRestrict);
