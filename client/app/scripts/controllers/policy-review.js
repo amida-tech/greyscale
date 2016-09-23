@@ -70,6 +70,7 @@ angular.module('greyscaleApp')
                     policy: {
                         id: resp.survey.policyId,
                         author: resp.survey.author,
+                        authorName: greyscaleUtilsSrv.getUserName(resp.survey.author),
                         title: resp.survey.title,
                         section: resp.survey.section,
                         subsection: resp.survey.subsection,
@@ -106,12 +107,6 @@ angular.module('greyscaleApp')
 
                 _title = [data.survey.title];
                 return data;
-            })
-            .then(function (_data) {
-                return greyscaleUsers.get(_data.survey.author).then(function (profile) {
-                    _data.policy.authorName = greyscaleUtilsSrv.getUserName(profile);
-                    return _data;
-                });
             })
             .then(function (_data) {
                 var _user = _data.user;

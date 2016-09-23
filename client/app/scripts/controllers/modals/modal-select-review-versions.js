@@ -21,6 +21,7 @@ angular.module('greyscaleApp')
 
         $scope.download = function (e) {
             if (!$scope.model.downloadHref) {
+                e.preventDefault();
                 e.defaultPrevented = true;//(e);
                 e.stopPropagation();
                 // greyscaleProductApi.product(productId).getTicket()
@@ -30,10 +31,10 @@ angular.module('greyscaleApp')
 
                 $timeout(function () {
                     e.currentTarget.click();
+                    $uibModalInstance.close();
                 });
                 //     });
             }
-            $uibModalInstance.close();
         };
 
         function _getData(survey) {

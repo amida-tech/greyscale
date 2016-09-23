@@ -116,7 +116,7 @@ angular.module('greyscaleApp')
                         });
                 });
 
-                scope.getHtml = function(html){
+                scope.getHtml = function (html) {
                     return $sce.trustAsHtml(html);
                 };
             }

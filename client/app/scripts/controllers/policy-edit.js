@@ -59,7 +59,7 @@ angular.module('greyscaleApp')
         $scope.publishIsDisabled = _publishIsDisabled;
 
         greyscaleEntityTypeApi.list({
-                tableName: (isPolicy ? 'Policies' : 'SurveyAnswers')
+                tableName: (isPolicy ? 'Surveys' : 'SurveyAnswers')
             })
             .then(function (essences) {
                 if (essences.length) {
@@ -112,7 +112,6 @@ angular.module('greyscaleApp')
         greyscaleProfileSrv.getProfile()
             .then(function (_user) {
                 user = _user;
-                console.log(user);
                 _setAuthor(_user, $scope.model.policy);
                 return _user;
             });
@@ -251,7 +250,7 @@ angular.module('greyscaleApp')
                             section: survey.section,
                             subsection: survey.subsection,
                             number: survey.number,
-                            answerId: survey.policyId,
+                            answerId: survey.id,
                             attachments: survey.attachments || [],
                             survey: $scope.model.survey,
                             version: survey.surveyVersion
@@ -283,14 +282,14 @@ angular.module('greyscaleApp')
                     $state.ext.surveyName = survey ? survey.title : $state.ext.surveyName;
 
                     return greyscaleEntityTypeApi.list({
-                        tableName: (isPolicy ? 'Policies' : 'SurveyAnswers')
+                        tableName: (isPolicy ? 'Surveys' : 'SurveyAnswers')
                     });
                 })
                 .then(function (essences) {
                     if (essences.length) {
                         _policy.essenceId = essences[0].id;
                     }
-                    return ($scope.model.survey.author) ? greyscaleUsers.get($scope.model.survey.author) : false;
+                    return ($scope.model.survey.author);
                 })
                 .then(function (user) {
                     _setAuthor(user, _policy);
