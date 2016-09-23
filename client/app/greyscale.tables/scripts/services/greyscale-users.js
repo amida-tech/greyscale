@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUsersTbl', function (_, $q, greyscaleModalsSrv, greyscaleUserApi, greyscaleUtilsSrv, inform,
+    .factory('greyscaleUsersTbl', function (_, $q, greyscaleModalsSrv, greyscaleUserApi, greyscaleUtilsSrv,
         i18n, greyscaleProfileSrv, greyscaleGlobals, greyscaleRolesSrv, greyscaleNotificationApi, greyscaleGroupApi) {
 
         var tns = 'USERS.';
@@ -71,6 +71,18 @@ angular.module('greyscale.tables')
             dataFormat: 'boolean',
             dataReadOnly: 'new'
         }, {
+            title: '',
+            show: false,
+            dataHide: true,
+            showFormField: function (rec) {
+                return !rec.isActive;
+            },
+            cellTemplate: '<span ng-show="!row.isActive"><a ng-click="ext.resendActivation(row)" class="btn btn-primary" ' +
+                'translate="' + tns + 'RESEND_ACTIVATION"></a></span>',
+            cellTemplateExtData: {
+                resendActivation: _resendActivation
+            }
+        }, {
             field: 'isAnonymous',
             title: tns + 'ANONYMOUS',
             show: true,
@@ -90,15 +102,6 @@ angular.module('greyscale.tables')
             cellTemplateExtData: {
                 getGroups: _getGroups,
                 editGroups: _editGroups
-            }
-        }, {
-            title: '',
-            show: false,
-            dataHide: true,
-            cellTemplate: '<span ng-show="!row.isActive"><a ng-click="ext.resendActivation(row)" class="btn btn-primary" translate="' +
-                tns + 'RESEND_ACTIVATION"></a></span>',
-            cellTemplateExtData: {
-                resendActivation: _resendActivation
             }
         }, {
             title: 'COMMON.SEND_MESSAGE',
@@ -229,9 +232,7 @@ angular.module('greyscale.tables')
         function _resendActivation(user) {
             greyscaleNotificationApi.resendUserInvite(user.id)
                 .then(function () {
-                    inform.add(i18n.translate(tns + 'RESEND_ACTIVATION_DONE'), {
-                        type: 'success'
-                    });
+                    greyscaleUtilsSrv.successMsg(tns + 'RESEND_ACTIVATION_DONE');
                 })
                 .catch(function (err) {
                     greyscaleUtilsSrv.errorMsg(err, 'Resend Activation');
