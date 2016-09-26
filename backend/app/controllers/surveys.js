@@ -136,7 +136,7 @@ module.exports = {
         }).then(function (data) {
             res.writeHead ( 200, {
                 'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                'Content-disposition': 'attachment; filename=' + req.params.id + '.docx'
+                'Content-disposition': 'attachment; filename=' + req.params.id + '_ver' + req.params.version + '.docx'
             });
 
             res.end(data.docx);
