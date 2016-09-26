@@ -916,9 +916,8 @@ var exportObject = function  (req, realm) {
                 if (_.first(survey.questions)) {
                     for (var i in survey.questions) {
                         if (survey.questions[i].type == 14) {
-                            content += '<p><h1>' + survey.questions[i].label + '</h1></p>';
-                            content += '<p>' + survey.questions[i].description + '</p>';
-                            var existHeader = false;
+                            var existHeader = false,
+                                commentIndexes = '';
                             for (var j in comments) {
                                 if (comments[j].questionId == survey.questions[i].id) {
                                     if (!existHeader) {
@@ -945,19 +944,23 @@ var exportObject = function  (req, realm) {
 
                                     var authorStr = commentAuthor ? (' by ' + commentAuthor.firstName + ' ' + commentAuthor.lastName) : '';
                                     var dateStr = moment(comments[j].created).format('MM/DD/YYYY HH:mm');
-
+                                    commentIndexes += '<a href="#comment'+comments[j].id
+                                        + '">[' + comments[j].id + ']</a> ';
                                     commentsContent +=
                                         '<p>'
-                                        + '(' + dateStr + authorStr + ') <br/>'
+                                        + '<a name="comment'+ comments[j].id +'">(' + dateStr + authorStr + ')</a><br/>'
                                         + comment
                                         + comments[j].entry
                                         + '</p><hr/>';
 
                                 }
                             }
+                            content += '<p><h1>' + survey.questions[i].label + '</h1>';
+                            if (commentIndexes) {
+                                content += '<sup>'+commentIndexes+'</sup>';
+                            }
+                            content += '</p><p>' + survey.questions[i].description + '</p>';
                         }
-
-
                     }
                 }
 
