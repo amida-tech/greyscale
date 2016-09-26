@@ -22,7 +22,7 @@
     <div ng-hide="model.isHidden" class="gs-message-body-warpper">
         <div class="gs-message-body" ng-hide="isEdit">
             <div class="ta-text" ng-bind-html="getHtml(model.entry)"></div>
-            <div class="gs-message-fader"></div>
+            <div class="gs-message-fader" ng-click="hlSource()"></div>
         </div>
         <textarea ng-show="isEdit" ng-model="entry" class="form-control"></textarea>
         <a ng-click="fullview()" class="pull-right gs-message-full-view" ng-if="model.activated">

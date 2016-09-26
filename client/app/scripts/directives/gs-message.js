@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv, greyscaleSelection, $timeout,
-        greyscaleProfileSrv, greyscaleCommentApi, $sce) {
+        greyscaleProfileSrv, greyscaleCommentApi, $sce, $window) {
         var _associate = [];
         return {
             restrict: 'A',
@@ -29,6 +29,9 @@ angular.module('greyscaleApp')
                 $scope.model.created = $scope.model.created ? $scope.model.created : new Date();
                 $scope.isAdmin = _isAdmin;
                 $scope.showToggleComment = _showToggleComment;
+                $scope.hlSource = function () {
+                    _highlightSource($scope);
+                };
 
                 if (!$scope.edit || typeof $scope.edit !== 'function') {
                     $scope.edit = function () {
@@ -95,8 +98,7 @@ angular.module('greyscaleApp')
                 _associate = $scope.associate;
 
                 function _showToggleComment() {
-                    return _isAdmin && !$scope.options.isVersion && $scope.model.activated &&
-                        $scope.options.surveyVersion === $scope.model.surveyVersion;
+                    return _isAdmin && !$scope.options.isVersion && $scope.model.activated;
                 }
 
             },
@@ -107,13 +109,14 @@ angular.module('greyscaleApp')
                     if (scope.model) {
                         scope.model.fromUserFullName = _getUserName(scope.model.userFromId);
                     }
+                    /*
+                     var msgBody = (elem.find('.gs-message-body'));
 
-                    var msgBody = (elem.find('.gs-message-body'));
-
-                    msgBody.find('.gs-message-fader')
-                        .on('click', function (e) {
-                            _highlightSource(scope.model, e.type);
-                        });
+                     msgBody.find('.gs-message-fader')
+                     .on('click', function (e) {
+                     _highlightSource(scope.model, e.type);
+                     });
+                     */
                 });
 
                 scope.getHtml = function (html) {
@@ -122,31 +125,34 @@ angular.module('greyscaleApp')
             }
         };
 
-        function _highlightSource(model) {
-            var questionBlock = $('#Q' + model.questionId);
-            if (!questionBlock.length) {
-                _notifyEditedQuote();
-                return;
-            }
-            questionBlock.closest('.panel:not(.panel-open)').find('.accordion-toggle').click();
-            $timeout(function () {
-                var startNode,
-                    range = model.range,
-                    _html;
+        function _highlightSource(scope) {
+            var _section = angular.element('#Q' + scope.model.questionId).closest('.panel'),
+                startNode,
+                range = scope.model.range,
+                _html,
+                _sectionContainer;
 
-                startNode = greyscaleSelection.restore(questionBlock[0], range);
+            if (_section.length) {
+                _section = angular.element(_section[0]);
+                _sectionContainer = _section.find('#Q' + scope.model.questionId);
+                startNode = greyscaleSelection.restore(_sectionContainer[0], range);
                 _html = greyscaleSelection.html(true);
 
-                if (!_isSamelQoutes(_html, model.range.entry) || !startNode) {
+                if (_isSamelQoutes(_html, range.entry) && startNode) {
+                    scope.options.section.sectionOpen = true;
+                    $timeout(function () {
+                        var _startNode = greyscaleSelection.restore(_sectionContainer[0], range);
+                        var parent = _startNode.parentNode;
+                        var scrollPos = parent.getBoundingClientRect().top + $window.scrollY;
+                        angular.element('body').scrollTop(scrollPos);
+
+                    }, 100);
+                } else {
                     _notifyEditedQuote();
                 }
-
-                if (startNode) {
-                    var parent = startNode.parentNode;
-                    var scrollPos = parent.getBoundingClientRect().top + window.scrollY;
-                    angular.element('body').scrollTop(scrollPos);
-                }
-            });
+            } else {
+                _notifyEditedQuote();
+            }
         }
 
         function _isSamelQoutes(s1, s2) {
@@ -170,7 +176,6 @@ angular.module('greyscaleApp')
                 };
             }
             return user;
-
         }
 
         function _getUserName(userId) {

@@ -59,6 +59,7 @@ checkbox-list {
                 position: absolute;
                 left: 0;
                 right: 0;
+                top: 0;
                 bottom: 0;
                 padding: 0 10px 0 0;
                 margin: 0;
@@ -67,7 +68,6 @@ checkbox-list {
                 background: -o-linear-gradient(transparent, $grey-light); /* For Opera 11.1 to 12.0 */
                 background: -moz-linear-gradient(transparent, $grey-light); /* For Firefox 3.6 to 15 */
                 background: linear-gradient(transparent, $grey-light); /* Standard syntax */
-                height: 40px;
             }
         }
     }

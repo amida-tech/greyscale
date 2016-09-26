@@ -22,7 +22,8 @@ angular.module('greyscaleApp')
                 $scope.model = {
                     items: [],
                     groups: [],
-                    associate: []
+                    associate: [],
+                    sections: []
                 };
 
                 $scope.$on(greyscaleGlobals.events.policy.addComment, function (evt, data) {
@@ -223,13 +224,27 @@ angular.module('greyscaleApp')
 
         function _updateSections(scope) {
             var groupedItems = _.groupBy(scope.model.items, 'questionId');
-            var sections = [];
+            var sections = [],
+                _section;
+            scope.model.sections = [];
+
             angular.forEach(groupedItems, function (groupItems, groupId) {
                 var groupData = _.find(scope.policy.sections, {
-                    id: parseInt(groupId)
-                });
-                groupData.comments = groupItems;
-                sections.push(groupData);
+                        id: parseInt(groupId)
+                    }),
+                    _sectionOptions = angular.copy(scope.policy.options || {});
+
+                _sectionOptions.section = groupData;
+
+                _section = {
+                    id: groupData.id,
+                    label: groupData.label,
+                    isOpen: false,
+                    options: _sectionOptions,
+                    comments: groupItems
+                };
+
+                sections.push(_section);
             });
             scope.model.sections = sections;
         }

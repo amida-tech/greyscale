@@ -12,7 +12,7 @@
 
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 
-angular.module('greyscaleApp').controller('TableCtrl', function ($scope, $http) {
+angular.module('greyscaleApp').controller('TableCtrl', function ($scope, $http, $log) {
 
     var renderers = $.extend(
         $.pivotUtilities.renderers,
@@ -38,7 +38,7 @@ angular.module('greyscaleApp').controller('TableCtrl', function ($scope, $http) 
 
         })
         .error(function (err) {
-            console.log(err);
+            $log.debug(err);
         });
 
 });
