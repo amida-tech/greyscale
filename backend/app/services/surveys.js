@@ -317,7 +317,7 @@ var exportObject = function  (req, realm) {
             }
             return dataObj;
         });
-    }
+    };
 
     this.unlockSurvey = function (id, socketId) {
         return co(function* () {
@@ -412,6 +412,7 @@ var exportObject = function  (req, realm) {
             var surveyData = _.pick(fullSurveyData, Survey.insertCols);
             var policyData = _.pick(fullSurveyData, Policy.insertCols);
             surveyData.creator = req.user.realmUserId;
+            surveyData.created = new Date();
             policyData.author = req.user.realmUserId;
             // check survey/policy data
 
@@ -639,6 +640,7 @@ var exportObject = function  (req, realm) {
             surveyData.surveyVersion = -1;
             policyData.surveyVersion = -1;
             surveyData.creator = req.user.realmUserId;
+            surveyData.created = new Date();
             policyData.author = req.user.realmUserId;
             // check survey/policy data
 
