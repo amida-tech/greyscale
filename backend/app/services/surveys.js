@@ -899,7 +899,7 @@ var exportObject = function  (req, realm) {
             if (survey.policyId) {
                 var authorName = '';
                 if (survey.author) {
-                    var author = yield oUser.getById(survey.author);
+                    var author = survey.author;
                     if (author) {
                         authorName = author.firstName + ' ' + author.lastName;
                     }
