@@ -6,31 +6,35 @@
 angular.module('greyscaleApp')
     .directive('headerbar', function () {
         return {
-            template: '<div class="meta"><div class="page">{{model.title|translate:{ext:stateExt} }}</div><div class="breadcrumb-links">' +
-                '<ul class="breadcrumb"><li ng-repeat="parent in model.path">' +
-                '<a ui-sref="{{parent.route}}">{{parent.name|translate:{ext:stateExt} }}</a></li><li class="active">{{model.title|translate:{ext:stateExt} }}</li>' +
-                '</ul></div></div>',
+            templateUrl: 'views/directives/headerbar.html',
             scope: {},
             restrict: 'E',
             replace: true,
-            controller: function ($scope, $state) {
+            controller: function ($scope, $state, greyscaleProfileSrv) {
 
                 $scope.stateExt = $state.ext;
 
-                $scope.$on('$stateChangeSuccess', function () {
-                    $scope.model = {
-                        title: $state.current.data.name,
-                        path: _getPath($state.$current.parent)
-                    };
-                });
+                $scope.$on('$stateChangeSuccess', _initBreadcrumbs);
 
-                function _getPath(_state) {
+                _initBreadcrumbs();
+
+                function _initBreadcrumbs() {
+                    greyscaleProfileSrv.getAccessLevel().then(function (level) {
+                        $scope.model = {
+                            title: $state.current.data.name,
+                            path: _getPath($state.$current.parent, level)
+                        };
+                    });
+                }
+
+                function _getPath(_state, level) {
                     var path = [];
                     while (_state) {
                         if (_state.data && _state.data.name) {
                             path.unshift({
                                 route: _state.name,
-                                name: _state.data.name
+                                name: _state.data.name,
+                                hasAccess: !!(level & _state.data.accessLevel)
                             });
                         }
                         _state = _state.parent;

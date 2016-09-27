@@ -1,0 +1,13 @@
+<div class="meta">
+    <div class="page">{{model.title|translate:{ext:stateExt} }}</div>
+    <div class="breadcrumb-links">
+        <ul class="breadcrumb">
+            <li ng-repeat="parent in model.path">
+                <a ui-sref="{{parent.route}}" ng-class="{disabled: !parent.hasAccess}">
+                    {{parent.name|translate:{ext:stateExt} }}
+                </a>
+            </li>
+            <li class="active">{{model.title|translate:{ext:stateExt} }}</li>
+        </ul>
+    </div>
+</div>
