@@ -653,7 +653,7 @@ _app.run(function (_, $state, $stateParams, $rootScope, greyscaleProfileSrv, inf
                     e.preventDefault();
                     if ((_level & greyscaleGlobals.userRoles.any.mask) !== 0) { //if not admin accessing admin level page
                         if (toState.name !== 'login') {
-                            greyscaleUtilsSrv.errorMsg(toState.data.name, 'API_ERROR.403');
+                            greyscaleUtilsSrv.errorMsg(toState.data.name, 'API_ERRORS.403');
                         }
                         $state.go('home', {}, params);
                     } else {
