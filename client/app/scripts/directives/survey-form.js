@@ -205,9 +205,7 @@ angular.module('greyscaleApp')
                 }
 
                 function goTasks(saveSuccess) {
-                    if (saveSuccess) {
-                        $state.go(tasks.survey);
-                    }
+                    $state.go(tasks.survey);
                     return saveSuccess;
                 }
 
@@ -249,7 +247,8 @@ angular.module('greyscaleApp')
 
                 function _saveChangedResolveComments() {
                     var q,
-                        qty = (scope.surveyData.survey && scope.surveyData.survey.questions) ? scope.surveyData.survey.questions.length : 0,
+                        qty = (scope.surveyData.survey &&
+                            scope.surveyData.survey.questions) ? scope.surveyData.survey.questions.length : 0,
                         fResolve,
                         reqs = [];
 
@@ -295,7 +294,8 @@ angular.module('greyscaleApp')
                 $scope.isLocked = function () {
                     var _locked;
                     _locked = isReadonlyFlags(flags) &&
-                        (!$scope.model.translated && flags.allowTranslate || $scope.model.translated && !flags.allowTranslate) &&
+                        (!$scope.model.translated && flags.allowTranslate ||
+                            $scope.model.translated && !flags.allowTranslate) &&
                         (flags.discussionParticipation && !flags.draftFlag);
 
                     if ($scope.surveyData && $scope.surveyData.task && $scope.surveyData.task.flagged) {
@@ -396,7 +396,8 @@ angular.module('greyscaleApp')
                 flags.policyApproved = task.userStatus === userStatuses.approved;
                 scope.model.snsTitle = flags.policyApproved ?
                     'GLOBALS.POLICYUSERSTATUSES.APPROVED' : 'POLICY.APPROVE';
-                scope.model.saveDraftBtnTitle = [userStatuses.approved, userStatuses.flagged].indexOf(task.userStatus) >= 0 ?
+                scope.model.saveDraftBtnTitle = [userStatuses.approved, userStatuses.flagged].indexOf(
+                        task.userStatus) >= 0 ?
                     'COMMON.SAVE' : null;
             }
             scope.model.translated = !flags.allowTranslate;
@@ -1004,7 +1005,8 @@ angular.module('greyscaleApp')
                         option = $(option);
                         if (option.val() !== '' && option.text() !== '') {
                             select.append(
-                                '<span class="select-option"><i class="fa fa-circle-o"></i> ' + option.text() + '</span>');
+                                '<span class="select-option"><i class="fa fa-circle-o"></i> ' + option.text() +
+                                '</span>');
                         }
                     });
                     field.replaceWith(select);
