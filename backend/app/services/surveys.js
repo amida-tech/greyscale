@@ -995,6 +995,7 @@ var exportObject = function  (req, realm) {
                     } else {
                         if (!_fTag && _fSup <= 0) {
                             _offset--;
+                            _fSup = 0;
                         }
                     }
                 }
