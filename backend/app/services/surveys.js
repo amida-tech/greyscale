@@ -887,7 +887,14 @@ var exportObject = function  (req, realm) {
         return co(function* () {
 
             // html header & footer
-            var htmlHeader = '<!DOCTYPE html><html><head></head><body>';
+            var htmlStyles = '<style>' +
+                'body { ' +
+                'font-family: "Times", serif;' +
+                'font-size: 1em' +
+                '} ' +
+                'table, th, td {border: 1px solid black;}' +
+                '</style>';
+            var htmlHeader = '<!DOCTYPE html><html><head><meta charset="utf-8">' + htmlStyles + '</head><body>';
             var htmlFooter = '</body></html>';
             var content = htmlHeader;
 
