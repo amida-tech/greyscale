@@ -966,6 +966,7 @@ var exportObject = function  (req, realm) {
 
             }
             content += htmlFooter;
+            content = _preHtml(content);
             return htmlDocx.asBlob(content);
 
             function _linkComment(question, comment, idx) {
@@ -999,6 +1000,10 @@ var exportObject = function  (req, realm) {
                         }
                     }
                 }
+            }
+
+            function _preHtml(body) {
+                return body.replace(new RegExp(String.fromCharCode(160),'g'), '&nbsp;');
             }
         });
     };
