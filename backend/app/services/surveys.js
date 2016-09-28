@@ -917,7 +917,7 @@ var exportObject = function  (req, realm) {
                     for (var i in survey.questions) {
                         if (survey.questions[i].type == 14) {
                             var existHeader = false,
-                                commentIndexes = '';
+                                _idx = 0;
                             for (var j in comments) {
                                 if (comments[j].questionId == survey.questions[i].id) {
                                     if (!existHeader) {
@@ -944,24 +944,19 @@ var exportObject = function  (req, realm) {
 
                                     var authorStr = commentAuthor ? (' by ' + commentAuthor.firstName + ' ' + commentAuthor.lastName) : '';
                                     var dateStr = moment(comments[j].created).format('MM/DD/YYYY HH:mm');
-                                    commentIndexes += '<a href="#comment'+comments[j].id
-                                        + '">[' + comments[j].id + ']</a> ';
                                     commentsContent +=
                                         '<p>'
-                                        + '<a name="comment'+ comments[j].id +'">(' + dateStr + authorStr + ')</a><br/>'
+                                        + '<a name="rem'+ comments[j].id +'">(' + dateStr + authorStr + ')</a><br/>'
                                         + comment
                                         + comments[j].entry
                                         + '</p><hr/>';
 
-                                    _linkComment(survey.questions[i], comments[j]);
+                                    _linkComment(survey.questions[i], comments[j], ++_idx);
                                 }
                             }
 
-                            content += '<p><h1>' + survey.questions[i].label + '</h1>';
-                            if (commentIndexes) {
-                                content += '<sup>'+commentIndexes+'</sup>';
-                            }
-                            content += '</p><p>' + survey.questions[i].description + '</p>';
+                            content += '<p><h1>' + survey.questions[i].label + '</h1></p><p>'
+                                + survey.questions[i].description + '</p>';
                         }
                     }
                 }
@@ -973,38 +968,36 @@ var exportObject = function  (req, realm) {
             content += htmlFooter;
             return htmlDocx.asBlob(content);
 
-            function _linkComment(question, comment) {
+            function _linkComment(question, comment, idx) {
                 var i,
-                    _fTag = 0,
+                    _fTag = false,
                     _fSup = 0,
-                    _lnk = '<sup></sup><a href="#comment' + comment.id + '">[' + comment.id + ']</a></sup>',
+                    _lnk = '<sup><a href="#rem' + comment.id + '">[' + idx + ']</a></sup>',
                     _offset = comment.range.end,
                     _descr = question.description,
                     _strL = _descr.length;
 
-                // console.log('linking comment into', _descr);
-
                 for (i = 0; i < _strL; i++) {
+                    if (_offset === 0) {
+                        question.description = [_descr.slice(0, i), _lnk, _descr.slice(i)].join('');
+                        return;
+                    }
                     if (_descr[i] === '<') {
                         _fTag = true;
-                        if (_descr.substr(i+1,4) ==='sup>1') {
+                        if (_descr.substr(i+1, 4) ==='sup>') {
                             _fSup++;
                         }
-                        if (_descr.substr(i+1,5) ==='/sup>1') {
+                        if (_descr.substr(i+1, 5) ==='/sup>') {
                             _fSup--;
                         }
                     } else if (_descr[i] === '>') {
                         _fTag = false;
-                    }
-                    if (!_fTag && !_fSup) {
-                        _offset--;
-                    }
-                    if (_offset<1) {
-                        question.description = [_descr.slice(0, i), _lnk, _descr.slice(i)].join('');
-                        return question.description;
+                    } else {
+                        if (!_fTag && _fSup <= 0) {
+                            _offset--;
+                        }
                     }
                 }
-                return question.description;
             }
         });
     };
