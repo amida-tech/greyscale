@@ -953,8 +953,10 @@ var exportObject = function  (req, realm) {
                                         + comments[j].entry
                                         + '</p><hr/>';
 
+                                    _linkComment(survey.questions[i], comments[j]);
                                 }
                             }
+
                             content += '<p><h1>' + survey.questions[i].label + '</h1>';
                             if (commentIndexes) {
                                 content += '<sup>'+commentIndexes+'</sup>';
@@ -969,12 +971,43 @@ var exportObject = function  (req, realm) {
 
             }
             content += htmlFooter;
-            var docx = htmlDocx.asBlob(content);
-            return docx;
+            return htmlDocx.asBlob(content);
 
+            function _linkComment(question, comment) {
+                var i,
+                    _fTag = 0,
+                    _fSup = 0,
+                    _lnk = '<sup></sup><a href="#comment' + comment.id + '">[' + comment.id + ']</a></sup>',
+                    _offset = comment.range.end,
+                    _descr = question.description,
+                    _strL = _descr.length;
+
+                // console.log('linking comment into', _descr);
+
+                for (i = 0; i < _strL; i++) {
+                    if (_descr[i] === '<') {
+                        _fTag = true;
+                        if (_descr.substr(i+1,4) ==='sup>1') {
+                            _fSup++;
+                        }
+                        if (_descr.substr(i+1,5) ==='/sup>1') {
+                            _fSup--;
+                        }
+                    } else if (_descr[i] === '>') {
+                        _fTag = false;
+                    }
+                    if (!_fTag && !_fSup) {
+                        _offset--;
+                    }
+                    if (_offset<1) {
+                        question.description = [_descr.slice(0, i), _lnk, _descr.slice(i)].join('');
+                        return question.description;
+                    }
+                }
+                return question.description;
+            }
         });
-    }
-
+    };
 };
 
 module.exports = exportObject;
