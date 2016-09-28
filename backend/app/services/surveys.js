@@ -890,7 +890,7 @@ var exportObject = function  (req, realm) {
             var htmlStyles = '<style>' +
                 'body { ' +
                 'font-family: "Times", serif;' +
-                'font-size: 1em' +
+                'font-size: 13pt' +
                 '} ' +
                 'table, th, td {border: 1px solid black;}' +
                 '</style>';
