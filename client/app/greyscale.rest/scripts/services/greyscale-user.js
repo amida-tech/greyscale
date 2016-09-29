@@ -8,6 +8,14 @@ angular.module('greyscale.rest')
         greyscaleRealmSrv, greyscaleGlobals, greyscaleUtilsSrv) {
 
         var entry = 'API.USER';
+        var _httpFields = {
+                cache: false
+            },
+            _headers = {
+                'If-Modified-Since': 'Mon, 26 Jul 1997 05:00:00 GMT',
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            };
 
         return {
             login: _login,
@@ -88,6 +96,14 @@ angular.module('greyscale.rest')
                 .catch(function (err) {
                     return greyscaleRestSrv.errHandler(err, 'GET', entry);
                 });
+            return userAPI()
+                .one('activate', token)
+                .withHttpConfig(function (RestangularConfigurer) {
+                    RestangularConfigurer.setDefaultHeaders(_headers);
+                    RestangularConfigurer.setDefaultHttpFields(_httpFields);
+                })
+                .get()
+                .then(_prepareData);
         }
 
         function _activate(token, data) {
@@ -117,7 +133,12 @@ angular.module('greyscale.rest')
             return greyscaleRestSrv.api({
                     'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' + passwd)
                 })
-                .one('users', 'token').get()
+                .one('users', 'token')
+                .withHttpConfig(function (RestangularConfigurer) {
+                    RestangularConfigurer.setDefaultHeaders(_headers);
+                    RestangularConfigurer.setDefaultHttpFields(_httpFields);
+                })
+                .get()
                 .then(_prepareData)
                 .then(function (resp) {
                     greyscaleTokenSrv(resp.token);

@@ -19,11 +19,6 @@ angular.module('greyscale.core')
             var aHeaders = {
                 'Content-Type': 'application/json',
                 'Accept-Language': $rootScope.currentLocale
-                    /*,
-                     'If-Modified-Since': 'Mon, 26 Jul 1997 05:00:00 GMT',
-                     'Cache-Control': 'no-cache',
-                     'Pragma': 'no-cache'
-                     */
             };
 
             angular.extend(aHeaders, headers);

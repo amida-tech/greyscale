@@ -5,11 +5,12 @@
 
 angular.module('greyscale.rest', ['restangular', 'greyscale.core'])
     .config(function (greyscaleEnv, RestangularProvider, greyscaleGlobalsProvider, greyscaleRolesSrvProvider,
-        greyscaleErrorHandlerProvider) {
+        greyscaleErrorHandlerProvider, $cacheFactoryProvider) {
 
         var realm = 'public',
             greyscaleRolesSrv = greyscaleRolesSrvProvider.$get(),
-            greyscaleErrorHandler = greyscaleErrorHandlerProvider.$get();
+            greyscaleErrorHandler = greyscaleErrorHandlerProvider.$get(),
+            cache = $cacheFactoryProvider.$get();
 
         RestangularProvider.setBaseUrl(
             (greyscaleEnv.apiProtocol || 'http') + '://' +
@@ -25,6 +26,13 @@ angular.module('greyscale.rest', ['restangular', 'greyscale.core'])
         });
 
         RestangularProvider.setErrorInterceptor(greyscaleErrorHandler.errorInterceptor);
+        RestangularProvider.setResponseInterceptor(function(response, operation) {
+            if (operation === 'put' || operation === 'post' || operation === 'remove') {
+                console.log('reset client cache');
+                cache('http').removeAll();
+            }
+            return response;
+        });
 
         greyscaleRolesSrv().then(greyscaleGlobalsProvider.initRoles);
     });
