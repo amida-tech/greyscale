@@ -5,17 +5,12 @@
 
 angular.module('greyscale.rest')
     .factory('greyscaleUserApi', function ($q, greyscaleRestSrv, greyscaleTokenSrv, greyscaleBase64Srv,
-        greyscaleRealmSrv, greyscaleGlobals, greyscaleUtilsSrv) {
+        greyscaleRealmSrv, greyscaleGlobals, greyscaleUtilsSrv, $cacheFactory) {
 
         var entry = 'API.USER';
-        var _httpFields = {
-                cache: false
-            },
-            _headers = {
-                'If-Modified-Since': 'Mon, 26 Jul 1997 05:00:00 GMT',
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache'
-            };
+        var _noCacheCfg = {
+            cache: false
+        };
 
         return {
             login: _login,
@@ -91,19 +86,16 @@ angular.module('greyscale.rest')
         }
 
         function _checkActivationToken(token) {
-            return userAPI().one('activate', token).get()
+            return userAPI()
+                .one('activate', token)
+                .withHttpConfig(_noCacheCfg)
+                .customGET(null, {
+                    ts: (new Date()).getTime()
+                })
                 .then(greyscaleRestSrv.postProc)
                 .catch(function (err) {
                     return greyscaleRestSrv.errHandler(err, 'GET', entry);
                 });
-            return userAPI()
-                .one('activate', token)
-                .withHttpConfig(function (RestangularConfigurer) {
-                    RestangularConfigurer.setDefaultHeaders(_headers);
-                    RestangularConfigurer.setDefaultHttpFields(_httpFields);
-                })
-                .get()
-                .then(_prepareData);
         }
 
         function _activate(token, data) {
@@ -134,11 +126,10 @@ angular.module('greyscale.rest')
                     'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' + passwd)
                 })
                 .one('users', 'token')
-                .withHttpConfig(function (RestangularConfigurer) {
-                    RestangularConfigurer.setDefaultHeaders(_headers);
-                    RestangularConfigurer.setDefaultHttpFields(_httpFields);
+                .withHttpConfig(_noCacheCfg)
+                .customGET(null, {
+                    ts: (new Date()).getTime()
                 })
-                .get()
                 .then(_prepareData)
                 .then(function (resp) {
                     greyscaleTokenSrv(resp.token);
@@ -151,7 +142,11 @@ angular.module('greyscale.rest')
             var _token = greyscaleTokenSrv();
             var res = $q.resolve(false);
             if (_token) {
-                res = userAPI(realm).one('checkToken', _token).get()
+                res = userAPI(realm).one('checkToken', _token)
+                    .withHttpConfig(_noCacheCfg)
+                    .customGET(null, {
+                        ts: (new Date()).getTime()
+                    })
                     .then(function () {
                         return true;
                     })
@@ -167,7 +162,8 @@ angular.module('greyscale.rest')
             return userAPI(greyscaleRealmSrv.origin()).one('logout').post()
                 .catch(function () {
                     return false;
-                });
+                })
+                .finally(_resetHttpCache);
         }
 
         function _inviteSuperAdmin(userData) {
@@ -250,5 +246,16 @@ angular.module('greyscale.rest')
                 .catch(function (err) {
                     return greyscaleRestSrv.errHandler(err, 'UPDATE', entry);
                 });
+        }
+
+        function _resetHttpCache() {
+            var _httpCache;
+            try {
+                _httpCache = $cacheFactory.get('$http');
+            } catch (e) {}
+
+            if (_httpCache) {
+                _httpCache.removeAll();
+            }
         }
     });

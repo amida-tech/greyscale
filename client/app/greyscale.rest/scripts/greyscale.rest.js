@@ -21,15 +21,21 @@ angular.module('greyscale.rest', ['restangular', 'greyscale.core'])
         );
 
         RestangularProvider.setDefaultHttpFields({
-            cache: false,
+            cache: true,
             withCredentials: false
         });
 
         RestangularProvider.setErrorInterceptor(greyscaleErrorHandler.errorInterceptor);
-        RestangularProvider.setResponseInterceptor(function(response, operation) {
+        RestangularProvider.setResponseInterceptor(function (response, operation) {
             if (operation === 'put' || operation === 'post' || operation === 'remove') {
-                console.log('reset client cache');
-                cache('http').removeAll();
+                var _httpCache;
+                try {
+                    _httpCache = cache.get('$http');
+                } catch (e) {}
+
+                if (_httpCache) {
+                    _httpCache.removeAll();
+                }
             }
             return response;
         });
