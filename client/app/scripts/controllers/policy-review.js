@@ -15,7 +15,7 @@ angular.module('greyscaleApp')
             isVersion = ($state.current.name === 'policy.version'),
             reqs = {
                 survey: (version ? greyscaleSurveyApi.getVersion(surveyId, version) : greyscaleSurveyApi.get(surveyId)),
-                profile: greyscaleProfileSrv.getProfile(),
+                profile: greyscaleProfileSrv.getProfile('force'),
                 languages: greyscaleLanguageApi.list(),
                 essence: greyscaleEntityTypeApi.list({
                     tableName: 'SurveyAnswers'
