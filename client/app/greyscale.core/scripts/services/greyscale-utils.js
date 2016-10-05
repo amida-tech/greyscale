@@ -13,6 +13,7 @@ angular.module('greyscale.core')
             prepareFields: _preProcess,
             errorMsg: _errMsg,
             successMsg: _successMsg,
+            warnMsg: _warnMsg,
             getRoleMask: _getRoleMask,
             parseURL: _parseURL,
             getApiBase: _getApiBase,
@@ -96,6 +97,10 @@ angular.module('greyscale.core')
 
         function _successMsg(msg, prefix) {
             _addMsg(msg, prefix, 'success');
+        }
+
+        function _warnMsg(msg, prefix) {
+            _addMsg(msg, prefix, 'warning');
         }
 
         function _getRoleMask(roleId, withDefault) {

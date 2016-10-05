@@ -706,6 +706,7 @@
         "MIN": "min",
         "NAME": "Name",
         "NEW_SURVEY": "New survey",
+        "NO_CHANGES": "Not changed.",
         "NO_DATA": "No data",
         "NO_OPTIONS_WAS_SELECTED": "no option was selected",
         "PRINT_ALL": "Print with answers",
