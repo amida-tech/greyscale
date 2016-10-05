@@ -116,7 +116,7 @@ angular.module('greyscaleApp')
                     if (res) {
                         greyscaleUtilsSrv.successMsg('SURVEYS.SAVE_DRAFT_SUCCESS');
                     } else {
-                        greyscaleUtilsSrv.warnMsg('SURVEYS.NO_CHANGES');
+                        greyscaleUtilsSrv.warningMsg('SURVEYS.NO_CHANGES');
                     }
                     return res;
                 }

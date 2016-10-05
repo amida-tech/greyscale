@@ -13,7 +13,7 @@ angular.module('greyscale.core')
             prepareFields: _preProcess,
             errorMsg: _errMsg,
             successMsg: _successMsg,
-            warnMsg: _warnMsg,
+            warningMsg: _warnMsg,
             getRoleMask: _getRoleMask,
             parseURL: _parseURL,
             getApiBase: _getApiBase,
