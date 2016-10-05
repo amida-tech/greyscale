@@ -10,7 +10,8 @@ angular.module('greyscale.rest', ['restangular', 'greyscale.core'])
         var realm = 'public',
             greyscaleRolesSrv = greyscaleRolesSrvProvider.$get(),
             greyscaleErrorHandler = greyscaleErrorHandlerProvider.$get(),
-            cache = $cacheFactoryProvider.$get();
+            cacheFactory = $cacheFactoryProvider.$get(),
+            cache = cacheFactory('http');
 
         RestangularProvider.setBaseUrl(
             (greyscaleEnv.apiProtocol || 'http') + '://' +
@@ -21,20 +22,15 @@ angular.module('greyscale.rest', ['restangular', 'greyscale.core'])
         );
 
         RestangularProvider.setDefaultHttpFields({
-            cache: true,
+            cache: cache,
             withCredentials: false
         });
 
         RestangularProvider.setErrorInterceptor(greyscaleErrorHandler.errorInterceptor);
         RestangularProvider.setResponseInterceptor(function (response, operation) {
             if (operation === 'put' || operation === 'post' || operation === 'remove') {
-                var _httpCache;
-                try {
-                    _httpCache = cache.get('$http');
-                } catch (e) {}
-
-                if (_httpCache) {
-                    _httpCache.removeAll();
+                if (cache) {
+                    cache.removeAll();
                 }
             }
             return response;
