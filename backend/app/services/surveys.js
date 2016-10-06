@@ -917,7 +917,7 @@ var exportObject = function  (req, realm) {
                     '<tr><td>AUTHOR</td><td>' + authorName + '</td></tr>' +
                     '</table>';
 
-                var comments = yield oComment.getComments({surveyId: surveyId}, null, null, null, version);
+                var comments = yield oComment.getComments({surveyId: surveyId}, null, null, null, null, version);
                 var commentsContent = comments.length ? '<hr/><h1>COMMENTS</h1>' : '';
 
                 if (_.first(survey.questions)) {
