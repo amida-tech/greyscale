@@ -983,19 +983,34 @@ var exportObject = function  (req, realm) {
                     _lnk = '<sup><a href="#rem' + comment.id + '">[' + idx + ']</a></sup>',
                     _offset = comment.range.end,
                     _descr = question.description,
-                    _strL = _descr.length;
+                    _strL = _descr.length,
+                    symbolRe = /&.+?;/ig,
+                    _symbol = symbolRe.exec(_descr);
 
                 for (i = 0; i < _strL; i++) {
+                    //remove html extended symbols
+                    if (_symbol && i === _symbol.index) {
+                        i += _symbol[0].length - 1;
+                        _symbol = symbolRe.exec(_descr);
+                    }
+
                     if (_offset === 0) {
+                        symbolRe = /[\b\s]/g;
+                        symbolRe.lastIndex = i ? i - 1 : i;
+                        _symbol = symbolRe.exec(_descr);
+                        if (_symbol) {
+                            i = _symbol.index;
+                        }
                         question.description = [_descr.slice(0, i), _lnk, _descr.slice(i)].join('');
                         return;
                     }
+
                     if (_descr[i] === '<') {
                         _fTag = true;
-                        if (_descr.substr(i+1, 4) ==='sup>') {
+                        if (_descr.substr(i + 1, 4) === 'sup>') {
                             _fSup++;
                         }
-                        if (_descr.substr(i+1, 5) ==='/sup>') {
+                        if (_descr.substr(i + 1, 5) === '/sup>') {
                             _fSup--;
                         }
                     } else if (_descr[i] === '>') {
