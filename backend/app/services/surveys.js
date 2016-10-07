@@ -906,12 +906,12 @@ var exportObject = function  (req, realm) {
                 _idx = 0;
 
             var authorName = '';
-            if (survey.author) {
-                var author = yield oUser.getById(survey.author);
-                if (author) {
-                    authorName = author.firstName + ' ' + author.lastName;
-                }
-            }
+            //if (survey.author) {
+            //    var author = yield oUser.getById(survey.author);
+            //    if (author) {
+            //        authorName = author.firstName + ' ' + author.lastName;
+            //    }
+            //}
             content += '<table width="300" border="1">' +
                 '<tr><td>SECTION</td><td>' + survey.section + '</td></tr>' +
                 '<tr><td>SUBSECTION</td><td>' + survey.subsection + '</td></tr>' +
@@ -920,7 +920,6 @@ var exportObject = function  (req, realm) {
                 '<tr><td>TYPE</td><td>Medical Policy</td></tr>' +
                 '<tr><td>AUTHOR</td><td>' + authorName + '</td></tr>' +
                 '</table>';
-
             var comments = yield oComment.getComments({surveyId: survey.id}, null, null, null, null, survey.surveyVersion);
             var commentsContent = comments.length ? '<hr/><h1>COMMENTS</h1>' : '';
 
@@ -1061,6 +1060,7 @@ var exportObject = function  (req, realm) {
                 for (var i in survey.questions) {
                     if (survey.questions[i].type != 14) {
                         var answers = yield self.getQuestionAnswers(survey.questions[i].id, survey.surveyVersion);
+
                         content += '<p><h1>' + survey.questions[i].label + '</h1></p>'
                             + '<p>' + survey.questions[i].description + '</p>';
                         for (var j in answers) {
@@ -1081,6 +1081,7 @@ var exportObject = function  (req, realm) {
                                     var ext = item.filename.substr(item.filename.lastIndexOf('.'));
                                     do{
                                         var filename = (postfix == 0) ? (basename + ext) : (basename + '_' + postfix + ext);
+                                        postfix++;
                                     } while (attArr[filename])
                                     attArr[filename] = item;
                                     return filename;
@@ -1209,6 +1210,7 @@ var exportObject = function  (req, realm) {
             var surveyEssence = yield oEssence.getByTableName('Surveys');
             var oAttachment = new sAttachment(req);
             var policyAttach = yield oAttachment.getEntityAttachments(surveyEssence.id, surveyId, version);
+
             if (survey) {
                 yield new Promise((resolve, reject) => {
                     mkdirp(tmp_dir, function(err) {
@@ -1221,7 +1223,10 @@ var exportObject = function  (req, realm) {
                 });
 
                 if (survey.policyId) {
+                    console.log('PRE----->>>>>');
                     yield self.createPolicyFile(survey, tmp_dir);
+                    console.log('POST----->>>>>');
+
                     if (policyAttach.length) {
                         yield new Promise((resolve, reject) => {
                             mkdirp(tmp_dir + '/attachments/policy', function(err) {
