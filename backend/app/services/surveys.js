@@ -5,6 +5,9 @@ var
     Survey = require('app/models/surveys'),
     User = require('app/models/users'),
     Workflow = require('app/models/workflows'),
+    AttachmentLink = require('app/models/attachment_links'),
+    Attachment = require('app/models/attachments'),
+    Essence = require('app/models/essences'),
     SurveyQuestion = require('app/models/survey_questions'),
     SurveyAnswer = require('app/models/survey_answers'),
     SurveyMeta = require('app/models/survey_meta'),
@@ -16,6 +19,8 @@ var
     Product = require('app/models/products'),
     ProductUOA = require('app/models/product_uoa'),
     co = require('co'),
+    fs = require('fs'),
+    mkdirp = require('mkdirp'),
     Query = require('app/util').Query,
     sql = require('sql'),
     thunkify = require('thunkify'),
@@ -879,13 +884,12 @@ var exportObject = function  (req, realm) {
         });
     };
 
-    this.policyToDocx = function (surveyId, version) {
+    this.createPolicyFile = function (survey, path) {
         var self = this;
         var oUser = new sUser(req);
         var sComment = require('app/services/comments');
         var oComment = new sComment(req);
         return co(function* () {
-
             // html header & footer
             var htmlStyles = '<style>' +
                 'body { ' +
@@ -898,83 +902,84 @@ var exportObject = function  (req, realm) {
             var htmlFooter = '</body></html>';
             var content = htmlHeader;
 
-            var survey = yield self.getVersion(surveyId, version);
-
-            if (survey.policyId) {
-                var authorName = '';
-                if (survey.author) {
-                    var author = yield oUser.getById(survey.author);
-                    if (author) {
-                        authorName = author.firstName + ' ' + author.lastName;
-                    }
+            var authorName = '';
+            if (survey.author) {
+                var author = yield oUser.getById(survey.author);
+                if (author) {
+                    authorName = author.firstName + ' ' + author.lastName;
                 }
-                content += '<table width="300" border="1">' +
-                    '<tr><td>SECTION</td><td>' + survey.section + '</td></tr>' +
-                    '<tr><td>SUBSECTION</td><td>' + survey.subsection + '</td></tr>' +
-                    '<tr><td>NUMBER</td><td>' + survey.number + '</td></tr>' +
-                    '<tr><td>TITLE</td><td>' + survey.title + '</td></tr>' +
-                    '<tr><td>TYPE</td><td>Medical Policy</td></tr>' +
-                    '<tr><td>AUTHOR</td><td>' + authorName + '</td></tr>' +
-                    '</table>';
-
-                var comments = yield oComment.getComments({surveyId: surveyId}, null, null, null, version);
-                var commentsContent = comments.length ? '<hr/><h1>COMMENTS</h1>' : '';
-
-                if (_.first(survey.questions)) {
-                    for (var i in survey.questions) {
-                        if (survey.questions[i].type == 14) {
-                            var existHeader = false,
-                                _idx = 0;
-                            for (var j in comments) {
-                                if (comments[j].questionId == survey.questions[i].id) {
-                                    if (!existHeader) {
-                                        commentsContent += '<h2>' + survey.questions[i].label + '</h2>';
-                                        existHeader = true;
-                                    }
-                                    var comment = '';
-                                    var commentAuthor = yield oUser.getById(comments[j].userFromId);
-
-                                    if (comments[j].range) {
-                                        try{
-                                            comments[j].range = JSON.parse(comments[j].range);
-                                        } catch (err) {
-                                            console.log(err);
-                                            comments[j].range = {};
-                                        }
-                                        if (comments[j].range.entry) {
-                                            comment +=
-                                                '<font color="#a9a9a9"><b><i>&laquo;'
-                                                + comments[j].range.entry.replace(/(<([^>]+)>)/ig,"")
-                                                + '&raquo;</i></b></font><br/>';
-                                        }
-                                    }
-
-                                    var authorStr = commentAuthor ? (' by ' + commentAuthor.firstName + ' ' + commentAuthor.lastName) : '';
-                                    var dateStr = moment(comments[j].created).format('MM/DD/YYYY HH:mm');
-                                    commentsContent +=
-                                        '<p>'
-                                        + '<a name="rem'+ comments[j].id +'">(' + dateStr + authorStr + ')</a><br/>'
-                                        + comment
-                                        + comments[j].entry
-                                        + '</p><hr/>';
-
-                                    _linkComment(survey.questions[i], comments[j], ++_idx);
-                                }
-                            }
-
-                            content += '<p><h1>' + survey.questions[i].label + '</h1></p><p>'
-                                + survey.questions[i].description + '</p>';
-                        }
-                    }
-                }
-
-                content += commentsContent;
-
-
             }
+            content += '<table width="300" border="1">' +
+                '<tr><td>SECTION</td><td>' + survey.section + '</td></tr>' +
+                '<tr><td>SUBSECTION</td><td>' + survey.subsection + '</td></tr>' +
+                '<tr><td>NUMBER</td><td>' + survey.number + '</td></tr>' +
+                '<tr><td>TITLE</td><td>' + survey.title + '</td></tr>' +
+                '<tr><td>TYPE</td><td>Medical Policy</td></tr>' +
+                '<tr><td>AUTHOR</td><td>' + authorName + '</td></tr>' +
+                '</table>';
+
+            var comments = yield oComment.getComments({surveyId: survey.id}, null, null, null, survey.surveyVersion);
+            var commentsContent = comments.length ? '<hr/><h1>COMMENTS</h1>' : '';
+
+            if (_.first(survey.questions)) {
+                for (var i in survey.questions) {
+                    if (survey.questions[i].type == 14) {
+                        var existHeader = false,
+                            _idx = 0;
+                        for (var j in comments) {
+                            if (comments[j].questionId == survey.questions[i].id) {
+                                if (!existHeader) {
+                                    commentsContent += '<h2>' + survey.questions[i].label + '</h2>';
+                                    existHeader = true;
+                                }
+                                var comment = '';
+                                var commentAuthor = yield oUser.getById(comments[j].userFromId);
+
+                                if (comments[j].range) {
+                                    try{
+                                        comments[j].range = JSON.parse(comments[j].range);
+                                    } catch (err) {
+                                        console.log(err);
+                                        comments[j].range = {};
+                                    }
+                                    if (comments[j].range.entry) {
+                                        comment +=
+                                            '<font color="#a9a9a9"><b><i>&laquo;'
+                                            + comments[j].range.entry.replace(/(<([^>]+)>)/ig,"")
+                                            + '&raquo;</i></b></font><br/>';
+                                    }
+                                }
+
+                                var authorStr = commentAuthor ? (' by ' + commentAuthor.firstName + ' ' + commentAuthor.lastName) : '';
+                                var dateStr = moment(comments[j].created).format('MM/DD/YYYY HH:mm');
+                                commentsContent +=
+                                    '<p>'
+                                    + '<a name="rem'+ comments[j].id +'">(' + dateStr + authorStr + ')</a><br/>'
+                                    + comment
+                                    + comments[j].entry
+                                    + '</p><hr/>';
+
+                                _linkComment(survey.questions[i], comments[j], ++_idx);
+                            }
+                        }
+
+                        content += '<p><h1>' + survey.questions[i].label + '</h1></p><p>'
+                            + survey.questions[i].description + '</p>';
+                    }
+                }
+            }
+
+            content += commentsContent;
             content += htmlFooter;
-            content = _preHtml(content);
-            return htmlDocx.asBlob(content);
+            content = self._preHtml(content);
+            var docx = htmlDocx.asBlob(content);
+
+            yield new Promise((resolve, reject) => {
+                fs.writeFile(path + '/policy.docx', docx, function(err) {
+                    if (err) reject(err);
+                    resolve();
+                });
+            });
 
             function _linkComment(question, comment, idx) {
                 var i,
@@ -1008,10 +1013,250 @@ var exportObject = function  (req, realm) {
                     }
                 }
             }
+        });
+    };
 
-            function _preHtml(body) {
-                return body.replace(new RegExp(String.fromCharCode(160),'g'), '&nbsp;');
+    this._preHtml = function (html) {
+        return html.replace(new RegExp(String.fromCharCode(160),'g'), '&nbsp;');
+    };
+
+    this.createSurveyFile = function (survey, path) {
+        var self = this;
+        var oUser = new sUser(req);
+        return co(function* () {
+            // html header & footer
+            var htmlStyles = '<style>' +
+                'body { ' +
+                'font-family: "Times", serif;' +
+                'font-size: 13pt' +
+                '} ' +
+                'table, th, td {border: 1px solid black;}' +
+                '</style>';
+            var htmlHeader = '<!DOCTYPE html><html><head><meta charset="utf-8">' + htmlStyles + '</head><body>';
+            var htmlFooter = '</body></html>';
+            var content = htmlHeader;
+            var attArr = {};
+
+            if (_.first(survey.questions)) {
+                for (var i in survey.questions) {
+                    if (survey.questions[i].type != 14) {
+                        var answers = yield self.getQuestionAnswers(survey.questions[i].id, survey.surveyVersion);
+                        content += '<p><h1>' + survey.questions[i].label + '</h1></p>'
+                            + '<p>' + survey.questions[i].description + '</p>';
+                        for (var j in answers) {
+                            var dateStr = moment(answers[j].created).format('MM/DD/YYYY HH:mm');
+                            var authorStr = answers[j].user ? (' by ' + answers[j].user.firstName + ' ' + answers[j].user.lastName) : '';
+                            var answerStr = answers[j].value;
+                            var attachmentsStr = '';
+                            if (Array.isArray(answers[j].options) && answers[j].options[0]) {
+                                answerStr = answers[j].options.map(function (item) {
+                                    return item.label;
+                                }).join(', ');
+                            }
+                            if (Array.isArray(answers[j].attachments)) {
+                                attachmentsStr = answers[j].attachments.map(function (item) {
+
+                                    var postfix = 0;
+                                    var basename = item.filename.substr(0, item.filename.lastIndexOf('.'));
+                                    var ext = item.filename.substr(item.filename.lastIndexOf('.'));
+                                    do{
+                                        var filename = (postfix == 0) ? (basename + ext) : (basename + '_' + postfix + ext);
+                                    } while (attArr[filename])
+                                    attArr[filename] = item;
+                                    return filename;
+                                }).join(', ');
+                                attachmentsStr = '<br/> attachments: (' + attachmentsStr + ')';
+                            }
+                            var answerFS = '<p>' + dateStr + authorStr + '-' + answerStr + attachmentsStr + '</p>';
+
+                            content += answerFS;
+                        }
+                    }
+                }
             }
+
+            if (attArr.length) {
+                var oAttachment =  new sAttachment(req);
+                yield new Promise((resolve, reject) => {
+                    mkdirp(path + '/attachments/answers', function(err) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    });
+                });
+
+                for (var i in attArr) {
+                    // download attachments
+                    var file = yield oAttachment.getObject(attArr[i].amazonKey);
+                    var filename = attArr[i].filename;
+                    var basename = filename.substr(0, filename.lastIndexOf('.'));
+                    var ext = filename.substr(filename.lastIndexOf('.'));
+                    var postfix = 0;
+                    do {
+                        var exists = true;
+                        try {
+                            fs.accessSync(
+                                path + '/attachments/answers/' + basename + (postfix === 0 ? '' : '_' + postfix) + ext,
+                                fs.F_OK
+                            );
+                            postfix++;
+                        } catch (e) {
+                            exists = false;
+                        }
+                    } while (exists)
+
+                    yield new Promise((resolve, reject) => {
+                        fs.writeFile(
+                            path + '/attachments/answers/' + basename + (postfix === 0 ? '' : '_' + postfix) + ext,
+                            file.Body,
+                            function(err) {
+                                if (err) reject(err);
+                                resolve();
+                            }
+                        );
+                    });
+
+                }
+            }
+
+
+            content += htmlFooter;
+            content = self._preHtml(content);
+            var docx = htmlDocx.asBlob(content);
+
+            yield new Promise((resolve, reject) => {
+                fs.writeFile(path + '/survey.docx', docx, function(err) {
+                    if (err) reject(err);
+                    resolve();
+                });
+            });
+
+        });
+    };
+
+    this.getQuestionAnswers = function (questionId, version) {
+        return co(function* () {
+           return yield thunkQuery(
+               SurveyAnswer
+               .select(
+                   SurveyAnswer.star(),
+                   'array_agg(row_to_json("SurveyQuestionOptions")) as options',
+                   'array_agg(row_to_json("Attachments")) as attachments',
+                   'row_to_json("Users") as user',
+                   '(WITH att AS ( '+
+                   '     SELECT "Attachments".* FROM "AttachmentLinks" '+
+                   'LEFT JOIN "Attachments" '+
+                   ' ON ( '+
+                   '     ARRAY["AttachmentLinks"."attachments"] @> ARRAY["Attachments"."id"] '+
+                   ') '+
+                   ' WHERE "AttachmentLinks"."essenceId" IN (SELECT "Essences"."id" FROM "Essences" WHERE ("Essences"."tableName" = \'SurveyAnswers\')) '+
+                   ' AND "AttachmentLinks"."entityId" = "SurveyAnswers"."id" '+
+                   ' ) '+
+                   ' SELECT array_agg(row_to_json(att)) as attachments FROM att)'
+               )
+               .from(
+                   SurveyAnswer
+                   .leftJoin(AttachmentLink)
+                   .on(
+                       AttachmentLink.essenceId.in(Essence.subQuery().select(Essence.id).where({'tableName' : 'SurveyAnswers'}))
+                       .and(AttachmentLink.entityId.equals(SurveyAnswer.id))
+                   )
+                   .leftJoin(Attachment)
+                   .on(sql.array(AttachmentLink.attachments).contains(sql.array(Attachment.id)))
+                   .leftJoin(SurveyQuestionOption)
+                   .on(sql.array(SurveyAnswer.optionId).contains(sql.array(SurveyQuestionOption.id)))
+                   .leftJoin(User)
+                   .on(SurveyAnswer.userId.equals(User.id))
+               )
+               .where({
+                   questionId: questionId,
+                   surveyVersion: version
+               }).group(SurveyAnswer.id, User.id)
+           );
+        });
+    };
+
+    this.policyToDocx = function (surveyId, version) {
+        var self = this;
+        var path = 'survey_' + surveyId + '_v' + version + '_' + Date.now();
+        var tmp_dir = 'tmp/' + path;
+
+        return co(function* () {
+            var survey = yield self.getVersion(surveyId, version);
+            var oEssence = new sEssence(req);
+            var surveyEssence = yield oEssence.getByTableName('Surveys');
+            var oAttachment = new sAttachment(req);
+            var policyAttach = yield oAttachment.getEntityAttachments(surveyEssence.id, surveyId, version);
+            if (survey) {
+                yield new Promise((resolve, reject) => {
+                    mkdirp(tmp_dir, function(err) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    });
+                });
+
+                if (survey.policyId) {
+                    yield self.createPolicyFile(survey, tmp_dir);
+                    if (policyAttach.length) {
+                        yield new Promise((resolve, reject) => {
+                            mkdirp(tmp_dir + '/attachments/policy', function(err) {
+                                if (err) {
+                                    reject(err);
+                                } else {
+                                    resolve();
+                                }
+                            });
+                        });
+
+                        for (var i in policyAttach) {
+                            // download attachments
+                            var file = yield oAttachment.getObject(policyAttach[i].amazonKey);
+                            var filename = policyAttach[i].filename;
+                            var basename = filename.substr(0, filename.lastIndexOf('.'));
+                            var ext = filename.substr(filename.lastIndexOf('.'));
+
+                            var postfix = 0;
+                            do {
+                                var exists = true;
+                                try {
+                                    fs.accessSync(
+                                        tmp_dir + '/attachments/policy/' + basename + (postfix === 0 ? '' : '_' + postfix) + ext,
+                                        fs.F_OK
+                                    );
+                                    postfix++;
+                                } catch (e) {
+                                    exists = false;
+                                }
+                            } while (exists)
+
+                            yield new Promise((resolve, reject) => {
+                                fs.writeFile(
+                                    tmp_dir + '/attachments/policy/' + basename + (postfix === 0 ? '' : '_' + postfix) + ext,
+                                    file.Body,
+                                    function(err) {
+                                        if (err) reject(err);
+                                        resolve();
+                                    }
+                                );
+                            });
+
+                        }
+                    }
+                }
+
+                if (survey.questions) {
+                    yield self.createSurveyFile(survey, tmp_dir);
+                }
+            }
+
+
+            return tmp_dir;
+
         });
     };
 };
