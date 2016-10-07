@@ -154,7 +154,7 @@ angular.module('greyscaleApp')
                         if (_tb.length > 0) {
                             scrollPos -= _tb[0].clientHeight;
                         }
-                        angular.element('body').scrollTop(scrollPos);
+                        $window.scrollTo($window.scrollX, scrollPos);
                     }, 100);
                 } else {
                     _notifyEditedQuote();
