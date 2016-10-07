@@ -890,6 +890,7 @@ var exportObject = function  (req, realm) {
         var sComment = require('app/services/comments');
         var oComment = new sComment(req);
         return co(function* () {
+
             // html header & footer
             var htmlStyles = '<style>' +
                 'body { ' +
@@ -900,7 +901,9 @@ var exportObject = function  (req, realm) {
                 '</style>';
             var htmlHeader = '<!DOCTYPE html><html><head><meta charset="utf-8">' + htmlStyles + '</head><body>';
             var htmlFooter = '</body></html>';
-            var content = htmlHeader;
+            var content = htmlHeader,
+                _ancor_id,
+                _idx = 0;
 
             var authorName = '';
             if (survey.author) {
@@ -918,7 +921,7 @@ var exportObject = function  (req, realm) {
                 '<tr><td>AUTHOR</td><td>' + authorName + '</td></tr>' +
                 '</table>';
 
-            var comments = yield oComment.getComments({surveyId: survey.id}, null, null, null, survey.surveyVersion);
+            var comments = yield oComment.getComments({surveyId: survey.id}, null, null, null, null, survey.surveyVersion);
             var commentsContent = comments.length ? '<hr/><h1>COMMENTS</h1>' : '';
 
             if (_.first(survey.questions)) {
@@ -936,7 +939,7 @@ var exportObject = function  (req, realm) {
                                 var commentAuthor = yield oUser.getById(comments[j].userFromId);
 
                                 if (comments[j].range) {
-                                    try{
+                                    try {
                                         comments[j].range = JSON.parse(comments[j].range);
                                     } catch (err) {
                                         console.log(err);
@@ -945,21 +948,23 @@ var exportObject = function  (req, realm) {
                                     if (comments[j].range.entry) {
                                         comment +=
                                             '<font color="#a9a9a9"><b><i>&laquo;'
-                                            + comments[j].range.entry.replace(/(<([^>]+)>)/ig,"")
+                                            + comments[j].range.entry.replace(/(<([^>]+)>)/ig, "")
                                             + '&raquo;</i></b></font><br/>';
                                     }
                                 }
 
                                 var authorStr = commentAuthor ? (' by ' + commentAuthor.firstName + ' ' + commentAuthor.lastName) : '';
                                 var dateStr = moment(comments[j].created).format('MM/DD/YYYY HH:mm');
+                                _idx++;
+                                _ancor_id = 'rem' + comments[j].id;
                                 commentsContent +=
-                                    '<p>'
-                                    + '<a name="rem'+ comments[j].id +'">(' + dateStr + authorStr + ')</a><br/>'
+                                    '<p><sup><a name="' + _ancor_id + '" href="#b' + _ancor_id + '">'
+                                    + _idx + '</a></sup> (' + dateStr + authorStr + ')<br/>'
                                     + comment
                                     + comments[j].entry
                                     + '</p><hr/>';
 
-                                _linkComment(survey.questions[i], comments[j], ++_idx);
+                                _linkComment(survey.questions[i], comments[j], _idx);
                             }
                         }
 
@@ -975,7 +980,7 @@ var exportObject = function  (req, realm) {
             var docx = htmlDocx.asBlob(content);
 
             yield new Promise((resolve, reject) => {
-                fs.writeFile(path + '/policy.docx', docx, function(err) {
+                fs.writeFile(path + '/policy.docx', docx, function (err) {
                     if (err) reject(err);
                     resolve();
                 });
@@ -985,22 +990,37 @@ var exportObject = function  (req, realm) {
                 var i,
                     _fTag = false,
                     _fSup = 0,
-                    _lnk = '<sup><a href="#rem' + comment.id + '">[' + idx + ']</a></sup>',
+                    _ancor = 'rem' + comment.id,
+                    _lnk = '<sup><a name="b' + _ancor + '" href="#' + _ancor + '">[' + idx + ']</a></sup>',
                     _offset = comment.range.end,
                     _descr = question.description,
-                    _strL = _descr.length;
+                    _strL = _descr.length,
+                    symbolRe = /&.+?;/ig,
+                    _symbol = symbolRe.exec(_descr);
 
                 for (i = 0; i < _strL; i++) {
+                    //remove html extended symbols
+                    if (_symbol && i === _symbol.index) {
+                        i += _symbol[0].length - 1;
+                        _symbol = symbolRe.exec(_descr);
+                    }
+
                     if (_offset === 0) {
+                        symbolRe = /[\b\s<]/g;
+                        symbolRe.lastIndex = i ? i - 1 : i;
+                        _symbol = symbolRe.exec(_descr);
+                        if (_symbol) {
+                            i = _symbol.index;
+                        }
                         question.description = [_descr.slice(0, i), _lnk, _descr.slice(i)].join('');
                         return;
                     }
                     if (_descr[i] === '<') {
                         _fTag = true;
-                        if (_descr.substr(i+1, 4) ==='sup>') {
+                        if (_descr.substr(i + 1, 4) === 'sup>') {
                             _fSup++;
                         }
-                        if (_descr.substr(i+1, 5) ==='/sup>') {
+                        if (_descr.substr(i + 1, 5) === '/sup>') {
                             _fSup--;
                         }
                     } else if (_descr[i] === '>') {
