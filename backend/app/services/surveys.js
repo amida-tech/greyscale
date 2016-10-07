@@ -896,7 +896,9 @@ var exportObject = function  (req, realm) {
                 '</style>';
             var htmlHeader = '<!DOCTYPE html><html><head><meta charset="utf-8">' + htmlStyles + '</head><body>';
             var htmlFooter = '</body></html>';
-            var content = htmlHeader;
+            var content = htmlHeader,
+                _ancor_id,
+                _idx = 0;
 
             var survey = yield self.getVersion(surveyId, version);
 
@@ -923,8 +925,8 @@ var exportObject = function  (req, realm) {
                 if (_.first(survey.questions)) {
                     for (var i in survey.questions) {
                         if (survey.questions[i].type == 14) {
-                            var existHeader = false,
-                                _idx = 0;
+                            var existHeader = false;
+
                             for (var j in comments) {
                                 if (comments[j].questionId == survey.questions[i].id) {
                                     if (!existHeader) {
@@ -952,9 +954,10 @@ var exportObject = function  (req, realm) {
                                     var authorStr = commentAuthor ? (' by ' + commentAuthor.firstName + ' ' + commentAuthor.lastName) : '';
                                     var dateStr = moment(comments[j].created).format('MM/DD/YYYY HH:mm');
                                     _idx++;
+                                    _ancor_id = 'rem' + comments[j].id;
                                     commentsContent +=
-                                        '<p><a name="rem' + comments[j].id + '" href="#brem' + comments[j].id + '">'
-                                        + _idx + '.</a> (' + dateStr + authorStr + ')<br/>'
+                                        '<p><sup><a name="' + _ancor_id + '" href="#b' + _ancor_id + '">'
+                                        + _idx + '</a></sup> (' + dateStr + authorStr + ')<br/>'
                                         + comment
                                         + comments[j].entry
                                         + '</p><hr/>';
@@ -981,8 +984,8 @@ var exportObject = function  (req, realm) {
                 var i,
                     _fTag = false,
                     _fSup = 0,
-                    _lnk = '<sup><a href="#rem' + comment.id + '" name="brem' + comments[j].id + '">['
-                        + idx + ']</a></sup>',
+                    _ancor = 'rem' + comment.id,
+                    _lnk = '<sup><a name="b' + _ancor + '" href="#' + _ancor + '">[' + idx + ']</a></sup>',
                     _offset = comment.range.end,
                     _descr = question.description,
                     _strL = _descr.length,
@@ -997,7 +1000,7 @@ var exportObject = function  (req, realm) {
                     }
 
                     if (_offset === 0) {
-                        symbolRe = /[\b\s]/g;
+                        symbolRe = /[\b\s<]/g;
                         symbolRe.lastIndex = i ? i - 1 : i;
                         _symbol = symbolRe.exec(_descr);
                         if (_symbol) {
