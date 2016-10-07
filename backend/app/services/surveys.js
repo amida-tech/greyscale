@@ -951,14 +951,15 @@ var exportObject = function  (req, realm) {
 
                                     var authorStr = commentAuthor ? (' by ' + commentAuthor.firstName + ' ' + commentAuthor.lastName) : '';
                                     var dateStr = moment(comments[j].created).format('MM/DD/YYYY HH:mm');
+                                    _idx++;
                                     commentsContent +=
-                                        '<p>'
-                                        + '<a name="rem'+ comments[j].id +'">(' + dateStr + authorStr + ')</a><br/>'
+                                        '<p><a name="rem' + comments[j].id + '" href="#brem' + comments[j].id + '">'
+                                        + _idx + '.</a> (' + dateStr + authorStr + ')<br/>'
                                         + comment
                                         + comments[j].entry
                                         + '</p><hr/>';
 
-                                    _linkComment(survey.questions[i], comments[j], ++_idx);
+                                    _linkComment(survey.questions[i], comments[j], _idx);
                                 }
                             }
 
@@ -980,7 +981,8 @@ var exportObject = function  (req, realm) {
                 var i,
                     _fTag = false,
                     _fSup = 0,
-                    _lnk = '<sup><a href="#rem' + comment.id + '">[' + idx + ']</a></sup>',
+                    _lnk = '<sup><a href="#rem' + comment.id + '" name="brem' + comments[j].id + '">['
+                        + idx + ']</a></sup>',
                     _offset = comment.range.end,
                     _descr = question.description,
                     _strL = _descr.length,
