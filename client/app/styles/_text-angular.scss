@@ -5,7 +5,7 @@ text-angular,
 
 [text-angular-toolbar],
 .ta-toolbar {
-    height: 25px;
+    min-height: 25px;
     position: relative;
     z-index: 1;
 }

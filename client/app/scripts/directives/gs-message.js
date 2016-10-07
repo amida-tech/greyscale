@@ -138,14 +138,23 @@ angular.module('greyscaleApp')
                 startNode = greyscaleSelection.restore(_sectionContainer[0], range);
                 _html = greyscaleSelection.html(true);
 
-                if (_isSamelQoutes(_html, range.entry) && startNode) {
+                if (_isSameQuotes(_html, range.entry) && startNode) {
                     scope.options.section.sectionOpen = true;
                     $timeout(function () {
-                        var _startNode = greyscaleSelection.restore(_sectionContainer[0], range);
-                        var parent = _startNode.parentNode;
-                        var scrollPos = parent.getBoundingClientRect().top + $window.scrollY;
-                        angular.element('body').scrollTop(scrollPos);
+                        var _container = _section.find('.ta-text'),
+                            _tb = _section.find('.ta-toolbar'),
+                            _startNode, parent, scrollPos;
 
+                        _startNode = greyscaleSelection.restore(
+                            _container.length > 0 ? _container[0] : _sectionContainer[0], range);
+
+                        parent = _startNode.parentNode;
+
+                        scrollPos = parent.getBoundingClientRect().top + $window.scrollY - 15;
+                        if (_tb.length > 0) {
+                            scrollPos -= _tb[0].clientHeight;
+                        }
+                        angular.element('body').scrollTop(scrollPos);
                     }, 100);
                 } else {
                     _notifyEditedQuote();
@@ -155,7 +164,7 @@ angular.module('greyscaleApp')
             }
         }
 
-        function _isSamelQoutes(s1, s2) {
+        function _isSameQuotes(s1, s2) {
             var _e1 = s1 ? angular.element(s1).text() || '' : '',
                 _e2 = s2 ? angular.element(s2).text() || '' : '';
             return _e1 === _e2;
