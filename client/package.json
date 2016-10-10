@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^6.0.1",
-    "grunt": "~1.0.1",
+    "grunt": "^1.0.1",
     "grunt-angular-templates": "~1.0.4",
     "grunt-concurrent": "~2.3.0",
     "grunt-contrib-clean": "~1.0.0",
@@ -51,5 +51,8 @@
   "scripts": {
     "start": "grunt serve",
     "test": "grunt test"
+  },
+  "dependencies": {
+    "grunt-cli": "^1.2.0"
   }
 }

@@ -1,6 +1,7 @@
 var
     _ = require('underscore'),
     moment = require('moment'),
+    MPDService = require('app/services/mpd'),
     Policy = require('app/models/policies'),
     Survey = require('app/models/surveys'),
     User = require('app/models/users'),
@@ -21,6 +22,7 @@ var
     thunkify = require('thunkify'),
     htmlDocx = require('html-docx-js'),
     HttpError = require('app/error').HttpError;
+
 
 var debug = require('debug')('debug_service_surveys');
 debug.log = console.log.bind(console);
@@ -408,6 +410,8 @@ var exportObject = function  (req, realm) {
 
             var surveyData = _.pick(fullSurveyData, Survey.insertCols);
             var policyData = _.pick(fullSurveyData, Policy.insertCols);
+            console.log(surveyData);
+            console.log(policyData);
             surveyData.creator = req.user.realmUserId;
             policyData.author = req.user.realmUserId;
             // check survey/policy data
@@ -444,6 +448,9 @@ var exportObject = function  (req, realm) {
             }
 
             yield self.deleteDraft(surveyId);
+
+            MPDService.savePolicy(surveyData.title, policyData.number);
+            console.log(surveyData.title + " Policy Saved");
 
             return surveyVersion;
         });
