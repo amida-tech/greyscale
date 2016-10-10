@@ -1229,7 +1229,6 @@ var exportObject = function  (req, realm) {
         var path = 'survey_' + surveyId + '_v' + version + '_' + Date.now();
         var tmp_dir = 'tmp/' + path;
 
-        console.log(path);
         return co(function* () {
             var survey = yield self.getVersion(surveyId, version);
             var oEssence = new sEssence(req);

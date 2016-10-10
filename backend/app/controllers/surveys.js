@@ -133,7 +133,9 @@ module.exports = {
             return yield oSurvey.policyToDocx(req.params.id, req.params.version);
 
         }).then(function (archPath) {
-            var filename = archPath.substr(archPath.indexOf('/') + 1, archPath.lastIndexOf('_') - archPath.indexOf('/'));
+            var filename = archPath.substr(
+                archPath.indexOf('/') + 1,
+                archPath.lastIndexOf('_') - archPath.indexOf('/') - 1);
             var archive = archiver.create('zip', {});
             var writeStream = fs.createWriteStream(archPath + '.zip');
 
