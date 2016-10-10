@@ -26,7 +26,8 @@ angular.module('greyscale.tables')
             show: true,
             cellTemplateUrl: 'my-tasks-cell-terms.html'
         }, {
-            title: tns + 'PRODUCT',
+            // title: tns + 'PRODUCT',
+            title: 'Medical Policy Review',
             show: true,
             cellTemplateUrl: 'my-tasks-cell-product.html'
         }];
