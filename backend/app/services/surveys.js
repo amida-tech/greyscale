@@ -18,6 +18,7 @@ var
     Task = require('app/models/tasks'),
     Product = require('app/models/products'),
     ProductUOA = require('app/models/product_uoa'),
+    common = require('app/services/common'),
     co = require('co'),
     fs = require('fs'),
     mkdirp = require('mkdirp'),
@@ -319,7 +320,7 @@ var exportObject = function  (req, realm) {
             }
             return dataObj;
         });
-    }
+    };
 
     this.unlockSurvey = function (id, socketId) {
         return co(function* () {
@@ -1281,6 +1282,43 @@ var exportObject = function  (req, realm) {
 
 
             return tmp_dir;
+
+        });
+    };
+
+    this.getVersionUsers = function (surveyId, version, uoaId) {
+        var self = this;
+        return co(function* () {
+            var userTo;
+            var users = [];
+            var query = SurveyAnswer
+                .select(
+                SurveyAnswer.userId.distinct()
+            )
+                .from(SurveyAnswer
+            )
+                .where(SurveyAnswer.surveyVersion.equals(version)
+                    .and(SurveyAnswer.surveyId.equals(surveyId))
+                    .and(SurveyAnswer.UOAid.equals(uoaId))
+            );
+
+            var userIds = yield thunkQuery(query);
+
+            if (!userIds || userIds.length === 0) {
+                return users;
+            }
+            for (var i in userIds) {
+                userTo = yield * common.getUser(req, userIds[i].userId);
+                users.push({
+                    userId: userTo.id,
+                    firstName: userTo.firstName,
+                    lastName: userTo.lastName,
+                    email: userTo.email,
+                    isAdmin: (userTo.roleID !== 3)
+                });
+            }
+
+            return users;
 
         });
     };

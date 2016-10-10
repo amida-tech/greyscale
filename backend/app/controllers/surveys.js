@@ -383,6 +383,21 @@ module.exports = {
             next(err);
         });
 
+    },
+
+    getVersionUsers: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            var oSurvey = new sSurvey(req);
+            if (!req.query.uoaId) {
+                throw new HttpError(403, 'Subject must be specified');
+            }
+            return  yield oSurvey.getVersionUsers(req.params.id, req.params.version, req.query.uoaId);
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
     }
 
 };
