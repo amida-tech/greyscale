@@ -890,6 +890,7 @@ var exportObject = function  (req, realm) {
         var oUser = new sUser(req);
         var sComment = require('app/services/comments');
         var oComment = new sComment(req);
+
         return co(function* () {
 
             // html header & footer
@@ -921,14 +922,15 @@ var exportObject = function  (req, realm) {
                 '<tr><td>TYPE</td><td>Medical Policy</td></tr>' +
                 '<tr><td>AUTHOR</td><td>' + authorName + '</td></tr>' +
                 '</table>';
-            var comments = yield oComment.getComments({surveyId: survey.id}, null, null, null, null, survey.surveyVersion);
+            var comments = yield oComment.getComments({surveyId: survey.id}, null, null, null, survey.surveyVersion);
+            var commentAnswers;
             var commentsContent = comments.length ? '<hr/><h1>COMMENTS</h1>' : '';
 
             if (_.first(survey.questions)) {
                 for (var i in survey.questions) {
                     if (survey.questions[i].type == 14) {
-                        var existHeader = false,
-                            _idx = 0;
+                        var existHeader = false;
+
                         for (var j in comments) {
                             if (comments[j].questionId == survey.questions[i].id) {
                                 if (!existHeader) {
@@ -953,7 +955,7 @@ var exportObject = function  (req, realm) {
                                     }
                                 }
 
-                                var authorStr = commentAuthor ? (' by ' + commentAuthor.firstName + ' ' + commentAuthor.lastName) : '';
+                                var authorStr = ' by ' + _fullName(commentAuthor);
                                 var dateStr = moment(comments[j].created).format('MM/DD/YYYY HH:mm');
                                 _idx++;
                                 _ancor_id = 'rem' + comments[j].id;
@@ -962,7 +964,25 @@ var exportObject = function  (req, realm) {
                                     + _idx + '</a></sup> (' + dateStr + authorStr + ')<br/>'
                                     + comment
                                     + comments[j].entry
-                                    + '</p><hr/>';
+                                    + '</p>';
+
+                                commentAnswers = yield oComment.getAnswerComments({},
+                                    comments[j].id,
+                                    null,
+                                    null,
+                                    survey.surveyVersion);
+
+                                for (var k in commentAnswers) {
+                                    commentAuthor = yield oUser.getById(commentAnswers[k].userFromId);
+                                    dateStr = moment(commentAnswers[k].created).format('MM/DD/YYYY HH:mm');
+                                    authorStr = _fullName(commentAuthor);
+                                    commentsContent += '<p>(' + dateStr +'  ' + authorStr + ' '
+                                        + (commentAnswers[k].isAgree ? 'agreed' : 'disagreed')
+                                        + ')<br/>'
+                                        + commentAnswers[k].entry.replace(/(<([^>]+)>)/ig, "");
+                                }
+
+                                commentsContent += '<hr/>';
 
                                 _linkComment(survey.questions[i], comments[j], _idx);
                             }
@@ -985,6 +1005,10 @@ var exportObject = function  (req, realm) {
                     resolve();
                 });
             });
+
+            function _fullName(user) {
+                return user ? (user.firstName + ' ' + user.lastName) : '';
+            }
 
             function _linkComment(question, comment, idx) {
                 var i,
@@ -1205,6 +1229,7 @@ var exportObject = function  (req, realm) {
         var path = 'survey_' + surveyId + '_v' + version + '_' + Date.now();
         var tmp_dir = 'tmp/' + path;
 
+        console.log(path);
         return co(function* () {
             var survey = yield self.getVersion(surveyId, version);
             var oEssence = new sEssence(req);
