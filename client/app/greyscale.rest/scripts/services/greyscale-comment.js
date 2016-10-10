@@ -17,7 +17,8 @@ angular.module('greyscale.rest')
             getAnswers: _getAnswers,
             postAnswer: _postAnswer,
             hide: _hide,
-            listVersionUsers: _listVersionUsers
+            listVersionUsers: _listVersionUsers,
+            listVersionTasks: _listVersionTasks
         };
 
         function _api() {
@@ -116,5 +117,16 @@ angular.module('greyscale.rest')
             angular.extend(_params, params);
 
             return _api().one('versions', version + '').one('users').get(_params).then(_response);
+        }
+
+        function _listVersionTasks(version, surveyId, params) {
+            var _params = {};
+
+            if (surveyId) {
+                _params.surveyId = surveyId;
+            }
+
+            angular.extend(_params, params);
+            return _api().one('versions', version + '').one('tasks').get(_params).then(_response);
         }
     });

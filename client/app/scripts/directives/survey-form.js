@@ -197,7 +197,7 @@ angular.module('greyscaleApp')
                         if (data.survey) {
                             prepareFields(scope);
 
-                            if (data.task && data.userId) {
+                            if (data.task && data.userId || surveyParams.productId && surveyParams.UOAid) {
                                 loadAnswers(scope);
                             }
                         }
@@ -579,11 +579,16 @@ angular.module('greyscaleApp')
 
         function loadAnswers(scope) {
             var recentAnswers = {};
-            var responses = {};
+            var responses = {},
+                params = {};
 
             scope.lock();
 
-            greyscaleSurveyAnswerApi.list(surveyParams.productId, surveyParams.UOAid)
+            if (scope.surveyData.flags && scope.surveyData.flags.isVersion) {
+                params.surveyVersion = scope.surveyData.survey.surveyVersion;
+            }
+
+            greyscaleSurveyAnswerApi.list(surveyParams.productId, surveyParams.UOAid, params)
                 .then(function (_answers) {
                     var v, answer, qId,
                         qty = _answers.length,

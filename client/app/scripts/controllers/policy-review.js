@@ -99,6 +99,11 @@ angular.module('greyscaleApp')
                     if ($scope.model.isTaskMode) {
                         data.task = resp.task;
                     }
+                } else {
+                    data.task = {
+                        productId: resp.survey.product.id,
+                        uoaId: resp.survey.uoas[0]
+                    };
                 }
                 _separatePolicy(data);
 
@@ -106,34 +111,39 @@ angular.module('greyscaleApp')
                 return data;
             })
             .then(function (_data) {
-                var _user = _data.user;
+                var _user = _data.user,
+                    _policy = _data.policy,
+                    _req = {
+                        groups: greyscaleGroupApi.list(_user.organizationId),
+                        users: (_data.task & _data.task.id) ?
+                            greyscaleCommentApi.getUsers(_data.task.id) :
+                            //todo: re-factor to survey version users API
+                            greyscaleCommentApi.listVersionUsers(_policy.version, {
+                                surveyId: _policy.surveyId
+                            })
+                    };
 
-                return greyscaleGroupApi.list(_user.organizationId).then(function (groups) {
+                return $q.all(_req).then(function (resp) {
                     var i,
-                        qty = groups.length,
+                        qty = resp.groups.length,
                         members = [];
 
                     for (i = 0; i < qty; i++) {
-                        if (_user.usergroupId.indexOf(groups[i].id) > -1) {
-                            members = members.concat(groups[i].userIds);
+                        if (_user.usergroupId.indexOf(resp.groups[i].id) > -1) {
+                            members = members.concat(resp.groups[i].userIds);
                         }
                     }
                     _data.collaboratorIds = _.uniq(members);
-                    if (_data.task) {
-                        greyscaleCommentApi.getUsers(_data.task.id)
-                            .then(function (commentData) {
-                                var _u,
-                                    _usr,
-                                    _qty = commentData.users.length;
 
-                                for (_u = 0; _u < _qty; _u++) {
-                                    _usr = _.pick(commentData.users[_u], ['userId', 'firstName', 'lastName']);
-                                    _usr.fullName = greyscaleUtilsSrv.getUserName(commentData.users[_u]);
-                                    _data.collaborators[commentData.users[_u].userId] = _usr;
-                                }
-                            });
+                    var _u,
+                        _usr,
+                        _qty = resp.users.length;
+
+                    for (_u = 0; _u < _qty; _u++) {
+                        _usr = _.pick(resp.users[_u], ['userId', 'firstName', 'lastName']);
+                        _usr.fullName = greyscaleUtilsSrv.getUserName(resp.users[_u]);
+                        _data.collaborators[resp.users[_u].userId] = _usr;
                     }
-                    return _data;
                 });
             })
             .finally(function () {
