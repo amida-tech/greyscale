@@ -72,10 +72,8 @@ angular.module('greyscale.tables')
 
         function _editGroup(group) {
             var op = 'editing';
-            console.log("clicked button")
             greyscaleModalsSrv.editRec(group, _table)
                 .then(function (editGroup) {
-                    console.log("running edit group");
                     // edit an existing group
                     if (editGroup.id) {
                         return greyscaleGroupApi.update(editGroup);
