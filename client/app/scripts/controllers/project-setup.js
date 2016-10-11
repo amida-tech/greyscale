@@ -14,8 +14,9 @@ angular.module('greyscaleApp')
             icon: 'fa-list'
         }, {
             state: 'products',
-            title: 'NAV.PROJECTS.PRODUCTS',
-            icon: 'fa-briefcase'
+            // title: 'NAV.PROJECTS.PRODUCTS',
+            icon: 'fa-briefcase',
+            title: 'Medical Policy Review'
         }];
 
         $scope.activeTab = 0;

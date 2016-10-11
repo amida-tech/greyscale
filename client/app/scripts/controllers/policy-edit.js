@@ -6,7 +6,7 @@ angular.module('greyscaleApp')
     .controller('PolicyEditCtrl', function ($q, _, $scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
         Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, greyscaleProfileSrv, greyscaleUsers,
         greyscaleEntityTypeApi, greyscaleProductApi, greyscaleWebSocketSrv, $interval, greyscaleModalsSrv,
-        greyscaleProductSrv, $log) {
+        greyscaleProductSrv, $window, $log) {
 
         var //projectId,
             policyIdx = greyscaleGlobals.formBuilder.fieldTypes.indexOf('policy'),
@@ -93,7 +93,7 @@ angular.module('greyscaleApp')
         $scope.publish = function () {
             _save(false);
         };
-        $scope.cancel = _goPolicyList;
+        $scope.cancel = _goBack;
 
         //listeners for policy lock state
         greyscaleWebSocketSrv.on(wsEvents.policyLocked, _policyLocked);
@@ -192,7 +192,7 @@ angular.module('greyscaleApp')
                                     }
                                 });
                         })
-                        .then(_goPolicyList);
+                        .then(_goBack);
                 });
 
             $timeout(function () {
@@ -341,12 +341,13 @@ angular.module('greyscaleApp')
 
             return _savePromise
                 .catch(function (err) {
-                    greyscaleUtilsSrv.errorMsg(err, 'ERROR.SURVEY_UPDATE_ERROR');
+                    greyscaleUtilsSrv.apiErrorMessage(err, 'UPDATE', 'PRODUCTS.TABLE.POLICY');
                 });
         }
 
-        function _goPolicyList() {
-            $state.go('policy');
+        function _goBack() {
+            $window.history.back();
+            //$state.go('policy');
         }
 
         function _policiesGenerate(_sections) {

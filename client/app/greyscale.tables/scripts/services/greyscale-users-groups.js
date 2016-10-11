@@ -51,12 +51,7 @@ angular.module('greyscale.tables')
         }
 
         function errorHandler(err, action) {
-            var msg = _table.formTitle;
-            if (action) {
-                msg += ' ' + action;
-            }
-            msg += ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
+            greyscaleUtilsSrv.apiErrorMessage(err, action, _table.formTitle);
         }
 
         return _table;

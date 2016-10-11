@@ -13,7 +13,7 @@ angular.module('greyscale.rest')
         };
 
         function api() {
-            return greyscaleRestSrv().one('notifications');
+            return greyscaleRestSrv.api().one('notifications');
         }
 
         function _list(param) {

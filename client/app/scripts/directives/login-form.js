@@ -23,10 +23,12 @@ angular.module('greyscaleApp')
                                 $rootScope.$broadcast(greyscaleGlobals.events.common.login);
                             })
                             .catch(function (err) {
-                                if (err && err.data && err.data.e === 300) {
-                                    $scope.model.realms = err.data.message;
-                                } else {
-                                    $scope.model.error = 'LOGIN.CHECK_EMAIL_PASSWORD';
+                                if (err) {
+                                    if (err.status === 300 || err.data.e === 300) {
+                                        $scope.model.realms = err.data.message;
+                                    } else {
+                                        $scope.model.error = err.data.message;
+                                    }
                                 }
                             });
                     } else {

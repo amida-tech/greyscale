@@ -33,7 +33,8 @@ var exportObject = function  (req, realm) {
         var self = this;
     // only initial adding task user states - when task created. Does not check existing records
         return co(function* () {
-            var version = version ? version : yield oSurvey.getMaxSurveyVersion(taskId);
+            var maxVersion = yield oSurvey.getMaxSurveyVersion(taskId);
+            var version = version ? version : (maxVersion ? maxVersion : 0);
             var late = endDate ? (endDate < new Date()): false;
             var stateId = late ? TaskUserState.getStateId('late') : TaskUserState.getStateId('pending');
             var query ='INSERT INTO "TaskUserStates"  ("taskId", "userId", "stateId", "late", "endDate", "surveyVersion") ' +
@@ -355,6 +356,30 @@ var exportObject = function  (req, realm) {
                 ') as "maxSurveyVersion"';
         //( SELECT max("TUS"."surveyVersion") FROM "TaskUserStates" as "TUS"  WHERE "TaskUserStates"."taskId" = "TUS"."taskId" AND "TaskUserStates"."userId" = "TUS"."userId" GROUP BY "TUS"."taskId" ) as "maxSurveyVersion"
         }
+    };
+    this.draftToVersion = function (tasks, version) {
+        var self = this;
+        // change draft task user states to version for specified tasks
+        return co(function* () {
+            var query = TaskUserState
+                .update({
+                    surveyVersion: version,
+                    updatedAt: new Date()
+                })
+                .where(TaskUserState.taskId.in(Array.from(tasks)))
+                .and(TaskUserState.surveyVersion.equals(-1))
+                .returning(TaskUserState.taskId, TaskUserState.userId, TaskUserState.stateId);
+            var result = yield thunkQuery(query);
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'update',
+                object: 'TaskUserStates',
+                entities: result,
+                quantity: result.length,
+                info: 'Change taskUserStates from draft to version for specified tasks'
+            });
+        });
     };
 };
 module.exports = exportObject;

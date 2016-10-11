@@ -39,12 +39,18 @@ angular.module('greyscale.tables')
             title: tns + 'FIRST_NAME',
             show: true,
             sortable: 'firstName',
-            dataRequired: true
+            dataRequired: true,
+            dataValidate: {
+                maxLength: 80
+            }
         }, {
             field: 'lastName',
             title: tns + 'LAST_NAME',
             show: true,
-            sortable: 'lastName'
+            sortable: 'lastName',
+            dataValidate: {
+                maxLength: 80
+            }
         }, {
             field: 'roleID',
             title: tns + 'ROLE',
@@ -184,7 +190,7 @@ angular.module('greyscale.tables')
                 greyscaleUserApi.delete(rec.id)
                     .then(reloadTable)
                     .catch(function (err) {
-                        errorHandler(err, 'deleting');
+                        errorHandler(err, 'DELETE');
                     });
             });
         }
@@ -202,14 +208,14 @@ angular.module('greyscale.tables')
         }
 
         function _editRecord(user) {
-            var action = 'adding';
+            var action = 'ADD';
             return greyscaleModalsSrv.editRec(user, _table)
                 .then(function (newRec) {
                     if (newRec.password) {
                         delete(newRec.password);
                     }
                     if (newRec.id) {
-                        action = 'editing';
+                        action = 'UPDATE';
                         return greyscaleUserApi.update(newRec);
                     } else {
                         newRec.organizationId = _getOrganizationId();
@@ -235,7 +241,7 @@ angular.module('greyscale.tables')
                     greyscaleUtilsSrv.successMsg(tns + 'RESEND_ACTIVATION_DONE');
                 })
                 .catch(function (err) {
-                    greyscaleUtilsSrv.errorMsg(err, 'Resend Activation');
+                    errorHandler(err, 'RESEND_ACTIVATION');
                 });
         }
 
@@ -295,12 +301,7 @@ angular.module('greyscale.tables')
         }
 
         function errorHandler(err, action) {
-            var msg = _table.formTitle;
-            if (action) {
-                msg += ' ' + action;
-            }
-            msg += ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
+            greyscaleUtilsSrv.apiErrorMessage(err, action, _table.formTitle);
         }
 
         function _isProfileEdit() {

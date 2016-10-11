@@ -15,11 +15,11 @@ angular.module('greyscale.rest')
         };
 
         function _api() {
-            return greyscaleRestSrv().one('access_matrices');
+            return greyscaleRestSrv.api().one('access_matrices');
         }
 
         function _permApi() {
-            return greyscaleRestSrv().one('access_permissions');
+            return greyscaleRestSrv.api().one('access_permissions');
         }
 
         function _postProcess(resp) {

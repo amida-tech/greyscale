@@ -16,7 +16,7 @@ angular.module('greyscale.rest')
         };
 
         function _api() {
-            return greyscaleRestSrv().one('discussions');
+            return greyscaleRestSrv.api().one('discussions');
         }
 
         function _response(data) {

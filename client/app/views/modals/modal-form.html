@@ -1,7 +1,10 @@
 <modal-form-header>
+    <span style="font-size:.5em; text-transform:uppercase">policy</span>
+    <br />
     <span ng-show="model.id">{{(view.formEditHeaderPrefix||'COMMON.EDIT') |translate}}</span>
     <span ng-hide="model.id">{{(view.formAddHeaderPrefix||'COMMON.CREATE')|translate}}</span>
-    <span class="text-lowercase">{{view.formTitle|translate}}</span>
+    <span class="text-lowercase">{{view.formTitle|translate}} </span>
+    <!--in place of 'project' in line above-->
 </modal-form-header>
 <div class="modal-body">
     <div class="modal-form">

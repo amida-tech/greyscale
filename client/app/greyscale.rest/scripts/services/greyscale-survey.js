@@ -10,6 +10,7 @@ angular.module('greyscale.rest')
             update: _updateSurvey,
             delete: _deleteSurvey,
             versions: _listVersions,
+            versionUsers: _getVersionUsers,
             getVersion: _getVersion,
             getTicket: _getVersionTicket,
             getDownloadHref: _getHref
@@ -23,11 +24,20 @@ angular.module('greyscale.rest')
         }
 
         function _api() {
-            return greyscaleRestSrv().one('surveys');
+            return greyscaleRestSrv.api().one('surveys');
         }
 
         function _survey(surveyId) {
             return _api().one(surveyId + '');
+        }
+
+        function _surveyVersion(surveyId, version) {
+            var _sv = _survey(surveyId).one('versions');
+
+            if (typeof version !== 'undefined') {
+                _sv = _sv.one(version + '');
+            }
+            return _sv;
         }
 
         function _surveys() {
@@ -51,11 +61,11 @@ angular.module('greyscale.rest')
         }
 
         function _listVersions(surveyId) {
-            return _survey(surveyId).one('versions').get().then(_plainResp);
+            return _surveyVersion(surveyId).get().then(_plainResp);
         }
 
-        function _getVersion(surveyId, versionId) {
-            return _survey(surveyId).one('versions', versionId + '').get().then(_plainResp);
+        function _getVersion(surveyId, version) {
+            return _surveyVersion(surveyId, version).get().then(_plainResp);
         }
 
         function _getVersionTicket(survey) {
@@ -64,5 +74,9 @@ angular.module('greyscale.rest')
 
         function _getHref(survey) {
             return greyscaleUtilsSrv.getApiBase() + '/surveys/' + survey.id + '/savedocx/' + survey.surveyVersion;
+        }
+
+        function _getVersionUsers(surveyId, version, params) {
+            return _surveyVersion(surveyId, version).one('users').get(params).then(_plainResp);
         }
     });

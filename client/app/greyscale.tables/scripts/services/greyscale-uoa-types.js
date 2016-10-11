@@ -78,7 +78,7 @@ angular.module('greyscale.tables')
         };
 
         function _editUoaType(_uoaType) {
-            var op = 'editing';
+            var op = 'UPDATE';
             return greyscaleUoaTypeApi.get(_uoaType)
                 .then(function (uoaType) {
                     return greyscaleModalsSrv.editRec(uoaType, _table);
@@ -93,7 +93,7 @@ angular.module('greyscale.tables')
         }
 
         function _addUoaType() {
-            var op = 'adding';
+            var op = 'ADD';
             return greyscaleModalsSrv.editRec(null, _table)
                 .then(function (uoaType) {
                     return greyscaleUoaTypeApi.add(uoaType);
@@ -120,7 +120,7 @@ angular.module('greyscale.tables')
                 greyscaleUoaTypeApi.delete(uoaType.id)
                     .then(reloadTable)
                     .catch(function (err) {
-                        errHandler(err, 'deleting');
+                        errHandler(err, 'DELETE');
                     });
             });
         }
@@ -150,9 +150,8 @@ angular.module('greyscale.tables')
             _table.tableParams.reload();
         }
 
-        function errHandler(err, operation) {
-            var msg = _table.formTitle + ' ' + operation + ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
+        function errHandler(err, action) {
+            greyscaleUtilsSrv.apiErrorMessage(err, action, _table.formTitle);
         }
 
         return _table;

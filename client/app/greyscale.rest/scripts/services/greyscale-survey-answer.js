@@ -14,7 +14,7 @@ angular.module('greyscale.rest')
         };
 
         function _api() {
-            return greyscaleRestSrv().one('survey_answers');
+            return greyscaleRestSrv.api().one('survey_answers');
         }
 
         function _processResp(resp) {

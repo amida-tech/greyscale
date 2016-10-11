@@ -85,6 +85,9 @@ router.route('/:realm/v0.2/surveys/:id/versions')
 router.route('/:realm/v0.2/surveys/:id/versions/:version')
     .get(authenticate('token').always, surveys.surveyVersion);
 
+router.route('/:realm/v0.2/surveys/:id/versions/:version/users')
+    .get(authenticate('token').always, surveys.getVersionUsers);
+
 router.route('/:realm/v0.2/surveys/:id/questions')
     .get(authenticate('token').always, surveys.questions)
     .post(authenticate('token').always, jsonParser, surveys.questionAdd);

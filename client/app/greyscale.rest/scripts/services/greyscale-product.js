@@ -34,7 +34,7 @@ angular.module('greyscale.rest')
         };
 
         function api() {
-            return greyscaleRestSrv().one('products');
+            return greyscaleRestSrv.api().one('products');
         }
 
         function _productUoasApi(productId) {

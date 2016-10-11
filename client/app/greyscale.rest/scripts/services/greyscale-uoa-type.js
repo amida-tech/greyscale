@@ -7,7 +7,7 @@ angular.module('greyscale.rest')
     .factory('greyscaleUoaTypeApi', function (greyscaleRestSrv) {
 
         var _api = function () {
-            return greyscaleRestSrv().one('uoatypes');
+            return greyscaleRestSrv.api().one('uoatypes');
         };
 
         function _uoaType() {

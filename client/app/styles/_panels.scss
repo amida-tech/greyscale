@@ -41,16 +41,13 @@ checkbox-list {
     .gs-message-from {
         font-weight: bold;
     }
-    .gs-message-body-warpper {
+    .gs-message-body-wrapper {
 
         .gs-message-body {
             position: relative;
             max-height: 7em;
             overflow: hidden;
             .ta-text {
-                white-space: pre-wrap;
-                word-wrap: break-word;
-                padding: 5px;
                 background-color: #fff;
                 cursor: pointer;
             }
@@ -123,13 +120,13 @@ div.disabled {
 .gs-contextmenu-wrapper {
     position: relative;
 
-    .dropdown-menu {
+    .context-menu {
         display: none;
         position: absolute;
     }
 
     &.open {
-        .dropdown-menu {
+        .context-menu {
             display: block;
         }
     }
@@ -207,6 +204,16 @@ fb-policy .panel-title {
 
 .download-review-versions {
     margin-bottom: 0;
+}
+
+.not-selectable,
+.not-selectable-recursive,
+.not-selectable-recursive * {
+    -webkit-user-select: none; /* Chrome/Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+ */
+    -o-user-select: none;
+    user-select: none;
 }
 
 .line-numbers.section-text, .line-numbers [ta-bind] {

@@ -7,7 +7,7 @@ angular.module('greyscale.rest')
     .factory('greyscaleCountryApi', function (greyscaleRestSrv) {
 
         function _api() {
-            return greyscaleRestSrv().one('countries');
+            return greyscaleRestSrv.api().one('countries');
         }
 
         function _countries() {
