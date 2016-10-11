@@ -45,6 +45,7 @@ angular.module('greyscale.tables')
                 formPosition: -1,
                 dataSet: {
                     getData: _getSurveys,
+                    getDisabled: _disabledSurvey,
                     keyField: 'id',
                     valField: 'title',
                     groupBy: function (item) {
@@ -224,6 +225,10 @@ angular.module('greyscale.tables')
                 return _editProductMode.surveyId === survey.id || !survey.policyId || !survey.products ||
                     !survey.products.length;
             });
+        }
+
+        function _disabledSurvey(item, rec) {
+            return (rec && rec.policyId && item.id !== rec.surveyId);
         }
 
         function _getWorkflowTemplates() {

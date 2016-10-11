@@ -67,6 +67,7 @@ angular.module('greyscale.tables')
             }
         }, {
             title: 'COMMON.SEND_MESSAGE',
+            show: false,
             viewHide: true,
             cellTemplate: '<div class="text-center">' +
                 '   <a ng-click="ext.sendMessageTo(row); $event.stopPropagation()" class="action">' +

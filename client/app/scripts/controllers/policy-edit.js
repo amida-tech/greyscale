@@ -224,6 +224,7 @@ angular.module('greyscaleApp')
                                 return tasks[i].id;
                             }
                         }
+                        return tasks[0].id;
                     }
                     return null;
                 })
@@ -273,6 +274,7 @@ angular.module('greyscaleApp')
                             options: {
                                 canImport: canImport,
                                 readonly: survey.locked,
+                                surveyVersion: survey.surveyVersion,
                                 isVersion: false
                             }
                         });

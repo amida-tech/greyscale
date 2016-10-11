@@ -935,7 +935,7 @@ var exportObject = function  (req, realm) {
                 '<tr><td>TYPE</td><td>Medical Policy</td></tr>' +
                 '<tr><td>AUTHOR</td><td>' + authorName + '</td></tr>' +
                 '</table>';
-            var comments = yield oComment.getComments({surveyId: survey.id}, null, null, null, survey.surveyVersion);
+            var comments = yield oComment.getComments({surveyId: survey.id}, null, null, null, null, survey.surveyVersion);
             var commentAnswers;
             var commentsContent = comments.length ? '<hr/><h1>COMMENTS</h1>' : '';
 

@@ -45,18 +45,21 @@
         <button class="btn btn-primary" ng-click="answers.submit()" translate="COMMON.SUBMIT"></button>
     </div>
     <div ng-if="!answers.state.adding">
-        <span ng-if="user.isOwner && !view.options.isVersion" translate="COMMENTS.YOU_ARE_THE_OWNER"></span>
-        <span ng-if="!user.isOwner && user.hasAnswered && !view.options.isVersion"
+        <span ng-if="!view.options.isVersion && view.options.surveyVersion===model.surveyVersion">
+        <span ng-if="user.isOwner" translate="COMMENTS.YOU_ARE_THE_OWNER"></span>
+        <span ng-if="!user.isOwner && user.hasAnswered"
               translate="COMMENTS.YOU_ANSWERED_ALREADY"></span>
-        &nbsp;
+        </span>&nbsp;
         <button class="btn btn-primary"
-                ng-if="!view.options.isVersion"
+                ng-if="!view.options.isVersion && view.options.surveyVersion===model.surveyVersion"
                 ng-click="answers.add(true)"
-                ng-disabled="user.isOwner || user.hasAnswered">{{'COMMON.AGREE'|translate}} ({{model.agree||0}})</button>
+                ng-disabled="user.isOwner || user.hasAnswered">{{'COMMON.AGREE'|translate}} ({{model.agree||0}})
+        </button>
         <button class="btn btn-default"
-                ng-if="!view.options.isVersion"
+                ng-if="!view.options.isVersion && view.options.surveyVersion===model.surveyVersion"
                 ng-click="answers.add(false)"
-                ng-disabled="user.isOwner || user.hasAnswered">{{'COMMON.DISAGREE'|translate}} ({{model.disagree||0}})</button>
+                ng-disabled="user.isOwner || user.hasAnswered">{{'COMMON.DISAGREE'|translate}} ({{model.disagree||0}})
+        </button>
         <button class="btn btn-default" ng-click="close()" translate="COMMON.CLOSE"></button>
     </div>
 </div>
