@@ -42,6 +42,34 @@ angular.module('greyscale.tables')
              dataRequired: true
              },*/
             {
+                field: 'surveyId',
+                title: tns + 'SURVEY_POLICY',
+                show: true,
+                sortable: 'survey.title',
+                dataFormat: 'option',
+                cellTemplateUrl: 'project-setup-products-survey.html',
+                dataPlaceholder: tns + 'SELECT_SURVEY',
+                dataRequired: true,
+                formPosition: -1,
+                dataSet: {
+                    getData: _getSurveys,
+                    keyField: 'id',
+                    valField: 'title',
+                    groupBy: function (item) {
+                        return i18n.translate(tns + (item.policyId ? 'POLICIES' : 'SURVEYS'));
+                    }
+                },
+                link: {
+                    //target: '_blank',
+                    //href: '/survey/{{item.id}}'
+                    state: function (item) {
+                        return item.policy ? 'policy.edit({id: item.policy.surveyId})' :
+                            'projects.setup.surveys.edit({surveyId: item.survey.id})';
+                    }
+                    //state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
+                }
+            },
+            {
                 field: 'description',
                 title: tns + 'DESCRIPTION',
                 show: true,
@@ -119,33 +147,6 @@ angular.module('greyscale.tables')
                      handler: _editProductIndexes
                      }*/
                 ]
-            }, {
-                field: 'surveyId',
-                title: tns + 'SURVEY_POLICY',
-                show: true,
-                sortable: 'survey.title',
-                dataFormat: 'option',
-                cellTemplateUrl: 'project-setup-products-survey.html',
-                dataPlaceholder: tns + 'SELECT_SURVEY',
-                dataRequired: true,
-                formPosition: -1,
-                dataSet: {
-                    getData: _getSurveys,
-                    keyField: 'id',
-                    valField: 'title',
-                    groupBy: function (item) {
-                        return i18n.translate(tns + (item.policyId ? 'POLICIES' : 'SURVEYS'));
-                    }
-                },
-                link: {
-                    //target: '_blank',
-                    //href: '/survey/{{item.id}}'
-                    state: function (item) {
-                            return item.policy ? 'policy.edit({id: item.policy.surveyId})' :
-                                'projects.setup.surveys.edit({surveyId: item.survey.id})';
-                        }
-                        //state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
-                }
             }, {
                 show: true,
                 dataFormat: 'action',
