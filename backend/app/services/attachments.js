@@ -5,6 +5,7 @@ var
     AttachmentLink = require('app/models/attachment_links'),
     config = require('config'),
     co = require('co'),
+    sql = require('sql'),
     Query = require('app/util').Query,
     thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError,
@@ -97,6 +98,30 @@ var exportObject = function  (req, realm) {
         });
     };
 
+    this.getEntityAttachments = function (essenceId, entityId, version) {
+        return co(function* () {
+            var query = AttachmentLink
+                .select(
+                    Attachment.star()
+                )
+                .from(
+                    AttachmentLink
+                    .leftJoin(Attachment)
+                    .on(sql.array(AttachmentLink.attachments).contains(sql.array(Attachment.id)))
+                )
+                .where(
+                    AttachmentLink.essenceId.equals(essenceId)
+                        .and(AttachmentLink.entityId.equals(entityId))
+                );
+
+            if (typeof version !== 'undefined') {
+                query = query.where({version : version});
+            }
+
+            return yield thunkQuery(query);
+        });
+    };
+
     this.getById = function(id) {
         return co(function* () {
             return yield thunkQuery(Attachment.select().where(Attachment.id.equals(id)));
@@ -159,6 +184,25 @@ var exportObject = function  (req, realm) {
         };
         return s3.getSignedUrl('getObject', params);
     };
+
+    this.getObject = function (key) {
+        var params = {
+            Bucket: config.awsBucket,
+            Key: key
+        };
+        return new Promise((resolve, reject) => {
+            s3.getObject(params, function (error, data) {
+                if (error != null) {
+                    console.log("Failed to retrieve an object: " + error);
+                    reject(error);
+                } else {
+                    console.log("Loaded " + data.ContentLength + " bytes");
+                    resolve(data);
+                }
+            });
+        });
+
+    }
 
     this.addAttempt = function (oAttempt) {
         return co(function* () {

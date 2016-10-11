@@ -4,6 +4,9 @@ var
     bologger = new BoLogger(),
     Survey = require('app/models/surveys'),
     SurveyAnswer = require('app/models/survey_answers'),
+    fs = require('fs'),
+    exec = require('child_process').exec,
+    archiver = require('archiver'),
     SurveyMeta = require('app/models/survey_meta'),
     Policy = require('app/models/policies'),
     Product = require('app/models/products'),
@@ -127,19 +130,42 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var oSurvey = new sSurvey(req);
-            var docx = yield oSurvey.policyToDocx(req.params.id, req.params.version);
+            return yield oSurvey.policyToDocx(req.params.id, req.params.version);
 
-            return {
-                docx: docx
-            };
+        }).then(function (archPath) {
+            var filename = archPath.substr(
+                archPath.indexOf('/') + 1,
+                archPath.lastIndexOf('_') - archPath.indexOf('/') - 1);
+            var archive = archiver.create('zip', {});
+            var writeStream = fs.createWriteStream(archPath + '.zip');
 
-        }).then(function (data) {
-            res.writeHead ( 200, {
-                'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                'Content-disposition': 'attachment; filename=' + req.params.id + '.docx'
+            archive.on('error', function(err){
+                console.log(err);
             });
 
-            res.end(data.docx);
+            archive.on('end', function() {
+                var readStream = fs.createReadStream(archPath + '.zip');
+                res.attachment(filename + '.zip');
+                readStream.pipe(res);
+
+                readStream.on('end', function() {
+                    exec('rm -r ' + archPath, function (err, stdout, stderr) {
+                       // console.log('after rm ', err);
+                    });
+                    exec('rm ' + archPath + '.zip', function (err, stdout, stderr) {
+                       // console.log('after rm ', err);
+                    });
+                });
+            });
+
+            archive.pipe(writeStream);
+
+            archive.bulk([
+                { expand: true, cwd: archPath, src: ['**']}
+            ]);
+
+            archive.finalize();
+
         }, function (err) {
             next(err);
         });
@@ -359,6 +385,21 @@ module.exports = {
             next(err);
         });
 
+    },
+
+    getVersionUsers: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            var oSurvey = new sSurvey(req);
+            if (!req.query.uoaId) {
+                throw new HttpError(403, 'Subject must be specified');
+            }
+            return  yield oSurvey.getVersionUsers(req.params.id, req.params.version, req.query.uoaId);
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
     }
 
 };
