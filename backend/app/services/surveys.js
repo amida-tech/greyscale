@@ -1,6 +1,7 @@
 var
     _ = require('underscore'),
     moment = require('moment'),
+    MPDService = require('app/services/mpd'),
     Policy = require('app/models/policies'),
     Survey = require('app/models/surveys'),
     User = require('app/models/users'),
@@ -27,6 +28,7 @@ var
     thunkify = require('thunkify'),
     htmlDocx = require('html-docx-js'),
     HttpError = require('app/error').HttpError;
+
 
 var debug = require('debug')('debug_service_surveys');
 debug.log = console.log.bind(console);
@@ -462,6 +464,8 @@ var exportObject = function  (req, realm) {
             }
 
             yield self.deleteDraft(surveyId);
+
+            MPDService.savePolicy(surveyData.title, policyData.number);
 
             return surveyVersion;
         });
