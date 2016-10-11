@@ -419,8 +419,6 @@ var exportObject = function  (req, realm) {
 
             var surveyData = _.pick(fullSurveyData, Survey.insertCols);
             var policyData = _.pick(fullSurveyData, Policy.insertCols);
-            console.log(surveyData);
-            console.log(policyData);
             surveyData.creator = req.user.realmUserId;
             policyData.author = req.user.realmUserId;
             // check survey/policy data
