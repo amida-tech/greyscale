@@ -113,6 +113,10 @@ angular.module('greyscale.core')
             _addMsg(msg, prefix, 'warning');
         }
 
+        function _warnMsg(msg, prefix) {
+            _addMsg(msg, prefix, 'warning');
+        }
+
         function _getRoleMask(roleId, withDefault) {
             withDefault = !!withDefault;
 

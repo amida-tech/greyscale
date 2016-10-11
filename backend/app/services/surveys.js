@@ -152,6 +152,9 @@ var exportObject = function  (req, realm) {
                         'row_to_json("Products".*) as product',
                         'row_to_json("Workflows".*) as workflow',
                         'ARRAY (SELECT "UOAid" FROM "ProductUOA" WHERE "productId" = "SurveyMeta"."productId") as uoas, ' +
+                        '(WITH usr AS ' +
+                        '(SELECT "id", "firstName", "lastName", "email" FROM "Users" WHERE "id" = "Policies"."author")' +
+                        'SELECT row_to_json(usr.*) as author FROM usr), ' +
                         '(WITH sq AS ' +
                         '( ' +
                             'SELECT ' +
@@ -420,6 +423,7 @@ var exportObject = function  (req, realm) {
             var surveyData = _.pick(fullSurveyData, Survey.insertCols);
             var policyData = _.pick(fullSurveyData, Policy.insertCols);
             surveyData.creator = req.user.realmUserId;
+            surveyData.created = new Date();
             policyData.author = req.user.realmUserId;
             // check survey/policy data
 
@@ -654,6 +658,7 @@ var exportObject = function  (req, realm) {
             surveyData.surveyVersion = -1;
             policyData.surveyVersion = -1;
             surveyData.creator = req.user.realmUserId;
+            surveyData.created = new Date();
             policyData.author = req.user.realmUserId;
             // check survey/policy data
 
@@ -934,7 +939,7 @@ var exportObject = function  (req, realm) {
                 '<tr><td>TYPE</td><td>Medical Policy</td></tr>' +
                 '<tr><td>AUTHOR</td><td>' + authorName + '</td></tr>' +
                 '</table>';
-            var comments = yield oComment.getComments({surveyId: survey.id}, null, null, null, survey.surveyVersion);
+            var comments = yield oComment.getComments({surveyId: survey.id}, null, null, null, null, survey.surveyVersion);
             var commentAnswers;
             var commentsContent = comments.length ? '<hr/><h1>COMMENTS</h1>' : '';
 

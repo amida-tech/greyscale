@@ -77,6 +77,18 @@ angular.module('greyscale.tables')
             dataFormat: 'boolean',
             dataReadOnly: 'new'
         }, {
+            title: '',
+            show: false,
+            dataHide: true,
+            showFormField: function (rec) {
+                return !rec.isActive;
+            },
+            cellTemplate: '<span ng-show="!row.isActive"><a ng-click="ext.resendActivation(row)" class="btn btn-primary" ' +
+                'translate="' + tns + 'RESEND_ACTIVATION"></a></span>',
+            cellTemplateExtData: {
+                resendActivation: _resendActivation
+            }
+        }, {
             field: 'isAnonymous',
             title: tns + 'ANONYMOUS',
             show: true,
@@ -96,15 +108,6 @@ angular.module('greyscale.tables')
             cellTemplateExtData: {
                 getGroups: _getGroups,
                 editGroups: _editGroups
-            }
-        }, {
-            title: '',
-            show: false,
-            dataHide: true,
-            cellTemplate: '<span ng-show="!row.isActive"><a ng-click="ext.resendActivation(row)" class="btn btn-primary" translate="' +
-                tns + 'RESEND_ACTIVATION"></a></span>',
-            cellTemplateExtData: {
-                resendActivation: _resendActivation
             }
         }, {
             title: 'COMMON.SEND_MESSAGE',

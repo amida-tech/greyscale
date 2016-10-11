@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv, greyscaleSelection, $timeout,
-        greyscaleProfileSrv, greyscaleCommentApi, $sce) {
+        greyscaleProfileSrv, greyscaleCommentApi, $sce, $window) {
         var _associate = [];
         return {
             restrict: 'A',
@@ -18,15 +18,19 @@ angular.module('greyscaleApp')
             },
             templateUrl: 'views/directives/gs-message.html',
             controller: function ($scope) {
+                var _isAdmin = greyscaleProfileSrv.isAdmin();
                 $scope.isEdit = false;
                 $scope.entry = '';
+
                 $scope.getUserName = function (userId) {
                     return _getUserName(userId || $scope.model.userFromId);
                 };
 
                 $scope.model.created = $scope.model.created ? $scope.model.created : new Date();
-                $scope.isAdmin = function () {
-                    return greyscaleProfileSrv.isAdmin();
+                $scope.isAdmin = _isAdmin;
+                $scope.showToggleComment = _showToggleComment;
+                $scope.hlSource = function () {
+                    _highlightSource($scope);
                 };
 
                 if (!$scope.edit || typeof $scope.edit !== 'function') {
@@ -92,6 +96,11 @@ angular.module('greyscaleApp')
                 }
 
                 _associate = $scope.associate;
+
+                function _showToggleComment() {
+                    return _isAdmin && !$scope.options.isVersion && $scope.model.activated;
+                }
+
             },
             link: function (scope, elem) {
 
@@ -100,13 +109,14 @@ angular.module('greyscaleApp')
                     if (scope.model) {
                         scope.model.fromUserFullName = _getUserName(scope.model.userFromId);
                     }
+                    /*
+                     var msgBody = (elem.find('.gs-message-body'));
 
-                    var msgBody = (elem.find('.gs-message-body'));
-
-                    msgBody.find('.gs-message-fader')
-                        .on('click', function (e) {
-                            _highlightSource(scope.model, e.type);
-                        });
+                     msgBody.find('.gs-message-fader')
+                     .on('click', function (e) {
+                     _highlightSource(scope.model, e.type);
+                     });
+                     */
                 });
 
                 scope.getHtml = function (html) {
@@ -115,23 +125,53 @@ angular.module('greyscaleApp')
             }
         };
 
-        function _highlightSource(model) {
-            var questionBlock = $('#Q' + model.questionId);
-            if (!questionBlock.length) {
-                return;
-            }
-            questionBlock.closest('.panel:not(.panel-open)').find('.accordion-toggle').click();
-            $timeout(function () {
-                var startNode,
-                    range = model.range;
+        function _highlightSource(scope) {
+            var _section = angular.element('#Q' + scope.model.questionId).closest('.panel'),
+                startNode,
+                range = scope.model.range,
+                _html,
+                _sectionContainer;
 
-                startNode = greyscaleSelection.restore(questionBlock[0], range);
-                if (startNode) {
-                    var parent = startNode.parentNode;
-                    var scrollPos = parent.getBoundingClientRect().top + window.scrollY;
-                    angular.element('body').scrollTop(scrollPos);
+            if (_section.length) {
+                _section = angular.element(_section[0]);
+                _sectionContainer = _section.find('#Q' + scope.model.questionId);
+                startNode = greyscaleSelection.restore(_sectionContainer[0], range);
+                _html = greyscaleSelection.html(true);
+
+                if (_isSameQuotes(_html, range.entry) && startNode) {
+                    scope.options.section.sectionOpen = true;
+                    $timeout(function () {
+                        var _container = _section.find('.ta-text'),
+                            _tb = _section.find('.ta-toolbar'),
+                            _startNode, parent, scrollPos;
+
+                        _startNode = greyscaleSelection.restore(
+                            _container.length > 0 ? _container[0] : _sectionContainer[0], range);
+
+                        parent = _startNode.parentNode;
+
+                        scrollPos = parent.getBoundingClientRect().top + $window.scrollY - 15;
+                        if (_tb.length > 0) {
+                            scrollPos -= _tb[0].clientHeight;
+                        }
+                        $window.scrollTo($window.scrollX, scrollPos);
+                    }, 100);
+                } else {
+                    _notifyEditedQuote();
                 }
-            });
+            } else {
+                _notifyEditedQuote();
+            }
+        }
+
+        function _isSameQuotes(s1, s2) {
+            var _e1 = s1 ? angular.element(s1).text() || '' : '',
+                _e2 = s2 ? angular.element(s2).text() || '' : '';
+            return _e1 === _e2;
+        }
+
+        function _notifyEditedQuote() {
+            greyscaleUtilsSrv.warningMsg('COMMENTS.QUOTE_CHANGED');
         }
 
         function _getUser(userId) {
@@ -145,7 +185,6 @@ angular.module('greyscaleApp')
                 };
             }
             return user;
-
         }
 
         function _getUserName(userId) {

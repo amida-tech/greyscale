@@ -8,18 +8,18 @@
         </a>
     </div>
     <uib-accordion>
-        <uib-accordion-group ng-repeat="section in model.sections track by $index">
-            <uib-accordion-heading is-open="sectionOpen">
-                <span translate="{{section.label}}"></span><i class="fa pull-right" ng-class="{'fa-caret-up': sectionOpen,
-                'fa-caret-down': !sectionOpen}"></i>
+        <uib-accordion-group is-open="section.isOpen" ng-repeat="section in model.sections">
+            <uib-accordion-heading>
+                <span translate="{{section.label}}"></span>
+                <i class="fa pull-right" ng-class="{'fa-caret-up': section.isOpen,'fa-caret-down': !section.isOpen}"></i>
             </uib-accordion-heading>
             <div gs-message="msg"
                  associate="model.associate"
-                 options="policy.options"
+                 options="section.options"
                  remove="removeComment(msg)"
                  edit="editComment(msg)"
                  ng-repeat="msg in section.comments | filter:isVisible"></div>
-            <p class="text-center" translate="COMMENTS.NO_MESSAGES" ng-hide="model.items.length > 0"></p>
         </uib-accordion-group>
     </uib-accordion>
+    <p class="text-center" translate="COMMENTS.NO_MESSAGES" ng-hide="model.sections.length > 0"></p>
 </div>
