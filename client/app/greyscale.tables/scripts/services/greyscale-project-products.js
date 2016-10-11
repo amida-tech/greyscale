@@ -392,9 +392,15 @@ angular.module('greyscale.tables')
         }
 
         function _getFormWarning(product) {
+            console.log(product);
             var warning;
             if (product.id && _planningNotFinish(product)) {
                 warning = i18n.translate(tns + 'PLANNING_NOT_FINISH');
+            }
+            // 3 is, for some reason, a "Completed" status in the menu.
+            if (product.status === 3){
+                // set warning
+                warning = "Are you sure? A project cannot be reopened once saved as Completed.";
             }
             return warning;
         }
