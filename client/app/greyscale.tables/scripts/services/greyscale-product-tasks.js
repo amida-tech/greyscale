@@ -2,7 +2,7 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleProductTasksTbl', function (_, $q, $sce, greyscaleProductApi, greyscaleProductWorkflowApi,
-        greyscaleUserApi, greyscaleGlobals) {
+        greyscaleUserApi, greyscaleGlobals, greyscaleProfileSrv) {
 
         var tns = 'PRODUCT_TASKS.';
         var userStatuses = greyscaleGlobals.policyUserStatuses,
@@ -24,12 +24,10 @@ angular.module('greyscale.tables')
             show: _isSurvey
         }, {
             title: 'MY_TASKS.PRODUCT',
-            field: 'product.title',
+            field: 'product.description',
             show: _isPolicy
         }, {
-
             title: tns + 'PROGRESS',
-            cellClass: 'text-center',
             cellTemplate: '<span class="progress-blocks">' +
                 '<span class="progress-block status-{{item.status}}" popover-trigger="mouseenter" ' +
                 'uib-popover-template="item.user && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'" ' +
@@ -103,6 +101,7 @@ angular.module('greyscale.tables')
             _dicts.product = product;
 
             var reqs = {
+                profile: greyscaleProfileSrv.getProfile(),
                 users: greyscaleUserApi.list(),
                 uoas: greyscaleProductApi.product(product.id).uoasList(),
                 tasks: greyscaleProductApi.product(product.id).tasksList(),
@@ -112,6 +111,7 @@ angular.module('greyscale.tables')
             return $q.all(reqs)
                 .then(function (data) {
                     angular.extend(_dicts, {
+                        profile: data.profile,
                         uoas: data.uoas,
                         users: data.users,
                         steps: data.steps,
@@ -125,6 +125,11 @@ angular.module('greyscale.tables')
 
         function _extendTasksWithRelations(tasks) {
             var i, qty, user, userStatus;
+
+            qty = _dicts.users.length;
+            for (i = 0; i < qty; i++) {
+                _dicts.users[i].current = (_dicts.users[i].id === _dicts.profile.id);
+            }
 
             angular.forEach(tasks, function (task) {
                 task.product = _dicts.product;

@@ -69,7 +69,7 @@ passport.use(new BasicStrategy({
                     }
 
                     if (!userInNamespace.length) {
-                        throw new HttpError(401, 101);
+                        throw new HttpError(401, 101, 401);
                     }
 
                     if (userInNamespace.length === 1) {
@@ -80,12 +80,12 @@ passport.use(new BasicStrategy({
                         return user;
                     }
 
-                    throw new HttpError(300, userInNamespace);
+                    throw new HttpError(300, userInNamespace, 300);
 
                 } else { // situation after found user in several schemas and set one of them
                     user = yield * findUserInNamespace(req.params.realm, email);
                     if (!user.length) {
-                        throw new HttpError(401, 101);
+                        throw new HttpError(401, 101, 401);
                     }
 
                     yield * checkUser(user[0], password);
@@ -121,11 +121,11 @@ passport.use(new BasicStrategy({
 
         function* checkUser(user, password) {
             if (!User.validPassword(user.password, user.salt, password)) {
-                throw new HttpError(401, 105);
+                throw new HttpError(401, 105, 401);
             }
 
             if (!user.isActive) {
-                throw new HttpError(401, 'You have to activate your account');
+                throw new HttpError(401, 'You have to activate your account', 401);
             }
         }
 

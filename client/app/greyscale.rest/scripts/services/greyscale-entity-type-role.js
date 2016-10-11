@@ -14,7 +14,7 @@ angular.module('greyscale.rest')
         };
 
         function _api() {
-            return greyscaleRestSrv().one('essence_roles');
+            return greyscaleRestSrv.api().one('essence_roles');
         }
 
         function _list(params) {

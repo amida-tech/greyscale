@@ -71,9 +71,12 @@
                 </div>
             </div>
         </div>
-        <fb-policy ng-model="item" ng-repeat="item in policyData.sections" options="policyData.options"
+        <fb-policy ng-repeat="item in policyData.sections"
+                   ng-model="item"
+                   options="policyData.options"
                    associate="policyData.associate"
-                   author="policyData.author"></fb-policy>
+                   author="policyData.author">
+                   ng-hide="item.deleted"></fb-policy>
         <attachments field="policyData" options="policyData.options"></attachments>
     </div>
 </div>

@@ -13,7 +13,7 @@ angular.module('greyscale.rest')
         };
 
         function _api() {
-            return greyscaleRestSrv().one('workflow_templates');
+            return greyscaleRestSrv.api().one('workflow_templates');
         }
 
         function _add(workflowTemplate) {

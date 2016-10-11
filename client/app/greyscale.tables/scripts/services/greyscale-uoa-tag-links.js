@@ -75,7 +75,7 @@ angular.module('greyscale.tables')
             update: {
                 uoaTags: _updateUoaTags,
                 uoas: _updateUoas
-            },
+            }
         };
 
         function _updateUoaTags(uoaTags) {
@@ -91,7 +91,7 @@ angular.module('greyscale.tables')
         }
 
         function _addUoaTagLink() {
-            var op = 'adding';
+            var op = 'ADD';
             return greyscaleModalsSrv.editRec(null, _table)
                 .then(function (uoaTagLink) {
                     return greyscaleUoaTagLinkApi.add(uoaTagLink);
@@ -119,7 +119,7 @@ angular.module('greyscale.tables')
                 greyscaleUoaTagLinkApi.delete(uoaTagLink.id)
                     .then(reloadTable)
                     .catch(function (err) {
-                        errHandler(err, 'deleting');
+                        errHandler(err, 'DELETE');
                     });
             });
         }
@@ -159,9 +159,8 @@ angular.module('greyscale.tables')
             _table.tableParams.reload();
         }
 
-        function errHandler(err, operation) {
-            var msg = _table.formTitle + ' ' + operation + ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
+        function errHandler(err, action) {
+            greyscaleUtilsSrv.apiErrorMessage(err, action, _table.formTitle);
         }
 
         return _table;

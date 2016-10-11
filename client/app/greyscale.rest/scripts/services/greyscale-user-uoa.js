@@ -17,7 +17,7 @@ angular.module('greyscale.rest')
         }
 
         function _api(userId) {
-            return greyscaleRestSrv().one('users', userId + '').one('uoa');
+            return greyscaleRestSrv.api().one('users', userId + '').one('uoa');
         }
 
         function _list(userId, params) {

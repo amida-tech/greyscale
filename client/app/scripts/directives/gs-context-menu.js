@@ -22,16 +22,69 @@ angular.module('greyscaleApp')
                     }
                 };
 
-                elem.on('mousedown', function (evt) {
-                    var _parent = evt.target.parentNode ? evt.target.parentNode.parentNode : null;
-                    if (!_parent || _parent.id !== scope.model.menuId) {
-                        window.getSelection().collapse(evt.target.parentNode, 0);
-                    }
-                });
+                elem.on('mouseenter', _fixSelection);
 
                 elem.on('mouseup', _showContextMenu);
 
                 elem.on('contextmenu', _showContextMenu);
+
+                function _fixSelection(e) {
+                    var _selection = $window.getSelection(),
+                        _range, _start, _end, _container,
+                        rangeChanged = false;
+
+                    if (_hasSelection()) {
+                        _container = $window.document.getElementById(scope.qid);
+                        _range = $window.getSelection().getRangeAt(0).cloneRange();
+                        _start = _range.startContainer;
+                        _end = _range.endContainer;
+
+                        if (!_isChild(_container, _start)) {
+                            if (_container.firstChild) {
+                                _range.setStart(_container.firstChild, 0);
+                            } else {
+                                _range.setStart(_container, 0);
+
+                            }
+                            rangeChanged = true;
+                        }
+
+                        if (!_isChild(_container, _end)) {
+                            if (_container.lastChild) {
+                                _range.setEnd(_container.lastChild, 0);
+                            } else {
+                                _range.setEnd(_container, 0);
+                            }
+                            rangeChanged = true;
+                        }
+
+                        if (rangeChanged) {
+                            _hideContextMenu();
+                            _selection.removeAllRanges();
+                            _selection.addRange(_range);
+                        }
+                    }
+                }
+
+                function _isChild(container, elem) {
+                    var node = elem.parentNode;
+                    while (node && node !== container) {
+                        node = node.parentNode;
+                    }
+                    return node === container;
+                }
+
+                function _hideContextMenu() {
+                    scope.model.data = {
+                        range: null,
+                        selection: '',
+                        selectedHtml: ''
+                    };
+
+                    $timeout(function () {
+                        elem.removeClass('open');
+                    }, 0);
+                }
 
                 function _showContextMenu(evt) {
                     var menu, bottom, right,
@@ -75,8 +128,12 @@ angular.module('greyscaleApp')
                 }
 
                 function _hasSelection() {
-                    var _range = $window.getSelection().getRangeAt(0).cloneRange().toString();
-                    return (_range && _range.length > 0);
+                    if (window.getSelection().rangeCount) {
+                        var _range = $window.getSelection().getRangeAt(0).cloneRange().toString();
+                        return (_range && _range.length > 0);
+                    } else {
+                        return false;
+                    }
                 }
             }
         };

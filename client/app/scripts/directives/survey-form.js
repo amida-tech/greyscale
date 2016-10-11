@@ -22,6 +22,7 @@ angular.module('greyscaleApp')
             coAnswers = {},
             flags = {},
             resolveSaving,
+            surveyVersion,
             userStatuses = greyscaleGlobals.policy.userStatuses;
 
         return {
@@ -115,6 +116,8 @@ angular.module('greyscaleApp')
                 function _draftSaved(res) {
                     if (res) {
                         greyscaleUtilsSrv.successMsg('SURVEYS.SAVE_DRAFT_SUCCESS');
+                    } else {
+                        greyscaleUtilsSrv.warningMsg('SURVEYS.NO_CHANGES');
                     }
                     return res;
                 }
@@ -197,7 +200,7 @@ angular.module('greyscaleApp')
                         if (data.survey) {
                             prepareFields(scope);
 
-                            if (data.task && data.userId) {
+                            if (data.task && data.userId || surveyParams.productId && surveyParams.UOAid) {
                                 loadAnswers(scope);
                             }
                         }
@@ -205,9 +208,7 @@ angular.module('greyscaleApp')
                 }
 
                 function goTasks(saveSuccess) {
-                    if (saveSuccess) {
-                        $state.go(tasks.survey);
-                    }
+                    $state.go(tasks.survey);
                     return saveSuccess;
                 }
 
@@ -249,7 +250,8 @@ angular.module('greyscaleApp')
 
                 function _saveChangedResolveComments() {
                     var q,
-                        qty = (scope.surveyData.survey && scope.surveyData.survey.questions) ? scope.surveyData.survey.questions.length : 0,
+                        qty = (scope.surveyData.survey &&
+                            scope.surveyData.survey.questions) ? scope.surveyData.survey.questions.length : 0,
                         fResolve,
                         reqs = [];
 
@@ -295,7 +297,8 @@ angular.module('greyscaleApp')
                 $scope.isLocked = function () {
                     var _locked;
                     _locked = isReadonlyFlags(flags) &&
-                        (!$scope.model.translated && flags.allowTranslate || $scope.model.translated && !flags.allowTranslate) &&
+                        (!$scope.model.translated && flags.allowTranslate ||
+                            $scope.model.translated && !flags.allowTranslate) &&
                         (flags.discussionParticipation && !flags.draftFlag);
 
                     if ($scope.surveyData && $scope.surveyData.task && $scope.surveyData.task.flagged) {
@@ -371,6 +374,12 @@ angular.module('greyscaleApp')
                 questions = survey.questions || [],
                 qQty = questions.length;
 
+            surveyVersion = survey.surveyVersion || 0;
+
+            if (!scope.surveyData.collaboratorIds) {
+                scope.surveyData.collaboratorIds = [];
+            }
+
             surveyParams = {
                 surveyId: survey.id,
                 productId: task.productId,
@@ -392,11 +401,11 @@ angular.module('greyscaleApp')
 
             flags.isPolicy = !!scope.surveyData.policy;
             if (flags.isPolicy) {
-
                 flags.policyApproved = task.userStatus === userStatuses.approved;
                 scope.model.snsTitle = flags.policyApproved ?
                     'GLOBALS.POLICYUSERSTATUSES.APPROVED' : 'POLICY.APPROVE';
-                scope.model.saveDraftBtnTitle = [userStatuses.approved, userStatuses.flagged].indexOf(task.userStatus) >= 0 ?
+                scope.model.saveDraftBtnTitle = [userStatuses.approved, userStatuses.flagged].indexOf(
+                        task.userStatus) >= 0 ?
                     'COMMON.SAVE' : null;
             }
             scope.model.translated = !flags.allowTranslate;
@@ -579,11 +588,17 @@ angular.module('greyscaleApp')
 
         function loadAnswers(scope) {
             var recentAnswers = {};
-            var responses = {};
+            var responses = {},
+                _isVersion = scope.surveyData.flags && scope.surveyData.flags.isVersion,
+                params = {};
 
             scope.lock();
 
-            greyscaleSurveyAnswerApi.list(surveyParams.productId, surveyParams.UOAid)
+            if (_isVersion) {
+                params.surveyVersion = surveyVersion;
+            }
+
+            greyscaleSurveyAnswerApi.list(surveyParams.productId, surveyParams.UOAid, params)
                 .then(function (_answers) {
                     var v, answer, qId,
                         qty = _answers.length,
@@ -608,11 +623,10 @@ angular.module('greyscaleApp')
                             _addValToKey(responses, qId, _answers[v]);
                         } else if (_answers[v].version) {
                             _addValToKey(surveyAnswers, qId, _answers[v]);
-
-                            if (_answers[v].userId === currentUserId) {
-                                flags.policyApproved = true;
-                            } else if (scope.surveyData.collaboratorIds &&
-                                scope.surveyData.collaboratorIds.indexOf(_answers[v].userId) > -1) {
+                            //add co-answers for task or all for version
+                            if (~scope.surveyData.collaboratorIds.indexOf(_answers[v].userId) &&
+                                _answers[v].surveyVersion === surveyVersion &&
+                                (_answers[v].userId !== currentUserId || _isVersion)) {
                                 _addValToKey(coAnswers, qId, _answers[v], coAnswerRestrict);
                             }
                         }
@@ -887,6 +901,7 @@ angular.module('greyscaleApp')
                         questionId: fld.id,
                         langId: fld.langId,
                         wfStepId: currentStepId,
+                        surveyVersion: surveyVersion,
                         userId: currentUserId
                     };
 
@@ -1004,7 +1019,8 @@ angular.module('greyscaleApp')
                         option = $(option);
                         if (option.val() !== '' && option.text() !== '') {
                             select.append(
-                                '<span class="select-option"><i class="fa fa-circle-o"></i> ' + option.text() + '</span>');
+                                '<span class="select-option"><i class="fa fa-circle-o"></i> ' + option.text() +
+                                '</span>');
                         }
                     });
                     field.replaceWith(select);

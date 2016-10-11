@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "accept-language": "2.0.16",
+    "archiver": "^1.1.0",
     "async": "0.9.0",
     "async-lock": "^0.3.8",
     "aws-sdk": "^2.3.16",

@@ -92,12 +92,12 @@ angular.module('greyscale.tables')
         }
 
         function _edtRight(_right) {
-            var action = 'adding';
+            var action = 'ADD';
             return greyscaleModalsSrv.editRec(_right, _table)
                 .then(function (newRight) {
                     delete newRight.entityType;
                     if (newRight.id) {
-                        action = 'editing';
+                        action = 'UPDATE';
                         return greyscaleRightApi.update(newRight);
                     } else {
                         return greyscaleRightApi.add(newRight);
@@ -123,14 +123,13 @@ angular.module('greyscale.tables')
                 greyscaleRightApi.delete(right.id)
                     .then(_reloadRights)
                     .catch(function (err) {
-                        errHandler(err, 'deleting');
+                        errHandler(err, 'DELETE');
                     });
             });
         }
 
         function errHandler(err, action) {
-            var msg = _table.formTitle + ' ' + action + ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
+            greyscaleUtilsSrv.apiErrorMessage(err, action, _table.formTitle);
         }
 
         return _table;

@@ -8,20 +8,25 @@ angular.module('greyscale.tables')
 
         var tns = 'USER_GROUPS.';
 
-        var _cols = [{
-            field: 'id',
-            title: 'ID',
-            show: false,
-            sortable: 'id',
-            dataReadOnly: 'both'
-        }, {
+        var _cols = [
+        // {
+        //     field: 'id',
+        //     title: 'ID',
+        //     show: false,
+        //     sortable: 'id',
+        //     dataReadOnly: 'both'
+        // },
+        {
             field: 'title',
             title: tns + 'NAME',
             show: true,
             class: 'full-width',
             cellClass: 'truncate-line',
             sortable: 'title',
-            dataRequired: true
+            dataRequired: true,
+            dataValidate: {
+                maxLength: 80
+            }
         }, {
             show: true,
             dataFormat: 'action',
@@ -69,13 +74,15 @@ angular.module('greyscale.tables')
         }
 
         function _editGroup(group) {
-            var op = 'editing';
+            var op = 'UPDATE';
             greyscaleModalsSrv.editRec(group, _table)
                 .then(function (editGroup) {
+                    // edit an existing group
                     if (editGroup.id) {
                         return greyscaleGroupApi.update(editGroup);
+                    // add a new group
                     } else {
-                        op = 'adding';
+                        op = 'ADD';
                         var organizationId = _getOrganizationId();
                         return greyscaleGroupApi.add(organizationId, editGroup);
                     }
@@ -96,7 +103,7 @@ angular.module('greyscale.tables')
                 greyscaleGroupApi.delete(group.id)
                     .then(_reload)
                     .catch(function (err) {
-                        _errHandler(err, 'deleting');
+                        _errHandler(err, 'DELETE');
                     });
             });
         }
@@ -105,9 +112,8 @@ angular.module('greyscale.tables')
             _table.tableParams.reload();
         }
 
-        function _errHandler(err, operation) {
-            var msg = _table.formTitle + ' ' + operation + ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
+        function _errHandler(err, action) {
+            greyscaleUtilsSrv.apiErrorMessage(err, action, _table.formTitle);
         }
 
         return _table;

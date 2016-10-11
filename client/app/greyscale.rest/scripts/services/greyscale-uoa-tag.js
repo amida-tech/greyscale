@@ -7,7 +7,7 @@ angular.module('greyscale.rest')
     .factory('greyscaleUoaTagApi', function (greyscaleRestSrv) {
 
         var _api = function () {
-            return greyscaleRestSrv().one('uoatags');
+            return greyscaleRestSrv.api().one('uoatags');
         };
 
         function _uoaTag(params) {
