@@ -11,7 +11,7 @@ angular.module('greyscale.core')
                 states: ['organizations', 'superusers']
             }, {
                 title: 'NAV.ADMIN_SECTION',
-                states: ['workflowTemplates', 'policy', 'projects.setup.products', 'access', 'uoas', /*'orgs', */ 'users']
+                states: ['projects.setup.products', 'policy','workflowTemplates',  /*'access', 'uoas', */  /*'orgs', */ 'users']
             }, {
                 title: 'NAV.CONTENT_SECTION',
                 states: ['profile', 'tasks', 'graph', 'table'] // removed 'visualizations'
@@ -22,5 +22,5 @@ angular.module('greyscale.core')
             $get: function () {
                 return menu;
             }
-        };
+    };
     });
