@@ -24,12 +24,10 @@ angular.module('greyscale.tables')
             show: _isSurvey
         }, {
             title: 'MY_TASKS.PRODUCT',
-            field: 'product.title',
+            field: 'product.description',
             show: _isPolicy
         }, {
-
             title: tns + 'PROGRESS',
-            cellClass: 'text-center',
             cellTemplate: '<span class="progress-blocks">' +
                 '<span class="progress-block status-{{item.status}}" popover-trigger="mouseenter" ' +
                 'uib-popover-template="item.user && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'" ' +

@@ -13,6 +13,7 @@ angular.module('greyscale.core')
             prepareFields: _preProcess,
             errorMsg: _errMsg,
             successMsg: _successMsg,
+            warningMsg: _warnMsg,
             getRoleMask: _getRoleMask,
             parseURL: _parseURL,
             getApiBase: _getApiBase,
@@ -106,6 +107,10 @@ angular.module('greyscale.core')
             _errMsg(msg, 'API_ACTIONS.' + action + '.ERR', {
                 entry: i18n.translate(entry)
             });
+        }
+
+        function _warnMsg(msg, prefix) {
+            _addMsg(msg, prefix, 'warning');
         }
 
         function _getRoleMask(roleId, withDefault) {
