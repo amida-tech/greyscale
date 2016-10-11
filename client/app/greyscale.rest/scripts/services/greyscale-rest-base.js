@@ -17,7 +17,7 @@ angular.module('greyscale.rest')
         };
 
         GsRestBase.prototype._api = function (realm) {
-            return greyscaleRestSrv({}, realm);
+            return greyscaleRestSrv.api({}, realm);
         };
 
         return GsRestBase;

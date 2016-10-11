@@ -33,7 +33,8 @@ var exportObject = function  (req, realm) {
         var self = this;
     // only initial adding task user states - when task created. Does not check existing records
         return co(function* () {
-            var version = version ? version : yield oSurvey.getMaxSurveyVersion(taskId);
+            var maxVersion = yield oSurvey.getMaxSurveyVersion(taskId);
+            var version = version ? version : (maxVersion ? maxVersion : 0);
             var late = endDate ? (endDate < new Date()): false;
             var stateId = late ? TaskUserState.getStateId('late') : TaskUserState.getStateId('pending');
             var query ='INSERT INTO "TaskUserStates"  ("taskId", "userId", "stateId", "late", "endDate", "surveyVersion") ' +

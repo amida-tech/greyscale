@@ -13,6 +13,7 @@ angular.module('greyscale.core')
             prepareFields: _preProcess,
             errorMsg: _errMsg,
             successMsg: _successMsg,
+            warningMsg: _warnMsg,
             getRoleMask: _getRoleMask,
             parseURL: _parseURL,
             getApiBase: _getApiBase,
@@ -21,7 +22,8 @@ angular.module('greyscale.core')
             getUserName: _getUserName,
             getTagsAssociate: _getTagsAssociate,
             getTagsPostData: _getTagsPostData,
-            getElemOffset: _getOffset
+            getElemOffset: _getOffset,
+            apiErrorMessage: _cmnErrHdlr
         };
 
         function _decode(dict, key, code, name) {
@@ -55,14 +57,15 @@ angular.module('greyscale.core')
             }
         }
 
-        function _addMsg(msg, prefix, type) {
-            var _msg = prefix ? i18n.translate(prefix) + ': ' : '';
-            var msgText = 'Service Not Available';
+        function _addMsg(msg, prefix, type, extData) {
+            var _msg = prefix ? i18n.translate(prefix, extData) + ': ' : '';
+            var msgText = 'API_ERRORS.503';
             if (msg) {
                 if (msg.data) {
                     if (msg.data.message) {
                         msgText = msg.data.message;
                     } else {
+                        $log.warn('data w/o message', msg.data);
                         msgText = msg.data;
                     }
                 } else if (typeof msg === 'string') {
@@ -72,7 +75,7 @@ angular.module('greyscale.core')
                 } else if (msg.statusText) {
                     msgText = msg.statusText;
                 }
-                _msg += i18n.translate(msgText);
+                _msg += i18n.translate(msgText, extData);
 
                 $log.debug('(' + type + ') ' + _msg);
 
@@ -85,17 +88,29 @@ angular.module('greyscale.core')
 
         function _detectSystem(msg) {
             if (msg.match(/^(<!doctype|<html)/i)) {
-                return $translate.instant('COMMON.SERVICE_UNAVAILABLE');
+                return $translate.instant('API_ERRORS.503');
             }
             return msg;
         }
 
-        function _errMsg(err, prefix) {
-            _addMsg(err, prefix, 'danger');
+        function _errMsg(err, prefix, extData) {
+            extData = extData || {};
+            _addMsg(err, prefix, 'danger', extData);
         }
 
-        function _successMsg(msg, prefix) {
-            _addMsg(msg, prefix, 'success');
+        function _successMsg(msg, prefix, extData) {
+            extData = extData || {};
+            _addMsg(msg, prefix, 'success', extData);
+        }
+
+        function _cmnErrHdlr(msg, action, entry) {
+            _errMsg(msg, 'API_ACTIONS.' + action + '.ERR', {
+                entry: i18n.translate(entry)
+            });
+        }
+
+        function _warnMsg(msg, prefix) {
+            _addMsg(msg, prefix, 'warning');
         }
 
         function _getRoleMask(roleId, withDefault) {

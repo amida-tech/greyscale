@@ -4,7 +4,7 @@ angular.module('greyscale.rest')
     .factory('greyscaleVisualizationApi', function (greyscaleRestSrv, $q) {
 
         function api(organizationId) {
-            return greyscaleRestSrv().one('organizations', organizationId).one('visualizations');
+            return greyscaleRestSrv.api().one('organizations', organizationId).one('visualizations');
         }
 
         function _list(organizationId) {

@@ -12,7 +12,8 @@ angular.module('greyscaleApp')
         tasksTable.expandedRowTemplateUrl = 'views/controllers/pm-dashboard-product-tasks-extended-row.html';
         tasksTable.expandedRowExtData = {
             notifyUser: _notifyUser,
-            moveNextStep: _moveNextStep
+            moveNextStep: _moveNextStep,
+            $state: $state
         };
 
         var _exportUri = '/products/' + productId + '/export.csv?token=' + greyscaleTokenSrv();
@@ -123,7 +124,7 @@ angular.module('greyscaleApp')
                     tasksTable.tableParams.reload();
                 })
                 .catch(function (err) {
-                    greyscaleUtilsSrv.errorMsg(err, 'Step moving');
+                    greyscaleUtilsSrv.apiErrorMessage(err, 'UPDATE');
                 });
         }
 

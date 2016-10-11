@@ -5,12 +5,29 @@
 angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(function ($provide) {
     $provide.decorator('taOptions', ['taRegisterTool', 'taSelection', '_', '$delegate',
         function (taRegisterTool, taSelection, _, taOptions) {
+            var _red = '#ff0000';
 
-            taRegisterTool('colour', {
+            taRegisterTool('markRed', {
                 iconclass: 'fa fa-square text-danger',
-                tooltiptext: 'Text colour',
+                tooltiptext: 'Mark red',
                 action: function () {
-                    this.$editor().wrapSelection('forecolor', 'red');
+                    if (this.active) {
+                        this.$editor().wrapSelection('removeFormat', 'foreColor');
+                    } else {
+                        this.$editor().wrapSelection('foreColor', _red);
+                    }
+                },
+                activeState: function (elem) {
+                    var res = false;
+                    if (elem && elem.nodeName === '#document') {
+                        return false;
+                    }
+                    if (elem) {
+                        res = elem.attr('color') === _red ||
+                            elem.attr('color') === 'red' ||
+                            elem.css('color') === 'rgb(255, 0, 0)';
+                    }
+                    return res;
                 }
             });
 
@@ -125,7 +142,7 @@ angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(func
              */
             taOptions.toolbar = [
                 ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-                ['colour', 'bold', 'italics', 'underline', 'strikeThrough'],
+                ['markRed', 'bold', 'italics', 'underline', 'strikeThrough'],
                 ['ul', 'olType'],
                 ['redo', 'undo', 'clear']
             ];

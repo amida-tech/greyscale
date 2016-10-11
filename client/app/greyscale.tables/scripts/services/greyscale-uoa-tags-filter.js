@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUoaTagsFilter', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
+    .factory('greyscaleUoaTagsFilter', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv,
         greyscaleLanguageApi, greyscaleUoaTagApi, greyscaleUoaClassTypeApi) {
 
         var dicts = {
@@ -92,21 +92,12 @@ angular.module('greyscale.tables')
             }
         }
 
-        function getLanguages() {
-            return dicts.languages;
-        }
-
         function getClassTypes() {
             return dicts.uoaClassTypes;
         }
 
         function reloadTable() {
             _table.tableParams.reload();
-        }
-
-        function errHandler(err, operation) {
-            var msg = _table.formTitle + ' ' + operation + ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
         }
 
         return _table;

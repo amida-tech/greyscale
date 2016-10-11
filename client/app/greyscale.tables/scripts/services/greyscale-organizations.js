@@ -87,12 +87,12 @@ angular.module('greyscale.tables')
         };
 
         function _editRecord(organization) {
-            var action = 'adding';
+            var action = 'ADD';
             _table.dataFilter.formRecord = organization;
             return greyscaleModalsSrv.editRec(organization, _table)
                 .then(function (newRec) {
                     if (newRec.id) {
-                        action = 'editing';
+                        action = 'UPDATE';
                         return greyscaleOrganizationApi.update(newRec, organization.realm);
                     } else {
                         return greyscaleOrganizationApi.add(newRec, 'public');
@@ -128,12 +128,7 @@ angular.module('greyscale.tables')
         }
 
         function errorHandler(err, action) {
-            var msg = _table.formTitle;
-            if (action) {
-                msg += ' ' + action;
-            }
-            msg += ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
+            greyscaleUtilsSrv.apiErrorMessage(err, action, _table.formTitle);
         }
 
         function _getActivationMode() {

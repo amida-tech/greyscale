@@ -17,7 +17,7 @@ angular.module('greyscale.rest')
         };
 
         function api(realm) {
-            return greyscaleRestSrv({}, realm).one('organizations');
+            return greyscaleRestSrv.api({}, realm).one('organizations');
         }
 
         function _prepareData(resp) {

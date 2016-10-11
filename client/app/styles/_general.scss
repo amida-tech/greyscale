@@ -174,7 +174,7 @@ body {
 }
 
 .required:after {
-    content: ' *';
+    content: '*';
     color: $green;
     display: inline;
 }

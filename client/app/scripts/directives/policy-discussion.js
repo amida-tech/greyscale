@@ -21,6 +21,7 @@ angular.module('greyscaleApp')
             controller: function ($scope) {
                 $scope.model = {
                     items: [],
+                    groups: [],
                     associate: []
                 };
 
@@ -66,6 +67,7 @@ angular.module('greyscaleApp')
 
                                 if (~_idx) {
                                     $scope.model.items[_idx] = _newComment;
+                                    _updateSections($scope);
                                 }
                                 return _newComment;
                             });
@@ -78,6 +80,7 @@ angular.module('greyscaleApp')
                         res.then(function (result) {
                                 angular.extend(_newComment, result);
                                 $scope.model.items.unshift(_newComment);
+                                _updateSections($scope);
                                 return _newComment;
                             })
                             .catch(greyscaleUtilsSrv.errorMsg);
@@ -115,6 +118,7 @@ angular.module('greyscaleApp')
                             });
                             if (!!~idx) {
                                 $scope.model.items.splice(idx, 1);
+                                _updateSections($scope);
                             }
                         });
                 }
@@ -156,6 +160,7 @@ angular.module('greyscaleApp')
                             }
                             $scope.model.items[i].isHidden = true;
                         }
+                        _updateSections($scope);
                     });
                 };
                 $scope.isAdmin = function () {
@@ -211,8 +216,22 @@ angular.module('greyscaleApp')
                     }
                     /* discussions */
                     scope.model.items = resp.messages;
+                    _updateSections(scope);
 
                 });
             }
+        }
+
+        function _updateSections(scope) {
+            var groupedItems = _.groupBy(scope.model.items, 'questionId');
+            var sections = [];
+            angular.forEach(groupedItems, function (groupItems, groupId) {
+                var groupData = _.find(scope.policy.sections, {
+                    id: parseInt(groupId)
+                });
+                groupData.comments = groupItems;
+                sections.push(groupData);
+            });
+            scope.model.sections = sections;
         }
     });
