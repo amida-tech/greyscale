@@ -371,7 +371,7 @@
         "PASSWORD_REQUIRED": "Password is required.",
         "RESET_SUCCESS": "Password was updated successfully.",
         "SIGN_IN": "Sign in",
-        "TOKEN_SENT": "Instructions was sent to your e-mail..."
+        "TOKEN_SENT": "Instructions were sent to your e-mail..."
     },
     "MY_TASKS": {
         "FINISHED_TITLE": "Finished tasks",
