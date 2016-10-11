@@ -432,8 +432,8 @@
         "USERS": {
             "GROUPS": "Groups",
             "IN_GROUPS": "Users In Groups",
-            "LIST": "List",
-            "TITLE": "Users",
+            "LIST": "Users",
+            "TITLE": "User Management",
             "UOA": "Subjects"
         },
         "VISUALIZATION": "Visualization",

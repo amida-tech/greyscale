@@ -31,6 +31,7 @@ angular.module('greyscaleApp')
                     var _items = [];
                     var _group = greyscaleSideMenu.groups[g];
                     for (var i = 0; i < _group.states.length; i++) {
+                        // this is where the data fetching happens
                         var _state = $state.get(_group.states[i]);
                         if (_state) {
                             var _accessLevel = (_state.data.accessLevel & _level);
