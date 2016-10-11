@@ -22,6 +22,7 @@ angular.module('greyscaleApp')
             coAnswers = {},
             flags = {},
             resolveSaving,
+            surveyVersion,
             userStatuses = greyscaleGlobals.policy.userStatuses;
 
         return {
@@ -371,6 +372,12 @@ angular.module('greyscaleApp')
                 questions = survey.questions || [],
                 qQty = questions.length;
 
+            surveyVersion = survey.surveyVersion || 0;
+
+            if (!scope.surveyData.collaboratorIds) {
+                scope.surveyData.collaboratorIds = [];
+            }
+
             surveyParams = {
                 surveyId: survey.id,
                 productId: task.productId,
@@ -392,7 +399,6 @@ angular.module('greyscaleApp')
 
             flags.isPolicy = !!scope.surveyData.policy;
             if (flags.isPolicy) {
-
                 flags.policyApproved = task.userStatus === userStatuses.approved;
                 scope.model.snsTitle = flags.policyApproved ?
                     'GLOBALS.POLICYUSERSTATUSES.APPROVED' : 'POLICY.APPROVE';
@@ -580,12 +586,13 @@ angular.module('greyscaleApp')
         function loadAnswers(scope) {
             var recentAnswers = {};
             var responses = {},
+                _isVersion = scope.surveyData.flags && scope.surveyData.flags.isVersion,
                 params = {};
 
             scope.lock();
 
-            if (scope.surveyData.flags && scope.surveyData.flags.isVersion) {
-                params.surveyVersion = scope.surveyData.survey.surveyVersion;
+            if (_isVersion) {
+                params.surveyVersion = surveyVersion;
             }
 
             greyscaleSurveyAnswerApi.list(surveyParams.productId, surveyParams.UOAid, params)
@@ -613,11 +620,10 @@ angular.module('greyscaleApp')
                             _addValToKey(responses, qId, _answers[v]);
                         } else if (_answers[v].version) {
                             _addValToKey(surveyAnswers, qId, _answers[v]);
-
-                            if (_answers[v].userId === currentUserId) {
-                                flags.policyApproved = true;
-                            } else if (scope.surveyData.collaboratorIds &&
-                                scope.surveyData.collaboratorIds.indexOf(_answers[v].userId) > -1) {
+                            //add co-answers for task or all for version
+                            if (~scope.surveyData.collaboratorIds.indexOf(_answers[v].userId) &&
+                                _answers[v].surveyVersion === surveyVersion &&
+                                (_answers[v].userId !== currentUserId || _isVersion)) {
                                 _addValToKey(coAnswers, qId, _answers[v], coAnswerRestrict);
                             }
                         }
@@ -892,6 +898,7 @@ angular.module('greyscaleApp')
                         questionId: fld.id,
                         langId: fld.langId,
                         wfStepId: currentStepId,
+                        surveyVersion: surveyVersion,
                         userId: currentUserId
                     };
 

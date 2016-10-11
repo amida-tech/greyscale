@@ -114,14 +114,18 @@ angular.module('greyscaleApp')
                 var _user = _data.user,
                     _policy = _data.policy,
                     _req = {
-                        groups: greyscaleGroupApi.list(_user.organizationId),
-                        users: (_data.task & _data.task.id) ?
-                            greyscaleCommentApi.getUsers(_data.task.id) :
-                            //todo: re-factor to survey version users API
-                            greyscaleCommentApi.listVersionUsers(_policy.version, {
-                                surveyId: _policy.surveyId
-                            })
+                        groups: greyscaleGroupApi.list(_user.organizationId)
                     };
+
+                if (_data.task && _data.task.userStatuses) {
+                    _req.users = greyscaleCommentApi.getUsers(_data.task.id);
+                } else {
+                    _req.users = greyscaleSurveyApi.versionUsers(
+                        _policy.surveyId,
+                        _policy.version, {
+                            uoaId: _data.survey.uoas[0]
+                        });
+                }
 
                 return $q.all(_req).then(function (resp) {
                     var i,
@@ -129,20 +133,23 @@ angular.module('greyscaleApp')
                         members = [];
 
                     for (i = 0; i < qty; i++) {
-                        if (_user.usergroupId.indexOf(resp.groups[i].id) > -1) {
+                        if (~_user.usergroupId.indexOf(resp.groups[i].id)) {
                             members = members.concat(resp.groups[i].userIds);
                         }
                     }
                     _data.collaboratorIds = _.uniq(members);
 
+                    if (resp.users && resp.users.users) { //fix users link
+                        resp.users = resp.users.users;
+                    }
                     var _u,
                         _usr,
                         _qty = resp.users.length;
 
                     for (_u = 0; _u < _qty; _u++) {
                         _usr = _.pick(resp.users[_u], ['userId', 'firstName', 'lastName']);
-                        _usr.fullName = greyscaleUtilsSrv.getUserName(resp.users[_u]);
-                        _data.collaborators[resp.users[_u].userId] = _usr;
+                        _usr.fullName = greyscaleUtilsSrv.getUserName(_usr);
+                        _data.collaborators[_usr.userId] = _usr;
                     }
                 });
             })
