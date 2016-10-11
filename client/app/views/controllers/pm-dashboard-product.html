@@ -2,18 +2,18 @@
     <div class="row">
         <div class="col-md-9 col-lg-9 col-sm-10 col-xs-10">
             <table class="indicators-table">
-                <tr class="indicator-header">
-                    <td><span translate=".COUNT_UOAS"></span><br></td>
-                    <td><span translate=".COUNT_ONTRACK"></span> / <span translate=".COUNT_LATE"></span></td>
-                    <td><span translate=".COUNT_FLAGGED">flagged</span></td>
-                    <td><span translate=".COUNT_COMPLETE">complete</span></td>
-                </tr>
-                <tr class="indicator-values">
-                    <td>&nbsp;<strong>{{model.count.uoas}}</strong>&nbsp;</td>
-                    <td>&nbsp;<strong>{{model.count.onTime}} / {{model.count.late}}</strong>&nbsp;</td>
-                    <td>&nbsp;<strong>{{model.count.flagged}}</strong>&nbsp;</td>
-                    <td>&nbsp;<strong>{{model.count.complete}}</strong>&nbsp;</td>
-                </tr>
+              <tr class="indicator-header">
+                  <td><span translate=".COUNT_ONTRACK"></span><br></td>
+                  <td><span translate=".COUNT_LATE"></span></td>
+                  <td><span translate=".COUNT_FLAGGED">flagged</span></td>
+                  <td><span translate=".COUNT_COMPLETE">complete</span></td>
+              </tr>
+              <tr class="indicator-values">
+                  <td>&nbsp;<strong>{{model.count.onTime}}</strong>&nbsp;</td>
+                  <td>&nbsp;<strong>{{model.count.late}}</strong>&nbsp;</td>
+                  <td>&nbsp;<strong>{{model.count.flagged}}</strong>&nbsp;</td>
+                  <td>&nbsp;<strong>{{model.count.complete}}</strong>&nbsp;</td>
+              </tr>
             </table>
         </div>
         <div class="col-lg-3 col-md-3 col-sm-2 col-xs-2 text-right">
