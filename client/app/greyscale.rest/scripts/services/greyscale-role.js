@@ -19,7 +19,7 @@ angular.module('greyscale.rest')
         };
 
         function _roles(realm) {
-            return greyscaleRestSrv({}, realm).one('roles');
+            return greyscaleRestSrv.api({}, realm).one('roles');
         }
 
         function _rights(roleId) {

@@ -77,7 +77,7 @@ angular.module('greyscale.tables')
                     greyscaleRoleApi.delRight(role.id, roleRight.id)
                         .then(_reloadTable)
                         .catch(function (err) {
-                            _errorHandler(err, 'deleting');
+                            _errorHandler(err, 'DELETE');
                         });
                 });
             }
@@ -97,7 +97,7 @@ angular.module('greyscale.tables')
                     })
                     .then(_reloadTable)
                     .catch(function (err) {
-                        _errorHandler(err, 'adding');
+                        _errorHandler(err, 'ADD');
                     });
             }
         }
@@ -151,12 +151,7 @@ angular.module('greyscale.tables')
         }
 
         function _errorHandler(err, action) {
-            var msg = _table.formTitle;
-            if (action) {
-                msg += ' ' + action;
-            }
-            msg += ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
+            greyscaleUtilsSrv.apiErrorMessage(err, action, _table.formTitle);
         }
 
         return _table;

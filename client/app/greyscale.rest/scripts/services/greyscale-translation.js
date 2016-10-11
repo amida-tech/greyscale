@@ -13,7 +13,7 @@ angular.module('greyscale.rest')
         };
 
         function _api() {
-            return greyscaleRestSrv().one('translations');
+            return greyscaleRestSrv.api().one('translations');
         }
 
         function _list(params) {

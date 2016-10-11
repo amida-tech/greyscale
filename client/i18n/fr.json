@@ -10,6 +10,75 @@
         "PASSWORD": "",
         "PASSWORD_ERROR": ""
     },
+    "API": {
+        "ATTACHMENT": "",
+        "USER": ""
+    },
+    "API_ACTIONS": {
+        "ADD": {
+            "ERR": "",
+            "OK": ""
+        },
+        "DELETE": {
+            "ERR": "",
+            "OK": ""
+        },
+        "GET": {
+            "ERR": "",
+            "OK": ""
+        },
+        "INSERT": {
+            "ERR": "",
+            "OK": ""
+        },
+        "RESEND_ACTIVATION": {
+            "ERR": ""
+        },
+        "SAVE": {
+            "ERR": "",
+            "OK": ""
+        },
+        "SEND_MSG": {
+            "ERR": ""
+        },
+        "START_TASK": {
+            "ERR": "",
+            "OK": ""
+        },
+        "UPDATE": {
+            "ERR": "",
+            "OK": ""
+        }
+    },
+    "API_ERRORS": {
+        "401": "",
+        "403": "",
+        "404": "",
+        "500": "",
+        "501": "",
+        "502": "",
+        "503": "",
+        "504": "",
+        "505": "",
+        "-1": "",
+        "UNITOFANALYSIS_HAS_PRODUCTUOA_UOAID": "",
+        "USERS_HAS_ANSWERATTACHMENTS_OWNER": "",
+        "USERS_HAS_COMMENTS_USERFROMID": "",
+        "USERS_HAS_COMMENTS_USERHIDEID": "",
+        "USERS_HAS_DISCUSSIONS_USERFROMID": "",
+        "USERS_HAS_NOTIFICATIONS_USERFROM": "",
+        "USERS_HAS_NOTIFICATIONS_USERTO": "",
+        "USERS_HAS_ORGANIZATIONS_ADMINUSERID": "",
+        "USERS_HAS_POLICIES_AUTHOR": "",
+        "USERS_HAS_POLICIES_EDITOR": "",
+        "USERS_HAS_SURVEYANSWERS_USERID": "",
+        "USERS_HAS_SURVEYS_CREATOR": "",
+        "USERS_HAS_TASKUSERSTATES_USERID": "",
+        "USERS_HAS_UNITOFANALYSIS_CREATORID": "",
+        "USERS_HAS_UNITOFANALYSIS_OWNERID": "",
+        "USERS_HAS_USERGROUPS_USERID": "",
+        "USERS_HAS_USERUOA_USERID": ""
+    },
     "BRAND": {
         "SLOGAN": ""
     },
@@ -68,7 +137,6 @@
         "SELECT": "",
         "SEND": "",
         "SEND_MESSAGE": "",
-        "SERVICE_UNAVAILABLE": "",
         "SHOW_ALL": "",
         "SUBMIT": "",
         "THE_COPY": "",
@@ -111,6 +179,8 @@
         "BAD_TOKEN": "",
         "CHANGES_UNSAVED": "",
         "NOT_DOCX": "",
+        "NO_POLICY_HEADERS": "",
+        "NO_POLICY_SECTIONS": "",
         "STEP_READONLY": "",
         "STEP_SUBMIT": "",
         "SURVEY_UPDATE_ERROR": "",
@@ -190,6 +260,7 @@
     "FORMS": {
         "FIELD_REQUIRED": "",
         "INVALID_EMAIL": "",
+        "INVALID_MAXLENGTH": "",
         "INVALID_UNIQUE": "",
         "MUST_BE_INT": "",
         "MUST_BE_NUMBER": "",
@@ -706,6 +777,7 @@
         "MIN": "",
         "NAME": "",
         "NEW_SURVEY": "",
+        "NO_CHANGES": "",
         "NO_DATA": "",
         "NO_OPTIONS_WAS_SELECTED": "",
         "PRINT_ALL": "",

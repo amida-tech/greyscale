@@ -6,7 +6,7 @@
 angular.module('greyscale.rest')
     .factory('greyscaleRightApi', function (greyscaleRestSrv) {
         var _api = function () {
-            return greyscaleRestSrv().one('rights');
+            return greyscaleRestSrv.api().one('rights');
         };
 
         var _listRigths = function (params) {

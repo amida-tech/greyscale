@@ -60,7 +60,7 @@
                     <!--</div>-->
 
                     <button class="btn pull-right" ng-click="saveDraft()" style="clear:right"
-                            ng-if="!surveyData.flags.isVersion"
+                            ng-if="!surveyData.flags.isVersion && fields.length >0"
                             title="{{'SURVEYS.LAST_SAVED' | translate}}: {{model.savedAt | date:'medium'}}"
                             ng-disabled="(isLocked() || model.formReadonly || model.locked)"
                             translate="{{model.saveDraftBtnTitle || 'SURVEYS.SAVE_DRAFT'}}"></button>

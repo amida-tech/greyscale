@@ -12,7 +12,7 @@ angular.module('greyscale.rest')
         };
 
         function api() {
-            return greyscaleRestSrv().one('tasks');
+            return greyscaleRestSrv.api().one('tasks');
         }
 
         function _prepareResp(resp) {
@@ -24,7 +24,7 @@ angular.module('greyscale.rest')
         }
 
         function userAPI() {
-            return greyscaleRestSrv().one('users');
+            return greyscaleRestSrv.api().one('users');
         }
 
         function selfAPI() {

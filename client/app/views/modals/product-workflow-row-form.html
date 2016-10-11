@@ -53,7 +53,7 @@
             <div ng-if="row.hasAssignedTasks"><small translate=".TASKS_ASSIGNED_CANT_MANIPULATE_GROUPS" class="text-muted"></small></div>
 
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3" style="display:none;">
             <label translate="{{ext.formFields.writeToAnswers.title}}"></label>
             <div class="radio"><label><input type="radio" name="surveyAccess"
                                              ng-model="row.surveyAccess"
@@ -81,7 +81,7 @@
                 <i class="chk-box"></i><span translate=".ALLOW_TRANSLATE"></span></label>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3" style="display:none;">
             <label translate=".PERMISSIONS"></label>
             <span modal-form-rec="row"
                   modal-form-field="ext.formFields.discussionParticipation" embedded="true"

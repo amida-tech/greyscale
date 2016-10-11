@@ -78,11 +78,6 @@ angular.module('greyscale.tables')
             _table.tableParams.reload();
         }
 
-        function errHandler(err, operation) {
-            var msg = _table.formTitle + ' ' + operation + ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
-        }
-
         return _table;
 
     });
