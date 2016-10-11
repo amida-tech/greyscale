@@ -879,7 +879,7 @@
             "NAME": "Group Name",
             "TITLE": "Assign groups to user {{user.email}}"
         },
-        "IS_ACTIVE": "Is Active",
+        "IS_ACTIVE": "Activated",
         "LAST_ACTIVE": "Last Active",
         "LAST_NAME": "Last name",
         "NEW_PASSWORD": "New Password",
