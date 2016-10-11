@@ -450,7 +450,6 @@ var exportObject = function  (req, realm) {
             yield self.deleteDraft(surveyId);
 
             MPDService.savePolicy(surveyData.title, policyData.number);
-            console.log(surveyData.title + " Policy Saved");
 
             return surveyVersion;
         });

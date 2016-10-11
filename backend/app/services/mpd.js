@@ -15,10 +15,7 @@ var MPDService = {
       },
       body: body
     };
-    request(requestOptions, function(err, res, body) {
-      if (err) console.log(err);
-      if (res) console.log(res);
-    });
+    request(requestOptions);
   }
 }
 
