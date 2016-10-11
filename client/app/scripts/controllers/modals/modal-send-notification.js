@@ -1,38 +1,36 @@
 'use strict';
 
 angular.module('greyscaleApp')
-.controller('ModalSendNotificationCtrl', function($scope, user, data, greyscaleUtilsSrv, greyscaleProfileSrv, $uibModalInstance, greyscaleNotificationApi, inform, i18n) {
+    .controller('ModalSendNotificationCtrl',
+        function ($scope, user, data, $uibModalInstance, greyscaleUtilsSrv, greyscaleNotificationApi) {
 
-    $scope.model = {
-        user: user,
-        notification: {
-            userTo: user.id,
-            notifyLevel: 2
-        }
-    };
+            $scope.model = {
+                user: user,
+                notification: {
+                    userTo: user.id,
+                    notifyLevel: 2
+                }
+            };
 
-    $scope.close = function () {
-        $uibModalInstance.dismiss();
-    };
+            $scope.close = function () {
+                $uibModalInstance.dismiss();
+            };
 
-    $scope.send = function () {
-        if (!$scope.validForm()) {
-            return;
-        }
-        greyscaleNotificationApi.send($scope.model.notification)
-            .then(function () {
-                $uibModalInstance.close();
-                inform.add(i18n.translate('NOTIFICATIONS.SEND_SUCCESS'), {
-                    type: 'success'
-                });
-            })
-            .catch(function (err) {
-                greyscaleUtilsSrv.errorMsg(err, 'Send Message Error');
-            });
-    };
+            $scope.send = function () {
+                if (!$scope.validForm()) {
+                    return;
+                }
+                greyscaleNotificationApi.send($scope.model.notification)
+                    .then(function () {
+                        $uibModalInstance.close();
+                        greyscaleUtilsSrv.successMsg('NOTIFICATIONS.SEND_SUCCESS');
+                    })
+                    .catch(function (err) {
+                        greyscaleUtilsSrv.apiErrorMessage(err, 'SEND_MSG');
+                    });
+            };
 
-    $scope.validForm = function(){
-        return $scope.model.notification.body && $scope.model.notification.body !== '';
-    };
-
-});
+            $scope.validForm = function () {
+                return $scope.model.notification.body && $scope.model.notification.body !== '';
+            };
+        });

@@ -10,6 +10,75 @@
         "PASSWORD": "Password",
         "PASSWORD_ERROR": "Password must be 8 characters or more."
     },
+    "API": {
+        "ATTACHMENT": "Attachment",
+        "USER": "User"
+    },
+    "API_ACTIONS": {
+        "ADD": {
+            "ERR": "Add {{entry}} error",
+            "OK": "Add {{entry}} success"
+        },
+        "DELETE": {
+            "ERR": "Delete {{entry}} error",
+            "OK": "Delete {{entry}} success"
+        },
+        "GET": {
+            "ERR": "Get {{entry}} error",
+            "OK": "Get {{entry}} success"
+        },
+        "INSERT": {
+            "ERR": "Insert {{entry}} error",
+            "OK": "Insert {{entry}} success"
+        },
+        "RESEND_ACTIVATION": {
+            "ERR": "Resend Activation error"
+        },
+        "SAVE": {
+            "ERR": "Save {{entry}} error",
+            "OK": "Save {{entry}} success"
+        },
+        "SEND_MSG": {
+            "ERR": "Send message error"
+        },
+        "START_TASK": {
+            "ERR": "Start task error",
+            "OK": "Start task success"
+        },
+        "UPDATE": {
+            "ERR": "Update {{entry}} error",
+            "OK": "Update {{entry}} success"
+        }
+    },
+    "API_ERRORS": {
+        "401": "Unauthorized",
+        "403": "Forbidden",
+        "404": "Not Found",
+        "500": "Internal Server Error",
+        "501": "Not Implemented",
+        "502": "Bad Gateway",
+        "503": "Service Unavailable",
+        "504": "Gateway Timeout",
+        "505": "HTTP Version Not Supported",
+        "-1": "Connection Issue",
+        "UNITOFANALYSIS_HAS_PRODUCTUOA_UOAID": "Subject has link with project(s)",
+        "USERS_HAS_ANSWERATTACHMENTS_OWNER": "User is owner of the some answer`s attachment(s)",
+        "USERS_HAS_COMMENTS_USERFROMID": "User is author of the some comment(s)",
+        "USERS_HAS_COMMENTS_USERHIDEID": "User is hide the some comment(s)",
+        "USERS_HAS_DISCUSSIONS_USERFROMID": "User is sender of the some discussion`s entry(ies)",
+        "USERS_HAS_NOTIFICATIONS_USERFROM": "User is sender of the some notification(s)",
+        "USERS_HAS_NOTIFICATIONS_USERTO": "User is recipient of the some notification(s)",
+        "USERS_HAS_ORGANIZATIONS_ADMINUSERID": "User is organization`s admin",
+        "USERS_HAS_POLICIES_AUTHOR": "User is author of the some policy(ies)",
+        "USERS_HAS_POLICIES_EDITOR": "User is editor of the some policy(ies)",
+        "USERS_HAS_SURVEYANSWERS_USERID": "User has survey`s answers",
+        "USERS_HAS_SURVEYS_CREATOR": "User is author of the some suveys(policies)",
+        "USERS_HAS_TASKUSERSTATES_USERID": "User has assigned tasks",
+        "USERS_HAS_UNITOFANALYSIS_CREATORID": "User is author of the some subject(s)",
+        "USERS_HAS_UNITOFANALYSIS_OWNERID": "User is owner of the some subject(s)",
+        "USERS_HAS_USERGROUPS_USERID": "User included in the some user`s group",
+        "USERS_HAS_USERUOA_USERID": "(not used)"
+    },
     "BRAND": {
         "SLOGAN": "Turn knowledge into data."
     },
@@ -68,7 +137,6 @@
         "SELECT": "Select",
         "SEND": "Send",
         "SEND_MESSAGE": "Send Message",
-        "SERVICE_UNAVAILABLE": "Service Unavailable",
         "SHOW_ALL": "Show All",
         "SUBMIT": "Submit",
         "THE_COPY": "Copy",

@@ -134,7 +134,7 @@ angular.module('greyscale.tables')
                 greyscaleUserApi.delete(rec.id, _realm)
                     .then(reloadTable)
                     .catch(function (err) {
-                        errorHandler(err, 'deleting');
+                        errorHandler(err, 'DELETE');
                     });
             });
         }
@@ -152,14 +152,14 @@ angular.module('greyscale.tables')
         }
 
         function _editRecord(user) {
-            var action = 'adding';
+            var action = 'ADD';
             return greyscaleModalsSrv.editRec(user, _table)
                 .then(function (newRec) {
                     if (newRec.password) {
                         delete(newRec.password);
                     }
                     if (newRec.id) {
-                        action = 'editing';
+                        action = 'UPDATE';
                         return greyscaleUserApi.update(newRec, _realm);
                     } else {
                         return greyscaleUserApi.inviteSuperAdmin(newRec);
@@ -179,7 +179,7 @@ angular.module('greyscale.tables')
                     });
                 })
                 .catch(function (err) {
-                    greyscaleUtilsSrv.errorMsg(err, 'Resend Activation');
+                    greyscaleUtilsSrv.errorMsg(err, 'RESEND_ACTIVATION');
                 });
         }
 
@@ -210,12 +210,7 @@ angular.module('greyscale.tables')
         }
 
         function errorHandler(err, action) {
-            var msg = _table.formTitle;
-            if (action) {
-                msg += ' ' + action;
-            }
-            msg += ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
+            greyscaleUtilsSrv.apiErrorMessage(err, action, _table.formTitle);
         }
 
         function _isProfileEdit() {

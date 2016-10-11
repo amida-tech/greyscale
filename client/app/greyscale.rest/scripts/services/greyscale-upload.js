@@ -4,6 +4,8 @@
 'use strict';
 angular.module('greyscale.rest')
     .factory('greyscaleUploadApi', function (greyscaleRestSrv, greyscaleUtilsSrv) {
+        var entry = 'API.ATTACHMENT';
+
         return {
             getUrl: _getUrl,
             success: _success,
@@ -13,31 +15,35 @@ angular.module('greyscale.rest')
         };
 
         function _api(realm) {
-            return greyscaleRestSrv({}, realm).one('uploads');
+            return greyscaleRestSrv.api({}, realm).one('uploads');
         }
 
         function _getUrl(data) {
-            return _api().one('upload_link').customPOST(data).then(_preResp);
+            return _api().one('upload_link').customPOST(data)
+                .then(greyscaleRestSrv.postProc)
+                .catch(function (err) {
+                    return greyscaleRestSrv.errHandler(err, 'ADD', entry);
+                });
         }
 
         function _success(data, realm) {
-            return _api(realm).one('success').customPOST(data).then(_preResp);
+            return _api(realm).one('success').customPOST(data)
+                .then(greyscaleRestSrv.postProc)
+                .catch(function (err) {
+                    return greyscaleRestSrv.errHandler(err, 'ADD', entry);
+                });
         }
 
         function _getDownloadUrl(attachId) {
-            return _api().one(attachId + '', 'ticket').get().then(_preResp);
+            return _api().one(attachId + '', 'ticket').get()
+                .then(greyscaleRestSrv.postProc)
+                .catch(function (err) {
+                    return greyscaleRestSrv.errHandler(err, 'GET', entry);
+                });
         }
 
         function _getLink(ticket) {
             return greyscaleUtilsSrv.getApiBase() + '/uploads/get/' + ticket;
-        }
-
-        function _preResp(resp) {
-            if (resp && typeof resp.plain === 'function') {
-                return resp.plain();
-            } else {
-                return resp;
-            }
         }
 
         function _remove(attachId, essenceId, entityId, _version) {
@@ -45,6 +51,10 @@ angular.module('greyscale.rest')
             if (_version !== undefined) {
                 _rest = _rest.one(_version + '');
             }
-            return _rest.remove().then(_preResp);
+            return _rest.remove()
+                .then(greyscaleRestSrv.postProc)
+                .catch(function (err) {
+                    return greyscaleRestSrv.errHandler(err, 'DELETE', entry);
+                });
         }
     });

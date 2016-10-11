@@ -5,7 +5,7 @@
 angular.module('greyscale.tables')
     .factory('greyscaleEntityRolesTbl', function ($q, _, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
         greyscaleEntityTypeRoleApi, greyscaleUserApi, greyscaleRoleApi,
-        greyscaleEntityTypeApi, greyscaleRestSrv) {
+        greyscaleEntityTypeApi) {
 
         var tns = 'PROJECTS.ROLES.';
 
@@ -127,7 +127,7 @@ angular.module('greyscale.tables')
         //                        fields: 'id,' + fieldName
         //                    };
         //
-        //                    return greyscaleRestSrv().one(apiName)
+        //                    return greyscaleRestSrv.api().one(apiName)
         //                        .get(params)
         //                        .then(function (items) {
         //                            var res = [];
@@ -169,20 +169,20 @@ angular.module('greyscale.tables')
                 _tableRestSrv.delete(entityRole.id)
                     .then(reloadTable)
                     .catch(function (err) {
-                        errorHandler(err, 'deleting');
+                        errorHandler(err, 'DELETE');
                     });
             });
         }
 
         function _editRecord(rec) {
-            var action = (typeof rec === 'undefined') ? 'adding' : 'editing';
+            var action = (typeof rec === 'undefined') ? 'ADD' : 'UPDATE';
             if (!rec) {
                 rec = {};
             }
             rec = angular.extend(rec, _table.dataFilter);
             return greyscaleModalsSrv.editRec(rec, _table)
                 .then(function (newRec) {
-                    if (action === 'editing') {
+                    if (action === 'UPDATE') {
                         return _tableRestSrv.update(newRec);
                     } else {
                         return _tableRestSrv.add(newRec);
@@ -230,12 +230,7 @@ angular.module('greyscale.tables')
         }
 
         function errorHandler(err, action) {
-            var msg = _table.formTitle;
-            if (action) {
-                msg += ' ' + action;
-            }
-            msg += ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
+            greyscaleUtilsSrv.apiErrorMessage(err, action + '.ERR', _table.formTitle);
         }
 
         return _table;

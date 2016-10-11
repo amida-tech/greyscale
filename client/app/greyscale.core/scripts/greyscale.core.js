@@ -3,5 +3,5 @@
  */
 'use strict';
 
-angular.module('greyscale.core', [])
+angular.module('greyscale.core', ['lodashAngularWrapper', 'inform', 'pascalprecht.translate'])
     .config(function () {});

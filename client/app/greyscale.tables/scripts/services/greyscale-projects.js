@@ -5,8 +5,7 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleProjectsTbl', function ($q, greyscaleGlobals, greyscaleProjectApi, greyscaleProfileSrv,
-        greyscaleOrganizationApi, greyscaleAccessApi,
-        greyscaleModalsSrv, greyscaleUtilsSrv) {
+        greyscaleOrganizationApi, greyscaleAccessApi, greyscaleModalsSrv, greyscaleUtilsSrv) {
 
         var tns = 'PROJECTS.';
 
@@ -157,19 +156,19 @@ angular.module('greyscale.tables')
                 greyscaleProjectApi.delete(project.id)
                     .then(reloadTable)
                     .catch(function (err) {
-                        errHandler(err, 'deleting');
+                        errHandler(err, 'DELETE');
                     });
             });
         }
 
         function _editProject(prj) {
-            var op = 'editing';
+            var op = 'UPDATE';
             greyscaleModalsSrv.editRec(prj, _table)
                 .then(function (newPrj) {
                     if (newPrj.id) {
                         return greyscaleProjectApi.update(newPrj);
                     } else {
-                        op = 'adding';
+                        op = 'ADD';
                         //newPrj.organizationId = _getOrganizationId();
                         return greyscaleProjectApi.add(newPrj);
                     }
@@ -184,9 +183,8 @@ angular.module('greyscale.tables')
             _table.tableParams.reload();
         }
 
-        function errHandler(err, operation) {
-            var msg = _table.formTitle + ' ' + operation + ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
+        function errHandler(err, action) {
+            greyscaleUtilsSrv.apiErrorMessage(err, action, _table.formTitle);
         }
 
         return _table;

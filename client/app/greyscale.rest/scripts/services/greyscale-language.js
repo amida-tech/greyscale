@@ -14,7 +14,7 @@ angular.module('greyscale.rest')
         };
 
         function _api() {
-            return greyscaleRestSrv().one('languages');
+            return greyscaleRestSrv.api().one('languages');
         }
 
         function _prepareData(resp) {

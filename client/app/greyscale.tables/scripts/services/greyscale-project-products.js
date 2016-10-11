@@ -1,16 +1,8 @@
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleProjectProductsTbl', function ($q, _,
-        greyscaleProjectApi,
-        greyscaleSurveyApi,
-        greyscaleProductApi,
-        greyscaleModalsSrv,
-        greyscaleUtilsSrv,
-        greyscaleProductWorkflowApi,
-        greyscaleWorkflowTemplateApi,
-        greyscaleGlobals,
-        $state,
-        inform, i18n, greyscaleProductSrv) {
+    .factory('greyscaleProjectProductsTbl', function ($q, _, greyscaleProjectApi, greyscaleSurveyApi,
+        greyscaleProductApi, greyscaleModalsSrv, greyscaleUtilsSrv, greyscaleProductWorkflowApi, greyscaleGlobals,
+        $state, i18n, greyscaleProductSrv, greyscaleWorkflowTemplateApi) {
 
         var tns = 'PRODUCTS.TABLE.';
 
@@ -229,7 +221,8 @@ angular.module('greyscale.tables')
 
         function _getSurveys() {
             return !_editProductMode ? _dicts.surveys : _.filter(_dicts.surveys, function (survey) {
-                return _editProductMode.surveyId === survey.id || !survey.policyId || !survey.products || !survey.products.length;
+                return _editProductMode.surveyId === survey.id || !survey.policyId || !survey.products ||
+                    !survey.products.length;
             });
         }
 
@@ -242,7 +235,7 @@ angular.module('greyscale.tables')
 
         function _editProduct(product) {
             _editProductMode = product || {};
-            var op = 'editing';
+            var op = 'UPDATE';
             return _loadProductExtendedData(product)
                 .then(function (extendedProduct) {
                     var _editTable = angular.copy(_table);
@@ -252,7 +245,7 @@ angular.module('greyscale.tables')
                     if (newProduct.id) {
                         return greyscaleProductApi.update(newProduct);
                     } else {
-                        op = 'adding';
+                        op = 'ADD';
                         newProduct.matrixId = 4;
                         return greyscaleProductApi.add(newProduct);
                     }
@@ -276,7 +269,7 @@ angular.module('greyscale.tables')
                 greyscaleProductApi.delete(product.id)
                     .then(_reload)
                     .catch(function (err) {
-                        return _errHandler(err, 'delete');
+                        return _errHandler(err, 'DELETE');
                     });
             });
         }
@@ -318,8 +311,7 @@ angular.module('greyscale.tables')
          }
          */
         function _errHandler(err, operation) {
-            var msg = _table.formTitle + ' ' + operation + ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
+            greyscaleUtilsSrv.apiErrorMessage(err, operation, _table.formTitle);
         }
 
         function _loadProductExtendedData(product) {
@@ -421,7 +413,7 @@ angular.module('greyscale.tables')
         }
 
         function _startOrPauseProduct(product) {
-            var op = 'changing status',
+            var op = 'UPDATE',
                 _publishDlg = $q.resolve(false),
                 _product = angular.copy(product),
                 newStatus;
@@ -451,7 +443,7 @@ angular.module('greyscale.tables')
                             }
                         })
                         .catch(function (err) {
-                            return errHandler(err, op);
+                            return _errHandler(err, op);
                         });
                 });
             }
@@ -459,11 +451,6 @@ angular.module('greyscale.tables')
 
         function _showUoaSetting(row) {
             return !row.policy;
-        }
-
-        function errHandler(err, operation) {
-            var msg = _table.formTitle + ' ' + operation + ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
         }
 
         _table.methods = {

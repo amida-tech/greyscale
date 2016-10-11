@@ -3,10 +3,10 @@
 angular.module('greyscale.rest').factory('greyscaleQuestionApi', function (greyscaleRestSrv) {
 
     var _api = function () {
-        return greyscaleRestSrv().one('questions');
+        return greyscaleRestSrv.api().one('questions');
     };
     var _apiSurvey = function () {
-        return greyscaleRestSrv().one('surveys');
+        return greyscaleRestSrv.api().one('surveys');
     };
 
     function _getQuestion(surveyId) {

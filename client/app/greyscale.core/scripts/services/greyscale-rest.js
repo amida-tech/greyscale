@@ -4,18 +4,21 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleRestSrv', function (Restangular, greyscaleTokenSrv, $rootScope, greyscaleEnv, greyscaleRealmSrv) {
-        return function (headers, realm) {
+    .factory('greyscaleRestSrv', function (Restangular, greyscaleTokenSrv, $rootScope, greyscaleEnv,
+        greyscaleRealmSrv, greyscaleUtilsSrv, $q) {
+
+        return {
+            api: _api,
+            errHandler: _errHandler,
+            postProc: _postProc
+        };
+
+        function _api(headers, realm) {
             headers = headers || {};
 
             var aHeaders = {
                 'Content-Type': 'application/json',
                 'Accept-Language': $rootScope.currentLocale
-                    /*,
-                    'If-Modified-Since': 'Mon, 26 Jul 1997 05:00:00 GMT',
-                    'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache'
-                    */
             };
 
             angular.extend(aHeaders, headers);
@@ -42,5 +45,17 @@ angular.module('greyscale.core')
 
                 RestangularConfigurer.setDefaultHeaders(aHeaders);
             });
-        };
+        }
+
+        function _errHandler(err, action, entry) {
+            greyscaleUtilsSrv.apiErrorMessage(err, action, entry);
+            return $q.reject(err);
+        }
+
+        function _postProc(data) {
+            if (data && typeof data.plain === 'function') {
+                data = data.plain();
+            }
+            return data;
+        }
     });

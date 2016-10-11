@@ -971,7 +971,7 @@ module.exports = {
 
                     if (userInRealm.length > 1) {
                         var result = [];
-                        throw new HttpError(300, userInRealm);
+                        throw new HttpError(300, userInRealm, 300);
                     }
 
                     // found just one

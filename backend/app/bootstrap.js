@@ -11,6 +11,7 @@ var config = require('config'),
     _ = require('underscore'),
     sUoa = require('app/services/uoas'),
     HttpError = require('app/error').HttpError,
+    DbError = require('app/error').DbError,
     Query = require('app/util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
@@ -123,6 +124,8 @@ app.on('start', function () {
     app.use(function (err, req, res, next) {
         if (typeof err === 'number') {
             next(new HttpError(err));
+        } else if (err && err.name === 'error'){ // dbError!?
+            next(new DbError(err));
         } else {
             next(err);
         }
@@ -134,11 +137,13 @@ app.on('start', function () {
         if (err) {
             switch (err.name) {
             case 'HttpError':
-                res.status(400).json(err.message);
+                res.status(err.status).json(err.message);
                 return;
-            case 'error':
+            case 'DbError':
+                res.status(err.status).json(err.message);
+                return;
+            case 'error': // obsolete? - ToDo
                 res.status(400).json({
-                    '!': 0,
                     'e': err.code,
                     'message': err.message
                 });
@@ -153,6 +158,7 @@ app.on('start', function () {
                     return;
                 }
             }
+            // otherwise (if err.name is not suitable) use err.message if possible
             if (err.message) {
                 res.status(400).json(err.message);
                 return;
