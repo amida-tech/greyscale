@@ -23,7 +23,10 @@ angular.module('greyscale.tables')
             class: 'full-width',
             cellClass: 'truncate-line',
             sortable: 'title',
-            dataRequired: true
+            dataRequired: true,
+            dataValidate: {
+                maxLength: 80
+            }
         }, {
             show: true,
             dataFormat: 'action',

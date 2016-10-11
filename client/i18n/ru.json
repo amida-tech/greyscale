@@ -258,6 +258,7 @@
     "FORMS": {
         "FIELD_REQUIRED": "Обязательное поле",
         "INVALID_EMAIL": "",
+        "INVALID_MAXLENGTH": "",
         "INVALID_UNIQUE": "",
         "MUST_BE_INT": "",
         "MUST_BE_NUMBER": "",

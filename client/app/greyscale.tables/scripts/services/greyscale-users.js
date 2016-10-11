@@ -39,12 +39,18 @@ angular.module('greyscale.tables')
             title: tns + 'FIRST_NAME',
             show: true,
             sortable: 'firstName',
-            dataRequired: true
+            dataRequired: true,
+            dataValidate: {
+                maxLength: 80
+            }
         }, {
             field: 'lastName',
             title: tns + 'LAST_NAME',
             show: true,
-            sortable: 'lastName'
+            sortable: 'lastName',
+            dataValidate: {
+                maxLength: 80
+            }
         }, {
             field: 'roleID',
             title: tns + 'ROLE',

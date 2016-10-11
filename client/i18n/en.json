@@ -258,6 +258,7 @@
     "FORMS": {
         "FIELD_REQUIRED": "This field is required.",
         "INVALID_EMAIL": "Wrong E-mail format",
+        "INVALID_MAXLENGTH": "Maximum length is {{limit}} symbols.",
         "INVALID_UNIQUE": "{{field}} already in use.",
         "MUST_BE_INT": " Value must be integer.",
         "MUST_BE_NUMBER": " Not a number.",
