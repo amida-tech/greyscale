@@ -2,12 +2,11 @@
  * Created by igi on 10.05.16.
  */
 angular.module('greyscale.wysiwyg')
-    .directive('gsPalette', function ($log) {
+    .directive('gsPalette', function () {
         return {
             restrict: 'AEC',
             scope: {},
-            template: '<div class="palette"><div class="palette-row" ng-repeat="row in model.palette">' +
-                '<div class="palette-item" style="background-color:{{color}};" ng-repeat="color in row"></div></div></div>',
+            templateUrl: 'greyscale.wysiwyg/views/directives/gs-palette.html',
             controller: function ($scope) {
                 $scope.model = {
                     palette: [
@@ -24,7 +23,6 @@ angular.module('greyscale.wysiwyg')
                 $scope.model.palette = [];
 
                 for (_color = 0; _color < colorQty; _color++) {
-                    $log.debug(_color);
                     if ((_color % $scope.model.cols) === 0) {
                         r = $scope.model.palette.length;
                         $scope.model.palette.push([]);
