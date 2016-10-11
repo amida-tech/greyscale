@@ -412,6 +412,9 @@ var exportObject = function  (req, realm) {
         var self = this;
         return co(function* () {
 
+            var sTaskUserState = require('app/services/taskuserstates');
+            var oTaskUserState = new sTaskUserState(req);
+
             var surveyData = _.pick(fullSurveyData, Survey.insertCols);
             var policyData = _.pick(fullSurveyData, Policy.insertCols);
             surveyData.creator = req.user.realmUserId;
@@ -437,6 +440,11 @@ var exportObject = function  (req, realm) {
                 policyData.surveyVersion = surveyVersion[0].surveyVersion;
                 policyData.surveyId = surveyId;
                 yield thunkQuery(Policy.insert(policyData).returning(Policy.star()));
+                // get tasks for survey if exists
+                var tasks = yield self.getAssignedTasks(surveyId);
+                if (tasks && tasks.length > 0) {
+                    yield oTaskUserState.draftToVersion(tasks, policyData.surveyVersion);
+                }
             }
 
             if (Array.isArray(fullSurveyData.questions) && fullSurveyData.questions.length) {
@@ -1057,6 +1065,23 @@ var exportObject = function  (req, realm) {
                     }
                 }
             }
+        });
+    };
+
+    this.getAssignedTasks = function (surveyId) {
+        var self = this;
+        return co(function* () {
+            var query = Task
+                .select(Task.id.distinct())
+                .from(
+                    Task
+                        .leftJoin(SurveyMeta)
+                        .on(SurveyMeta.productId.equals(Task.productId))
+                )
+                .where(SurveyMeta.surveyId.equals(surveyId)
+                );
+            var result = yield thunkQuery(query);
+            return _.first(result) ? _.map(result, function(item){return item.id;}) : [];
         });
     };
 

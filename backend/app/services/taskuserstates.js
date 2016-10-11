@@ -357,5 +357,29 @@ var exportObject = function  (req, realm) {
         //( SELECT max("TUS"."surveyVersion") FROM "TaskUserStates" as "TUS"  WHERE "TaskUserStates"."taskId" = "TUS"."taskId" AND "TaskUserStates"."userId" = "TUS"."userId" GROUP BY "TUS"."taskId" ) as "maxSurveyVersion"
         }
     };
+    this.draftToVersion = function (tasks, version) {
+        var self = this;
+        // change draft task user states to version for specified tasks
+        return co(function* () {
+            var query = TaskUserState
+                .update({
+                    surveyVersion: version,
+                    updatedAt: new Date()
+                })
+                .where(TaskUserState.taskId.in(Array.from(tasks)))
+                .and(TaskUserState.surveyVersion.equals(-1))
+                .returning(TaskUserState.taskId, TaskUserState.userId, TaskUserState.stateId);
+            var result = yield thunkQuery(query);
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'update',
+                object: 'TaskUserStates',
+                entities: result,
+                quantity: result.length,
+                info: 'Change taskUserStates from draft to version for specified tasks'
+            });
+        });
+    };
 };
 module.exports = exportObject;
