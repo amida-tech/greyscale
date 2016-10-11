@@ -32,6 +32,7 @@ var environments = {
             salt: process.env.AUTH_SALT || 'saltForHash'
         },
         allowedDomains: '*', // for CORS
+        MPDB: 'http://localhost:8080/api/v1.0/',
         email: {
             disable: false, // disabling SMTP/email functionality when true (default: false)
             transport: {
@@ -271,8 +272,3 @@ var environments = {
 // Take configuration according to environment
 var nodeEnv = process.env.NODE_ENV || 'development';
 module.exports = environments[nodeEnv] || environments.development;
-
-
-
-
-
