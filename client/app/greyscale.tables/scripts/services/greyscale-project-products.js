@@ -124,12 +124,14 @@ angular.module('greyscale.tables')
                 textLeft: true,
                 dataFormat: 'action',
                 dataHide: true,
-                actions: [{
-                        title: tns + 'UOAS',
-                        class: 'info',
-                        handler: _editProductUoas,
-                        show: _showUoaSetting
-                    }, {
+                actions: [
+                    // {
+                    //     title: tns + 'UOAS',
+                    //     class: 'info',
+                    //     handler: _editProductUoas,
+                    //     show: _showUoaSetting
+                    // },
+                    {
                         title: tns + 'TASKS',
                         class: 'info',
                         handler: _editProductTasks
