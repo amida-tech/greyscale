@@ -22,6 +22,7 @@ angular.module('greyscaleApp')
                 })
             },
             options = {
+                canComment: false,
                 isPolicy: true,
                 isVersion: isVersion,
                 surveyVersion: NaN,
@@ -107,6 +108,7 @@ angular.module('greyscaleApp')
                         uoaId: resp.survey.uoas[0]
                     };
                 }
+                options.canComment = $scope.model.isTaskMode;
                 _separatePolicy(data);
 
                 _title = [data.survey.title];
