@@ -374,9 +374,11 @@
         "TOKEN_SENT": ""
     },
     "MY_TASKS": {
+        "DESCRIPTION": "",
         "FINISHED_TITLE": "",
         "FUTURE_TITLE": "",
         "NO_TASKS": "",
+        "POLICY": "",
         "PRODUCT": "",
         "SURVEY": "",
         "SURVEY_POLICY": "",
