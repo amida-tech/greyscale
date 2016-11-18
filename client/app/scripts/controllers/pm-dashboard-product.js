@@ -35,7 +35,7 @@ angular.module('greyscaleApp')
             }
             greyscaleProjectProductsTbl.methods.fillSurvey();
 
-            $state.ext.productName = product.description;
+            $state.ext.productName = product.survey.title;
             return product;
         });
 

@@ -37,13 +37,12 @@
                 <div class="widget-table" translate-namespace="PRODUCTS.TABLE">
                     <table class="table table-responsive panel">
                         <tr>
+                            <th class="header" translate=".POLICY"></th>
                             <th class="header" translate=".DESCRIPTION"></th>
-                            <th class="header" translate=".SURVEY"></th>
                             <th class="header" translate=".WORKFLOW"></th>
                             <th class="header" translate=".SETTINGS"></th>
                         </tr>
                         <tr>
-                            <td>{{model.product.description}}</td>
                             <td>
                                 <a ng-if="model.product.survey"
                                    ng-click="model.surveyEdit()">
@@ -55,6 +54,7 @@
                                     </small>
                                 </a>
                             </td>
+                            <td>{{model.product.description}}</td>
                             <td>
                                 <a ng-click="editProductWorkflow();">
                                     {{model.product.workflow.name}}
