@@ -6,10 +6,24 @@ angular.module('greyscale.tables')
         var tns = 'SURVEYS.';
 
         var _cols = [{
+            field: 'number',
+            title: tns + 'POLICY_NUMBER',
+            show: true,
+            sortable: 'number',
+            dataRequired: true,
+            dataFormat: 'text'
+        }, {
             field: 'title',
-            title: tns + 'NAME',
+            title: tns + 'TITLE',
             show: true,
             sortable: 'title',
+            dataRequired: true,
+            dataFormat: 'text'
+        }, {
+            field: 'author',
+            title: tns + 'AUTHOR',
+            show: true,
+            sortable: 'author',
             dataRequired: true,
             dataFormat: 'text'
         }, {
@@ -23,6 +37,13 @@ angular.module('greyscale.tables')
             title: tns + 'STATUS',
             show: true,
             cellTemplate: '<span ng-if="cell===-1" class="text-warning" translate="SURVEYS.IS_DRAFT"></span><span ng-if="(cell!==-1)" class="text-success" translate="SURVEYS.IS_COMPLETE"></span>'
+        }, {
+            field: 'created',
+            title: tns + 'LAST_UPDATED',
+            show: true,
+            sortable: 'created',
+            dataRequired: true,
+            dataFormat: 'text'
         }, {
             field: '',
             title: '',
