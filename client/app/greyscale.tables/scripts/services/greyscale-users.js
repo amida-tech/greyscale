@@ -89,13 +89,6 @@ angular.module('greyscale.tables')
                 resendActivation: _resendActivation
             }
         }, {
-            field: 'isAnonymous',
-            title: tns + 'ANONYMOUS',
-            show: true,
-            textCenter: true,
-            sortable: 'isAnonymous',
-            dataFormat: 'boolean'
-        }, {
             show: true,
             title: tns + 'GROUPS',
             cellClass: 'col-sm-2',
