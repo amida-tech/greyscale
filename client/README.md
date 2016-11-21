@@ -21,12 +21,13 @@
 ```
 gem update --system
 gem install compass
-
+brew install memcached
 npm install -g grunt-cli bower yo generator-karma generator-angular
 
 # Go to the client directory and run 
 npm install
 bower install
+
 
 ```
 
@@ -78,7 +79,9 @@ This is the development server configuration. The log to the browser console has
 grunt ngconstant:dev
 ```
 
-
+###*Note about docker
+Sometimes we have error regarding Grunt Docker Configuration
+we could comment out docker configuration in client/Gruntfile.js:38( if(process.platform === 'darwin') {...})
 ###*Note about config switch*
 Switching config will update *greyscale.core.greyscaleEnv* constant (greyscale\app\greyscale.core\scripts\config\greyscale-env.js)
 Please do not update it manually.
@@ -93,6 +96,8 @@ To build, run
 `bower install` 
 
 `grunt build`
+
+`memcached`
 
 To preview, run `grunt serve`
 
