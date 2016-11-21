@@ -7320,8 +7320,8 @@ ALTER TABLE ONLY "SurveyQuestionOptions"
 --
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM sean;
-GRANT ALL ON SCHEMA public TO sean;
+--REVOKE ALL ON SCHEMA public FROM <username>;
+--GRANT ALL ON SCHEMA public TO <username>;
 GRANT ALL ON SCHEMA public TO indabauser;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 

@@ -4,10 +4,30 @@
 ------------
 1. Install Node.js v0.11+ (on Debian/Ubuntu: ```apt-get install nodejs```). 
 2. We recommend using [node version manager](https://github.com/creationix/nvm) ```nvm install 5.0.0```
-3. Install postgres and pgAdmin on your machine
+
 4. Configure the application (rename [config_etalon.js](config_etalon.js) to config.js)
-5. Restore the last db dubmp from /db_dump folder
+
+Set up Database
+. Install postgres and pgAdmin on your machine.  Download at http://postgresapp.com/ and run application.
+5. From the command line: 
+```createuser --createdb indaba-user``` 
+```createdb -U indabauser indaba```
+
+5. Restore the last db dubmp from /db_setup folder
 6. Run all the daily pathes since the last database dump date from /db_dump/patches (since 2015-04-25 all patches are go through the all namespaces except public, so it is not necessary to run patch for each namespace). You also have to set the correct db user inside each patch. The place is marked with comments.
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ```
 # In project root to install dependencies, run:
