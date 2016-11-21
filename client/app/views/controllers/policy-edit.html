@@ -10,7 +10,7 @@
                 <policy-block policy-data="model.policy"></policy-block>
             </div>
 
-            <div class="col-sm-5" ng-if="model.policy.taskId">
+            <div class="col-sm-5" ng-if="model.policy.taskId" fixed-on-scroll="{fitHeight: true}">
                 <rd-widget>
                     <rd-widget-header title="{{'SURVEYS.DISCUSSION' | translate}}"></rd-widget-header>
                     <rd-widget-body classes="group-discussion">
