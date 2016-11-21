@@ -11,14 +11,10 @@ angular.module('greyscale.tables')
             show: true,
             cellTemplateUrl: 'my-tasks-cell-task.html'
         }, {
-            title: tns + 'SURVEY_POLICY',
+            title: tns + 'POLICY',
             show: true,
             cellTemplateUrl: 'my-tasks-cell-survey.html'
 
-        }, {
-            title: tns + 'UOA',
-            show: true,
-            cellTemplateUrl: 'my-tasks-cell-uoa.html'
         }, {
             field: 'startDate',
             sortable: true,
@@ -26,8 +22,7 @@ angular.module('greyscale.tables')
             show: true,
             cellTemplateUrl: 'my-tasks-cell-terms.html'
         }, {
-            // title: tns + 'PRODUCT',
-            title: 'Medical Policy Review',
+            title: tns + 'DESCRIPTION',
             show: true,
             cellTemplateUrl: 'my-tasks-cell-product.html'
         }];
