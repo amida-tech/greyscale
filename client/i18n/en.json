@@ -96,7 +96,7 @@
         "TAG_COMMENT": "Share with...",
         "TITLE": "Make comment",
         "TYPE": "Comment type",
-        "YOU_ANSWERED_ALREADY": "You has been answered.",
+        "YOU_ANSWERED_ALREADY": "You have already responded to this comment and cannot respond again.",
         "YOU_ARE_THE_OWNER": "You are the owner of this comment."
     },
     "COMMON": {
