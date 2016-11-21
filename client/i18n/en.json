@@ -400,6 +400,7 @@
         "INDEX-VISUALIZATION": "Indexes",
         "LOGIN": "Login",
         "LOGOUT": "Logout",
+        "MEDICAL_POLICY_REVIEW": "Medical Policy Review",
         "NOTIFICATIONS": "Notifications",
         "ORGANIZATIONS": "Organizations",
         "PM_PRODUCT_DASHBOARD": "\"{{ext.productName}}\" Project Dashboard",

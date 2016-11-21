@@ -322,7 +322,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             controller: 'ProjectSetupProductsCtrl',
             data: {
                 //name: 'NAV.PROJECTS.PRODUCTS'
-                name: 'NAV.PROJECT_MANAGEMENT',
+                name: 'NAV.MEDICAL_POLICY_REVIEW',
                 icon: 'fa-paper-plane',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
