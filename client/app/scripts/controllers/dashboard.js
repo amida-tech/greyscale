@@ -18,9 +18,8 @@ angular.module('greyscaleApp')
                 lastName: 'Doe'
             },
             messages: [],
-            toggle: false
+            toggle: true
         };
-
         Organization.$watch($scope, function () {
             greyscaleProfileSrv.getProfile().then(function (profile) {
                 _level = greyscaleProfileSrv.getAccessLevelMask();
