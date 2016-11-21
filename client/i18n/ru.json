@@ -398,6 +398,7 @@
         "INDEX-VISUALIZATION": "",
         "LOGIN": "Логин",
         "LOGOUT": "Выход",
+        "MEDICAL_POLICY_REVIEW": "",
         "NOTIFICATIONS": "",
         "ORGANIZATIONS": "Организации",
         "PM_PRODUCT_DASHBOARD": "Панель проекта \"{{ext.productName}}\"",
