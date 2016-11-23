@@ -12,8 +12,8 @@
         <div class="row">
             <div class="col-sm-6">
                 <div class="form-group">
-                    <label for="ctype" class="control-label required" translate="COMMENTS.TYPE"></label>
-                    <select id="ctype" ng-model="model.commentType" class="form-control" required="required"
+                    <label for="ctype" class="control-label" translate="COMMENTS.TYPE"></label>
+                    <select id="ctype" ng-model="model.commentType" class="form-control"
                             ng-options="item.value as item.name  for item in view.commentTypes">
                         <option value="" style="display:none"></option>
                     </select>
