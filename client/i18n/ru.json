@@ -154,6 +154,7 @@
     "DASHBOARD": {
         "PROJECTS": "",
         "ROLE_ADMIN": "",
+        "ROLE_ORG_ADMIN": "",
         "ROLE_SUPERADMIN": "",
         "ROLE_USER": "",
         "TASKS": "",
