@@ -2,7 +2,7 @@
 
 angular.module('greyscaleApp')
     .controller('ModalCommentFullScreenCtrl', function (comment, options, _, $scope, $q,
-        greyscaleCommentApi, greyscaleUtilsSrv, $uibModalInstance, i18n, greyscaleProfileSrv) {
+        greyscaleCommentApi, greyscaleUtilsSrv, $uibModalInstance, i18n, greyscaleProfileSrv, greyscaleUserApi) {
 
         $scope.close = function () {
             $uibModalInstance.dismiss();
@@ -13,7 +13,17 @@ angular.module('greyscaleApp')
             options: options
         };
         $scope.user = {};
-
+        var userList = JSON.parse(comment.tags).users;
+        $scope.users = [];
+        greyscaleUserApi.list()
+            .then(function (profileData) {
+                for(i = 0; i < profileData.length; i++) {
+                    var item = profileData[i];
+                    if(userList.indexOf(item.id) !== -1) {
+                        $scope.users.push(item);
+                    }
+                }
+            })
         var _answers = {
             model: {},
             state: {},

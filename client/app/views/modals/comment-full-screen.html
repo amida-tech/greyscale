@@ -27,6 +27,12 @@
             </div>
         </div>
     </div>
+    <div ng-if="users.length != 0">
+        <h2>Shared by</h2>
+        <p ng-repeat="item in users">
+            {{ item.firstName }} {{ item.lastName }} ({{ item.email }})
+        </p>
+    </div>
 </div>
 <div class="modal-footer">
     <div class="gs-message-answer-form" ng-if="answers.state.adding">
