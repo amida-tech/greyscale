@@ -25,6 +25,7 @@ angular.module('greyscaleApp')
                 $scope.inProgress = [];
 
                 $scope.listVersions = _listVersions;
+                $scope.printPDF = _printPDF;
 
                 var uploader = $scope.uploader = new FileUploader({
                     url: _url,
@@ -80,6 +81,34 @@ angular.module('greyscaleApp')
                 };
 
                 uploader.onWhenAddingFileFailed = _addingFileFailed;
+
+                function _printPDF() {
+                    var pdf = new jsPDF('p', 'pt', 'a4');
+
+                    var specialElementHandlers = {
+                      // element with id of "bypass" - jQuery style selector
+                      '#ignorePDF': function(element, renderer) {
+                        // true = "handled elsewhere, bypass text extraction"
+                        return true;
+                      }
+                    };
+
+                    var html = '<div><b>Policy Title: </b>' + $scope.policyData.title + '</div>';
+                    html += '<div><b>Section: </b>' + $scope.policyData.section + '</div>';
+                    html += '<div><b>Subsection: </b>' + $scope.policyData.subsection + '</div>';
+                    html += '<div><b>Number: </b>' + $scope.policyData.number + '</div>';
+                    html += '<div><b>Author: </b>' + $scope.policyData.authorName + '</div>';
+                    $scope.policyData.sections.forEach(function(element) {
+                        html += '<div><p>' + element.label + '</p>';
+                        html += element.description;
+                        html += '</div>';
+                    })
+                    pdf.fromHTML(html, 20, 20, {
+                        'width': 500,
+                        'elementHandlers': specialElementHandlers
+                    });
+                    pdf.save('policy.pdf');
+                }
 
                 function _modifyEvt() {
                     $scope.$emit(greyscaleGlobals.events.survey.answerDirty);
