@@ -161,7 +161,7 @@ angular.module('greyscale.core')
                     'section_break'
                 ],
                 excludedIndexes: [],
-                policyQty: 8
+                policyQty: 10
             },
             formBuilderSections: [
                 'section_start',
