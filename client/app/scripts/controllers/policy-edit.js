@@ -359,7 +359,7 @@ angular.module('greyscaleApp')
                     type: policyIdx,
                     surveyId: surveyId,
                     label: 'POLICY.SECTION_' + q,
-                    description: ''
+                    description: i18n.translate('POLICY.SECTION_CONTENT' + q)
                 });
             }
         }
