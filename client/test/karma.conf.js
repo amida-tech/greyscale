@@ -67,6 +67,8 @@ module.exports = function(config) {
       'bower_components/textAngular/dist/textAngular.js',
       'bower_components/textAngular/dist/textAngular-sanitize.js',
       'bower_components/textAngular/dist/textAngularSetup.js',
+      'bower_components/jspdf/dist/jspdf.debug.js',
+      'bower_components/html2canvas/build/html2canvas.js',
       // endbower
       ".tmp/l10n/en.js",
       "app/greyscale.core/scripts/greyscale.core.js",
