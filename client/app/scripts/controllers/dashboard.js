@@ -58,6 +58,8 @@ angular.module('greyscaleApp')
                     roleName = 'ROLE_ADMIN';
                 } else if (_isSuperAdmin()) {
                     roleName = 'ROLE_SUPERADMIN';
+                } else if (_isOrgAdmin()) {
+                    roleName = 'ROLE_ORGADMIN';
                 }
                 $scope.model.user.roleName = i18n.translate('DASHBOARD.' + roleName);
             });
@@ -73,6 +75,10 @@ angular.module('greyscaleApp')
 
         function _isAdmin() {
             return (_level & greyscaleGlobals.userRoles.admin.mask) === greyscaleGlobals.userRoles.admin.mask;
+        }
+
+        function _isOrgAdmin() {
+            return (_level & greyscaleGlobals.userRoles.orgAdmin.mask) === greyscaleGlobals.userRoles.orgAdmin.mask;
         }
 
         function _getCustomAccess(customAccess) {

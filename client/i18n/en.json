@@ -154,7 +154,7 @@
     "DASHBOARD": {
         "PROJECTS": "Projects",
         "ROLE_ADMIN": "Admin",
-        "ROLE_ORG_ADMIN": "Organization Admin",
+        "ROLE_ORGADMIN": "Organization Admin",
         "ROLE_SUPERADMIN": "Super User",
         "ROLE_USER": "User",
         "TASKS": "Tasks",
@@ -305,6 +305,7 @@
         "ROLES": {
             "ADMIN": "Super Admin",
             "CLIENT": "Admin",
+            "ORG_ADMIN": "Organizational Admin",
             "USER": "User"
         },
         "UOASTATUS": {

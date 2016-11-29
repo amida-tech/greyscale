@@ -6,16 +6,20 @@ angular.module('greyscale.core')
     .provider('greyscaleSideMenu', function () {
         var menu = {
             title: 'greyscale',
-            groups: [{
-                title: 'NAV.SUPERADMIN_SECTION',
-                states: ['organizations', 'superusers']
-            }, {
-                title: 'NAV.ADMIN_SECTION',
-                states: ['projects.setup.products', 'policy','workflowTemplates',  /*'access', 'uoas', */  /*'orgs', */ 'users']
-            }, {
-                title: 'NAV.CONTENT_SECTION',
-                states: ['profile', 'tasks', 'graph', 'table'] // removed 'visualizations'
-            }]
+            groups: [
+                {
+                    title: 'NAV.SUPERADMIN_SECTION',
+                    states: ['organizations', 'superusers']
+                },
+                {
+                    title: 'NAV.ADMIN_SECTION',
+                    states: ['projects.setup.products', 'policy','workflowTemplates', 'users']
+                },
+                {
+                    title: 'NAV.CONTENT_SECTION',
+                    states: ['profile', 'tasks', 'graph', 'table']
+                }
+            ]
         };
 
         return {
