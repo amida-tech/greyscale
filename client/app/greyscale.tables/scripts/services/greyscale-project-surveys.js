@@ -20,10 +20,10 @@ angular.module('greyscale.tables')
             dataRequired: true,
             dataFormat: 'text'
         }, {
-            field: 'author',
+            field: 'authorName',
             title: tns + 'AUTHOR',
             show: true,
-            sortable: 'author',
+            sortable: 'authorName',
             dataRequired: true,
             dataFormat: 'text'
         }, {
