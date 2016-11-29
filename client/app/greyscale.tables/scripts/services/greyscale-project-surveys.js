@@ -39,11 +39,10 @@ angular.module('greyscale.tables')
             cellTemplate: '<span ng-if="cell===-1" class="text-warning" translate="SURVEYS.IS_DRAFT"></span><span ng-if="(cell!==-1)" class="text-success" translate="SURVEYS.IS_COMPLETE"></span>'
         }, {
             field: 'created',
-            title: tns + 'LAST_UPDATED',
+            title: tns + 'CREATED',
             show: true,
             sortable: 'created',
-            dataRequired: true,
-            dataFormat: 'text'
+            cellTemplate: '{{cell|date:\'short\'}}'
         }, {
             field: '',
             title: '',
