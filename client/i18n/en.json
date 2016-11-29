@@ -479,6 +479,7 @@
         "SELECT_QUESTION": "Question"
     },
     "PM_PRODUCT_DASHBOARD": {
+        "COUNT_APPROVED": "Approved",
         "COUNT_COMPLETE": "Complete",
         "COUNT_DELAYED": "Delayed",
         "COUNT_FLAGGED": "Flagged",

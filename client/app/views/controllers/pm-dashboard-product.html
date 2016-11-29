@@ -3,12 +3,14 @@
         <div class="col-md-9 col-lg-9 col-sm-10 col-xs-10">
             <table class="indicators-table">
               <tr class="indicator-header">
+                  <td><span translate=".COUNT_STARTED"></span></td>
                   <td><span translate=".COUNT_ONTRACK"></span><br></td>
                   <td><span translate=".COUNT_LATE"></span></td>
-                  <td><span translate=".COUNT_FLAGGED">flagged</span></td>
-                  <td><span translate=".COUNT_COMPLETE">complete</span></td>
+                  <td><span translate=".COUNT_FLAGGED"></span></td>
+                  <td><span translate=".COUNT_APPROVED"></span></td>
               </tr>
               <tr class="indicator-values">
+                  <td>&nbsp;<strong>{{model.count.started}}</strong>&nbsp;</td>
                   <td>&nbsp;<strong>{{model.count.onTime}}</strong>&nbsp;</td>
                   <td>&nbsp;<strong>{{model.count.late}}</strong>&nbsp;</td>
                   <td>&nbsp;<strong>{{model.count.flagged}}</strong>&nbsp;</td>
