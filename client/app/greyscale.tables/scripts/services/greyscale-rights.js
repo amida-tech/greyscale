@@ -50,11 +50,11 @@ angular.module('greyscale.tables')
             actions: [{
                 icon: 'fa-pencil',
                 tooltip: 'COMMON.EDIT',
-                handler: _edtRight
+                handler: _editRight
             }, {
                 icon: 'fa-trash',
                 tooltip: 'COMMON.DELETE',
-                handler: delRigth
+                handler: _delRight
             }]
         }];
 
@@ -91,7 +91,7 @@ angular.module('greyscale.tables')
             return _dicts.entityTypes;
         }
 
-        function _edtRight(_right) {
+        function _editRight(_right) {
             var action = 'ADD';
             return greyscaleModalsSrv.editRec(_right, _table)
                 .then(function (newRight) {
@@ -113,7 +113,7 @@ angular.module('greyscale.tables')
             _table.tableParams.reload();
         }
 
-        function delRigth(right) {
+        function _delRight(right) {
             greyscaleModalsSrv.confirm({
                 message: tns + 'DELETE_CONFIRM',
                 right: right,

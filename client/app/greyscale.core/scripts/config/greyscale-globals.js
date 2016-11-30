@@ -86,6 +86,10 @@ angular.module('greyscale.core')
                     //name: 'client',
                     mask: 0x4000
                 },
+                orgAdmin: {
+                    key: 'org_admin',
+                    mask: 0x0808
+                },
                 user: {
                     key: 'user',
                     //name: 'user',

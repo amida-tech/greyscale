@@ -186,7 +186,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.USERS.TITLE',
                 icon: 'fa-users',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.orgAdmin.mask
             },
             views: {
                 'body@dashboard': {
@@ -203,7 +203,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.USERS.LIST',
                 icon: 'fa-users',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.orgAdmin.mask
             }
         })
         .state('usersGroups', {
@@ -234,7 +234,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.IMPORT',
                 icon: 'fa-upload',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.orgAdmin.mask
             }
         })
         .state('uoas', {
@@ -249,7 +249,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.UOAS.TITLE',
                 icon: 'fa-table',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.orgAdmin.mask
             }
         })
         .state('uoasList', {
@@ -260,7 +260,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.UOAS.LIST',
                 icon: 'fa-table',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.orgAdmin.mask
             }
         })
         .state('uoasImport', {
@@ -271,14 +271,14 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.IMPORT',
                 icon: 'fa-upload',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.orgAdmin.mask
             }
         })
         .state('projects', {
             parent: 'home',
             data: {
                 name: null,
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.orgAdmin.mask
             }
         })
         .state('projects.setup', {
@@ -290,7 +290,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.orgAdmin.mask
                     //name: '{{ext.projectName}}'
             }
         })
@@ -300,7 +300,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             controller: 'ProjectSetupSurveysCtrl',
             data: {
                 name: 'NAV.PROJECTS.SURVEYS',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.orgAdmin.mask
             }
         })
         .state('projects.setup.surveys.edit', {
@@ -313,7 +313,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: '{{ext.surveyName}}',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.orgAdmin.mask
             }
         })
         .state('projects.setup.products', {
@@ -324,7 +324,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 //name: 'NAV.PROJECTS.PRODUCTS'
                 name: 'NAV.MEDICAL_POLICY_REVIEW',
                 icon: 'fa-paper-plane',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.orgAdmin.mask
             }
         })
         .state('projects.setup.tasks', {
@@ -338,7 +338,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.PRODUCT_TASKS',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.orgAdmin.mask
             }
         })
         .state('projects.setup.indexes', {
@@ -352,7 +352,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.PRODUCT_INDEXES',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.orgAdmin.mask
             }
         })
         .state('pmProductDashboard', {
@@ -366,24 +366,9 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.PM_PRODUCT_DASHBOARD',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
+                accessLevel: systemRoles.any.mask
             }
         })
-        //.state('orgs', {
-        //    parent: 'home',
-        //    url: 'organizations',
-        //    views: {
-        //        'body@dashboard': {
-        //            templateUrl: 'views/controllers/organizations.html',
-        //            controller: 'OrganizationsCtrl'
-        //        }
-        //    },
-        //    data: {
-        //        name: 'NAV.ORGANIZATIONS',
-        //        icon: 'fa-university',
-        //        accessLevel: systemRoles.superAdmin.mask
-        //    }
-        //})
         .state('profile', {
             parent: 'home',
             url: 'profile',
@@ -396,7 +381,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.PROFILE',
                 icon: 'fa-user',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
+                accessLevel: systemRoles.any.mask
             }
         })
         .state('tasks', {
@@ -411,7 +396,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.TASKS',
                 icon: 'fa-tasks',
-                accessLevel: systemRoles.admin.mask | systemRoles.user.mask
+                accessLevel: systemRoles.admin.mask | systemRoles.user.mask | systemRoles.orgAdmin.mask
             }
         })
         /*.state('visualization', {
@@ -486,7 +471,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.VISUALIZATIONS',
                 icon: 'fa-globe',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.orgAdmin.mask
             }
         })
         .state('visualization', {
@@ -557,7 +542,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.POLICY.TITLE',
                 icon: 'fa-file',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask,
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.orgAdmin.mask,
                 customAccess: {
                     enableFeaturePolicy: true
                 }
@@ -575,7 +560,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.POLICY.EDIT',
                 icon: 'fa-pencil',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.orgAdmin.mask
             }
         })
         .state('policy.review', {
@@ -620,7 +605,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.WORKFLOW_TEMPLATES',
                 icon: 'fa-road',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.orgAdmin.mask
             }
         });
 
