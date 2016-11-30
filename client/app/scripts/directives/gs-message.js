@@ -134,7 +134,7 @@ angular.module('greyscaleApp')
 
             if (_section.length) {
                 _section = angular.element(_section[0]);
-                _sectionContainer = _section.find('#Q' + scope.model.questionId);
+                _sectionContainer = _section.find('#Q' + scope.model.questionId).find('.ta-bind');
                 startNode = greyscaleSelection.restore(_sectionContainer[0], range);
                 _html = greyscaleSelection.html(true);
 
