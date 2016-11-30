@@ -47,6 +47,7 @@ var exportObject = function  (req, realm) {
             return yield thunkQuery(
                 'SELECT ' +
                 '    "Surveys".*, ' +
+                '    "Users"."firstName" || "Users"."lastName" as "authorName", ' +
                 '    "Policies"."id" AS "policyId", ' +
                 '    "Policies"."section", ' +
                 '    "Policies"."subsection", ' +
@@ -79,6 +80,8 @@ var exportObject = function  (req, realm) {
                 'ON ("SurveyMeta"."surveyId" = "Surveys"."id") ' +
                 'LEFT JOIN "Policies" ' +
                 'ON ("Surveys"."id" = "Policies"."surveyId")' +
+                'LEFT JOIN "Users" ' +
+                'ON ("Users"."id" = "Policies"."author") ' +
                 'AND ("Surveys"."surveyVersion" = "Policies"."surveyVersion")'
             );
         });
