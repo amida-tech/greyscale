@@ -73,7 +73,10 @@ angular.module('greyscale.rest')
         }
 
         function _getHref(survey) {
-            return greyscaleUtilsSrv.getApiBase() + '/surveys/' + survey.id + '/savedocx/' + survey.surveyVersion;
+            if(survey['isFinal'])
+                return greyscaleUtilsSrv.getApiBase() + '/surveys/' + survey.id + '/savedocx/' + survey.surveyVersion + '/final';
+            else
+                return greyscaleUtilsSrv.getApiBase() + '/surveys/' + survey.id + '/savedocx/' + survey.surveyVersion;
         }
 
         function _getVersionUsers(surveyId, version, params) {

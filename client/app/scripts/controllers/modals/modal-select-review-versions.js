@@ -1,14 +1,14 @@
 'use strict';
 angular.module('greyscaleApp')
-    .controller('ModalSelectReviewVersionsCtrl', function ($scope, $uibModalInstance, greyscaleSurveyApi, survey, mode,
+    .controller('ModalSelectReviewVersionsCtrl', function ($scope, $uibModalInstance, greyscaleSurveyApi, survey, mode, status, 
         greyscaleUsers, $q, $timeout) {
         $scope.model = {
             selected: -1,
             survey: survey,
             versions: [],
-            mode: mode
+            mode: mode,
+            status: status
         };
-
         _getData(survey);
 
         $scope.close = function () {
@@ -51,6 +51,13 @@ angular.module('greyscaleApp')
                         list[i].created = new Date(list[i].created);
                         list[i].creator = list[i].creator || {};
                         greyscaleUsers.setFullName(list[i].creator);
+                    }
+                    if($scope.model.status == 3 && list.length > 0) //Project is Complete & Adding Final Version
+                    {
+                        if (list[list.length - 1]['isFinal'] != true) {
+                            list.push(angular.copy(list[list.length - 1]));
+                            list[list.length - 1]['isFinal'] = true;
+                        }
                     }
 
                     $scope.model.versions = list;

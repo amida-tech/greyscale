@@ -306,7 +306,7 @@ angular.module('greyscaleApp')
             }).result;
         }
 
-        function _selectPolicyVersion(survey, _mode) {
+        function _selectPolicyVersion(survey, _mode, status) {
             return $uibModal.open({
                 templateUrl: 'views/modals/select-policy-version.html',
                 controller: 'ModalSelectReviewVersionsCtrl',
@@ -314,7 +314,8 @@ angular.module('greyscaleApp')
                 windowClass: 'modal fade in',
                 resolve: {
                     survey: survey,
-                    mode: _mode
+                    mode: _mode,
+                    status: status
                 }
             }).result;
         }

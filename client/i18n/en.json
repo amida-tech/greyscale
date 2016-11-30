@@ -916,6 +916,7 @@
     },
     "VERSIONS": {
         "DOWNLOAD": "Download version of '{{title}}'",
+        "FINAL": "Final",
         "REVIEW": "review",
         "SELECT": "Select version of '{{title}}'",
         "VERSION": "Version",

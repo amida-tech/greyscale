@@ -902,12 +902,14 @@ var exportObject = function  (req, realm) {
         });
     };
 
-    this.createPolicyFile = function (survey, path) {
+    this.createPolicyFile = function (survey, path, isFinal) {
         var self = this;
-        var oUser = new sUser(req);
-        var sComment = require('app/services/comments');
-        var oComment = new sComment(req);
-
+        var oUser, sComment, oComment;
+        if(!isFinal) {
+            oUser = new sUser(req);
+            sComment = require('app/services/comments');
+            oComment = new sComment(req);
+        }
         return co(function* () {
 
             // html header & footer
@@ -939,78 +941,80 @@ var exportObject = function  (req, realm) {
                 '<tr><td>TYPE</td><td>Medical Policy</td></tr>' +
                 '<tr><td>AUTHOR</td><td>' + authorName + '</td></tr>' +
                 '</table>';
-            var comments = yield oComment.getComments({surveyId: survey.id}, null, null, null, null, survey.surveyVersion);
-            var commentAnswers;
-            var commentsContent = comments.length ? '<hr/><h1>COMMENTS</h1>' : '';
+            var commentsContent = '';
+            if(!isFinal) {
+                var comments = yield oComment.getComments({surveyId: survey.id}, null, null, null, null, survey.surveyVersion);
+                var commentAnswers;
+                commentsContent = comments.length ? '<hr/><h1>COMMENTS</h1>' : '';
 
-            if (_.first(survey.questions)) {
-                for (var i in survey.questions) {
-                    if (survey.questions[i].type == 14) {
-                        var existHeader = false;
+                if (_.first(survey.questions)) {
+                    for (var i in survey.questions) {
+                        if (survey.questions[i].type == 14) {
+                            var existHeader = false;
 
-                        for (var j in comments) {
-                            if (comments[j].questionId == survey.questions[i].id) {
-                                if (!existHeader) {
-                                    commentsContent += '<h2>' + survey.questions[i].label + '</h2>';
-                                    existHeader = true;
-                                }
-                                var comment = '';
-                                var commentAuthor = yield oUser.getById(comments[j].userFromId);
-
-                                if (comments[j].range) {
-                                    try {
-                                        comments[j].range = JSON.parse(comments[j].range);
-                                    } catch (err) {
-                                        console.log(err);
-                                        comments[j].range = {};
+                            for (var j in comments) {
+                                if (comments[j].questionId == survey.questions[i].id) {
+                                    if (!existHeader) {
+                                        commentsContent += '<h2>' + survey.questions[i].label + '</h2>';
+                                        existHeader = true;
                                     }
-                                    if (comments[j].range.entry) {
-                                        comment +=
-                                            '<font color="#a9a9a9"><b><i>&laquo;'
-                                            + comments[j].range.entry.replace(/(<([^>]+)>)/ig, "")
-                                            + '&raquo;</i></b></font><br/>';
+                                    var comment = '';
+                                    var commentAuthor = yield oUser.getById(comments[j].userFromId);
+
+                                    if (comments[j].range) {
+                                        try {
+                                            comments[j].range = JSON.parse(comments[j].range);
+                                        } catch (err) {
+                                            console.log(err);
+                                            comments[j].range = {};
+                                        }
+                                        if (comments[j].range.entry) {
+                                            comment +=
+                                                '<font color="#a9a9a9"><b><i>&laquo;'
+                                                + comments[j].range.entry.replace(/(<([^>]+)>)/ig, "")
+                                                + '&raquo;</i></b></font><br/>';
+                                        }
                                     }
+
+                                    var authorStr = ' by ' + _fullName(commentAuthor);
+                                    var dateStr = moment(comments[j].created).format('MM/DD/YYYY HH:mm');
+                                    _idx++;
+                                    _ancor_id = 'rem' + comments[j].id;
+                                    commentsContent +=
+                                        '<p><sup><a name="' + _ancor_id + '" href="#b' + _ancor_id + '">'
+                                        + _idx + '</a></sup> (' + dateStr + authorStr + ')<br/>'
+                                        + comment
+                                        + comments[j].entry
+                                        + '</p>';
+
+                                    commentAnswers = yield oComment.getAnswerComments({},
+                                        comments[j].id,
+                                        null,
+                                        null,
+                                        survey.surveyVersion);
+
+                                    for (var k in commentAnswers) {
+                                        commentAuthor = yield oUser.getById(commentAnswers[k].userFromId);
+                                        dateStr = moment(commentAnswers[k].created).format('MM/DD/YYYY HH:mm');
+                                        authorStr = _fullName(commentAuthor);
+                                        commentsContent += '<p>(' + dateStr +'  ' + authorStr + ' '
+                                            + (commentAnswers[k].isAgree ? 'agreed' : 'disagreed')
+                                            + ')<br/>'
+                                            + commentAnswers[k].entry.replace(/(<([^>]+)>)/ig, "");
+                                    }
+
+                                    commentsContent += '<hr/>';
+
+                                    _linkComment(survey.questions[i], comments[j], _idx);
                                 }
-
-                                var authorStr = ' by ' + _fullName(commentAuthor);
-                                var dateStr = moment(comments[j].created).format('MM/DD/YYYY HH:mm');
-                                _idx++;
-                                _ancor_id = 'rem' + comments[j].id;
-                                commentsContent +=
-                                    '<p><sup><a name="' + _ancor_id + '" href="#b' + _ancor_id + '">'
-                                    + _idx + '</a></sup> (' + dateStr + authorStr + ')<br/>'
-                                    + comment
-                                    + comments[j].entry
-                                    + '</p>';
-
-                                commentAnswers = yield oComment.getAnswerComments({},
-                                    comments[j].id,
-                                    null,
-                                    null,
-                                    survey.surveyVersion);
-
-                                for (var k in commentAnswers) {
-                                    commentAuthor = yield oUser.getById(commentAnswers[k].userFromId);
-                                    dateStr = moment(commentAnswers[k].created).format('MM/DD/YYYY HH:mm');
-                                    authorStr = _fullName(commentAuthor);
-                                    commentsContent += '<p>(' + dateStr +'  ' + authorStr + ' '
-                                        + (commentAnswers[k].isAgree ? 'agreed' : 'disagreed')
-                                        + ')<br/>'
-                                        + commentAnswers[k].entry.replace(/(<([^>]+)>)/ig, "");
-                                }
-
-                                commentsContent += '<hr/>';
-
-                                _linkComment(survey.questions[i], comments[j], _idx);
                             }
-                        }
 
-                        content += '<p><h1>' + survey.questions[i].label + '</h1></p><p>'
-                            + survey.questions[i].description + '</p>';
+                            content += '<p><h1>' + survey.questions[i].label + '</h1></p><p>'
+                                + survey.questions[i].description + '</p>';
+                        }
                     }
                 }
             }
-
             content += commentsContent;
             content += htmlFooter;
             content = self._preHtml(content);
@@ -1257,8 +1261,9 @@ var exportObject = function  (req, realm) {
            );
         });
     };
-
-    this.policyToDocx = function (surveyId, version) {
+    
+    this.policyToDocx = function (surveyId, version, isFinal) {
+        isFinal = typeof isFinal !== 'undefined' ? isFinal : false;
         var self = this;
         var path = 'survey_' + surveyId + '_v' + version + '_' + Date.now();
         var tmp_dir = 'tmp/' + path;
@@ -1283,7 +1288,7 @@ var exportObject = function  (req, realm) {
 
                 if (survey.policyId) {
                     console.log('PRE----->>>>>');
-                    yield self.createPolicyFile(survey, tmp_dir);
+                    yield self.createPolicyFile(survey, tmp_dir, isFinal);
                     console.log('POST----->>>>>');
 
                     if (policyAttach.length) {
