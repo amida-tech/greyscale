@@ -18,21 +18,21 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="section" class="col-sm-4 control-label" translate="POLICY.SECTION"></label>
+            <label for="section" class="required col-sm-4 control-label" translate="POLICY.SECTION"></label>
 
             <div class="col-sm-8">
                 <p class="form-control-static" ng-show="policyData.options.readonly">{{policyData.section}}</p>
-                <input type="text" class="form-control" name="section" id="section" ng-model="policyData.section"
+                <input type="text" class="form-control" ng-required="true" name="section" id="section" ng-model="policyData.section"
                        ng-hide="policyData.options.readonly"/>
             </div>
         </div>
 
         <div class="form-group">
-            <label class="col-sm-4 control-label" translate="POLICY.SUBSECTION"></label>
+            <label class="required col-sm-4 control-label" translate="POLICY.SUBSECTION"></label>
 
             <div class="col-sm-8">
                 <p class="form-control-static" ng-show="policyData.options.readonly">{{policyData.subsection}}</p>
-                <input type="text" class="form-control" name="subsection" id="subsection"
+                <input type="text" class="form-control" ng-required="true" name="subsection" id="subsection"
                        ng-model="policyData.subsection" ng-hide="policyData.options.readonly"/>
             </div>
         </div>
