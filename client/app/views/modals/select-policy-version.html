@@ -8,7 +8,7 @@
            ng-class="{'active': $index == model.selected}"
            ng-click="model.selected = $index"
            ng-repeat="version in model.versions track by $index"><span>
-            <span translate=".VERSION"></span> {{version.surveyVersion}} -
+            <span ng-if="version.isFinal"><span translate=".FINAL"></span> </span><span translate=".VERSION"></span> <span ng-if="!version.isFinal">{{version.surveyVersion}}</span> -
             {{version.creator.fullName}}'s <span translate=".REVIEW"></span>
             <span class="pull-right">{{version.created|date:'short'}}</span>
         </span>

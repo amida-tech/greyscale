@@ -126,6 +126,51 @@ module.exports = {
         }
     },
 
+    policyToDocxFinal: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            var oSurvey = new sSurvey(req);
+            return yield oSurvey.policyToDocx(req.params.id, req.params.version, true);
+
+        }).then(function (archPath) {
+            var filename = archPath.substr(
+                archPath.indexOf('/') + 1,
+                archPath.lastIndexOf('_') - archPath.indexOf('/') - 1);
+            var archive = archiver.create('zip', {});
+            var writeStream = fs.createWriteStream(archPath + '.zip');
+
+            archive.on('error', function(err){
+                console.log(err);
+            });
+
+            archive.on('end', function() {
+                var readStream = fs.createReadStream(archPath + '.zip');
+                res.attachment(filename + '.zip');
+                readStream.pipe(res);
+
+                readStream.on('end', function() {
+                    exec('rm -r ' + archPath, function (err, stdout, stderr) {
+                       // console.log('after rm ', err);
+                    });
+                    exec('rm ' + archPath + '.zip', function (err, stdout, stderr) {
+                       // console.log('after rm ', err);
+                    });
+                });
+            });
+
+            archive.pipe(writeStream);
+
+            archive.bulk([
+                { expand: true, cwd: archPath, src: ['**']}
+            ]);
+
+            archive.finalize();
+
+        }, function (err) {
+            next(err);
+        });
+    },
+
     policyToDocx: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {

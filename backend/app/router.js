@@ -261,6 +261,9 @@ router.route('/:realm/v0.2/products/:ticket/export.csv')
 router.route('/:realm/v0.2/surveys/:id/savedocx/:version')
     .get( /*authenticate('token').always,*/ surveys.policyToDocx);
 
+router.route('/:realm/v0.2/surveys/:id/savedocx/:version/final')
+    .get( /*authenticate('token').always,*/ surveys.policyToDocxFinal);
+
 
 router.route('/:realm/v0.2/products/:id/export_ticket')
     .get( /*authenticate('token').always,*/ products.getTicket);
