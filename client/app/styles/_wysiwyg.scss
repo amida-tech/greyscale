@@ -123,8 +123,19 @@ $dropdown-link-active-bg: $component-active-bg;
     }
 }
 
-.ta-toolbar .btn {
-    padding: 0 6px;
+.ta-toolbar {
+    .text-black {
+        color: black;
+    }
+    .text-blue {
+        color: blue;
+    }
+    .text-yellow {
+        color: #ffff00;
+    }
+    .btn {
+        padding: 0 6px;
+    }
 }
 
 .ta-text {

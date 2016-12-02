@@ -5,7 +5,7 @@
 angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(function ($provide) {
     $provide.decorator('taOptions', ['taRegisterTool', 'taSelection', '_', '$delegate',
         function (taRegisterTool, taSelection, _, taOptions) {
-            var _red = '#ff0000';
+            var _red = '#ff0000', _black = '#000000', _blue = "#0000ff", _yellow = "#ffff00";
 
             taRegisterTool('markRed', {
                 iconclass: 'fa fa-square text-danger',
@@ -26,6 +26,78 @@ angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(func
                         res = elem.attr('color') === _red ||
                             elem.attr('color') === 'red' ||
                             elem.css('color') === 'rgb(255, 0, 0)';
+                    }
+                    return res;
+                }
+            });
+
+            taRegisterTool('markBlack', {
+                iconclass: 'fa fa-square text-black',
+                tooltiptext: 'Mark Black',
+                action: function () {
+                    if (this.active) {
+                        this.$editor().wrapSelection('removeFormat', 'foreColor');
+                    } else {
+                        this.$editor().wrapSelection('foreColor', _black);
+                    }
+                },
+                activeState: function (elem) {
+                    var res = false;
+                    if (elem && elem.nodeName === '#document') {
+                        return false;
+                    }
+                    if (elem) {
+                        res = elem.attr('color') === _black ||
+                            elem.attr('color') === 'black' ||
+                            elem.css('color') === 'rgb(0, 0, 0)';
+                    }
+                    return res;
+                }
+            });
+
+            taRegisterTool('markBlue', {
+                iconclass: 'fa fa-square text-blue',
+                tooltiptext: 'Mark Blue',
+                action: function () {
+                    if (this.active) {
+                        this.$editor().wrapSelection('removeFormat', 'foreColor');
+                    } else {
+                        this.$editor().wrapSelection('foreColor', _blue);
+                    }
+                },
+                activeState: function (elem) {
+                    var res = false;
+                    if (elem && elem.nodeName === '#document') {
+                        return false;
+                    }
+                    if (elem) {
+                        res = elem.attr('color') === _blue ||
+                            elem.attr('color') === 'blue' ||
+                            elem.css('color') === 'rgb(0, 0, 255)';
+                    }
+                    return res;
+                }
+            });
+
+            taRegisterTool('markYellow', {
+                iconclass: 'fa fa-square text-yellow',
+                tooltiptext: 'Mark Yellow',
+                action: function () {
+                    if (this.active) {
+                        this.$editor().wrapSelection('removeFormat', 'foreColor');
+                    } else {
+                        this.$editor().wrapSelection('foreColor', _yellow);
+                    }
+                },
+                activeState: function (elem) {
+                    var res = false;
+                    if (elem && elem.nodeName === '#document') {
+                        return false;
+                    }
+                    if (elem) {
+                        res = elem.attr('color') === _yellow ||
+                            elem.attr('color') === 'blue' ||
+                            elem.css('color') === 'rgb(255, 255, 0)';
                     }
                     return res;
                 }
@@ -142,7 +214,8 @@ angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(func
              */
             taOptions.toolbar = [
                 ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-                ['markRed', 'bold', 'italics', 'underline', 'strikeThrough'],
+                ['markBlack', 'markRed', 'markBlue', 'markYellow'],
+                ['bold', 'italics', 'underline', 'strikeThrough'],
                 ['ul', 'olType'],
                 ['redo', 'undo', 'clear']
             ];
