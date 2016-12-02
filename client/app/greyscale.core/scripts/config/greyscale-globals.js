@@ -41,6 +41,29 @@ angular.module('greyscale.core')
                 id: 1,
                 name: 'ACTIVE'
             }],
+            productDescription: [{
+                id: 0,
+                name: 'FULL_UPDATE'
+            }, {
+                id: 1,
+                name: 'BRIEF_UPDATE'
+            }, {
+                id: 2,
+                name: 'REVIEW_ONLY'
+            }, {
+                id: 3,
+                name: 'SHORT_REVIEW'
+            }, {
+                id: 4,
+                name: 'NEW_POLICY'
+            }, {
+                id: 5,
+                name: 'INACTIVATED'
+            }, {
+                id: 6,
+                name: 'PARTIAL_UPDATE'
+            }
+            ],
             productStates: [{
                 id: 0,
                 name: 'PLANNING'

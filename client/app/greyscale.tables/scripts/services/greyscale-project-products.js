@@ -66,8 +66,16 @@ angular.module('greyscale.tables')
                 field: 'description',
                 title: tns + 'DESCRIPTION',
                 show: true,
-                dataRequired: true,
-                dataFormat: 'textarea'
+                dataFormat: 'option',
+                cellTemplate: '{{ext.getDescriptionVal(row.description)}}',
+                cellTemplateExtData: {
+                    getDescriptionVal: _getDescriptionVal,
+                },
+                dataSet: {
+                    getData: _getDescription,
+                    keyField: 'id',
+                    valField: 'name'
+                }
             }, {
                 sortable: 'workflow.name',
                 title: tns + 'WORKFLOW',
@@ -176,13 +184,19 @@ angular.module('greyscale.tables')
         //     return _table.dataFilter.projectId;
         // }
 
+        function _getDescriptionVal(value) {
+            value = isNaN(value)?value:parseInt(value);
+            var template = _.find(greyscaleGlobals.productDescription, {
+                id: value
+            });
+            return template==undefined ? value : i18n.translate(template.name);
+        }
         function _getWorkflowTemplateName(row) {
             var template = _.find(_dicts.workflowTemplates, {
                 id: row.workflowTemplateId
             });
             return template ? template.workflow.name : i18n.translate(tns + 'CREATE_WORKFLOW');
         }
-
         function _getData() {
             // var projectId = _getProjectId();
             // if (!projectId) {
@@ -221,7 +235,9 @@ angular.module('greyscale.tables')
         function _getStatus() {
             return greyscaleGlobals.productStates;
         }
-
+        function _getDescription() {
+            return greyscaleGlobals.productDescription;
+        }
         function _getSurveys() {
             return !_editProductMode ? _dicts.surveys : _.filter(_dicts.surveys, function (survey) {
                 return _editProductMode.surveyId === survey.id || !survey.policyId || !survey.products ||
