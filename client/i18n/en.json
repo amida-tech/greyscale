@@ -286,6 +286,15 @@
             "PENDING": "Pending",
             "STARTED": "Started"
         },
+        "PRODUCTDESCRIPTION": {
+            "BRIEF_UPDATE": "Brief Update",
+            "FULL_UPDATE": "Full Update",
+            "INACTIVATED": "Inactivated",
+            "NEW_POLICY": "New Policy",
+            "PARTIAL_UPDATE": "Partial Update",
+            "REVIEW_ONLY": "Review Only",
+            "SHORT_REVIEW": "Short Review"
+        },
         "PRODUCTSTATES": {
             "CANCELLED": "Cancelled",
             "COMPLETED": "Completed",
