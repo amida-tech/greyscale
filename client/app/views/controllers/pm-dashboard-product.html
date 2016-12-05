@@ -50,10 +50,6 @@
                                    ng-click="model.surveyEdit()">
                                     <i class="fa" ng-class="{'fa-list': !model.survey.policyId, 'fa-file': model.survey.policyId}"></i>
                                     {{model.survey.title}}
-                                    <small>
-                                        (<span ng-show="model.survey.surveyVersion===-1" translate="SURVEYS.IS_DRAFT">
-                                        </span><span ng-show="model.survey.surveyVersion!==-1" translate="SURVEYS.IS_COMPLETE"></span>)
-                                    </small>
                                 </a>
                             </td>
                             <td>{{model.product.description}}</td>
