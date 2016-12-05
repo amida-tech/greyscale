@@ -58,7 +58,7 @@ angular.module('greyscale.tables')
             icon: 'fa-road',
             cols: _fields,
             sorting: {
-                id: 'asc'
+                'workflow.name': 'asc'
             },
             dataPromise: getData,
             dataFilter: {},
