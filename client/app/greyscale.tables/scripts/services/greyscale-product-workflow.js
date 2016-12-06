@@ -22,13 +22,6 @@ angular.module('greyscale.tables')
                 dataFormat: 'text',
                 showDataInput: true
             },
-            role: {
-                field: 'role',
-                title: tns + 'ROLE',
-                showDataInput: true,
-                show: true,
-                dataFormat: 'text'
-            },
             startDate: {
                 field: 'startDate',
                 title: tns + 'START_DATE',
