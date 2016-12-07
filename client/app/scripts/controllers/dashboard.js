@@ -26,6 +26,7 @@ angular.module('greyscaleApp')
                 var _groups = [];
 
                 $scope.model.user = profile;
+                $rootScope.user = profile;
                 for (var g = 0; g < greyscaleSideMenu.groups.length; g++) {
                     var _items = [];
                     var _group = greyscaleSideMenu.groups[g];

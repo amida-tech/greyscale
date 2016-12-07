@@ -21,9 +21,8 @@ angular.module('greyscaleApp')
                 var _isAdmin = greyscaleProfileSrv.isAdmin();
                 $scope.isEdit = false;
                 $scope.entry = '';
-
                 $scope.getUserName = function (userId) {
-                    return _getUserName(userId || $scope.model.userFromId);
+                    return $scope.model.fromUserFullName || _getUserName(userId || $scope.model.userFromId);
                 };
 
                 $scope.model.created = $scope.model.created ? $scope.model.created : new Date();

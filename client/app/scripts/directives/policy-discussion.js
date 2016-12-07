@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('policyDiscussion', function ($q, greyscaleGlobals, greyscaleCommentApi, greyscaleUtilsSrv,
+    .directive('policyDiscussion', function ($q, $rootScope, greyscaleGlobals, greyscaleCommentApi, greyscaleUtilsSrv,
         greyscaleModalsSrv, greyscaleProfileSrv, i18n, _, $sanitize) {
 
         return {
@@ -61,6 +61,8 @@ angular.module('greyscaleApp')
                     _newComment.tags = greyscaleUtilsSrv.getTagsPostData(commentBody.tag);
                     _newComment.activated = !isDraft;
 
+                    _newComment.fromUserFullName = _newComment.fromUserFullName=="Anonymous "?$rootScope.user.firstName+' '+$rootScope.user.lastName:_newComment.fromUserFullName;
+                    _newComment.userFromId = _newComment.userFromId==undefined?$rootScope.user.id:_newComment.userFromId;
                     if (_newComment.id) {
                         res = greyscaleCommentApi.update(_newComment.id, _newComment)
                             .then(function () {
