@@ -206,29 +206,6 @@ angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(func
                 }
             });
 
-            taRegisterTool('tableType', {
-                iconclass: 'fa fa-square table-type',
-                tooltiptext: 'Table',
-                action: function () {
-                    if (this.active) {
-                        this.$editor().wrapSelection('removeFormat', 'foreColor');
-                    } else {
-                        this.$editor().wrapSelection('foreColor', _yellow);
-                    }
-                },
-                activeState: function (elem) {
-                    var res = false;
-                    if (elem && elem.nodeName === '#document') {
-                        return false;
-                    }
-                    if (elem) {
-                        res = elem.attr('color') === _yellow ||
-                            elem.attr('color') === 'blue' ||
-                            elem.css('color') === 'rgb(255, 255, 0)';
-                    }
-                    return res;
-                }
-            });
             /*
              toolbar: [
              ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'pre', 'quote'],
@@ -242,7 +219,6 @@ angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(func
                 ['markBlack', 'markRed', 'markBlue', 'markGreen'],
                 ['bold', 'italics', 'underline', 'strikeThrough'],
                 ['ul', 'olType'],
-                ['tableType'],
                 ['redo', 'undo', 'clear']
             ];
 
