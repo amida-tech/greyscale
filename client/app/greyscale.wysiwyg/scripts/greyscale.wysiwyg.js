@@ -5,7 +5,7 @@
 angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(function ($provide) {
     $provide.decorator('taOptions', ['taRegisterTool', 'taSelection', '_', '$delegate',
         function (taRegisterTool, taSelection, _, taOptions) {
-            var _red = '#ff0000', _black = '#000000', _blue = "#0000ff", _yellow = "#ffff00";
+            var _red = '#ff0000', _black = '#000000', _blue = "#0000ff", _green = "#00ff00";
 
             taRegisterTool('markRed', {
                 iconclass: 'fa fa-square text-danger',
@@ -79,14 +79,14 @@ angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(func
                 }
             });
 
-            taRegisterTool('markYellow', {
-                iconclass: 'fa fa-square text-yellow',
-                tooltiptext: 'Mark Yellow',
+            taRegisterTool('markGreen', {
+                iconclass: 'fa fa-square text-green',
+                tooltiptext: 'Mark Green',
                 action: function () {
                     if (this.active) {
                         this.$editor().wrapSelection('removeFormat', 'foreColor');
                     } else {
-                        this.$editor().wrapSelection('foreColor', _yellow);
+                        this.$editor().wrapSelection('foreColor', _green);
                     }
                 },
                 activeState: function (elem) {
@@ -95,9 +95,9 @@ angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(func
                         return false;
                     }
                     if (elem) {
-                        res = elem.attr('color') === _yellow ||
-                            elem.attr('color') === 'blue' ||
-                            elem.css('color') === 'rgb(255, 255, 0)';
+                        res = elem.attr('color') === _green ||
+                            elem.attr('color') === 'green' ||
+                            elem.css('color') === 'rgb(0, 255, 0)';
                     }
                     return res;
                 }
@@ -105,27 +105,29 @@ angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(func
 
             taRegisterTool('olType', {
                 display: '<gs-ol-types class="bar-btn-dropdown dropdown"></gs-ol-types>',
-                options: [{
-                    key: '1',
-                    title: '1,2,3...',
-                    hint: 'indicates numbers (default)'
-                }, {
-                    key: 'a',
-                    title: 'a,b,c...',
-                    hint: 'indicates lowercase letters'
-                }, {
-                    key: 'A',
-                    title: 'A,B,C...',
-                    hint: 'indicates uppercase letters'
-                }, {
-                    key: 'i',
-                    title: 'i,ii,iii...',
-                    hint: 'indicates lowercase Roman numerals'
-                }, {
-                    key: 'I',
-                    title: 'I,II,III...',
-                    hint: 'indicates uppercase Roman numerals'
-                }],
+                options: [
+                    {
+                        key: '1',
+                        title: '1,2,3...',
+                        hint: 'indicates numbers (default)'
+                    }, {
+                        key: 'a',
+                        title: 'a,b,c...',
+                        hint: 'indicates lowercase letters'
+                    }, {
+                        key: 'A',
+                        title: 'A,B,C...',
+                        hint: 'indicates uppercase letters'
+                    }, {
+                        key: 'i',
+                        title: 'i,ii,iii...',
+                        hint: 'indicates lowercase Roman numerals'
+                    }, {
+                        key: 'I',
+                        title: 'I,II,III...',
+                        hint: 'indicates uppercase Roman numerals'
+                    }
+                ],
                 tooltiptext: 'Ordered List',
                 action: function (def) {
                     var _olElem,
@@ -204,6 +206,29 @@ angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(func
                 }
             });
 
+            taRegisterTool('tableType', {
+                iconclass: 'fa fa-square table-type',
+                tooltiptext: 'Table',
+                action: function () {
+                    if (this.active) {
+                        this.$editor().wrapSelection('removeFormat', 'foreColor');
+                    } else {
+                        this.$editor().wrapSelection('foreColor', _yellow);
+                    }
+                },
+                activeState: function (elem) {
+                    var res = false;
+                    if (elem && elem.nodeName === '#document') {
+                        return false;
+                    }
+                    if (elem) {
+                        res = elem.attr('color') === _yellow ||
+                            elem.attr('color') === 'blue' ||
+                            elem.css('color') === 'rgb(255, 255, 0)';
+                    }
+                    return res;
+                }
+            });
             /*
              toolbar: [
              ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'pre', 'quote'],
@@ -214,9 +239,10 @@ angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(func
              */
             taOptions.toolbar = [
                 ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-                ['markBlack', 'markRed', 'markBlue', 'markYellow'],
+                ['markBlack', 'markRed', 'markBlue', 'markGreen'],
                 ['bold', 'italics', 'underline', 'strikeThrough'],
                 ['ul', 'olType'],
+                ['tableType'],
                 ['redo', 'undo', 'clear']
             ];
 
