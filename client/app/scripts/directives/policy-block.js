@@ -100,7 +100,13 @@ angular.module('greyscaleApp')
                     html += '<div><b>Author: </b>' + $scope.policyData.authorName + '</div>';
                     $scope.policyData.sections.forEach(function(element) {
                         html += '<div><p>' + element.label + '</p>';
-                        html += element.description;
+                        var description = $("<div>" + element.description + "</div>");
+                        var elements = $(".ln", description);
+                        for(i=0; i < elements.length; i++) {
+                            elements[i].prepend(i + '. ');
+                        }
+                        html += description.html();
+
                         html += '</div>';
                     })
                     pdf.fromHTML(html, 20, 20, {
