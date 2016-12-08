@@ -119,27 +119,35 @@ angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(func
                 }
             });
 
-            taRegisterTool('markMargin', {
-                iconclass: 'fa fa-square tab-margin',
-                tooltiptext: 'Change Martin',
+            taRegisterTool('topMargin', {
+                buttontext: "Top Margin",
+                tooltiptext: 'Top Margin',
                 action: function () {
-                    if (this.active) {
-                        this.$editor().wrapSelection('removeFormat', 'marginSelection');
-                    } else {
-                        this.$editor().wrapSelection('marginSelection', _green);
+                    var selectedText = window.getSelection();
+                    if(selectedText.type == 'Caret') {
+                        var tabTag = '<span><br /><br /></span>';
+                        return this.$editor().wrapSelection('insertHTML', tabTag, true);
                     }
-                },
-                activeState: function (elem) {
-                    var res = false;
-                    if (elem && elem.nodeName === '#document') {
-                        return false;
+                    else {
+                        var tabTag = '&#10;&#10;'+ selectedText;
+                        return this.$editor().wrapSelection('insertHTML', tabTag, true);
                     }
-                    if (elem) {
-                        res = elem.attr('color') === _green ||
-                            elem.attr('color') === 'green' ||
-                            elem.css('color') === 'rgb(0, 255, 0)';
+                }
+            });
+
+            taRegisterTool('bottomMargin', {
+                buttontext: "Bottom Margin",
+                tooltiptext: 'Bottom Margin',
+                action: function () {
+                    var selectedText = window.getSelection();
+                    if(selectedText.type == 'Caret') {
+                        var tabTag = '<span><br /><br /></span>';
+                        return this.$editor().wrapSelection('insertHTML', tabTag, true);
                     }
-                    return res;
+                    else {
+                        var tabTag = selectedText + '&#10;&#10;';
+                        return this.$editor().wrapSelection('insertHTML', tabTag, true);
+                    }
                 }
             });
 
@@ -259,7 +267,7 @@ angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(func
                 ['markBlack', 'markRed', 'markBlue', 'markGreen'],
                 ['bold', 'italics', 'underline', 'strikeThrough'],
                 ['ul', 'olType'],
-                ['html', 'markTab', 'markMargin'],
+                ['html', 'markTab', 'topMargin', 'bottomMargin'],
                 ['redo', 'undo', 'clear']
             ];
 
