@@ -103,6 +103,46 @@ angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(func
                 }
             });
 
+            taRegisterTool('markTab', {
+                buttontext: "Insert Tab",
+                tooltiptext: 'Insert Tab',
+                action: function(e, elt, editorScope){
+                    var selectedText = window.getSelection();
+                    if(selectedText.type == 'Caret') {
+                        var tabTag = '<span>&#09;</span>';
+                        return this.$editor().wrapSelection('insertHTML', tabTag, true);
+                    }
+                    else {
+                        var tabTag = '&#09;'+ selectedText;
+                        return this.$editor().wrapSelection('insertHTML', tabTag, true);
+                    }
+                }
+            });
+
+            taRegisterTool('markMargin', {
+                iconclass: 'fa fa-square tab-margin',
+                tooltiptext: 'Change Martin',
+                action: function () {
+                    if (this.active) {
+                        this.$editor().wrapSelection('removeFormat', 'marginSelection');
+                    } else {
+                        this.$editor().wrapSelection('marginSelection', _green);
+                    }
+                },
+                activeState: function (elem) {
+                    var res = false;
+                    if (elem && elem.nodeName === '#document') {
+                        return false;
+                    }
+                    if (elem) {
+                        res = elem.attr('color') === _green ||
+                            elem.attr('color') === 'green' ||
+                            elem.css('color') === 'rgb(0, 255, 0)';
+                    }
+                    return res;
+                }
+            });
+
             taRegisterTool('olType', {
                 display: '<gs-ol-types class="bar-btn-dropdown dropdown"></gs-ol-types>',
                 options: [
@@ -219,6 +259,7 @@ angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(func
                 ['markBlack', 'markRed', 'markBlue', 'markGreen'],
                 ['bold', 'italics', 'underline', 'strikeThrough'],
                 ['ul', 'olType'],
+                ['html', 'markTab', 'markMargin'],
                 ['redo', 'undo', 'clear']
             ];
 
