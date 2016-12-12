@@ -47,7 +47,7 @@ var exportObject = function  (req, realm) {
             return yield thunkQuery(
                 'SELECT ' +
                 '    "Surveys".*, ' +
-                '    "Users"."firstName"::text || \' \' || "Users"."lastName"::text as "authorName", ' +
+                '    concat_ws(\' \', "Users"."firstName", nullif("Users"."lastName", \'\')) as "authorName", ' +
                 '    "Policies"."id" AS "policyId", ' +
                 '    "Policies"."section", ' +
                 '    "Policies"."subsection", ' +
