@@ -355,12 +355,20 @@ angular.module('greyscaleApp')
             var q = _sections.length;
 
             for (q; q < greyscaleGlobals.formBuilder.policyQty; q++) {
-                _sections.push({
-                    type: policyIdx,
-                    surveyId: surveyId,
-                    label: 'POLICY.SECTION_' + q,
-                    description: ''
-                });
+                if (q == 9) {
+                    _sections.splice(2, 0, {
+                        type: policyIdx,
+                        surveyId: surveyId,
+                        label: 'POLICY.SECTION_' + q,
+                        description: ''
+                    });
+                } else
+                    _sections.push({
+                        type: policyIdx,
+                        surveyId: surveyId,
+                        label: 'POLICY.SECTION_' + q,
+                        description: ''
+                    });
             }
         }
 
