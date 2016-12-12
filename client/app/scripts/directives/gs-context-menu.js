@@ -22,7 +22,7 @@ angular.module('greyscaleApp')
                     }
                 };
 
-                elem.on('mouseenter', _fixSelection);
+                //elem.on('mouseenter', _fixSelection);
 
                 elem.on('mouseup', _showContextMenu);
 

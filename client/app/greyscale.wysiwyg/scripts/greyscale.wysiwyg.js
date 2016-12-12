@@ -267,7 +267,7 @@ angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(func
                 ['markBlack', 'markRed', 'markBlue', 'markGreen'],
                 ['bold', 'italics', 'underline', 'strikeThrough'],
                 ['ul', 'olType'],
-                ['html', 'markTab', 'topMargin', 'bottomMargin'],
+                ['markTab', 'topMargin', 'bottomMargin'],
                 ['redo', 'undo', 'clear']
             ];
 
