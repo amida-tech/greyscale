@@ -335,7 +335,7 @@ angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(func
                 ['bold', 'italics', 'underline', 'strikeThrough'],
                 ['ul', 'olType'],
                 ['html', 'markTab', 'topMargin', 'bottomMargin'],
-                ['redo', 'undo', 'clear']
+                ['redo', 'undo', 'clearFormat']
             ];
 
             return taOptions;
