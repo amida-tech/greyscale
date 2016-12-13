@@ -99,11 +99,16 @@ angular.module('greyscaleApp')
                     html += '<div><b>Number: </b>' + $scope.policyData.number + '</div>';
                     html += '<div><b>Author: </b>' + $scope.policyData.authorName + '</div>';
                     $scope.policyData.sections.forEach(function(element) {
-                        html += '<div><p>' + element.label + '</p>';
-                        var description = $("<div>" + element.description + "</div>");
+                        html += '<br /><br /><div><p>' + element.label + '</p>';
+                        var description = $("<div style='padding: 15px;position: relative'>" + element.description + "</div>");
                         var elements = $(".ln", description);
                         for(i=0; i < elements.length; i++) {
-                            elements[i].prepend(i + '. ');
+                            var span = document.createElement('span');
+                            span.className = 'number';
+                            span.style.position = "absolute";
+                            span.style.left = 0;
+                            span.innerHTML = 'Line ' + (i + 1) + ' :';
+                            elements[i].prepend(span);
                         }
                         html += description.html();
 
