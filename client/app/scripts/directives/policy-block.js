@@ -101,6 +101,10 @@ angular.module('greyscaleApp')
                     $scope.policyData.sections.forEach(function(element) {
                         html += '<br /><br /><div><p>' + element.label + '</p>';
                         var description = $("<div style='padding: 15px;position: relative'>" + element.description + "</div>");
+                        for(i=0; i < description[0].childNodes.length; i++) {
+                            var element = description[0].childNodes.item(i);
+                            element.classList.add("ln");
+                        }
                         var elements = $(".ln", description);
                         for(i=0; i < elements.length; i++) {
                             var span = document.createElement('span');
