@@ -110,7 +110,7 @@ angular.module('greyscaleApp')
                             span.innerHTML = 'Line ' + (i + 1) + ' :';
                             elements[i].prepend(span);
                         }
-                        html += description.html();
+                        html += description.html().replace(/[\u0100-\uFFFF]/g,'');
 
                         html += '</div>';
                     })
