@@ -99,10 +99,24 @@ angular.module('greyscaleApp')
                     html += '<div><b>Number: </b>' + $scope.policyData.number + '</div>';
                     html += '<div><b>Author: </b>' + $scope.policyData.authorName + '</div>';
                     $scope.policyData.sections.forEach(function(element) {
-                        html += '<div><p>' + element.label + '</p>';
-                        html += element.description;
+                        html += '<p>-------------</p><div><b>' + element.label + '</b>';
+                        var description = $("<div class='root' style='padding: 15px;position: relative'>" + element.description + "</div>");
+                        for(i=0; i < description[0].childNodes.length; i++) {
+                            var element = description[0].childNodes.item(i);
+                            if(element.tagName.toLowerCase() == "p")
+                                element.classList.add("ln");
+                        }
+                        var elements = $(".ln", description);
+                        for(i=0; i < elements.length; i++) {
+                            var span = document.createElement('span');
+                            span.innerHTML = (i + 1) + ' : ';
+                            elements[i].prepend(span);
+                        }
+                        html += description.html().replace(/[\u0100-\uFFFF]/g,'');
+
                         html += '</div>';
                     })
+                    console.log(html);
                     pdf.fromHTML(html, 20, 20, {
                         'width': 500,
                         'elementHandlers': specialElementHandlers
