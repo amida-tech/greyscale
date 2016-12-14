@@ -1,11 +1,13 @@
 'use strict';
 angular.module('greyscaleApp')
-    .controller('NotificationsCtrl', function ($rootScope, $scope, greyscaleNotificationsTbl) {
+    .controller('NotificationsCtrl', function ($rootScope, $scope, greyscaleNotificationsTbl, greyscaleAllNotificationsTbl) {
 
-        var _table = greyscaleNotificationsTbl;
+        var _myTable = greyscaleNotificationsTbl;
+        var _allTable = greyscaleAllNotificationsTbl;
 
         $scope.model = {
-            notifications: _table
+            myNotifications: _myTable,
+            allNotifications: _allTable
         };
 
     });

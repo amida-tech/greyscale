@@ -1,6 +1,6 @@
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleNotificationsTbl', function ($q, _, $sce, greyscaleProfileSrv, greyscaleGroupApi,
+    .factory('greyscaleAllNotificationsTbl', function ($q, _, $sce, greyscaleProfileSrv, greyscaleGroupApi,
         greyscaleNotificationApi, greyscaleModalsSrv, userNotificationsSrv, greyscaleGlobals, Organization) {
 
         var tns = 'NOTIFICATIONS.';
@@ -21,6 +21,10 @@ angular.module('greyscale.tables')
             field: 'userFromName',
             sortable: 'userFromName'
         }, {
+            title: tns + 'USER_TO',
+            field: 'userToName',
+            sortable: 'userToName'
+        }, {
             cellTemplate: '<span ng-if="row.toMe"><i class="fa fa-chevron-right"></i></span>' +
                 '<span ng-if="row.fromMe"><i class="fa fa-chevron-left"></i></span>'
         }, {
@@ -30,29 +34,10 @@ angular.module('greyscale.tables')
             cellTemplateExtData: {
                 sanitize: $sce.trustAsHtml
             }
-        }, {
-            field: 'read',
-            title: tns + 'READ',
-            sortable: 'read',
-            cellTemplate: '<div class="text-center">' +
-                '<i class="fa" ng-class="{\'fa-eye\':row.read, \'fa-eye-slash\':!row.read}" title="{{\'' + tns +
-                '\' + (row.read ? \'WAS_READ\' : \'WAS_NOT_READ\')|translate}}"></i>' +
-                '&nbsp;<a ng-click="ext.toggleRead(row)" class="action" ><small ng-show="row.read" translate="' + tns +
-                'SET_UNREAD"></small><small ng-hide="row.read" translate="' + tns + 'SET_READ"></small></a>' +
-                '</div>',
-            cellTemplateExtData: {
-                toggleRead: _toggleRead
-            }
-        }, {
-            cellTemplate: '<div class="text-right"><a ng-if="row.toMe" class="action" ng-click="ext.reply(row)" title="{{\'' +
-                tns + 'REPLY\'|translate}}"><i class="fa fa-reply"></i></a></div>',
-            cellTemplateExtData: {
-                reply: _reply
-            }
         }];
 
         var _table = {
-            title: tns + 'MY_NOTIFICATIONS',
+            title: tns + 'ALL_NOTIFICATIONS',
             cols: _cols,
             sorting: {
                 created: 'desc'
@@ -60,10 +45,7 @@ angular.module('greyscale.tables')
             dataPromise: _getData,
             dataFilter: {},
             //formTitle: tns + 'USER_GROUP',
-            pageLength: 50,
-            rowClass: function (row) {
-                return !row.read ? 'bg-warning' : '';
-            }
+            pageLength: 50
         };
 
         function _getData() {
@@ -71,9 +53,7 @@ angular.module('greyscale.tables')
                 .then(_setRealm)
                 .then(function (profile) {
                     var req = {
-                        notifications: greyscaleNotificationApi.list({
-                            userTo: profile.id
-                        }, _realm)
+                        notifications: greyscaleNotificationApi.list({}, _realm)
                     };
                     return $q.all(req).then(function (promises) {
                         return promises.notifications;
@@ -84,24 +64,6 @@ angular.module('greyscale.tables')
         function _setRealm(profile) {
             _realm = greyscaleProfileSrv.isSuperAdmin() ? greyscaleGlobals.adminSchema : Organization.realm;
             return profile;
-        }
-
-        function _toggleRead(msg) {
-            var method = msg.read ? 'setUnread' : 'setRead';
-            greyscaleNotificationApi[method](msg.id, _realm)
-                .then(function () {
-                    msg.read = !msg.read;
-                    userNotificationsSrv.update();
-                });
-        }
-
-        function _reply(msg) {
-            _toggleRead(msg);
-            var toUser = {
-                id: msg.userFrom,
-                replyTo: msg.userFromName
-            };
-            greyscaleModalsSrv.sendMessage(toUser);
         }
 
         function _reload() {

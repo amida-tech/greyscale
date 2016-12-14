@@ -456,11 +456,13 @@
         "WORKFLOW_TEMPLATES": "Workflow Templates"
     },
     "NOTIFICATIONS": {
+        "ALL_NOTIFICATIONS": "All Notifications",
         "DATE_TIME": "Date / Time",
         "GO_HISTORY": "All Notifications",
         "MARK_ALL_AS_READ": "Mark All as Read",
         "MARK_AS_READ": "Mark as Read",
         "MESSAGE": "Message",
+        "MY_NOTIFICATIONS": "My Notifications",
         "NOTIFICATIONS": "Notifications",
         "NO_UNREAD": "You have no unread messages",
         "READ": "Read",
@@ -469,6 +471,8 @@
         "SET_READ": "Set as read",
         "SET_UNREAD": "Set unread",
         "USER": "User",
+        "USER_FROM": "From",
+        "USER_TO": "To",
         "WAS_NOT_READ": "Was not read",
         "WAS_READ": "Was read"
     },

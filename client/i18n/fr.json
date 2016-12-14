@@ -456,11 +456,13 @@
         "WORKFLOW_TEMPLATES": ""
     },
     "NOTIFICATIONS": {
+        "ALL_NOTIFICATIONS": "",
         "DATE_TIME": "",
         "GO_HISTORY": "",
         "MARK_ALL_AS_READ": "",
         "MARK_AS_READ": "",
         "MESSAGE": "",
+        "MY_NOTIFICATIONS": "",
         "NOTIFICATIONS": "",
         "NO_UNREAD": "",
         "READ": "",
@@ -469,6 +471,8 @@
         "SET_READ": "",
         "SET_UNREAD": "",
         "USER": "",
+        "USER_FROM": "",
+        "USER_TO": "",
         "WAS_NOT_READ": "",
         "WAS_READ": ""
     },
