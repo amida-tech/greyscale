@@ -13,7 +13,8 @@ angular.module('greyscaleApp')
             options: options
         };
         $scope.user = {};
-        var userList = JSON.parse(comment.tags).users;
+        var userList = typeof comment.tags == "string" ? JSON.parse(comment.tags) : comment.tags;
+        userList = userList.users;
         $scope.users = [];
         greyscaleUserApi.list()
             .then(function (profileData) {
