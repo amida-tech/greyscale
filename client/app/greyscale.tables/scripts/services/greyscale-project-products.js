@@ -256,6 +256,19 @@ angular.module('greyscale.tables')
             });
         }
 
+        function _notifyNextStep(product) {
+            var users = [];
+            product.tasks.forEach(function (task) {
+                users = users.concat(task.userIds.map(function (userId) {
+                    return { id: userId };
+                }));
+            });
+            return greyscaleModalsSrv.sendGroupNotification(users, {
+                optional: true,
+                intro: "NOTIFICATIONS.REVIEW_STEP_NOTE"
+            });
+        }
+
         function _editProduct(product) {
             _editProductMode = product || {};
             var op = 'UPDATE';
@@ -266,7 +279,13 @@ angular.module('greyscale.tables')
                 })
                 .then(function (newProduct) {
                     if (newProduct.id) {
-                        return greyscaleProductApi.update(newProduct);
+                        if (newProduct.status !== product.status) {
+                            return greyscaleProductApi.update(newProduct).then(function () {
+                                return _notifyNextStep(newProduct);
+                            });
+                        } else {
+                            return greyscaleProductApi.update(newProduct);
+                        }
                     } else {
                         op = 'ADD';
                         newProduct.matrixId = 4;
@@ -465,6 +484,10 @@ angular.module('greyscale.tables')
                                 return true;
                             }
                         })
+                        .then(function () {
+                           return _loadProductExtendedData(_product);
+                        })
+                        .then(_notifyNextStep)
                         .catch(function (err) {
                             return _errHandler(err, op);
                         });
