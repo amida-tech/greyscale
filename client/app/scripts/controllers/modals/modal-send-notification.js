@@ -2,20 +2,28 @@
 
 angular.module('greyscaleApp')
     .controller('ModalSendNotificationCtrl',
-        function ($scope, user, data, $uibModalInstance, greyscaleUtilsSrv, greyscaleNotificationApi, greyscaleProfileSrv, $q) {
-
+        function ($scope, users, data, $uibModalInstance, greyscaleUtilsSrv, greyscaleNotificationApi, greyscaleProfileSrv, $q) {
             $scope.model = {
-                user: user,
+                user: null,
+                users: users,
                 notification: {
-                    userTo: user.id,
                     notifyLevel: 2
                 },
-                copyMe: false
-            };
+                copyMe: false,
+                optional: data && data.optional
+            }
+            if (users && users.length === 1) { $scope.model.user = users[0]; }
+            if (data && data.intro) { $scope.model.intro = data.intro; }
 
             $scope.close = function () {
                 $uibModalInstance.dismiss();
             };
+
+            function _sendNotification(user) {
+                return greyscaleNotificationApi.send(angular.extend({
+                    userTo: user.id
+                }, $scope.model.notification));
+            }
 
             $scope.send = function () {
                 if (!$scope.validForm()) {
@@ -23,18 +31,14 @@ angular.module('greyscaleApp')
                 }
 
                 var notifications = {}
-                // send notification to destination user
+                // send notification to all destination users
                 notifications.user = function () {
-                    return greyscaleNotificationApi.send($scope.model.notification);
+                    return $q.all($scope.model.users.map(_sendNotification));
                 };
                 // send copy of notification to current user
                 if ($scope.model.copyMe) {
                     notifications.me = function () {
-                        return greyscaleProfileSrv.getProfile().then(function (profile) {
-                            return greyscaleNotificationApi.send(angular.extend({
-                                userTo: profile.id
-                            }, $scope.model.notification));
-                        });
+                        return greyscaleProfileSrv.getProfile().then(_sendNotification);
                     };
                 }
 
