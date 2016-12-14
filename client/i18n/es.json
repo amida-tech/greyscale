@@ -457,6 +457,7 @@
     },
     "NOTIFICATIONS": {
         "ALL_NOTIFICATIONS": "",
+        "COPY_ME": "",
         "DATE_TIME": "",
         "GO_HISTORY": "",
         "MARK_ALL_AS_READ": "",

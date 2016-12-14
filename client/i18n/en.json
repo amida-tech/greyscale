@@ -457,6 +457,7 @@
     },
     "NOTIFICATIONS": {
         "ALL_NOTIFICATIONS": "All Notifications",
+        "COPY_ME": "Send me a copy",
         "DATE_TIME": "Date / Time",
         "GO_HISTORY": "All Notifications",
         "MARK_ALL_AS_READ": "Mark All as Read",
