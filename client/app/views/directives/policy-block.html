@@ -4,8 +4,7 @@
         <div class="text-right subtext" ng-show="policyData.version !== undefined">
             <a ng-click="printPDF()">Print PDF</a>
             <a class="action-primary" ng-click="listVersions()"><span translate="SURVEYS.VERSION"></span></a>:
-            <span ng-hide="policyData.version < 0">{{policyData.version}}</span>
-            <span ng-show="policyData.version < 0" translate="SURVEYS.VERSION_DRAFT"></span>
+            <span>{{policyData.version}}</span>
         </div>
         <div class="form-group">
             <label for="title" class="col-sm-4 control-label"

@@ -86,12 +86,8 @@ angular.module('greyscaleApp')
         });
 
         //button handlers
-        $scope.save = function () {
-            _save(true);
-        };
-
         $scope.publish = function () {
-            _save(false);
+            _save();
         };
         $scope.cancel = _goBack;
 
@@ -173,17 +169,17 @@ angular.module('greyscaleApp')
             }
         }
 
-        function _save(isDraft) {
+        function _save() {
             var _publish = $q.resolve(false),
                 survey = $scope.model.survey,
                 _deregistator = $scope.$on(greyscaleGlobals.events.survey.builderFormSaved, function () {
                     _deregistator();
-                    if (!isDraft && greyscaleProductSrv.needAcionSecect(survey.product, survey.uoas)) {
+                    if (greyscaleProductSrv.needAcionSecect(survey.product, survey.uoas)) {
                         _publish = greyscaleModalsSrv.dialog(dlgPublish);
                     }
                     _publish
                         .then(function (_action) {
-                            return _saveSurvey(isDraft)
+                            return _saveSurvey()
                                 .then(function () {
                                     if (_action && greyscaleProductSrv.needAcionSecect(survey.product, survey.uoas)) {
                                         return greyscaleProductSrv.doAction(survey.product.id, survey.uoas[0], _action);
@@ -302,15 +298,12 @@ angular.module('greyscaleApp')
                 });
         }
 
-        function _saveSurvey(isDraft) {
+        function _saveSurvey() {
             var _survey,
                 _policy = $scope.model.policy,
                 params = {},
                 _savePromise;
 
-            if (isDraft) {
-                params.draft = true;
-            }
             _survey = angular.extend({}, $scope.model.survey);
             // _survey.projectId = projectId;
             _survey.isPolicy = true;
