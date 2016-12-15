@@ -27,15 +27,6 @@ angular.module('greyscaleApp')
 
         productWorkflow.dragSortable = {onChange: _validateDates};
 
-        if (tplEdit) {
-            $timeout(function () {
-                _addValidators(ctrl.dataForm);
-            });
-
-        } else {
-            _refreshTemplatesList();
-        }
-
         $scope.close = function () {
             $uibModalInstance.dismiss();
         };
@@ -133,6 +124,15 @@ angular.module('greyscaleApp')
 
         var permissionFields = ['provideResponses', 'allowEdit', 'allowTranslate'];
 
+        if (tplEdit) {
+            $timeout(function () {
+                _addValidators(ctrl.dataForm);
+            });
+
+        } else {
+            _refreshTemplatesList();
+        }
+
         function _getSteps() {
             var tableData = productWorkflow.tableParams.data;
             var steps = [];
@@ -214,7 +214,7 @@ angular.module('greyscaleApp')
                             productWorkflow.$loading = true;
                             productWorkflow.dataPromise()
                                 .then(function () {
-                                    _applyWorkflowTemplate(true);
+                                    $scope.applyWorkflowTemplate(true);
                                     productWorkflow.$loading = false;
                                 });
                         }
@@ -233,12 +233,12 @@ angular.module('greyscaleApp')
             var workflow = $scope.model.product.workflow = $scope.model.product.workflow || {};
             workflow.name = template.workflow.name;
             workflow.description = template.workflow.description;
-
-            _setSteps(template.steps);
-
-            if (!force) {
-                $scope.model.selectedTemplate = undefined;
-            }
+            $timeout(function () {
+                _setSteps(template.steps);
+                if (!force) {
+                    $scope.model.selectedTemplate = undefined;
+                }
+            });
         }
 
         function _hasAssignedSteps() {
