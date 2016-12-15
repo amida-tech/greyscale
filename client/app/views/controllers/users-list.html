@@ -1,6 +1,19 @@
-<div ng-if="model.users">
-    <widget-table model="model.users" row-selector="showUserInfo"></widget-table>
+<div class="row" translate-namespace="PRODUCTS.TASKS">
+	<div ng-if="model.users">
+		<br />
+	    <div class="form-group">
+	        <label translate=".SELECT_USERGROUP_LABEL"></label>
+	        <select class="form-control"
+	                ng-model="model.selectedGroup"
+	                ng-change="searchUsers()"
+	                ng-options="group as group.title for group in model.groups">
+	            <option value="">All Groups</option>
+	        </select>
+	    </div>
+	</div>
+	<div ng-if="model.users" class="userList">
+	    <widget-table model="model.users" row-selector="showUserInfo"></widget-table>
+	</div>
+
+	<rd-loading ng-if="!model.users" class="compact"></rd-loading>
 </div>
-
-<rd-loading ng-if="!model.users" class="compact"></rd-loading>
-

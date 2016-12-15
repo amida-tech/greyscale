@@ -147,10 +147,12 @@ angular.module('greyscale.tables')
 
         var _table = {
             dataFilter: {},
+            groupID: null,
             formTitle: tns + 'USER',
             cols: _fields,
             dataPromise: _getUsers,
             selectable: true,
+            reloadTable: reloadTable,
             sorting: {
                 created: 'desc'
             },
@@ -278,6 +280,12 @@ angular.module('greyscale.tables')
 
                     dicts.roles = _addTitles(_roles);
                     dicts.groups = promises.groups;
+                    promises.users = promises.users.filter(function(item) {
+                        if(_table.groupID != null)
+                            return item.usergroupId.indexOf(_table.groupID) !== -1;
+                        else
+                            return true;
+                    })
                     greyscaleUtilsSrv.prepareFields(promises.users, _fields);
                     dicts.users = promises.users;
                     return promises.users;
