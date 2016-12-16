@@ -56,7 +56,7 @@ angular.module('greyscaleApp')
 
             if(Date.parse(detailData.endDate) < Date.now()) {
                 $scope.model.count.onTime = 0;
-                $scope.model.count.late = detailData.user.length;
+                $scope.model.count.late = detailData.user.length - $scope.model.count.complete;
             } else {
                 $scope.model.count.onTime = detailData.user.length;
                 $scope.model.count.late = 0
