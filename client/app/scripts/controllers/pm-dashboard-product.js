@@ -44,21 +44,23 @@ angular.module('greyscaleApp')
         tasksTable.onReload = function () {
             var tasksData = tasksTable.dataShare.tasks || [];
 
-            $scope.model.count.uoas = _.size(_.groupBy(tasksData, 'uoaId'));
+            var detailData = tasksTable.tableParams.data[0];
+            console.log(detailData);
 
-            $scope.model.count.flagged = _getFlaggedCount(tasksData);
+            $scope.model.count.started = _.filter(detailData.user, {status:"Started"}).length;
+            $scope.model.count.complete = _.filter(detailData.user, {status:"Approved"}).length;
 
-            $scope.model.count.started = _.filter(tasksData, 'started').length;
+            $scope.model.count.uoas = detailData.user.length;
 
-            $scope.model.count.onTime = _.filter(tasksData, function (o) {
-                return o.onTime && o.status === 'current';
-            }).length;
-            $scope.model.count.late = _.filter(tasksData, function (o) {
-                return !o.onTime && o.status === 'current';
-            }).length;
-            $scope.model.count.complete = _.filter(tasksData, function (o) {
-                return o.status === 'completed';
-            }).length;
+            $scope.model.count.flagged = detailData.flaggedCount;
+
+            if(Date.parse(detailData.endDate) < Date.now()) {
+                $scope.model.count.onTime = 0;
+                $scope.model.count.late = detailData.user.length;
+            } else {
+                $scope.model.count.onTime = detailData.user.length;
+                $scope.model.count.late = 0
+            }
 
             $scope.model.count.delayed = $scope.model.count.uoas - $scope.model.count.onTime;
         };
