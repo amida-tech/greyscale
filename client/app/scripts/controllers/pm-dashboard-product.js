@@ -49,17 +49,18 @@ angular.module('greyscaleApp')
 
             $scope.model.count.started = _.filter(detailData.user, {status:"Started"}).length;
             $scope.model.count.complete = _.filter(detailData.user, {status:"Approved"}).length;
+            $scope.model.count.pending = _.filter(detailData.user, {status:"Pending"}).length;
 
             $scope.model.count.uoas = detailData.user.length;
 
             $scope.model.count.flagged = detailData.flaggedCount;
 
             if(Date.parse(detailData.endDate) < Date.now()) {
-                $scope.model.count.onTime = 0;
+                $scope.model.count.onTime = $scope.model.count.complete;
                 $scope.model.count.late = detailData.user.length - $scope.model.count.complete;
             } else {
-                $scope.model.count.onTime = detailData.user.length;
-                $scope.model.count.late = 0
+                $scope.model.count.onTime = detailData.user.length - $scope.model.count.pending;
+                $scope.model.count.late = 0;
             }
 
             $scope.model.count.delayed = $scope.model.count.uoas - $scope.model.count.onTime;
