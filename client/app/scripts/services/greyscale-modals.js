@@ -30,6 +30,7 @@ angular.module('greyscaleApp')
             dialog: _dialog,
             showVersion: _showVersion,
             sendNotification: _sendNotification,
+            sendGroupNotification: _sendGroupNotification,
             changePassword: _changePassword,
             editIndex: _editIndex,
             editVisualization: _editVisualization,
@@ -195,7 +196,20 @@ angular.module('greyscaleApp')
                 size: 'md',
                 windowClass: 'modal fade in',
                 resolve: {
-                    user: user,
+                    users: function () { return [user]; },
+                    data: data
+                }
+            }).result;
+        }
+
+        function _sendGroupNotification(users, data) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/send-notification.html',
+                controller: 'ModalSendNotificationCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    users: function () { return users.concat(users); },
                     data: data
                 }
             }).result;

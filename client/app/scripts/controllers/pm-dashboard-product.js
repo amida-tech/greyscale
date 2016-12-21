@@ -122,6 +122,10 @@ angular.module('greyscaleApp')
             greyscaleProductApi.product(task.productId).taskMove(task.uoaId, params)
                 .then(function () {
                     tasksTable.tableParams.reload();
+                    return greyscaleModalsSrv.sendGroupNotification(task.users, {
+                        optional: true,
+                        intro: "NOTIFICATIONS.REVIEW_STEP_NOTE"
+                    });
                 })
                 .catch(function (err) {
                     greyscaleUtilsSrv.apiErrorMessage(err, 'UPDATE');

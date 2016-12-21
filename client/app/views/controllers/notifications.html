@@ -1,5 +1,9 @@
-<div ng-if="model.notifications">
-    <widget-table model="model.notifications"></widget-table>
+<div ng-if="model.myNotifications">
+    <widget-table model="model.myNotifications"></widget-table>
 </div>
+<rd-loading ng-if="!model.myNotifications" class="compact"></rd-loading>
 
-<rd-loading ng-if="!model.notifications" class="compact"></rd-loading>
+<div ng-if="model.allNotifications">
+    <widget-table model="model.allNotifications"></widget-table>
+</div>
+<rd-loading ng-if="!model.allNotifications" class="compact"></rd-loading>
