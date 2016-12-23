@@ -127,7 +127,7 @@ angular.module('greyscaleApp')
             }).result;
         }
 
-        function _productTask(task, activeBlock) {
+        function _productTask(modalData) {
             return $uibModal.open({
                 templateUrl: 'views/modals/product-task.html',
                 controller: 'ModalProductTaskCtrl',
@@ -135,8 +135,7 @@ angular.module('greyscaleApp')
                 size: 'xxl',
                 windowClass: 'modal fade in',
                 resolve: {
-                    task: task,
-                    activeBlock: activeBlock
+                    modalData: modalData
                 }
             }).result;
         }

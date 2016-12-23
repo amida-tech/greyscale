@@ -133,22 +133,11 @@ angular.module('greyscale.tables')
                 dataFormat: 'action',
                 dataHide: true,
                 actions: [
-                    // {
-                    //     title: tns + 'UOAS',
-                    //     class: 'info',
-                    //     handler: _editProductUoas,
-                    //     show: _showUoaSetting
-                    // },
                     {
                         title: tns + 'TASKS',
                         class: 'info',
                         handler: _editProductTasks
                     }
-                    /*, {
-                     title: tns + 'INDEXES',
-                     class: 'info',
-                     handler: _editProductIndexes
-                     }*/
                 ]
             }, {
                 show: true,
@@ -338,10 +327,13 @@ angular.module('greyscale.tables')
         }
 
         function _editProductTasks(product) {
-            $state.go('projects.setup.tasks', {
-                productId: product.id,
-                product: product
-            });
+            var modalData = {
+                product: product,
+            };
+            return greyscaleModalsSrv.productTask(modalData);
+                // .then(function (data) {
+                // })
+                // .then(_reload);
         }
 
         /*

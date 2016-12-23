@@ -659,6 +659,7 @@
                 "WRITE_ACCESS_WRITE": "Read And Write"
             },
             "STEPS_FOR": "Workflow Steps <small>for \"{{product}}\" Project</small>",
+            "STEPS_FOR_TASK": "Tasks <small>for \"{{product}}\" Project</small>",
             "TITLE": "Title",
             "TITLE_IN_USE": "This title already in use.",
             "TITLE_REQUIRED": "Title is required.",
