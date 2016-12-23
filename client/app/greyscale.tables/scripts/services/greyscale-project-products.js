@@ -309,7 +309,7 @@ angular.module('greyscale.tables')
 
         function _editProductTasks(product) {
             var modalData = {
-                productID: product.id
+                product: product,
             };
             return greyscaleModalsSrv.productTask(modalData);
                 // .then(function (data) {

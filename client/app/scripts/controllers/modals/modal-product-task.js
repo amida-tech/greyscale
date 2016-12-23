@@ -5,11 +5,10 @@ angular.module('greyscaleApp')
         greyscaleGroupApi, greyscaleTaskApi, greyscaleModalsSrv, greyscaleSurveyApi, $uibModalInstance) {
 
     var tns = 'PRODUCTS.TASKS.TABLE.';
-
-    var productId = parseInt(modalData.productID);
-
+    var productId = parseInt(modalData.product.id);
+    $scope.modalData = angular.copy(modalData);
     $scope.model = {
-        //projectId: projectId,
+        product: modalData.product,
         $loading: true,
         selectedUser: {},
         selectedRole: {}
