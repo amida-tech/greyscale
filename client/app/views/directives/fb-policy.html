@@ -4,7 +4,9 @@
             <span translate="{{model.label}}"></span><i class="fa pull-right" ng-class="{'fa-caret-up': model.sectionOpen,
                 'fa-caret-down': !model.sectionOpen}"></i></uib-accordion-heading>
         <div gs-context-menu="contextMenu" qid="{{model.qid}}" class="gs-contextmenu-wrapper dropdown">
-            <text-angular id="{{model.qid}}" ng-model="model.description" ng-if="!options.readonly" class="line-numbers"></text-angular>
+            <div id="{{model.qid}}">
+                <textarea froala ng-model="model.description" ng-if="!options.readonly" class="line-numbers"></textarea>
+            </div>
             <div id="{{model.qid}}" class="line-numbers section-text ta-text" ng-if="options.readonly"
                  ng-bind-html="getHtml(model.description)"></div>
         </div>

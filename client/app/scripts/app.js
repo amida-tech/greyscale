@@ -29,6 +29,7 @@ var _app = angular.module('greyscaleApp', [
     'angularFileUpload',
     'ui.sortable',
     'textAngular',
+    'froala',
     'greyscale.wysiwyg',
     'restangular'
 ]);

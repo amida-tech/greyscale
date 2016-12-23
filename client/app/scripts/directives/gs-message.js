@@ -133,15 +133,15 @@ angular.module('greyscaleApp')
 
             if (_section.length) {
                 _section = angular.element(_section[0]);
-                _sectionContainer = _section.find('#Q' + scope.model.questionId).find('.ta-bind');
+                _sectionContainer = _section.find('#Q' + scope.model.questionId).find('.fr-box');
                 startNode = greyscaleSelection.restore(_sectionContainer[0], range);
                 _html = greyscaleSelection.html(true);
 
                 if (_isSameQuotes(_html, range.entry) && startNode) {
                     scope.options.section.sectionOpen = true;
                     $timeout(function () {
-                        var _container = _section.find('.ta-text'),
-                            _tb = _section.find('.ta-toolbar'),
+                        var _container = _section.find('.fr-wrapper'),
+                            _tb = _section.find('.fr-toolbar'),
                             _startNode, parent, scrollPos;
 
                         _startNode = greyscaleSelection.restore(
