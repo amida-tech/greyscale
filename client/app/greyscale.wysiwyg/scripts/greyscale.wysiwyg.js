@@ -3,8 +3,8 @@
  */
 'use strict';
 angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(function ($provide) {
-    $provide.decorator('taOptions', ['taRegisterTool', 'taSelection', '_', '$delegate',
-        function (taRegisterTool, taSelection, _, taOptions) {
+    $provide.decorator('taOptions', ['taRegisterTool', 'taSelection', '_', '$delegate', 'taExecCommand', 'taBrowserTag', 
+        function (taRegisterTool, taSelection, _, taOptions, taExecCommand, taBrowserTag) {
             var _red = '#ff0000', _black = '#000000', _blue = "#0000ff", _green = "#00ff00";
 
             taRegisterTool('markRed', {
@@ -148,6 +148,252 @@ angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(func
                         var tabTag = selectedText + '&#10;&#10;';
                         return this.$editor().wrapSelection('insertHTML', tabTag, true);
                     }
+                }
+            });
+
+            taRegisterTool('makeTable', {
+                buttontext: "Table",
+                tooltiptext: 'Table',
+                action: function (def) {
+                    var elem = taSelection.getSelectionElement();
+
+                    var table = angular.element(elem).closest('table');
+
+                    var options = "<table>";
+                    /* Code for Making Tables */
+                    var taDefaultWrap = taBrowserTag();
+                    var turnBlockIntoBlocks = function(element, options) {
+                        for(var i = 0; i<element.childNodes.length; i++) {
+                            var _n = element.childNodes[i];
+                            /* istanbul ignore next - more complex testing*/
+                            if (_n.tagName && _n.tagName.match(BLOCKELEMENTS)) {
+                                turnBlockIntoBlocks(_n, options);
+                            }
+                        }
+                        /* istanbul ignore next - very rare condition that we do not test*/
+                        if (element.parentNode === null) {
+                            // nothing left to do..
+                            return element;
+                        }
+                        /* istanbul ignore next - not sure have to test this */
+                        if (options === '<br>'){
+                            return element;
+                        }
+                        else {
+                            var $target = angular.element(options);
+                            $target[0].innerHTML = element.innerHTML;
+                            element.parentNode.insertBefore($target[0], element);
+                            element.parentNode.removeChild(element);
+                            return $target;
+                        }
+                    };
+                    var i, $target, html, _nodes, next, optionsTagName, selectedElement, ourSelection;
+                    var defaultWrapper = angular.element('<' + taDefaultWrap + '>');
+                    try{
+                        if (taSelection.getSelection) {
+                            ourSelection = taSelection.getSelection();
+                        }
+                        selectedElement = taSelection.getSelectionElement();
+                        // special checks and fixes when we are selecting the whole container
+                        var __h, _innerNode;
+                        /* istanbul ignore next */
+                        if (selectedElement.tagName !== undefined) {
+                            if (selectedElement.tagName.toLowerCase() === 'div' &&
+                                /taTextElement.+/.test(selectedElement.id) &&
+                                ourSelection && ourSelection.start &&
+                                ourSelection.start.offset === 1 &&
+                                ourSelection.end.offset === 1) {
+                                // opps we are actually selecting the whole container!
+                                //console.log('selecting whole container!');
+                                __h = selectedElement.innerHTML;
+                                if (/<br>/i.test(__h)) {
+                                    // Firefox adds <br>'s and so we remove the <br>
+                                    __h = __h.replace(/<br>/i, '&#8203;');  // no space-space
+                                }
+                                if (/<br\/>/i.test(__h)) {
+                                    // Firefox adds <br/>'s and so we remove the <br/>
+                                    __h = __h.replace(/<br\/>/i, '&#8203;');  // no space-space
+                                }
+                                // remove stacked up <span>'s
+                                if (/<span>(<span>)+/i.test(__h)) {
+                                    __h = __.replace(/<span>(<span>)+/i, '<span>');
+                                }
+                                // remove stacked up </span>'s
+                                if (/<\/span>(<\/span>)+/i.test(__h)) {
+                                    __h = __.replace(/<\/span>(<\/span>)+/i, '<\/span>');
+                                }
+                                if (/<span><\/span>/i.test(__h)) {
+                                    // if we end up with a <span></span> here we remove it...
+                                    __h = __h.replace(/<span><\/span>/i, '');
+                                }
+                                //console.log('inner whole container', selectedElement.childNodes);
+                                _innerNode = '<div>' + __h + '</div>';
+                                selectedElement.innerHTML = _innerNode;
+                                taSelection.setSelectionToElementEnd(selectedElement.childNodes[0]);
+                                selectedElement = taSelection.getSelectionElement();
+                            } else if (selectedElement.tagName.toLowerCase() === 'span' &&
+                                ourSelection && ourSelection.start &&
+                                ourSelection.start.offset === 1 &&
+                                ourSelection.end.offset === 1) {
+                                // just a span -- this is a problem...
+                                //console.log('selecting span!');
+                                __h = selectedElement.innerHTML;
+                                if (/<br>/i.test(__h)) {
+                                    // Firefox adds <br>'s and so we remove the <br>
+                                    __h = __h.replace(/<br>/i, '&#8203;');  // no space-space
+                                }
+                                if (/<br\/>/i.test(__h)) {
+                                    // Firefox adds <br/>'s and so we remove the <br/>
+                                    __h = __h.replace(/<br\/>/i, '&#8203;');  // no space-space
+                                }
+                                // remove stacked up <span>'s
+                                if (/<span>(<span>)+/i.test(__h)) {
+                                    __h = __.replace(/<span>(<span>)+/i, '<span>');
+                                }
+                                // remove stacked up </span>'s
+                                if (/<\/span>(<\/span>)+/i.test(__h)) {
+                                    __h = __.replace(/<\/span>(<\/span>)+/i, '<\/span>');
+                                }
+                                if (/<span><\/span>/i.test(__h)) {
+                                    // if we end up with a <span></span> here we remove it...
+                                    __h = __h.replace(/<span><\/span>/i, '');
+                                }
+                                //console.log('inner span', selectedElement.childNodes);
+                                // we wrap this in a <div> because otherwise the browser get confused when we attempt to select the whole node
+                                // and the focus is not set correctly no matter what we do
+                                _innerNode = '<div>' + __h + '</div>';
+                                selectedElement.innerHTML = _innerNode;
+                                taSelection.setSelectionToElementEnd(selectedElement.childNodes[0]);
+                                selectedElement = taSelection.getSelectionElement();
+                                //console.log(selectedElement.innerHTML);
+                            } else if (selectedElement.tagName.toLowerCase() === 'p' &&
+                                ourSelection && ourSelection.start &&
+                                ourSelection.start.offset === 1 &&
+                                ourSelection.end.offset === 1) {
+                                //console.log('p special');
+                                // we need to remove the </br> that firefox adds!
+                                __h = selectedElement.innerHTML;
+                                if (/<br>/i.test(__h)) {
+                                    // Firefox adds <br>'s and so we remove the <br>
+                                    __h = __h.replace(/<br>/i, '&#8203;');  // no space-space
+                                    selectedElement.innerHTML = __h;
+                                }
+                            } else if (selectedElement.tagName.toLowerCase() === 'li' &&
+                                ourSelection && ourSelection.start &&
+                                ourSelection.start.offset === ourSelection.end.offset) {
+                                // we need to remove the </br> that firefox adds!
+                                __h = selectedElement.innerHTML;
+                                if (/<br>/i.test(__h)) {
+                                    // Firefox adds <br>'s and so we remove the <br>
+                                    __h = __h.replace(/<br>/i, '');  // nothing
+                                    selectedElement.innerHTML = __h;
+                                }
+                            }
+                        }
+                    }catch(e){}
+                    if (!selectedElement){return;}
+                    var $selected = angular.element(selectedElement);
+                    var tagName = (selectedElement && selectedElement.tagName && selectedElement.tagName.toLowerCase()) ||
+                        /* istanbul ignore next: */ "";
+                    optionsTagName = options.toLowerCase().replace(/[<>]/ig, '');
+                    $target = $selected;
+                    // find the first blockElement
+                    while(!$target[0].tagName || !$target[0].tagName.match(BLOCKELEMENTS) && !$target.parent().attr('contenteditable')){
+                        $target = $target.parent();
+                        /* istanbul ignore next */
+                        tagName = ($target[0].tagName || '').toLowerCase();
+                    }
+                    if(tagName === optionsTagName){
+                        // $target is wrap element
+                        _nodes = $target.children();
+                        var hasBlock = false;
+                        for(i = 0; i < _nodes.length; i++){
+                            hasBlock = hasBlock || _nodes[i].tagName.match(BLOCKELEMENTS);
+                        }
+                        if(hasBlock){
+                            $target.after(_nodes);
+                            next = $target.next();
+                            $target.remove();
+                            $target = next;
+                        }else{
+                            defaultWrapper.append($target[0].childNodes);
+                            $target.after(defaultWrapper);
+                            $target.remove();
+                            $target = defaultWrapper;
+                        }
+                    }else if($target.parent()[0].tagName.toLowerCase() === optionsTagName &&
+                        !$target.parent().hasClass('ta-bind')){
+                        //unwrap logic for parent
+                        var blockElement = $target.parent();
+                        var contents = blockElement.contents();
+                        for(i = 0; i < contents.length; i ++){
+                            /* istanbul ignore next: can't test - some wierd thing with how phantomjs works */
+                            if(blockElement.parent().hasClass('ta-bind') && contents[i].nodeType === 3){
+                                defaultWrapper = angular.element('<' + taDefaultWrap + '>');
+                                defaultWrapper[0].innerHTML = contents[i].outerHTML;
+                                contents[i] = defaultWrapper[0];
+                            }
+                            blockElement.parent()[0].insertBefore(contents[i], blockElement[0]);
+                        }
+                        blockElement.remove();
+                    }else if(tagName.match(LISTELEMENTS)){
+                        // wrapping a list element
+                        $target.wrap(options);
+                    }else{
+                        // default wrap behaviour
+                        _nodes = taSelection.getOnlySelectedElements();
+                        if(_nodes.length === 0) {
+                            // no nodes at all....
+                            _nodes = [$target[0]];
+                        }
+                        // find the parent block element if any of the nodes are inline or text
+                        for(i = 0; i < _nodes.length; i++){
+                            if(_nodes[i].nodeType === 3 || !_nodes[i].tagName.match(BLOCKELEMENTS)){
+                                while(_nodes[i].nodeType === 3 || !_nodes[i].tagName || !_nodes[i].tagName.match(BLOCKELEMENTS)){
+                                    _nodes[i] = _nodes[i].parentNode;
+                                }
+                            }
+                        }
+                        // remove any duplicates from the array of _nodes!
+                        _nodes = _nodes.filter(function(value, index, self) {
+                            return self.indexOf(value) === index;
+                        });
+                        // remove all whole taTextElement if it is here... unless it is the only element!
+                        if (_nodes.length>1) {
+                            _nodes = _nodes.filter(function (value, index, self) {
+                                return !(value.nodeName.toLowerCase() === 'div' && /^taTextElement/.test(value.id));
+                            });
+                        }
+                        if(angular.element(_nodes[0]).hasClass('ta-bind')){
+                            $target = angular.element(options);
+                            $target[0].innerHTML = _nodes[0].innerHTML;
+                            _nodes[0].innerHTML = $target[0].outerHTML;
+                        }
+                        else {
+                            //console.log(optionsTagName, _nodes);
+                            // regular block elements replace other block elements
+                            for (i = 0; i < _nodes.length; i++) {
+                                var newBlock = turnBlockIntoBlocks(_nodes[i], options);
+                                if (_nodes[i] === $target[0]) {
+                                    $target = angular.element(newBlock);
+                                }
+                            }
+                        }
+                    }
+                    taSelection.setSelectionToElementEnd($target[0]);
+                    // looses focus when we have the whole container selected and no text!
+                    // refocus on the shown display element, this fixes a bug when using firefox
+                    $target[0].focus();
+
+                    return this.$editor().displayElements.text[0].focus();
+                },
+                activeState: function(){
+                    var elem = taSelection.getSelectionElement();
+                    var table = angular.element(elem).closest('table');
+                    if (table.length)
+                        return true;
+                    else
+                        return false;
                 }
             });
 
@@ -333,7 +579,7 @@ angular.module('greyscale.wysiwyg', ['textAngular', 'ui.bootstrap']).config(func
                 ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
                 ['markBlack', 'markRed', 'markBlue', 'markGreen'],
                 ['bold', 'italics', 'underline', 'strikeThrough'],
-                ['ul', 'olType'],
+                ['makeTable', 'ul', 'olType'],
                 ['markTab', 'topMargin', 'bottomMargin'],
                 ['redo', 'undo', 'clearFormat']
             ];
