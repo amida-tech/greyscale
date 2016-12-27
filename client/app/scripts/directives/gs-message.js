@@ -133,7 +133,7 @@ angular.module('greyscaleApp')
 
             if (_section.length) {
                 _section = angular.element(_section[0]);
-                _sectionContainer = _section.find('#Q' + scope.model.questionId).find('.fr-box');
+                _sectionContainer = _section.find('#Q' + scope.model.questionId);
                 startNode = greyscaleSelection.restore(_sectionContainer[0], range);
                 _html = greyscaleSelection.html(true);
 
@@ -144,8 +144,7 @@ angular.module('greyscaleApp')
                             _tb = _section.find('.fr-toolbar'),
                             _startNode, parent, scrollPos;
 
-                        _startNode = greyscaleSelection.restore(
-                            _container.length > 0 ? _container[0] : _sectionContainer[0], range);
+                        _startNode = greyscaleSelection.restore(_sectionContainer[0], range);
 
                         parent = _startNode.parentNode;
 
