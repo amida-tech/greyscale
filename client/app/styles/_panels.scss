@@ -216,11 +216,12 @@ fb-policy .panel-title {
     user-select: none;
 }
 
-.line-numbers.section-text, .line-numbers [ta-bind] {
+.line-numbers.section-text, .line-numbers [ta-bind], .fr-wrapper [contenteditable="true"] {
 
     border-left: 1px solid #ddd;
     padding-left: 10px;
     margin-left: 40px;
+    position: initial;
     counter-reset: p-counter;
 
     ln:before, .ln:before {
