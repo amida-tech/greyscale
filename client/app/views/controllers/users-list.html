@@ -1,4 +1,4 @@
-<div class="row" translate-namespace="PRODUCTS.TASKS">
+<div translate-namespace="PRODUCTS.TASKS">
 	<div ng-if="model.users">
 		<br />
 	    <div class="form-group">
@@ -6,7 +6,8 @@
 	        <select class="form-control"
 	                ng-model="model.selectedGroup"
 	                ng-change="searchUsers()"
-	                ng-options="group as group.title for group in model.groups">
+	                ng-options="group as group.title for group in model.groups"
+	                style="max-width: 300px">
 	            <option value="">All Groups</option>
 	        </select>
 	    </div>
