@@ -116,7 +116,6 @@ angular.module('greyscaleApp')
 
                         html += '</div>';
                     })
-                    console.log(html);
                     pdf.fromHTML(html, 20, 20, {
                         'width': 500,
                         'elementHandlers': specialElementHandlers
