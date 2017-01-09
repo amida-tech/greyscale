@@ -161,12 +161,12 @@ angular.module('greyscaleApp')
                     greyscaleCommentApi.hide($scope.policy.taskId, filter).then(function () {
                         for (var i = 0; i < $scope.model.items.length; i++) {
                             if ($scope.model.items[i].activated &&
-                                $scope.policy.options.surveyVersion === $scope.model.items[i].surveyVersion) {
+                                ( $scope.policy.options.surveyVersion == -1 || $scope.policy.options.surveyVersion === $scope.model.items[i].surveyVersion)) {
                                 $scope.model.items[i].isHidden =
                                     (filter !== 'flagged' || $scope.model.items[i].isReturn);
                             }
                         }
-                        _updateSections($scope);
+                        //_updateSections($scope);
                     });
                 }
             }

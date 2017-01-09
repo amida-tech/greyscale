@@ -7,7 +7,7 @@
             <i class="fa fa-eye-slash"></i> <span translate="COMMENTS.HIDE_ALL_FLAGGED"></span>
         </a>
     </div>
-    <uib-accordion>
+    <uib-accordion close-others="false">
         <uib-accordion-group is-open="section.isOpen" ng-repeat="section in model.sections">
             <uib-accordion-heading>
                 <span translate="{{section.label}}"></span>
