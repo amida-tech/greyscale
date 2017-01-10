@@ -1263,7 +1263,6 @@ var exportObject = function  (req, realm) {
     
     this.policyToDocx = function (surveyId, version, isFinal) {
         isFinal = typeof isFinal !== 'undefined' ? isFinal : false;
-        console.log(isFinal);
         var self = this;
         var path = 'survey_' + surveyId + '_v' + version + '_' + Date.now();
         var tmp_dir = 'tmp/' + path;
