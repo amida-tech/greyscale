@@ -908,11 +908,9 @@ var exportObject = function  (req, realm) {
     this.createPolicyFile = function (survey, path, isFinal) {
         var self = this;
         var oUser, sComment, oComment;
-        if(!isFinal) {
-            oUser = new sUser(req);
-            sComment = require('app/services/comments');
-            oComment = new sComment(req);
-        }
+        oUser = new sUser(req);
+        sComment = require('app/services/comments');
+        oComment = new sComment(req);
         return co(function* () {
 
             // html header & footer
@@ -945,16 +943,15 @@ var exportObject = function  (req, realm) {
                 '<tr><td>AUTHOR</td><td>' + authorName + '</td></tr>' +
                 '</table>';
             var commentsContent = '';
-            if(!isFinal) {
-                var comments = yield oComment.getComments({surveyId: survey.id}, null, null, null, null, survey.surveyVersion);
-                var commentAnswers;
-                commentsContent = comments.length ? '<hr/><h1>COMMENTS</h1>' : '';
+            var comments = yield oComment.getComments({surveyId: survey.id}, null, null, null, null, survey.surveyVersion);
+            var commentAnswers;
+            commentsContent = comments.length ? '<hr/><h1>COMMENTS</h1>' : '';
 
-                if (_.first(survey.questions)) {
-                    for (var i in survey.questions) {
-                        if (survey.questions[i].type == 14) {
-                            var existHeader = false;
-
+            if (_.first(survey.questions)) {
+                for (var i in survey.questions) {
+                    if (survey.questions[i].type == 14) {
+                        var existHeader = false;
+                        if(!isFinal) {
                             for (var j in comments) {
                                 if (comments[j].questionId == survey.questions[i].id) {
                                     if (!existHeader) {
@@ -1011,10 +1008,9 @@ var exportObject = function  (req, realm) {
                                     _linkComment(survey.questions[i], comments[j], _idx);
                                 }
                             }
-
-                            content += '<p><h1>' + survey.questions[i].label + '</h1></p><p>'
-                                + survey.questions[i].description + '</p>';
                         }
+                        content += '<p><h1>' + survey.questions[i].label + '</h1></p><p>'
+                            + survey.questions[i].description + '</p>';
                     }
                 }
             }
@@ -1267,6 +1263,7 @@ var exportObject = function  (req, realm) {
     
     this.policyToDocx = function (surveyId, version, isFinal) {
         isFinal = typeof isFinal !== 'undefined' ? isFinal : false;
+        console.log(isFinal);
         var self = this;
         var path = 'survey_' + surveyId + '_v' + version + '_' + Date.now();
         var tmp_dir = 'tmp/' + path;
