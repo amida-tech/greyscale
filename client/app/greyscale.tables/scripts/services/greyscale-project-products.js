@@ -67,7 +67,7 @@ angular.module('greyscale.tables')
                 title: tns + 'DESCRIPTION',
                 show: true,
                 dataFormat: 'option',
-                cellTemplate: '<span class="action" ng-show="row.description==\'\'">Description</span>{{ext.getDescriptionVal(row.description)}}',
+                cellTemplate: '<span class="action" translate="PRODUCTS.TABLE.SELECT_DESCRIPTION" ng-show="row.description==\'\' || row.description == null"></span>{{ext.getDescriptionVal(row.description)}}',
                 cellTemplateExtData: {
                     getDescriptionVal: _getDescriptionVal,
                 },
@@ -174,7 +174,7 @@ angular.module('greyscale.tables')
         // }
 
         function _getDescriptionVal(value) {
-            if(value == "")
+            if(value == "" || value == null)
                 return "";
             value = isNaN(value)?value:parseInt(value);
             var template = _.find(greyscaleGlobals.productDescription, {
