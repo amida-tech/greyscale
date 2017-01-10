@@ -92,6 +92,7 @@
         "IS_DISAGREED": "Disagreed",
         "NO_MESSAGES": "no messages",
         "QUOTE_CHANGED": "Quoted text has changed.",
+        "TAGGED_USER": "Tagged User(s)",
         "TAG_ANSWER": "Tag Answer",
         "TAG_COMMENT": "Share with...",
         "TITLE": "Make comment",
