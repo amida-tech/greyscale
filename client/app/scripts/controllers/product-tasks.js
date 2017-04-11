@@ -85,13 +85,13 @@ angular.module('greyscaleApp')
 
                 var acceptText = false;
                 if (searchText) {
-                    if ((' ' + user.firstName).match(searchText)) {
+                    if ((' ' + user.firstName.toLowerCase()).match(searchText.toLowerCase())) {
                         acceptText = true;
                     }
-                    if ((' ' + user.lastName).match(searchText)) {
+                    if ((' ' + user.lastName.toLowerCase()).match(searchText.toLowerCase())) {
                         acceptText = true;
                     }
-                    if ((' ' + user.email).match(searchText)) {
+                    if ((' ' + user.email.toLowerCase()).match(searchText.toLowerCase())) {
                         acceptText = true;
                     }
                 }
