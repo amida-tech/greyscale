@@ -89,7 +89,7 @@ angular.module('greyscaleApp')
 
                         case 'scale':
                         case 'number':
-                            body = '<div class="input-group"><input type="number" ' + commonPart +
+                            body = '<div class="input-group input-group-number"><input type="number" ' + commonPart +
                                 ' min="{{field.minLength}}" max="{{field.maxLength}}" gs-int="field">' +
                                 '<span class="input-group-addon" ng-show="field.units">{{field.units}}</span></div>';
 
