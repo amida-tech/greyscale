@@ -28,7 +28,6 @@ angular.module('greyscale.rest')
         function _stepsList(workflowId) {
             return function (params) {
                 return _workflowStepsApi(workflowId)
-                .withHttpConfig({cache: true})
                 .get(params).then(_response)
                     .then(function (steps) {
                         angular.forEach(steps, function (step) {
