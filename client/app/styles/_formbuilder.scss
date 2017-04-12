@@ -134,3 +134,7 @@
         padding-right: 0;
     }
 }
+
+[data-field-type="scale"] {
+    display: none !important;
+}

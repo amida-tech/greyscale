@@ -239,3 +239,13 @@
 .flagged-survey .flag-question .flag {
     display: block;
 }
+
+.input-group-addon__input-label {
+    vertical-align: sub;
+    vertical-align: -webkit-baseline-middle;
+    font-size: 10.8pt;
+}
+
+.input-group-number {
+    width: 65px !important;
+}

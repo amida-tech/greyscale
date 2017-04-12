@@ -3,7 +3,9 @@
 --
 
 -- Dumped from database version 9.4.5
--- Dumped by pg_dump version 9.5.3
+-- Dumped by pg_dump version 9.5.1
+
+-- Started on 2017-04-11 13:34:39 EDT
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -14,6 +16,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- TOC entry 7 (class 2615 OID 1599530)
 -- Name: sceleton; Type: SCHEMA; Schema: -; Owner: indabauser
 --
 
@@ -23,31 +26,19 @@ CREATE SCHEMA sceleton;
 ALTER SCHEMA sceleton OWNER TO indabauser;
 
 --
--- Name: spacex; Type: SCHEMA; Schema: -; Owner: indabauser
+-- TOC entry 10 (class 2615 OID 1601601)
+-- Name: test; Type: SCHEMA; Schema: -; Owner: indaba
 --
 
-CREATE SCHEMA spacex;
+CREATE SCHEMA test;
 
 
-ALTER SCHEMA spacex OWNER TO indabauser;
-
---
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
---
-
-CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
-
-
---
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
-
+ALTER SCHEMA test OWNER TO indaba;
 
 SET search_path = public, pg_catalog;
 
 --
+-- TOC entry 833 (class 1247 OID 1599533)
 -- Name: event_status; Type: TYPE; Schema: public; Owner: indabauser
 --
 
@@ -65,6 +56,7 @@ CREATE TYPE event_status AS ENUM (
 ALTER TYPE event_status OWNER TO indabauser;
 
 --
+-- TOC entry 836 (class 1247 OID 1599548)
 -- Name: order_status; Type: TYPE; Schema: public; Owner: indabauser
 --
 
@@ -80,6 +72,7 @@ CREATE TYPE order_status AS ENUM (
 ALTER TYPE order_status OWNER TO indabauser;
 
 --
+-- TOC entry 839 (class 1247 OID 1599560)
 -- Name: tour_status; Type: TYPE; Schema: public; Owner: indabauser
 --
 
@@ -97,6 +90,7 @@ CREATE TYPE tour_status AS ENUM (
 ALTER TYPE tour_status OWNER TO indabauser;
 
 --
+-- TOC entry 842 (class 1247 OID 1599576)
 -- Name: transport_status; Type: TYPE; Schema: public; Owner: indabauser
 --
 
@@ -113,6 +107,7 @@ CREATE TYPE transport_status AS ENUM (
 ALTER TYPE transport_status OWNER TO indabauser;
 
 --
+-- TOC entry 458 (class 1255 OID 1599589)
 -- Name: clone_schema(text, text, boolean); Type: FUNCTION; Schema: public; Owner: indabauser
 --
 
@@ -302,6 +297,7 @@ $$;
 ALTER FUNCTION public.clone_schema(source_schema text, dest_schema text, include_recs boolean) OWNER TO indabauser;
 
 --
+-- TOC entry 459 (class 1255 OID 1599592)
 -- Name: fix_schema_references(text); Type: FUNCTION; Schema: public; Owner: indabauser
 --
 
@@ -393,6 +389,7 @@ $$;
 ALTER FUNCTION public.fix_schema_references(schema text) OWNER TO indabauser;
 
 --
+-- TOC entry 460 (class 1255 OID 1599593)
 -- Name: order_before_update(); Type: FUNCTION; Schema: public; Owner: indabauser
 --
 
@@ -408,6 +405,7 @@ END$$;
 ALTER FUNCTION public.order_before_update() OWNER TO indabauser;
 
 --
+-- TOC entry 461 (class 1255 OID 1599594)
 -- Name: tours_before_insert(); Type: FUNCTION; Schema: public; Owner: indabauser
 --
 
@@ -424,6 +422,7 @@ END;$$;
 ALTER FUNCTION public.tours_before_insert() OWNER TO indabauser;
 
 --
+-- TOC entry 462 (class 1255 OID 1599595)
 -- Name: tours_before_update(); Type: FUNCTION; Schema: public; Owner: indabauser
 --
 
@@ -439,6 +438,7 @@ END;$$;
 ALTER FUNCTION public.tours_before_update() OWNER TO indabauser;
 
 --
+-- TOC entry 463 (class 1255 OID 1599596)
 -- Name: twc_delete_old_token(); Type: FUNCTION; Schema: public; Owner: indabauser
 --
 
@@ -453,6 +453,7 @@ END;$$;
 ALTER FUNCTION public.twc_delete_old_token() OWNER TO indabauser;
 
 --
+-- TOC entry 464 (class 1255 OID 1599597)
 -- Name: twc_get_token(character varying, character varying); Type: FUNCTION; Schema: public; Owner: indabauser
 --
 
@@ -471,6 +472,7 @@ END$$;
 ALTER FUNCTION public.twc_get_token(body character varying, exp character varying) OWNER TO indabauser;
 
 --
+-- TOC entry 465 (class 1255 OID 1599598)
 -- Name: user_company_check(); Type: FUNCTION; Schema: public; Owner: indabauser
 --
 
@@ -496,6 +498,7 @@ END;$$;
 ALTER FUNCTION public.user_company_check() OWNER TO indabauser;
 
 --
+-- TOC entry 466 (class 1255 OID 1599599)
 -- Name: users_before_update(); Type: FUNCTION; Schema: public; Owner: indabauser
 --
 
@@ -513,6 +516,7 @@ ALTER FUNCTION public.users_before_update() OWNER TO indabauser;
 SET search_path = sceleton, pg_catalog;
 
 --
+-- TOC entry 467 (class 1255 OID 1599600)
 -- Name: clone_schema(text, text, boolean); Type: FUNCTION; Schema: sceleton; Owner: indabauser
 --
 
@@ -702,6 +706,7 @@ $$;
 ALTER FUNCTION sceleton.clone_schema(source_schema text, dest_schema text, include_recs boolean) OWNER TO indabauser;
 
 --
+-- TOC entry 477 (class 1255 OID 1599603)
 -- Name: fix_schema_references(text); Type: FUNCTION; Schema: sceleton; Owner: indabauser
 --
 
@@ -793,6 +798,7 @@ $$;
 ALTER FUNCTION sceleton.fix_schema_references(schema text) OWNER TO indabauser;
 
 --
+-- TOC entry 478 (class 1255 OID 1599604)
 -- Name: order_before_update(); Type: FUNCTION; Schema: sceleton; Owner: indabauser
 --
 
@@ -808,6 +814,7 @@ END$$;
 ALTER FUNCTION sceleton.order_before_update() OWNER TO indabauser;
 
 --
+-- TOC entry 479 (class 1255 OID 1599605)
 -- Name: tours_before_insert(); Type: FUNCTION; Schema: sceleton; Owner: indabauser
 --
 
@@ -824,6 +831,7 @@ END;$$;
 ALTER FUNCTION sceleton.tours_before_insert() OWNER TO indabauser;
 
 --
+-- TOC entry 480 (class 1255 OID 1599606)
 -- Name: tours_before_update(); Type: FUNCTION; Schema: sceleton; Owner: indabauser
 --
 
@@ -839,6 +847,7 @@ END;$$;
 ALTER FUNCTION sceleton.tours_before_update() OWNER TO indabauser;
 
 --
+-- TOC entry 481 (class 1255 OID 1599607)
 -- Name: twc_delete_old_token(); Type: FUNCTION; Schema: sceleton; Owner: indabauser
 --
 
@@ -853,6 +862,7 @@ END;$$;
 ALTER FUNCTION sceleton.twc_delete_old_token() OWNER TO indabauser;
 
 --
+-- TOC entry 482 (class 1255 OID 1599608)
 -- Name: twc_get_token(character varying, character varying); Type: FUNCTION; Schema: sceleton; Owner: indabauser
 --
 
@@ -871,6 +881,7 @@ END$$;
 ALTER FUNCTION sceleton.twc_get_token(body character varying, exp character varying) OWNER TO indabauser;
 
 --
+-- TOC entry 483 (class 1255 OID 1599609)
 -- Name: user_company_check(); Type: FUNCTION; Schema: sceleton; Owner: indabauser
 --
 
@@ -896,6 +907,7 @@ END;$$;
 ALTER FUNCTION sceleton.user_company_check() OWNER TO indabauser;
 
 --
+-- TOC entry 484 (class 1255 OID 1599610)
 -- Name: users_before_update(); Type: FUNCTION; Schema: sceleton; Owner: indabauser
 --
 
@@ -910,10 +922,11 @@ END$$;
 
 ALTER FUNCTION sceleton.users_before_update() OWNER TO indabauser;
 
-SET search_path = spacex, pg_catalog;
+SET search_path = test, pg_catalog;
 
 --
--- Name: clone_schema(text, text, boolean); Type: FUNCTION; Schema: spacex; Owner: indabauser
+-- TOC entry 468 (class 1255 OID 1602526)
+-- Name: clone_schema(text, text, boolean); Type: FUNCTION; Schema: test; Owner: indaba
 --
 
 CREATE FUNCTION clone_schema(source_schema text, dest_schema text, include_recs boolean) RETURNS void
@@ -922,7 +935,7 @@ CREATE FUNCTION clone_schema(source_schema text, dest_schema text, include_recs 
 
 --  This function will clone all sequences, tables, data, views & functions from any existing schema to a new one
 -- SAMPLE CALL:
--- SELECT clone_schema('spacex', 'new_schema', TRUE);
+-- SELECT clone_schema('test', 'new_schema', TRUE);
 
 DECLARE
   src_oid          oid;
@@ -1099,10 +1112,11 @@ END;
 $$;
 
 
-ALTER FUNCTION spacex.clone_schema(source_schema text, dest_schema text, include_recs boolean) OWNER TO indabauser;
+ALTER FUNCTION test.clone_schema(source_schema text, dest_schema text, include_recs boolean) OWNER TO indaba;
 
 --
--- Name: fix_schema_references(text); Type: FUNCTION; Schema: spacex; Owner: indabauser
+-- TOC entry 469 (class 1255 OID 1602528)
+-- Name: fix_schema_references(text); Type: FUNCTION; Schema: test; Owner: indaba
 --
 
 CREATE FUNCTION fix_schema_references(schema text) RETURNS void
@@ -1154,7 +1168,7 @@ BEGIN
     buffer := schema || '.' || quote_ident(object);
     FOR column_, default_ IN
       SELECT column_name::text, 
-             REPLACE(REPLACE(column_default::text, 'spacex.', ''), 'nextval(''', 'nextval(''' || schema || '.') 
+             REPLACE(REPLACE(column_default::text, 'test.', ''), 'nextval(''', 'nextval(''' || schema || '.') 
         FROM information_schema.COLUMNS 
        WHERE table_schema = schema 
          AND TABLE_NAME = object 
@@ -1190,10 +1204,11 @@ END;
 $$;
 
 
-ALTER FUNCTION spacex.fix_schema_references(schema text) OWNER TO indabauser;
+ALTER FUNCTION test.fix_schema_references(schema text) OWNER TO indaba;
 
 --
--- Name: order_before_update(); Type: FUNCTION; Schema: spacex; Owner: indabauser
+-- TOC entry 470 (class 1255 OID 1602529)
+-- Name: order_before_update(); Type: FUNCTION; Schema: test; Owner: indaba
 --
 
 CREATE FUNCTION order_before_update() RETURNS trigger
@@ -1205,10 +1220,11 @@ CREATE FUNCTION order_before_update() RETURNS trigger
 END$$;
 
 
-ALTER FUNCTION spacex.order_before_update() OWNER TO indabauser;
+ALTER FUNCTION test.order_before_update() OWNER TO indaba;
 
 --
--- Name: tours_before_insert(); Type: FUNCTION; Schema: spacex; Owner: indabauser
+-- TOC entry 471 (class 1255 OID 1602530)
+-- Name: tours_before_insert(); Type: FUNCTION; Schema: test; Owner: indaba
 --
 
 CREATE FUNCTION tours_before_insert() RETURNS trigger
@@ -1221,10 +1237,11 @@ new."updated" = now();
 END;$$;
 
 
-ALTER FUNCTION spacex.tours_before_insert() OWNER TO indabauser;
+ALTER FUNCTION test.tours_before_insert() OWNER TO indaba;
 
 --
--- Name: tours_before_update(); Type: FUNCTION; Schema: spacex; Owner: indabauser
+-- TOC entry 472 (class 1255 OID 1602531)
+-- Name: tours_before_update(); Type: FUNCTION; Schema: test; Owner: indaba
 --
 
 CREATE FUNCTION tours_before_update() RETURNS trigger
@@ -1236,10 +1253,11 @@ CREATE FUNCTION tours_before_update() RETURNS trigger
 END;$$;
 
 
-ALTER FUNCTION spacex.tours_before_update() OWNER TO indabauser;
+ALTER FUNCTION test.tours_before_update() OWNER TO indaba;
 
 --
--- Name: twc_delete_old_token(); Type: FUNCTION; Schema: spacex; Owner: indabauser
+-- TOC entry 473 (class 1255 OID 1602532)
+-- Name: twc_delete_old_token(); Type: FUNCTION; Schema: test; Owner: indaba
 --
 
 CREATE FUNCTION twc_delete_old_token() RETURNS trigger
@@ -1250,10 +1268,11 @@ CREATE FUNCTION twc_delete_old_token() RETURNS trigger
 END;$$;
 
 
-ALTER FUNCTION spacex.twc_delete_old_token() OWNER TO indabauser;
+ALTER FUNCTION test.twc_delete_old_token() OWNER TO indaba;
 
 --
--- Name: twc_get_token(character varying, character varying); Type: FUNCTION; Schema: spacex; Owner: indabauser
+-- TOC entry 474 (class 1255 OID 1602533)
+-- Name: twc_get_token(character varying, character varying); Type: FUNCTION; Schema: test; Owner: indaba
 --
 
 CREATE FUNCTION twc_get_token(body character varying, exp character varying) RETURNS character varying
@@ -1268,10 +1287,11 @@ CREATE FUNCTION twc_get_token(body character varying, exp character varying) RET
 END$$;
 
 
-ALTER FUNCTION spacex.twc_get_token(body character varying, exp character varying) OWNER TO indabauser;
+ALTER FUNCTION test.twc_get_token(body character varying, exp character varying) OWNER TO indaba;
 
 --
--- Name: user_company_check(); Type: FUNCTION; Schema: spacex; Owner: indabauser
+-- TOC entry 475 (class 1255 OID 1602534)
+-- Name: user_company_check(); Type: FUNCTION; Schema: test; Owner: indaba
 --
 
 CREATE FUNCTION user_company_check() RETURNS trigger
@@ -1293,10 +1313,11 @@ CREATE FUNCTION user_company_check() RETURNS trigger
 END;$$;
 
 
-ALTER FUNCTION spacex.user_company_check() OWNER TO indabauser;
+ALTER FUNCTION test.user_company_check() OWNER TO indaba;
 
 --
--- Name: users_before_update(); Type: FUNCTION; Schema: spacex; Owner: indabauser
+-- TOC entry 476 (class 1255 OID 1602535)
+-- Name: users_before_update(); Type: FUNCTION; Schema: test; Owner: indaba
 --
 
 CREATE FUNCTION users_before_update() RETURNS trigger
@@ -1308,7 +1329,7 @@ CREATE FUNCTION users_before_update() RETURNS trigger
 END$$;
 
 
-ALTER FUNCTION spacex.users_before_update() OWNER TO indabauser;
+ALTER FUNCTION test.users_before_update() OWNER TO indaba;
 
 SET search_path = public, pg_catalog;
 
@@ -1317,6 +1338,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- TOC entry 176 (class 1259 OID 1599622)
 -- Name: Essences; Type: TABLE; Schema: public; Owner: indabauser
 --
 
@@ -1332,6 +1354,8 @@ CREATE TABLE "Essences" (
 ALTER TABLE "Essences" OWNER TO indabauser;
 
 --
+-- TOC entry 3778 (class 0 OID 0)
+-- Dependencies: 176
 -- Name: COLUMN "Essences".name; Type: COMMENT; Schema: public; Owner: indabauser
 --
 
@@ -1339,6 +1363,8 @@ COMMENT ON COLUMN "Essences".name IS 'Human readable name of essence';
 
 
 --
+-- TOC entry 3779 (class 0 OID 0)
+-- Dependencies: 176
 -- Name: COLUMN "Essences"."fileName"; Type: COMMENT; Schema: public; Owner: indabauser
 --
 
@@ -1346,6 +1372,7 @@ COMMENT ON COLUMN "Essences"."fileName" IS 'File name in models path';
 
 
 --
+-- TOC entry 177 (class 1259 OID 1599628)
 -- Name: Entities_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
@@ -1360,6 +1387,8 @@ CREATE SEQUENCE "Entities_id_seq"
 ALTER TABLE "Entities_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 3780 (class 0 OID 0)
+-- Dependencies: 177
 -- Name: Entities_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: indabauser
 --
 
@@ -1367,6 +1396,7 @@ ALTER SEQUENCE "Entities_id_seq" OWNED BY "Essences".id;
 
 
 --
+-- TOC entry 178 (class 1259 OID 1599630)
 -- Name: Index_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
@@ -1381,6 +1411,7 @@ CREATE SEQUENCE "Index_id_seq"
 ALTER TABLE "Index_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 179 (class 1259 OID 1599632)
 -- Name: Languages; Type: TABLE; Schema: public; Owner: indabauser
 --
 
@@ -1395,6 +1426,7 @@ CREATE TABLE "Languages" (
 ALTER TABLE "Languages" OWNER TO indabauser;
 
 --
+-- TOC entry 180 (class 1259 OID 1599635)
 -- Name: Languages_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
@@ -1409,6 +1441,8 @@ CREATE SEQUENCE "Languages_id_seq"
 ALTER TABLE "Languages_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 3781 (class 0 OID 0)
+-- Dependencies: 180
 -- Name: Languages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: indabauser
 --
 
@@ -1416,6 +1450,7 @@ ALTER SEQUENCE "Languages_id_seq" OWNED BY "Languages".id;
 
 
 --
+-- TOC entry 181 (class 1259 OID 1599637)
 -- Name: Logs; Type: TABLE; Schema: public; Owner: indabauser
 --
 
@@ -1437,6 +1472,7 @@ CREATE TABLE "Logs" (
 ALTER TABLE "Logs" OWNER TO indabauser;
 
 --
+-- TOC entry 182 (class 1259 OID 1599646)
 -- Name: Logs_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
@@ -1451,6 +1487,8 @@ CREATE SEQUENCE "Logs_id_seq"
 ALTER TABLE "Logs_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 3782 (class 0 OID 0)
+-- Dependencies: 182
 -- Name: Logs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: indabauser
 --
 
@@ -1458,6 +1496,7 @@ ALTER SEQUENCE "Logs_id_seq" OWNED BY "Logs".id;
 
 
 --
+-- TOC entry 183 (class 1259 OID 1599648)
 -- Name: Notifications_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
@@ -1472,6 +1511,7 @@ CREATE SEQUENCE "Notifications_id_seq"
 ALTER TABLE "Notifications_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 184 (class 1259 OID 1599650)
 -- Name: Notifications; Type: TABLE; Schema: public; Owner: indabauser
 --
 
@@ -1501,6 +1541,8 @@ CREATE TABLE "Notifications" (
 ALTER TABLE "Notifications" OWNER TO indabauser;
 
 --
+-- TOC entry 3783 (class 0 OID 0)
+-- Dependencies: 184
 -- Name: COLUMN "Notifications"."notifyLevel"; Type: COMMENT; Schema: public; Owner: indabauser
 --
 
@@ -1508,6 +1550,7 @@ COMMENT ON COLUMN "Notifications"."notifyLevel" IS '0 - none, 1 - alert only, 2 
 
 
 --
+-- TOC entry 185 (class 1259 OID 1599660)
 -- Name: Rights; Type: TABLE; Schema: public; Owner: indabauser
 --
 
@@ -1522,6 +1565,7 @@ CREATE TABLE "Rights" (
 ALTER TABLE "Rights" OWNER TO indabauser;
 
 --
+-- TOC entry 186 (class 1259 OID 1599666)
 -- Name: Rights_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
@@ -1536,6 +1580,8 @@ CREATE SEQUENCE "Rights_id_seq"
 ALTER TABLE "Rights_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 3784 (class 0 OID 0)
+-- Dependencies: 186
 -- Name: Rights_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: indabauser
 --
 
@@ -1543,6 +1589,7 @@ ALTER SEQUENCE "Rights_id_seq" OWNED BY "Rights".id;
 
 
 --
+-- TOC entry 187 (class 1259 OID 1599668)
 -- Name: role_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
@@ -1557,6 +1604,7 @@ CREATE SEQUENCE role_id_seq
 ALTER TABLE role_id_seq OWNER TO indabauser;
 
 --
+-- TOC entry 188 (class 1259 OID 1599670)
 -- Name: Roles; Type: TABLE; Schema: public; Owner: indabauser
 --
 
@@ -1570,6 +1618,7 @@ CREATE TABLE "Roles" (
 ALTER TABLE "Roles" OWNER TO indabauser;
 
 --
+-- TOC entry 189 (class 1259 OID 1599675)
 -- Name: RolesRights; Type: TABLE; Schema: public; Owner: indabauser
 --
 
@@ -1582,6 +1631,7 @@ CREATE TABLE "RolesRights" (
 ALTER TABLE "RolesRights" OWNER TO indabauser;
 
 --
+-- TOC entry 190 (class 1259 OID 1599678)
 -- Name: Subindex_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
@@ -1596,6 +1646,7 @@ CREATE SEQUENCE "Subindex_id_seq"
 ALTER TABLE "Subindex_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 191 (class 1259 OID 1599680)
 -- Name: Token; Type: TABLE; Schema: public; Owner: indabauser
 --
 
@@ -1610,6 +1661,7 @@ CREATE TABLE "Token" (
 ALTER TABLE "Token" OWNER TO indabauser;
 
 --
+-- TOC entry 192 (class 1259 OID 1599684)
 -- Name: UnitOfAnalysisClassType_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
@@ -1624,6 +1676,7 @@ CREATE SEQUENCE "UnitOfAnalysisClassType_id_seq"
 ALTER TABLE "UnitOfAnalysisClassType_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 193 (class 1259 OID 1599686)
 -- Name: UnitOfAnalysisTagLink_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
@@ -1638,6 +1691,7 @@ CREATE SEQUENCE "UnitOfAnalysisTagLink_id_seq"
 ALTER TABLE "UnitOfAnalysisTagLink_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 194 (class 1259 OID 1599688)
 -- Name: UnitOfAnalysisType_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
@@ -1652,6 +1706,7 @@ CREATE SEQUENCE "UnitOfAnalysisType_id_seq"
 ALTER TABLE "UnitOfAnalysisType_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 195 (class 1259 OID 1599690)
 -- Name: UnitOfAnalysis_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
@@ -1666,6 +1721,7 @@ CREATE SEQUENCE "UnitOfAnalysis_id_seq"
 ALTER TABLE "UnitOfAnalysis_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 196 (class 1259 OID 1599692)
 -- Name: user_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
@@ -1680,6 +1736,7 @@ CREATE SEQUENCE user_id_seq
 ALTER TABLE user_id_seq OWNER TO indabauser;
 
 --
+-- TOC entry 197 (class 1259 OID 1599694)
 -- Name: Users; Type: TABLE; Schema: public; Owner: indabauser
 --
 
@@ -1717,6 +1774,7 @@ CREATE TABLE "Users" (
 ALTER TABLE "Users" OWNER TO indabauser;
 
 --
+-- TOC entry 198 (class 1259 OID 1599703)
 -- Name: brand_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
@@ -1731,6 +1789,7 @@ CREATE SEQUENCE brand_id_seq
 ALTER TABLE brand_id_seq OWNER TO indabauser;
 
 --
+-- TOC entry 199 (class 1259 OID 1599705)
 -- Name: country_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
@@ -1745,6 +1804,7 @@ CREATE SEQUENCE country_id_seq
 ALTER TABLE country_id_seq OWNER TO indabauser;
 
 --
+-- TOC entry 200 (class 1259 OID 1599707)
 -- Name: order_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
@@ -1759,6 +1819,7 @@ CREATE SEQUENCE order_id_seq
 ALTER TABLE order_id_seq OWNER TO indabauser;
 
 --
+-- TOC entry 201 (class 1259 OID 1599709)
 -- Name: transport_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
@@ -1773,6 +1834,7 @@ CREATE SEQUENCE transport_id_seq
 ALTER TABLE transport_id_seq OWNER TO indabauser;
 
 --
+-- TOC entry 202 (class 1259 OID 1599711)
 -- Name: transportmodel_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
@@ -1789,6 +1851,7 @@ ALTER TABLE transportmodel_id_seq OWNER TO indabauser;
 SET search_path = sceleton, pg_catalog;
 
 --
+-- TOC entry 203 (class 1259 OID 1599713)
 -- Name: AccessMatix_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -1803,6 +1866,7 @@ CREATE SEQUENCE "AccessMatix_id_seq"
 ALTER TABLE "AccessMatix_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 204 (class 1259 OID 1599715)
 -- Name: AccessMatrices; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -1817,6 +1881,7 @@ CREATE TABLE "AccessMatrices" (
 ALTER TABLE "AccessMatrices" OWNER TO indabauser;
 
 --
+-- TOC entry 205 (class 1259 OID 1599722)
 -- Name: AccessPermissions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -1831,6 +1896,7 @@ CREATE SEQUENCE "AccessPermissions_id_seq"
 ALTER TABLE "AccessPermissions_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 206 (class 1259 OID 1599724)
 -- Name: AccessPermissions; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -1846,6 +1912,7 @@ CREATE TABLE "AccessPermissions" (
 ALTER TABLE "AccessPermissions" OWNER TO indabauser;
 
 --
+-- TOC entry 207 (class 1259 OID 1599728)
 -- Name: AnswerAttachments_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -1860,6 +1927,7 @@ CREATE SEQUENCE "AnswerAttachments_id_seq"
 ALTER TABLE "AnswerAttachments_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 208 (class 1259 OID 1599730)
 -- Name: AnswerAttachments; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -1879,6 +1947,7 @@ CREATE TABLE "AnswerAttachments" (
 ALTER TABLE "AnswerAttachments" OWNER TO indabauser;
 
 --
+-- TOC entry 209 (class 1259 OID 1599738)
 -- Name: AttachmentAttempts; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -1894,6 +1963,7 @@ CREATE TABLE "AttachmentAttempts" (
 ALTER TABLE "AttachmentAttempts" OWNER TO indabauser;
 
 --
+-- TOC entry 210 (class 1259 OID 1599745)
 -- Name: AttachmentLinks; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -1907,6 +1977,7 @@ CREATE TABLE "AttachmentLinks" (
 ALTER TABLE "AttachmentLinks" OWNER TO indabauser;
 
 --
+-- TOC entry 211 (class 1259 OID 1599751)
 -- Name: Attachments; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -1925,6 +1996,7 @@ CREATE TABLE "Attachments" (
 ALTER TABLE "Attachments" OWNER TO indabauser;
 
 --
+-- TOC entry 212 (class 1259 OID 1599757)
 -- Name: Attachments_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -1939,6 +2011,8 @@ CREATE SEQUENCE "Attachments_id_seq"
 ALTER TABLE "Attachments_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 3785 (class 0 OID 0)
+-- Dependencies: 212
 -- Name: Attachments_id_seq; Type: SEQUENCE OWNED BY; Schema: sceleton; Owner: indabauser
 --
 
@@ -1946,6 +2020,7 @@ ALTER SEQUENCE "Attachments_id_seq" OWNED BY "Attachments".id;
 
 
 --
+-- TOC entry 213 (class 1259 OID 1599759)
 -- Name: Discussions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -1960,6 +2035,7 @@ CREATE SEQUENCE "Discussions_id_seq"
 ALTER TABLE "Discussions_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 214 (class 1259 OID 1599761)
 -- Name: Discussions; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -1985,6 +2061,7 @@ CREATE TABLE "Discussions" (
 ALTER TABLE "Discussions" OWNER TO indabauser;
 
 --
+-- TOC entry 215 (class 1259 OID 1599773)
 -- Name: Entities_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -1999,6 +2076,7 @@ CREATE SEQUENCE "Entities_id_seq"
 ALTER TABLE "Entities_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 216 (class 1259 OID 1599775)
 -- Name: EntityRoles_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2013,6 +2091,7 @@ CREATE SEQUENCE "EntityRoles_id_seq"
 ALTER TABLE "EntityRoles_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 217 (class 1259 OID 1599777)
 -- Name: Essences; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2028,6 +2107,8 @@ CREATE TABLE "Essences" (
 ALTER TABLE "Essences" OWNER TO indabauser;
 
 --
+-- TOC entry 3786 (class 0 OID 0)
+-- Dependencies: 217
 -- Name: COLUMN "Essences".name; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2035,6 +2116,8 @@ COMMENT ON COLUMN "Essences".name IS 'Human readable name of essence';
 
 
 --
+-- TOC entry 3787 (class 0 OID 0)
+-- Dependencies: 217
 -- Name: COLUMN "Essences"."fileName"; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2042,6 +2125,7 @@ COMMENT ON COLUMN "Essences"."fileName" IS 'File name in models path';
 
 
 --
+-- TOC entry 218 (class 1259 OID 1599784)
 -- Name: Groups_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2056,6 +2140,7 @@ CREATE SEQUENCE "Groups_id_seq"
 ALTER TABLE "Groups_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 219 (class 1259 OID 1599786)
 -- Name: Groups; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2070,6 +2155,7 @@ CREATE TABLE "Groups" (
 ALTER TABLE "Groups" OWNER TO indabauser;
 
 --
+-- TOC entry 220 (class 1259 OID 1599793)
 -- Name: IndexQuestionWeights; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2084,6 +2170,7 @@ CREATE TABLE "IndexQuestionWeights" (
 ALTER TABLE "IndexQuestionWeights" OWNER TO indabauser;
 
 --
+-- TOC entry 221 (class 1259 OID 1599799)
 -- Name: IndexSubindexWeights; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2098,6 +2185,7 @@ CREATE TABLE "IndexSubindexWeights" (
 ALTER TABLE "IndexSubindexWeights" OWNER TO indabauser;
 
 --
+-- TOC entry 222 (class 1259 OID 1599805)
 -- Name: Index_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2112,6 +2200,7 @@ CREATE SEQUENCE "Index_id_seq"
 ALTER TABLE "Index_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 223 (class 1259 OID 1599807)
 -- Name: Indexes; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2127,6 +2216,7 @@ CREATE TABLE "Indexes" (
 ALTER TABLE "Indexes" OWNER TO indabauser;
 
 --
+-- TOC entry 224 (class 1259 OID 1599815)
 -- Name: JSON_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2141,6 +2231,7 @@ CREATE SEQUENCE "JSON_id_seq"
 ALTER TABLE "JSON_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 225 (class 1259 OID 1599817)
 -- Name: Languages_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2155,6 +2246,7 @@ CREATE SEQUENCE "Languages_id_seq"
 ALTER TABLE "Languages_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 226 (class 1259 OID 1599819)
 -- Name: Languages; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2169,6 +2261,7 @@ CREATE TABLE "Languages" (
 ALTER TABLE "Languages" OWNER TO indabauser;
 
 --
+-- TOC entry 227 (class 1259 OID 1599823)
 -- Name: Logs_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2183,6 +2276,7 @@ CREATE SEQUENCE "Logs_id_seq"
 ALTER TABLE "Logs_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 228 (class 1259 OID 1599825)
 -- Name: Logs; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2204,6 +2298,7 @@ CREATE TABLE "Logs" (
 ALTER TABLE "Logs" OWNER TO indabauser;
 
 --
+-- TOC entry 229 (class 1259 OID 1599835)
 -- Name: Notifications_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2218,6 +2313,7 @@ CREATE SEQUENCE "Notifications_id_seq"
 ALTER TABLE "Notifications_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 230 (class 1259 OID 1599837)
 -- Name: Notifications; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2247,6 +2343,8 @@ CREATE TABLE "Notifications" (
 ALTER TABLE "Notifications" OWNER TO indabauser;
 
 --
+-- TOC entry 3788 (class 0 OID 0)
+-- Dependencies: 230
 -- Name: COLUMN "Notifications"."notifyLevel"; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2254,6 +2352,7 @@ COMMENT ON COLUMN "Notifications"."notifyLevel" IS '0 - none, 1 - alert only, 2 
 
 
 --
+-- TOC entry 231 (class 1259 OID 1599847)
 -- Name: Organizations_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2268,6 +2367,7 @@ CREATE SEQUENCE "Organizations_id_seq"
 ALTER TABLE "Organizations_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 232 (class 1259 OID 1599849)
 -- Name: Organizations; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2288,6 +2388,7 @@ CREATE TABLE "Organizations" (
 ALTER TABLE "Organizations" OWNER TO indabauser;
 
 --
+-- TOC entry 233 (class 1259 OID 1599857)
 -- Name: ProductUOA; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2302,6 +2403,7 @@ CREATE TABLE "ProductUOA" (
 ALTER TABLE "ProductUOA" OWNER TO indabauser;
 
 --
+-- TOC entry 234 (class 1259 OID 1599861)
 -- Name: Products_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2316,6 +2418,7 @@ CREATE SEQUENCE "Products_id_seq"
 ALTER TABLE "Products_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 235 (class 1259 OID 1599863)
 -- Name: Products; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2334,6 +2437,7 @@ CREATE TABLE "Products" (
 ALTER TABLE "Products" OWNER TO indabauser;
 
 --
+-- TOC entry 236 (class 1259 OID 1599871)
 -- Name: Projects_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2348,6 +2452,7 @@ CREATE SEQUENCE "Projects_id_seq"
 ALTER TABLE "Projects_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 237 (class 1259 OID 1599873)
 -- Name: Projects; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2369,6 +2474,7 @@ CREATE TABLE "Projects" (
 ALTER TABLE "Projects" OWNER TO indabauser;
 
 --
+-- TOC entry 238 (class 1259 OID 1599882)
 -- Name: Rights_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2383,6 +2489,7 @@ CREATE SEQUENCE "Rights_id_seq"
 ALTER TABLE "Rights_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 239 (class 1259 OID 1599884)
 -- Name: Rights; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2397,6 +2504,7 @@ CREATE TABLE "Rights" (
 ALTER TABLE "Rights" OWNER TO indabauser;
 
 --
+-- TOC entry 240 (class 1259 OID 1599891)
 -- Name: role_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2411,6 +2519,7 @@ CREATE SEQUENCE role_id_seq
 ALTER TABLE role_id_seq OWNER TO indabauser;
 
 --
+-- TOC entry 241 (class 1259 OID 1599893)
 -- Name: Roles; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2424,6 +2533,7 @@ CREATE TABLE "Roles" (
 ALTER TABLE "Roles" OWNER TO indabauser;
 
 --
+-- TOC entry 242 (class 1259 OID 1599898)
 -- Name: RolesRights; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2436,6 +2546,7 @@ CREATE TABLE "RolesRights" (
 ALTER TABLE "RolesRights" OWNER TO indabauser;
 
 --
+-- TOC entry 243 (class 1259 OID 1599901)
 -- Name: SubindexWeights; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2450,6 +2561,7 @@ CREATE TABLE "SubindexWeights" (
 ALTER TABLE "SubindexWeights" OWNER TO indabauser;
 
 --
+-- TOC entry 244 (class 1259 OID 1599907)
 -- Name: Subindex_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2464,6 +2576,7 @@ CREATE SEQUENCE "Subindex_id_seq"
 ALTER TABLE "Subindex_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 245 (class 1259 OID 1599909)
 -- Name: Subindexes; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2479,6 +2592,7 @@ CREATE TABLE "Subindexes" (
 ALTER TABLE "Subindexes" OWNER TO indabauser;
 
 --
+-- TOC entry 246 (class 1259 OID 1599917)
 -- Name: SurveyAnswerVersions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2493,6 +2607,7 @@ CREATE SEQUENCE "SurveyAnswerVersions_id_seq"
 ALTER TABLE "SurveyAnswerVersions_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 247 (class 1259 OID 1599919)
 -- Name: SurveyAnswers_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2507,6 +2622,7 @@ CREATE SEQUENCE "SurveyAnswers_id_seq"
 ALTER TABLE "SurveyAnswers_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 248 (class 1259 OID 1599921)
 -- Name: SurveyAnswers; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2535,6 +2651,7 @@ CREATE TABLE "SurveyAnswers" (
 ALTER TABLE "SurveyAnswers" OWNER TO indabauser;
 
 --
+-- TOC entry 249 (class 1259 OID 1599930)
 -- Name: surveyQuestionOptions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2549,6 +2666,7 @@ CREATE SEQUENCE "surveyQuestionOptions_id_seq"
 ALTER TABLE "surveyQuestionOptions_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 250 (class 1259 OID 1599932)
 -- Name: SurveyQuestionOptions; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2566,6 +2684,7 @@ CREATE TABLE "SurveyQuestionOptions" (
 ALTER TABLE "SurveyQuestionOptions" OWNER TO indabauser;
 
 --
+-- TOC entry 251 (class 1259 OID 1599940)
 -- Name: SurveyQuestions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2580,6 +2699,7 @@ CREATE SEQUENCE "SurveyQuestions_id_seq"
 ALTER TABLE "SurveyQuestions_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 252 (class 1259 OID 1599942)
 -- Name: SurveyQuestions; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2613,6 +2733,7 @@ CREATE TABLE "SurveyQuestions" (
 ALTER TABLE "SurveyQuestions" OWNER TO indabauser;
 
 --
+-- TOC entry 253 (class 1259 OID 1599954)
 -- Name: Surveys; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2630,6 +2751,7 @@ CREATE TABLE "Surveys" (
 ALTER TABLE "Surveys" OWNER TO indabauser;
 
 --
+-- TOC entry 254 (class 1259 OID 1599963)
 -- Name: Tasks_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2644,6 +2766,7 @@ CREATE SEQUENCE "Tasks_id_seq"
 ALTER TABLE "Tasks_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 255 (class 1259 OID 1599965)
 -- Name: Tasks; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2665,6 +2788,7 @@ CREATE TABLE "Tasks" (
 ALTER TABLE "Tasks" OWNER TO indabauser;
 
 --
+-- TOC entry 256 (class 1259 OID 1599973)
 -- Name: Translations; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2680,6 +2804,7 @@ CREATE TABLE "Translations" (
 ALTER TABLE "Translations" OWNER TO indabauser;
 
 --
+-- TOC entry 257 (class 1259 OID 1599979)
 -- Name: UnitOfAnalysis_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2694,6 +2819,7 @@ CREATE SEQUENCE "UnitOfAnalysis_id_seq"
 ALTER TABLE "UnitOfAnalysis_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 258 (class 1259 OID 1599981)
 -- Name: UnitOfAnalysis; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2727,6 +2853,8 @@ CREATE TABLE "UnitOfAnalysis" (
 ALTER TABLE "UnitOfAnalysis" OWNER TO indabauser;
 
 --
+-- TOC entry 3789 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: COLUMN "UnitOfAnalysis"."gadmId0"; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2734,6 +2862,8 @@ COMMENT ON COLUMN "UnitOfAnalysis"."gadmId0" IS 'ID0 for use with GADM shapefile
 
 
 --
+-- TOC entry 3790 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: COLUMN "UnitOfAnalysis"."gadmId1"; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2741,6 +2871,8 @@ COMMENT ON COLUMN "UnitOfAnalysis"."gadmId1" IS 'ID1 for use with GADM shapefile
 
 
 --
+-- TOC entry 3791 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: COLUMN "UnitOfAnalysis"."gadmId2"; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2748,6 +2880,8 @@ COMMENT ON COLUMN "UnitOfAnalysis"."gadmId2" IS 'ID2 for use with GADM shapefile
 
 
 --
+-- TOC entry 3792 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: COLUMN "UnitOfAnalysis"."gadmId3"; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2755,6 +2889,8 @@ COMMENT ON COLUMN "UnitOfAnalysis"."gadmId3" IS 'ID3 for use with GADM shapefile
 
 
 --
+-- TOC entry 3793 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: COLUMN "UnitOfAnalysis"."gadmObjectId"; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2762,6 +2898,8 @@ COMMENT ON COLUMN "UnitOfAnalysis"."gadmObjectId" IS 'OBJECTID for use with GADM
 
 
 --
+-- TOC entry 3794 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: COLUMN "UnitOfAnalysis"."ISO"; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2769,6 +2907,8 @@ COMMENT ON COLUMN "UnitOfAnalysis"."ISO" IS 'only for Country level Unit Of Anal
 
 
 --
+-- TOC entry 3795 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: COLUMN "UnitOfAnalysis"."ISO2"; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2776,6 +2916,8 @@ COMMENT ON COLUMN "UnitOfAnalysis"."ISO2" IS 'only for Country level Unit Of Ana
 
 
 --
+-- TOC entry 3796 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: COLUMN "UnitOfAnalysis"."nameISO"; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2783,6 +2925,8 @@ COMMENT ON COLUMN "UnitOfAnalysis"."nameISO" IS 'only for Country level Unit Of 
 
 
 --
+-- TOC entry 3797 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: COLUMN "UnitOfAnalysis".name; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2790,6 +2934,8 @@ COMMENT ON COLUMN "UnitOfAnalysis".name IS 'Multilanguage';
 
 
 --
+-- TOC entry 3798 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: COLUMN "UnitOfAnalysis".description; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2797,6 +2943,8 @@ COMMENT ON COLUMN "UnitOfAnalysis".description IS 'Multilanguage';
 
 
 --
+-- TOC entry 3799 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: COLUMN "UnitOfAnalysis"."shortName"; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2804,6 +2952,8 @@ COMMENT ON COLUMN "UnitOfAnalysis"."shortName" IS 'Multilanguage';
 
 
 --
+-- TOC entry 3800 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: COLUMN "UnitOfAnalysis"."HASC"; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2811,6 +2961,8 @@ COMMENT ON COLUMN "UnitOfAnalysis"."HASC" IS '(example RU.AD.OK)';
 
 
 --
+-- TOC entry 3801 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: COLUMN "UnitOfAnalysis"."unitOfAnalysisType"; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2818,6 +2970,8 @@ COMMENT ON COLUMN "UnitOfAnalysis"."unitOfAnalysisType" IS 'reference to table U
 
 
 --
+-- TOC entry 3802 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: COLUMN "UnitOfAnalysis"."parentId"; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2825,6 +2979,8 @@ COMMENT ON COLUMN "UnitOfAnalysis"."parentId" IS 'Link to Parent Unit of Analysi
 
 
 --
+-- TOC entry 3803 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: COLUMN "UnitOfAnalysis"."creatorId"; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2832,6 +2988,8 @@ COMMENT ON COLUMN "UnitOfAnalysis"."creatorId" IS 'Creator Id (User Id)';
 
 
 --
+-- TOC entry 3804 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: COLUMN "UnitOfAnalysis"."ownerId"; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2839,6 +2997,8 @@ COMMENT ON COLUMN "UnitOfAnalysis"."ownerId" IS 'Owner Id (User Id)';
 
 
 --
+-- TOC entry 3805 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: COLUMN "UnitOfAnalysis".visibility; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2846,6 +3006,8 @@ COMMENT ON COLUMN "UnitOfAnalysis".visibility IS '1 = public; 2 = private;';
 
 
 --
+-- TOC entry 3806 (class 0 OID 0)
+-- Dependencies: 258
 -- Name: COLUMN "UnitOfAnalysis".status; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2853,6 +3015,7 @@ COMMENT ON COLUMN "UnitOfAnalysis".status IS '1 = active; 2 = inactive; 3 = dele
 
 
 --
+-- TOC entry 259 (class 1259 OID 1599992)
 -- Name: UnitOfAnalysisClassType_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2867,6 +3030,7 @@ CREATE SEQUENCE "UnitOfAnalysisClassType_id_seq"
 ALTER TABLE "UnitOfAnalysisClassType_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 260 (class 1259 OID 1599994)
 -- Name: UnitOfAnalysisClassType; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2881,6 +3045,8 @@ CREATE TABLE "UnitOfAnalysisClassType" (
 ALTER TABLE "UnitOfAnalysisClassType" OWNER TO indabauser;
 
 --
+-- TOC entry 3807 (class 0 OID 0)
+-- Dependencies: 260
 -- Name: COLUMN "UnitOfAnalysisClassType".name; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2888,6 +3054,8 @@ COMMENT ON COLUMN "UnitOfAnalysisClassType".name IS 'Classification Name (for ex
 
 
 --
+-- TOC entry 3808 (class 0 OID 0)
+-- Dependencies: 260
 -- Name: COLUMN "UnitOfAnalysisClassType".description; Type: COMMENT; Schema: sceleton; Owner: indabauser
 --
 
@@ -2895,6 +3063,7 @@ COMMENT ON COLUMN "UnitOfAnalysisClassType".description IS 'Classification Name 
 
 
 --
+-- TOC entry 261 (class 1259 OID 1599999)
 -- Name: UnitOfAnalysisTag_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2909,6 +3078,7 @@ CREATE SEQUENCE "UnitOfAnalysisTag_id_seq"
 ALTER TABLE "UnitOfAnalysisTag_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 262 (class 1259 OID 1600001)
 -- Name: UnitOfAnalysisTag; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2924,6 +3094,7 @@ CREATE TABLE "UnitOfAnalysisTag" (
 ALTER TABLE "UnitOfAnalysisTag" OWNER TO indabauser;
 
 --
+-- TOC entry 263 (class 1259 OID 1600006)
 -- Name: UnitOfAnalysisTagLink_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2938,6 +3109,7 @@ CREATE SEQUENCE "UnitOfAnalysisTagLink_id_seq"
 ALTER TABLE "UnitOfAnalysisTagLink_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 264 (class 1259 OID 1600008)
 -- Name: UnitOfAnalysisTagLink; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2951,6 +3123,7 @@ CREATE TABLE "UnitOfAnalysisTagLink" (
 ALTER TABLE "UnitOfAnalysisTagLink" OWNER TO indabauser;
 
 --
+-- TOC entry 265 (class 1259 OID 1600012)
 -- Name: UnitOfAnalysisType_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2965,6 +3138,7 @@ CREATE SEQUENCE "UnitOfAnalysisType_id_seq"
 ALTER TABLE "UnitOfAnalysisType_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 266 (class 1259 OID 1600014)
 -- Name: UnitOfAnalysisType; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2979,6 +3153,7 @@ CREATE TABLE "UnitOfAnalysisType" (
 ALTER TABLE "UnitOfAnalysisType" OWNER TO indabauser;
 
 --
+-- TOC entry 267 (class 1259 OID 1600019)
 -- Name: UserGroups; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2991,6 +3166,7 @@ CREATE TABLE "UserGroups" (
 ALTER TABLE "UserGroups" OWNER TO indabauser;
 
 --
+-- TOC entry 268 (class 1259 OID 1600022)
 -- Name: UserRights; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -3004,6 +3180,7 @@ CREATE TABLE "UserRights" (
 ALTER TABLE "UserRights" OWNER TO indabauser;
 
 --
+-- TOC entry 269 (class 1259 OID 1600025)
 -- Name: UserUOA; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -3016,6 +3193,7 @@ CREATE TABLE "UserUOA" (
 ALTER TABLE "UserUOA" OWNER TO indabauser;
 
 --
+-- TOC entry 270 (class 1259 OID 1600028)
 -- Name: user_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -3030,6 +3208,7 @@ CREATE SEQUENCE user_id_seq
 ALTER TABLE user_id_seq OWNER TO indabauser;
 
 --
+-- TOC entry 271 (class 1259 OID 1600030)
 -- Name: Users; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -3067,6 +3246,7 @@ CREATE TABLE "Users" (
 ALTER TABLE "Users" OWNER TO indabauser;
 
 --
+-- TOC entry 272 (class 1259 OID 1600039)
 -- Name: Visualizations_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -3081,6 +3261,7 @@ CREATE SEQUENCE "Visualizations_id_seq"
 ALTER TABLE "Visualizations_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 273 (class 1259 OID 1600041)
 -- Name: Visualizations; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -3100,6 +3281,7 @@ CREATE TABLE "Visualizations" (
 ALTER TABLE "Visualizations" OWNER TO indabauser;
 
 --
+-- TOC entry 274 (class 1259 OID 1600048)
 -- Name: WorkflowStepGroups; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -3112,6 +3294,7 @@ CREATE TABLE "WorkflowStepGroups" (
 ALTER TABLE "WorkflowStepGroups" OWNER TO indabauser;
 
 --
+-- TOC entry 275 (class 1259 OID 1600051)
 -- Name: WorkflowSteps_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -3126,6 +3309,7 @@ CREATE SEQUENCE "WorkflowSteps_id_seq"
 ALTER TABLE "WorkflowSteps_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 276 (class 1259 OID 1600053)
 -- Name: WorkflowSteps; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -3151,6 +3335,7 @@ CREATE TABLE "WorkflowSteps" (
 ALTER TABLE "WorkflowSteps" OWNER TO indabauser;
 
 --
+-- TOC entry 277 (class 1259 OID 1600061)
 -- Name: Workflows_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -3165,6 +3350,7 @@ CREATE SEQUENCE "Workflows_id_seq"
 ALTER TABLE "Workflows_id_seq" OWNER TO indabauser;
 
 --
+-- TOC entry 278 (class 1259 OID 1600063)
 -- Name: Workflows; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -3180,6 +3366,7 @@ CREATE TABLE "Workflows" (
 ALTER TABLE "Workflows" OWNER TO indabauser;
 
 --
+-- TOC entry 279 (class 1259 OID 1600071)
 -- Name: brand_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -3194,6 +3381,7 @@ CREATE SEQUENCE brand_id_seq
 ALTER TABLE brand_id_seq OWNER TO indabauser;
 
 --
+-- TOC entry 280 (class 1259 OID 1600073)
 -- Name: country_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -3208,6 +3396,7 @@ CREATE SEQUENCE country_id_seq
 ALTER TABLE country_id_seq OWNER TO indabauser;
 
 --
+-- TOC entry 281 (class 1259 OID 1600075)
 -- Name: order_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -3222,6 +3411,7 @@ CREATE SEQUENCE order_id_seq
 ALTER TABLE order_id_seq OWNER TO indabauser;
 
 --
+-- TOC entry 282 (class 1259 OID 1600077)
 -- Name: transport_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -3236,6 +3426,7 @@ CREATE SEQUENCE transport_id_seq
 ALTER TABLE transport_id_seq OWNER TO indabauser;
 
 --
+-- TOC entry 283 (class 1259 OID 1600079)
 -- Name: transportmodel_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -3249,10 +3440,11 @@ CREATE SEQUENCE transportmodel_id_seq
 
 ALTER TABLE transportmodel_id_seq OWNER TO indabauser;
 
-SET search_path = spacex, pg_catalog;
+SET search_path = test, pg_catalog;
 
 --
--- Name: AccessMatix_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 365 (class 1259 OID 1601602)
+-- Name: AccessMatix_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "AccessMatix_id_seq"
@@ -3263,10 +3455,11 @@ CREATE SEQUENCE "AccessMatix_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "AccessMatix_id_seq" OWNER TO indabauser;
+ALTER TABLE "AccessMatix_id_seq" OWNER TO indaba;
 
 --
--- Name: AccessMatrices; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 406 (class 1259 OID 1601707)
+-- Name: AccessMatrices; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "AccessMatrices" (
@@ -3277,10 +3470,11 @@ CREATE TABLE "AccessMatrices" (
 );
 
 
-ALTER TABLE "AccessMatrices" OWNER TO indabauser;
+ALTER TABLE "AccessMatrices" OWNER TO indaba;
 
 --
--- Name: AccessPermissions_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 366 (class 1259 OID 1601604)
+-- Name: AccessPermissions_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "AccessPermissions_id_seq"
@@ -3291,10 +3485,11 @@ CREATE SEQUENCE "AccessPermissions_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "AccessPermissions_id_seq" OWNER TO indabauser;
+ALTER TABLE "AccessPermissions_id_seq" OWNER TO indaba;
 
 --
--- Name: AccessPermissions; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 403 (class 1259 OID 1601678)
+-- Name: AccessPermissions; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "AccessPermissions" (
@@ -3306,10 +3501,11 @@ CREATE TABLE "AccessPermissions" (
 );
 
 
-ALTER TABLE "AccessPermissions" OWNER TO indabauser;
+ALTER TABLE "AccessPermissions" OWNER TO indaba;
 
 --
--- Name: AnswerAttachments_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 367 (class 1259 OID 1601606)
+-- Name: AnswerAttachments_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "AnswerAttachments_id_seq"
@@ -3320,10 +3516,11 @@ CREATE SEQUENCE "AnswerAttachments_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "AnswerAttachments_id_seq" OWNER TO indabauser;
+ALTER TABLE "AnswerAttachments_id_seq" OWNER TO indaba;
 
 --
--- Name: AnswerAttachments; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 404 (class 1259 OID 1601687)
+-- Name: AnswerAttachments; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "AnswerAttachments" (
@@ -3339,10 +3536,11 @@ CREATE TABLE "AnswerAttachments" (
 );
 
 
-ALTER TABLE "AnswerAttachments" OWNER TO indabauser;
+ALTER TABLE "AnswerAttachments" OWNER TO indaba;
 
 --
--- Name: AttachmentAttempts; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 405 (class 1259 OID 1601698)
+-- Name: AttachmentAttempts; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "AttachmentAttempts" (
@@ -3354,10 +3552,11 @@ CREATE TABLE "AttachmentAttempts" (
 );
 
 
-ALTER TABLE "AttachmentAttempts" OWNER TO indabauser;
+ALTER TABLE "AttachmentAttempts" OWNER TO indaba;
 
 --
--- Name: AttachmentLinks; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 442 (class 1259 OID 1602083)
+-- Name: AttachmentLinks; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "AttachmentLinks" (
@@ -3367,28 +3566,11 @@ CREATE TABLE "AttachmentLinks" (
 );
 
 
-ALTER TABLE "AttachmentLinks" OWNER TO indabauser;
+ALTER TABLE "AttachmentLinks" OWNER TO indaba;
 
 --
--- Name: Attachments; Type: TABLE; Schema: spacex; Owner: indabauser
---
-
-CREATE TABLE "Attachments" (
-    id integer NOT NULL,
-    filename character varying,
-    size integer,
-    mimetype character varying,
-    body bytea,
-    created timestamp with time zone,
-    owner integer,
-    "amazonKey" character varying
-);
-
-
-ALTER TABLE "Attachments" OWNER TO indabauser;
-
---
--- Name: Attachments_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 368 (class 1259 OID 1601608)
+-- Name: Attachments_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "Attachments_id_seq"
@@ -3399,17 +3581,30 @@ CREATE SEQUENCE "Attachments_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Attachments_id_seq" OWNER TO indabauser;
+ALTER TABLE "Attachments_id_seq" OWNER TO indaba;
 
 --
--- Name: Attachments_id_seq; Type: SEQUENCE OWNED BY; Schema: spacex; Owner: indabauser
+-- TOC entry 409 (class 1259 OID 1601742)
+-- Name: Attachments; Type: TABLE; Schema: test; Owner: indaba
 --
 
-ALTER SEQUENCE "Attachments_id_seq" OWNED BY "Attachments".id;
+CREATE TABLE "Attachments" (
+    id integer DEFAULT nextval('"Attachments_id_seq"'::regclass) NOT NULL,
+    filename character varying,
+    size integer,
+    mimetype character varying,
+    body bytea,
+    created timestamp with time zone,
+    owner integer,
+    "amazonKey" character varying
+);
 
+
+ALTER TABLE "Attachments" OWNER TO indaba;
 
 --
--- Name: Discussions_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 369 (class 1259 OID 1601610)
+-- Name: Discussions_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "Discussions_id_seq"
@@ -3420,10 +3615,11 @@ CREATE SEQUENCE "Discussions_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Discussions_id_seq" OWNER TO indabauser;
+ALTER TABLE "Discussions_id_seq" OWNER TO indaba;
 
 --
--- Name: Discussions; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 407 (class 1259 OID 1601717)
+-- Name: Discussions; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "Discussions" (
@@ -3445,10 +3641,11 @@ CREATE TABLE "Discussions" (
 );
 
 
-ALTER TABLE "Discussions" OWNER TO indabauser;
+ALTER TABLE "Discussions" OWNER TO indaba;
 
 --
--- Name: Entities_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 370 (class 1259 OID 1601612)
+-- Name: Entities_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "Entities_id_seq"
@@ -3459,10 +3656,11 @@ CREATE SEQUENCE "Entities_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Entities_id_seq" OWNER TO indabauser;
+ALTER TABLE "Entities_id_seq" OWNER TO indaba;
 
 --
--- Name: EntityRoles_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 371 (class 1259 OID 1601614)
+-- Name: EntityRoles_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "EntityRoles_id_seq"
@@ -3473,10 +3671,11 @@ CREATE SEQUENCE "EntityRoles_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "EntityRoles_id_seq" OWNER TO indabauser;
+ALTER TABLE "EntityRoles_id_seq" OWNER TO indaba;
 
 --
--- Name: Essences; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 411 (class 1259 OID 1601760)
+-- Name: Essences; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "Essences" (
@@ -3488,24 +3687,29 @@ CREATE TABLE "Essences" (
 );
 
 
-ALTER TABLE "Essences" OWNER TO indabauser;
+ALTER TABLE "Essences" OWNER TO indaba;
 
 --
--- Name: COLUMN "Essences".name; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3809 (class 0 OID 0)
+-- Dependencies: 411
+-- Name: COLUMN "Essences".name; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "Essences".name IS 'Human readable name of essence';
 
 
 --
--- Name: COLUMN "Essences"."fileName"; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3810 (class 0 OID 0)
+-- Dependencies: 411
+-- Name: COLUMN "Essences"."fileName"; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "Essences"."fileName" IS 'File name in models path';
 
 
 --
--- Name: Groups_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 372 (class 1259 OID 1601616)
+-- Name: Groups_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "Groups_id_seq"
@@ -3516,10 +3720,11 @@ CREATE SEQUENCE "Groups_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Groups_id_seq" OWNER TO indabauser;
+ALTER TABLE "Groups_id_seq" OWNER TO indaba;
 
 --
--- Name: Groups; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 408 (class 1259 OID 1601732)
+-- Name: Groups; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "Groups" (
@@ -3530,10 +3735,11 @@ CREATE TABLE "Groups" (
 );
 
 
-ALTER TABLE "Groups" OWNER TO indabauser;
+ALTER TABLE "Groups" OWNER TO indaba;
 
 --
--- Name: IndexQuestionWeights; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 410 (class 1259 OID 1601752)
+-- Name: IndexQuestionWeights; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "IndexQuestionWeights" (
@@ -3544,10 +3750,11 @@ CREATE TABLE "IndexQuestionWeights" (
 );
 
 
-ALTER TABLE "IndexQuestionWeights" OWNER TO indabauser;
+ALTER TABLE "IndexQuestionWeights" OWNER TO indaba;
 
 --
--- Name: IndexSubindexWeights; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 444 (class 1259 OID 1602096)
+-- Name: IndexSubindexWeights; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "IndexSubindexWeights" (
@@ -3558,10 +3765,11 @@ CREATE TABLE "IndexSubindexWeights" (
 );
 
 
-ALTER TABLE "IndexSubindexWeights" OWNER TO indabauser;
+ALTER TABLE "IndexSubindexWeights" OWNER TO indaba;
 
 --
--- Name: Index_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 373 (class 1259 OID 1601618)
+-- Name: Index_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "Index_id_seq"
@@ -3572,10 +3780,11 @@ CREATE SEQUENCE "Index_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Index_id_seq" OWNER TO indabauser;
+ALTER TABLE "Index_id_seq" OWNER TO indaba;
 
 --
--- Name: Indexes; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 424 (class 1259 OID 1601899)
+-- Name: Indexes; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "Indexes" (
@@ -3587,10 +3796,11 @@ CREATE TABLE "Indexes" (
 );
 
 
-ALTER TABLE "Indexes" OWNER TO indabauser;
+ALTER TABLE "Indexes" OWNER TO indaba;
 
 --
--- Name: JSON_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 374 (class 1259 OID 1601620)
+-- Name: JSON_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "JSON_id_seq"
@@ -3601,10 +3811,11 @@ CREATE SEQUENCE "JSON_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "JSON_id_seq" OWNER TO indabauser;
+ALTER TABLE "JSON_id_seq" OWNER TO indaba;
 
 --
--- Name: Languages_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 375 (class 1259 OID 1601622)
+-- Name: Languages_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "Languages_id_seq"
@@ -3615,10 +3826,11 @@ CREATE SEQUENCE "Languages_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Languages_id_seq" OWNER TO indabauser;
+ALTER TABLE "Languages_id_seq" OWNER TO indaba;
 
 --
--- Name: Languages; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 412 (class 1259 OID 1601775)
+-- Name: Languages; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "Languages" (
@@ -3629,10 +3841,11 @@ CREATE TABLE "Languages" (
 );
 
 
-ALTER TABLE "Languages" OWNER TO indabauser;
+ALTER TABLE "Languages" OWNER TO indaba;
 
 --
--- Name: Logs_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 376 (class 1259 OID 1601624)
+-- Name: Logs_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "Logs_id_seq"
@@ -3643,10 +3856,11 @@ CREATE SEQUENCE "Logs_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Logs_id_seq" OWNER TO indabauser;
+ALTER TABLE "Logs_id_seq" OWNER TO indaba;
 
 --
--- Name: Logs; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 415 (class 1259 OID 1601811)
+-- Name: Logs; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "Logs" (
@@ -3664,10 +3878,11 @@ CREATE TABLE "Logs" (
 );
 
 
-ALTER TABLE "Logs" OWNER TO indabauser;
+ALTER TABLE "Logs" OWNER TO indaba;
 
 --
--- Name: Notifications_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 377 (class 1259 OID 1601626)
+-- Name: Notifications_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "Notifications_id_seq"
@@ -3678,10 +3893,11 @@ CREATE SEQUENCE "Notifications_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Notifications_id_seq" OWNER TO indabauser;
+ALTER TABLE "Notifications_id_seq" OWNER TO indaba;
 
 --
--- Name: Notifications; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 413 (class 1259 OID 1601784)
+-- Name: Notifications; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "Notifications" (
@@ -3707,17 +3923,20 @@ CREATE TABLE "Notifications" (
 );
 
 
-ALTER TABLE "Notifications" OWNER TO indabauser;
+ALTER TABLE "Notifications" OWNER TO indaba;
 
 --
--- Name: COLUMN "Notifications"."notifyLevel"; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3811 (class 0 OID 0)
+-- Dependencies: 413
+-- Name: COLUMN "Notifications"."notifyLevel"; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "Notifications"."notifyLevel" IS '0 - none, 1 - alert only, 2 - all notifications';
 
 
 --
--- Name: Organizations_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 378 (class 1259 OID 1601628)
+-- Name: Organizations_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "Organizations_id_seq"
@@ -3728,10 +3947,11 @@ CREATE SEQUENCE "Organizations_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Organizations_id_seq" OWNER TO indabauser;
+ALTER TABLE "Organizations_id_seq" OWNER TO indaba;
 
 --
--- Name: Organizations; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 419 (class 1259 OID 1601854)
+-- Name: Organizations; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "Organizations" (
@@ -3748,10 +3968,11 @@ CREATE TABLE "Organizations" (
 );
 
 
-ALTER TABLE "Organizations" OWNER TO indabauser;
+ALTER TABLE "Organizations" OWNER TO indaba;
 
 --
--- Name: ProductUOA; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 423 (class 1259 OID 1601893)
+-- Name: ProductUOA; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "ProductUOA" (
@@ -3762,10 +3983,11 @@ CREATE TABLE "ProductUOA" (
 );
 
 
-ALTER TABLE "ProductUOA" OWNER TO indabauser;
+ALTER TABLE "ProductUOA" OWNER TO indaba;
 
 --
--- Name: Products_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 379 (class 1259 OID 1601630)
+-- Name: Products_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "Products_id_seq"
@@ -3776,10 +3998,11 @@ CREATE SEQUENCE "Products_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Products_id_seq" OWNER TO indabauser;
+ALTER TABLE "Products_id_seq" OWNER TO indaba;
 
 --
--- Name: Products; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 418 (class 1259 OID 1601843)
+-- Name: Products; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "Products" (
@@ -3794,10 +4017,11 @@ CREATE TABLE "Products" (
 );
 
 
-ALTER TABLE "Products" OWNER TO indabauser;
+ALTER TABLE "Products" OWNER TO indaba;
 
 --
--- Name: Projects_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 380 (class 1259 OID 1601632)
+-- Name: Projects_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "Projects_id_seq"
@@ -3808,10 +4032,11 @@ CREATE SEQUENCE "Projects_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Projects_id_seq" OWNER TO indabauser;
+ALTER TABLE "Projects_id_seq" OWNER TO indaba;
 
 --
--- Name: Projects; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 414 (class 1259 OID 1601797)
+-- Name: Projects; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "Projects" (
@@ -3829,10 +4054,11 @@ CREATE TABLE "Projects" (
 );
 
 
-ALTER TABLE "Projects" OWNER TO indabauser;
+ALTER TABLE "Projects" OWNER TO indaba;
 
 --
--- Name: Rights_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 381 (class 1259 OID 1601634)
+-- Name: Rights_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "Rights_id_seq"
@@ -3843,10 +4069,11 @@ CREATE SEQUENCE "Rights_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Rights_id_seq" OWNER TO indabauser;
+ALTER TABLE "Rights_id_seq" OWNER TO indaba;
 
 --
--- Name: Rights; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 417 (class 1259 OID 1601832)
+-- Name: Rights; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "Rights" (
@@ -3857,10 +4084,11 @@ CREATE TABLE "Rights" (
 );
 
 
-ALTER TABLE "Rights" OWNER TO indabauser;
+ALTER TABLE "Rights" OWNER TO indaba;
 
 --
--- Name: role_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 382 (class 1259 OID 1601636)
+-- Name: role_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE role_id_seq
@@ -3871,10 +4099,11 @@ CREATE SEQUENCE role_id_seq
     CACHE 1;
 
 
-ALTER TABLE role_id_seq OWNER TO indabauser;
+ALTER TABLE role_id_seq OWNER TO indaba;
 
 --
--- Name: Roles; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 416 (class 1259 OID 1601824)
+-- Name: Roles; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "Roles" (
@@ -3884,10 +4113,11 @@ CREATE TABLE "Roles" (
 );
 
 
-ALTER TABLE "Roles" OWNER TO indabauser;
+ALTER TABLE "Roles" OWNER TO indaba;
 
 --
--- Name: RolesRights; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 420 (class 1259 OID 1601867)
+-- Name: RolesRights; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "RolesRights" (
@@ -3896,10 +4126,11 @@ CREATE TABLE "RolesRights" (
 );
 
 
-ALTER TABLE "RolesRights" OWNER TO indabauser;
+ALTER TABLE "RolesRights" OWNER TO indaba;
 
 --
--- Name: SubindexWeights; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 422 (class 1259 OID 1601885)
+-- Name: SubindexWeights; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "SubindexWeights" (
@@ -3910,10 +4141,11 @@ CREATE TABLE "SubindexWeights" (
 );
 
 
-ALTER TABLE "SubindexWeights" OWNER TO indabauser;
+ALTER TABLE "SubindexWeights" OWNER TO indaba;
 
 --
--- Name: Subindex_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 383 (class 1259 OID 1601638)
+-- Name: Subindex_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "Subindex_id_seq"
@@ -3924,10 +4156,11 @@ CREATE SEQUENCE "Subindex_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Subindex_id_seq" OWNER TO indabauser;
+ALTER TABLE "Subindex_id_seq" OWNER TO indaba;
 
 --
--- Name: Subindexes; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 421 (class 1259 OID 1601873)
+-- Name: Subindexes; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "Subindexes" (
@@ -3939,10 +4172,11 @@ CREATE TABLE "Subindexes" (
 );
 
 
-ALTER TABLE "Subindexes" OWNER TO indabauser;
+ALTER TABLE "Subindexes" OWNER TO indaba;
 
 --
--- Name: SurveyAnswerVersions_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 384 (class 1259 OID 1601640)
+-- Name: SurveyAnswerVersions_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "SurveyAnswerVersions_id_seq"
@@ -3953,10 +4187,11 @@ CREATE SEQUENCE "SurveyAnswerVersions_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "SurveyAnswerVersions_id_seq" OWNER TO indabauser;
+ALTER TABLE "SurveyAnswerVersions_id_seq" OWNER TO indaba;
 
 --
--- Name: SurveyAnswers_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 385 (class 1259 OID 1601642)
+-- Name: SurveyAnswers_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "SurveyAnswers_id_seq"
@@ -3967,10 +4202,11 @@ CREATE SEQUENCE "SurveyAnswers_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "SurveyAnswers_id_seq" OWNER TO indabauser;
+ALTER TABLE "SurveyAnswers_id_seq" OWNER TO indaba;
 
 --
--- Name: SurveyAnswers; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 445 (class 1259 OID 1602104)
+-- Name: SurveyAnswers; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "SurveyAnswers" (
@@ -3995,10 +4231,11 @@ CREATE TABLE "SurveyAnswers" (
 );
 
 
-ALTER TABLE "SurveyAnswers" OWNER TO indabauser;
+ALTER TABLE "SurveyAnswers" OWNER TO indaba;
 
 --
--- Name: surveyQuestionOptions_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 387 (class 1259 OID 1601646)
+-- Name: surveyQuestionOptions_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "surveyQuestionOptions_id_seq"
@@ -4009,10 +4246,11 @@ CREATE SEQUENCE "surveyQuestionOptions_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "surveyQuestionOptions_id_seq" OWNER TO indabauser;
+ALTER TABLE "surveyQuestionOptions_id_seq" OWNER TO indaba;
 
 --
--- Name: SurveyQuestionOptions; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 433 (class 1259 OID 1602000)
+-- Name: SurveyQuestionOptions; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "SurveyQuestionOptions" (
@@ -4026,10 +4264,11 @@ CREATE TABLE "SurveyQuestionOptions" (
 );
 
 
-ALTER TABLE "SurveyQuestionOptions" OWNER TO indabauser;
+ALTER TABLE "SurveyQuestionOptions" OWNER TO indaba;
 
 --
--- Name: SurveyQuestions_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 388 (class 1259 OID 1601648)
+-- Name: SurveyQuestions_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "SurveyQuestions_id_seq"
@@ -4040,10 +4279,11 @@ CREATE SEQUENCE "SurveyQuestions_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "SurveyQuestions_id_seq" OWNER TO indabauser;
+ALTER TABLE "SurveyQuestions_id_seq" OWNER TO indaba;
 
 --
--- Name: SurveyQuestions; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 429 (class 1259 OID 1601951)
+-- Name: SurveyQuestions; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "SurveyQuestions" (
@@ -4073,10 +4313,11 @@ CREATE TABLE "SurveyQuestions" (
 );
 
 
-ALTER TABLE "SurveyQuestions" OWNER TO indabauser;
+ALTER TABLE "SurveyQuestions" OWNER TO indaba;
 
 --
--- Name: Surveys; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 436 (class 1259 OID 1602021)
+-- Name: Surveys; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "Surveys" (
@@ -4090,10 +4331,11 @@ CREATE TABLE "Surveys" (
 );
 
 
-ALTER TABLE "Surveys" OWNER TO indabauser;
+ALTER TABLE "Surveys" OWNER TO indaba;
 
 --
--- Name: Tasks_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 389 (class 1259 OID 1601650)
+-- Name: Tasks_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "Tasks_id_seq"
@@ -4104,10 +4346,11 @@ CREATE SEQUENCE "Tasks_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Tasks_id_seq" OWNER TO indabauser;
+ALTER TABLE "Tasks_id_seq" OWNER TO indaba;
 
 --
--- Name: Tasks; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 437 (class 1259 OID 1602033)
+-- Name: Tasks; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "Tasks" (
@@ -4121,14 +4364,17 @@ CREATE TABLE "Tasks" (
     "startDate" timestamp with time zone,
     "endDate" timestamp with time zone,
     "userId" integer,
-    "langId" integer
+    "langId" integer,
+    "userIds" integer[],
+    "groupIds" integer[]
 );
 
 
-ALTER TABLE "Tasks" OWNER TO indabauser;
+ALTER TABLE "Tasks" OWNER TO indaba;
 
 --
--- Name: Translations; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 428 (class 1259 OID 1601943)
+-- Name: Translations; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "Translations" (
@@ -4140,10 +4386,11 @@ CREATE TABLE "Translations" (
 );
 
 
-ALTER TABLE "Translations" OWNER TO indabauser;
+ALTER TABLE "Translations" OWNER TO indaba;
 
 --
--- Name: UnitOfAnalysis_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 390 (class 1259 OID 1601652)
+-- Name: UnitOfAnalysis_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "UnitOfAnalysis_id_seq"
@@ -4154,10 +4401,11 @@ CREATE SEQUENCE "UnitOfAnalysis_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "UnitOfAnalysis_id_seq" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysis_id_seq" OWNER TO indaba;
 
 --
--- Name: UnitOfAnalysis; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 427 (class 1259 OID 1601927)
+-- Name: UnitOfAnalysis; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "UnitOfAnalysis" (
@@ -4187,136 +4435,173 @@ CREATE TABLE "UnitOfAnalysis" (
 );
 
 
-ALTER TABLE "UnitOfAnalysis" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysis" OWNER TO indaba;
 
 --
--- Name: COLUMN "UnitOfAnalysis"."gadmId0"; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3812 (class 0 OID 0)
+-- Dependencies: 427
+-- Name: COLUMN "UnitOfAnalysis"."gadmId0"; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysis"."gadmId0" IS 'ID0 for use with GADM shapefile';
 
 
 --
--- Name: COLUMN "UnitOfAnalysis"."gadmId1"; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3813 (class 0 OID 0)
+-- Dependencies: 427
+-- Name: COLUMN "UnitOfAnalysis"."gadmId1"; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysis"."gadmId1" IS 'ID1 for use with GADM shapefile';
 
 
 --
--- Name: COLUMN "UnitOfAnalysis"."gadmId2"; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3814 (class 0 OID 0)
+-- Dependencies: 427
+-- Name: COLUMN "UnitOfAnalysis"."gadmId2"; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysis"."gadmId2" IS 'ID2 for use with GADM shapefile';
 
 
 --
--- Name: COLUMN "UnitOfAnalysis"."gadmId3"; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3815 (class 0 OID 0)
+-- Dependencies: 427
+-- Name: COLUMN "UnitOfAnalysis"."gadmId3"; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysis"."gadmId3" IS 'ID3 for use with GADM shapefile';
 
 
 --
--- Name: COLUMN "UnitOfAnalysis"."gadmObjectId"; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3816 (class 0 OID 0)
+-- Dependencies: 427
+-- Name: COLUMN "UnitOfAnalysis"."gadmObjectId"; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysis"."gadmObjectId" IS 'OBJECTID for use with GADM shapefile (only Global Shapefile)';
 
 
 --
--- Name: COLUMN "UnitOfAnalysis"."ISO"; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3817 (class 0 OID 0)
+-- Dependencies: 427
+-- Name: COLUMN "UnitOfAnalysis"."ISO"; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysis"."ISO" IS 'only for Country level Unit Of Analysis';
 
 
 --
--- Name: COLUMN "UnitOfAnalysis"."ISO2"; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3818 (class 0 OID 0)
+-- Dependencies: 427
+-- Name: COLUMN "UnitOfAnalysis"."ISO2"; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysis"."ISO2" IS 'only for Country level Unit Of Analysis';
 
 
 --
--- Name: COLUMN "UnitOfAnalysis"."nameISO"; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3819 (class 0 OID 0)
+-- Dependencies: 427
+-- Name: COLUMN "UnitOfAnalysis"."nameISO"; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysis"."nameISO" IS 'only for Country level Unit Of Analysis';
 
 
 --
--- Name: COLUMN "UnitOfAnalysis".name; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3820 (class 0 OID 0)
+-- Dependencies: 427
+-- Name: COLUMN "UnitOfAnalysis".name; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysis".name IS 'Multilanguage';
 
 
 --
--- Name: COLUMN "UnitOfAnalysis".description; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3821 (class 0 OID 0)
+-- Dependencies: 427
+-- Name: COLUMN "UnitOfAnalysis".description; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysis".description IS 'Multilanguage';
 
 
 --
--- Name: COLUMN "UnitOfAnalysis"."shortName"; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3822 (class 0 OID 0)
+-- Dependencies: 427
+-- Name: COLUMN "UnitOfAnalysis"."shortName"; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysis"."shortName" IS 'Multilanguage';
 
 
 --
--- Name: COLUMN "UnitOfAnalysis"."HASC"; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3823 (class 0 OID 0)
+-- Dependencies: 427
+-- Name: COLUMN "UnitOfAnalysis"."HASC"; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysis"."HASC" IS '(example RU.AD.OK)';
 
 
 --
--- Name: COLUMN "UnitOfAnalysis"."unitOfAnalysisType"; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3824 (class 0 OID 0)
+-- Dependencies: 427
+-- Name: COLUMN "UnitOfAnalysis"."unitOfAnalysisType"; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysis"."unitOfAnalysisType" IS 'reference to table UnitOfAnalysisType';
 
 
 --
--- Name: COLUMN "UnitOfAnalysis"."parentId"; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3825 (class 0 OID 0)
+-- Dependencies: 427
+-- Name: COLUMN "UnitOfAnalysis"."parentId"; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysis"."parentId" IS 'Link to Parent Unit of Analysis if exist';
 
 
 --
--- Name: COLUMN "UnitOfAnalysis"."creatorId"; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3826 (class 0 OID 0)
+-- Dependencies: 427
+-- Name: COLUMN "UnitOfAnalysis"."creatorId"; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysis"."creatorId" IS 'Creator Id (User Id)';
 
 
 --
--- Name: COLUMN "UnitOfAnalysis"."ownerId"; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3827 (class 0 OID 0)
+-- Dependencies: 427
+-- Name: COLUMN "UnitOfAnalysis"."ownerId"; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysis"."ownerId" IS 'Owner Id (User Id)';
 
 
 --
--- Name: COLUMN "UnitOfAnalysis".visibility; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3828 (class 0 OID 0)
+-- Dependencies: 427
+-- Name: COLUMN "UnitOfAnalysis".visibility; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysis".visibility IS '1 = public; 2 = private;';
 
 
 --
--- Name: COLUMN "UnitOfAnalysis".status; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3829 (class 0 OID 0)
+-- Dependencies: 427
+-- Name: COLUMN "UnitOfAnalysis".status; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysis".status IS '1 = active; 2 = inactive; 3 = deleted;';
 
 
 --
--- Name: UnitOfAnalysisClassType_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 386 (class 1259 OID 1601644)
+-- Name: UnitOfAnalysisClassType_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "UnitOfAnalysisClassType_id_seq"
@@ -4327,10 +4612,11 @@ CREATE SEQUENCE "UnitOfAnalysisClassType_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "UnitOfAnalysisClassType_id_seq" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysisClassType_id_seq" OWNER TO indaba;
 
 --
--- Name: UnitOfAnalysisClassType; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 430 (class 1259 OID 1601966)
+-- Name: UnitOfAnalysisClassType; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "UnitOfAnalysisClassType" (
@@ -4341,24 +4627,29 @@ CREATE TABLE "UnitOfAnalysisClassType" (
 );
 
 
-ALTER TABLE "UnitOfAnalysisClassType" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysisClassType" OWNER TO indaba;
 
 --
--- Name: COLUMN "UnitOfAnalysisClassType".name; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3830 (class 0 OID 0)
+-- Dependencies: 430
+-- Name: COLUMN "UnitOfAnalysisClassType".name; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysisClassType".name IS 'Classification Name (for example - World Bank classification) ';
 
 
 --
--- Name: COLUMN "UnitOfAnalysisClassType".description; Type: COMMENT; Schema: spacex; Owner: indabauser
+-- TOC entry 3831 (class 0 OID 0)
+-- Dependencies: 430
+-- Name: COLUMN "UnitOfAnalysisClassType".description; Type: COMMENT; Schema: test; Owner: indaba
 --
 
 COMMENT ON COLUMN "UnitOfAnalysisClassType".description IS 'Classification Name description';
 
 
 --
--- Name: UnitOfAnalysisTag_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 391 (class 1259 OID 1601654)
+-- Name: UnitOfAnalysisTag_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "UnitOfAnalysisTag_id_seq"
@@ -4369,10 +4660,11 @@ CREATE SEQUENCE "UnitOfAnalysisTag_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "UnitOfAnalysisTag_id_seq" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysisTag_id_seq" OWNER TO indaba;
 
 --
--- Name: UnitOfAnalysisTag; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 425 (class 1259 OID 1601911)
+-- Name: UnitOfAnalysisTag; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "UnitOfAnalysisTag" (
@@ -4384,10 +4676,11 @@ CREATE TABLE "UnitOfAnalysisTag" (
 );
 
 
-ALTER TABLE "UnitOfAnalysisTag" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysisTag" OWNER TO indaba;
 
 --
--- Name: UnitOfAnalysisTagLink_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 392 (class 1259 OID 1601656)
+-- Name: UnitOfAnalysisTagLink_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "UnitOfAnalysisTagLink_id_seq"
@@ -4398,10 +4691,11 @@ CREATE SEQUENCE "UnitOfAnalysisTagLink_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "UnitOfAnalysisTagLink_id_seq" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysisTagLink_id_seq" OWNER TO indaba;
 
 --
--- Name: UnitOfAnalysisTagLink; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 432 (class 1259 OID 1601989)
+-- Name: UnitOfAnalysisTagLink; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "UnitOfAnalysisTagLink" (
@@ -4411,10 +4705,11 @@ CREATE TABLE "UnitOfAnalysisTagLink" (
 );
 
 
-ALTER TABLE "UnitOfAnalysisTagLink" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysisTagLink" OWNER TO indaba;
 
 --
--- Name: UnitOfAnalysisType_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 393 (class 1259 OID 1601658)
+-- Name: UnitOfAnalysisType_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "UnitOfAnalysisType_id_seq"
@@ -4425,10 +4720,11 @@ CREATE SEQUENCE "UnitOfAnalysisType_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "UnitOfAnalysisType_id_seq" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysisType_id_seq" OWNER TO indaba;
 
 --
--- Name: UnitOfAnalysisType; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 426 (class 1259 OID 1601919)
+-- Name: UnitOfAnalysisType; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "UnitOfAnalysisType" (
@@ -4439,10 +4735,11 @@ CREATE TABLE "UnitOfAnalysisType" (
 );
 
 
-ALTER TABLE "UnitOfAnalysisType" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysisType" OWNER TO indaba;
 
 --
--- Name: UserGroups; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 438 (class 1259 OID 1602044)
+-- Name: UserGroups; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "UserGroups" (
@@ -4451,10 +4748,11 @@ CREATE TABLE "UserGroups" (
 );
 
 
-ALTER TABLE "UserGroups" OWNER TO indabauser;
+ALTER TABLE "UserGroups" OWNER TO indaba;
 
 --
--- Name: UserRights; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 434 (class 1259 OID 1602011)
+-- Name: UserRights; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "UserRights" (
@@ -4464,10 +4762,11 @@ CREATE TABLE "UserRights" (
 );
 
 
-ALTER TABLE "UserRights" OWNER TO indabauser;
+ALTER TABLE "UserRights" OWNER TO indaba;
 
 --
--- Name: UserUOA; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 435 (class 1259 OID 1602016)
+-- Name: UserUOA; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "UserUOA" (
@@ -4476,10 +4775,11 @@ CREATE TABLE "UserUOA" (
 );
 
 
-ALTER TABLE "UserUOA" OWNER TO indabauser;
+ALTER TABLE "UserUOA" OWNER TO indaba;
 
 --
--- Name: user_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 394 (class 1259 OID 1601660)
+-- Name: user_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE user_id_seq
@@ -4490,10 +4790,11 @@ CREATE SEQUENCE user_id_seq
     CACHE 1;
 
 
-ALTER TABLE user_id_seq OWNER TO indabauser;
+ALTER TABLE user_id_seq OWNER TO indaba;
 
 --
--- Name: Users; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 431 (class 1259 OID 1601974)
+-- Name: Users; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "Users" (
@@ -4527,10 +4828,11 @@ CREATE TABLE "Users" (
 );
 
 
-ALTER TABLE "Users" OWNER TO indabauser;
+ALTER TABLE "Users" OWNER TO indaba;
 
 --
--- Name: Visualizations_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 395 (class 1259 OID 1601662)
+-- Name: Visualizations_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "Visualizations_id_seq"
@@ -4541,10 +4843,11 @@ CREATE SEQUENCE "Visualizations_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Visualizations_id_seq" OWNER TO indabauser;
+ALTER TABLE "Visualizations_id_seq" OWNER TO indaba;
 
 --
--- Name: Visualizations; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 439 (class 1259 OID 1602049)
+-- Name: Visualizations; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "Visualizations" (
@@ -4560,10 +4863,11 @@ CREATE TABLE "Visualizations" (
 );
 
 
-ALTER TABLE "Visualizations" OWNER TO indabauser;
+ALTER TABLE "Visualizations" OWNER TO indaba;
 
 --
--- Name: WorkflowStepGroups; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 443 (class 1259 OID 1602091)
+-- Name: WorkflowStepGroups; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "WorkflowStepGroups" (
@@ -4572,10 +4876,11 @@ CREATE TABLE "WorkflowStepGroups" (
 );
 
 
-ALTER TABLE "WorkflowStepGroups" OWNER TO indabauser;
+ALTER TABLE "WorkflowStepGroups" OWNER TO indaba;
 
 --
--- Name: WorkflowSteps_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 396 (class 1259 OID 1601664)
+-- Name: WorkflowSteps_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "WorkflowSteps_id_seq"
@@ -4586,10 +4891,11 @@ CREATE SEQUENCE "WorkflowSteps_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "WorkflowSteps_id_seq" OWNER TO indabauser;
+ALTER TABLE "WorkflowSteps_id_seq" OWNER TO indaba;
 
 --
--- Name: WorkflowSteps; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 441 (class 1259 OID 1602072)
+-- Name: WorkflowSteps; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "WorkflowSteps" (
@@ -4611,10 +4917,11 @@ CREATE TABLE "WorkflowSteps" (
 );
 
 
-ALTER TABLE "WorkflowSteps" OWNER TO indabauser;
+ALTER TABLE "WorkflowSteps" OWNER TO indaba;
 
 --
--- Name: Workflows_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 397 (class 1259 OID 1601666)
+-- Name: Workflows_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE "Workflows_id_seq"
@@ -4625,10 +4932,11 @@ CREATE SEQUENCE "Workflows_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Workflows_id_seq" OWNER TO indabauser;
+ALTER TABLE "Workflows_id_seq" OWNER TO indaba;
 
 --
--- Name: Workflows; Type: TABLE; Schema: spacex; Owner: indabauser
+-- TOC entry 440 (class 1259 OID 1602059)
+-- Name: Workflows; Type: TABLE; Schema: test; Owner: indaba
 --
 
 CREATE TABLE "Workflows" (
@@ -4640,10 +4948,11 @@ CREATE TABLE "Workflows" (
 );
 
 
-ALTER TABLE "Workflows" OWNER TO indabauser;
+ALTER TABLE "Workflows" OWNER TO indaba;
 
 --
--- Name: brand_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 398 (class 1259 OID 1601668)
+-- Name: brand_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE brand_id_seq
@@ -4654,10 +4963,11 @@ CREATE SEQUENCE brand_id_seq
     CACHE 1;
 
 
-ALTER TABLE brand_id_seq OWNER TO indabauser;
+ALTER TABLE brand_id_seq OWNER TO indaba;
 
 --
--- Name: country_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 399 (class 1259 OID 1601670)
+-- Name: country_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE country_id_seq
@@ -4668,10 +4978,11 @@ CREATE SEQUENCE country_id_seq
     CACHE 1;
 
 
-ALTER TABLE country_id_seq OWNER TO indabauser;
+ALTER TABLE country_id_seq OWNER TO indaba;
 
 --
--- Name: order_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 400 (class 1259 OID 1601672)
+-- Name: order_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE order_id_seq
@@ -4682,10 +4993,11 @@ CREATE SEQUENCE order_id_seq
     CACHE 1;
 
 
-ALTER TABLE order_id_seq OWNER TO indabauser;
+ALTER TABLE order_id_seq OWNER TO indaba;
 
 --
--- Name: transport_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 401 (class 1259 OID 1601674)
+-- Name: transport_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE transport_id_seq
@@ -4696,10 +5008,11 @@ CREATE SEQUENCE transport_id_seq
     CACHE 1;
 
 
-ALTER TABLE transport_id_seq OWNER TO indabauser;
+ALTER TABLE transport_id_seq OWNER TO indaba;
 
 --
--- Name: transportmodel_id_seq; Type: SEQUENCE; Schema: spacex; Owner: indabauser
+-- TOC entry 402 (class 1259 OID 1601676)
+-- Name: transportmodel_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
 
 CREATE SEQUENCE transportmodel_id_seq
@@ -4710,11 +5023,12 @@ CREATE SEQUENCE transportmodel_id_seq
     CACHE 1;
 
 
-ALTER TABLE transportmodel_id_seq OWNER TO indabauser;
+ALTER TABLE transportmodel_id_seq OWNER TO indaba;
 
 SET search_path = public, pg_catalog;
 
 --
+-- TOC entry 3060 (class 2604 OID 1600449)
 -- Name: id; Type: DEFAULT; Schema: public; Owner: indabauser
 --
 
@@ -4722,6 +5036,7 @@ ALTER TABLE ONLY "Essences" ALTER COLUMN id SET DEFAULT nextval('"Entities_id_se
 
 
 --
+-- TOC entry 3061 (class 2604 OID 1600450)
 -- Name: id; Type: DEFAULT; Schema: public; Owner: indabauser
 --
 
@@ -4729,6 +5044,7 @@ ALTER TABLE ONLY "Languages" ALTER COLUMN id SET DEFAULT nextval('"Languages_id_
 
 
 --
+-- TOC entry 3065 (class 2604 OID 1600451)
 -- Name: id; Type: DEFAULT; Schema: public; Owner: indabauser
 --
 
@@ -4736,6 +5052,7 @@ ALTER TABLE ONLY "Logs" ALTER COLUMN id SET DEFAULT nextval('"Logs_id_seq"'::reg
 
 
 --
+-- TOC entry 3070 (class 2604 OID 1600452)
 -- Name: id; Type: DEFAULT; Schema: public; Owner: indabauser
 --
 
@@ -4745,16 +5062,8 @@ ALTER TABLE ONLY "Rights" ALTER COLUMN id SET DEFAULT nextval('"Rights_id_seq"':
 SET search_path = sceleton, pg_catalog;
 
 --
+-- TOC entry 3082 (class 2604 OID 1600453)
 -- Name: id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "Attachments" ALTER COLUMN id SET DEFAULT nextval('"Attachments_id_seq"'::regclass);
-
-
-SET search_path = spacex, pg_catalog;
-
---
--- Name: id; Type: DEFAULT; Schema: spacex; Owner: indabauser
 --
 
 ALTER TABLE ONLY "Attachments" ALTER COLUMN id SET DEFAULT nextval('"Attachments_id_seq"'::regclass);
@@ -4763,6 +5072,7 @@ ALTER TABLE ONLY "Attachments" ALTER COLUMN id SET DEFAULT nextval('"Attachments
 SET search_path = public, pg_catalog;
 
 --
+-- TOC entry 3226 (class 2606 OID 1600456)
 -- Name: Entity_pkey; Type: CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -4771,6 +5081,7 @@ ALTER TABLE ONLY "Essences"
 
 
 --
+-- TOC entry 3228 (class 2606 OID 1600458)
 -- Name: Essences_fileName_key; Type: CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -4779,6 +5090,7 @@ ALTER TABLE ONLY "Essences"
 
 
 --
+-- TOC entry 3230 (class 2606 OID 1600460)
 -- Name: Essences_tableName_key; Type: CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -4787,6 +5099,7 @@ ALTER TABLE ONLY "Essences"
 
 
 --
+-- TOC entry 3233 (class 2606 OID 1600462)
 -- Name: Languages_code_key; Type: CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -4795,6 +5108,7 @@ ALTER TABLE ONLY "Languages"
 
 
 --
+-- TOC entry 3235 (class 2606 OID 1600464)
 -- Name: Languages_pkey; Type: CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -4803,6 +5117,7 @@ ALTER TABLE ONLY "Languages"
 
 
 --
+-- TOC entry 3237 (class 2606 OID 1600466)
 -- Name: Logs_pkey; Type: CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -4811,6 +5126,7 @@ ALTER TABLE ONLY "Logs"
 
 
 --
+-- TOC entry 3239 (class 2606 OID 1600468)
 -- Name: Notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -4819,6 +5135,7 @@ ALTER TABLE ONLY "Notifications"
 
 
 --
+-- TOC entry 3242 (class 2606 OID 1600470)
 -- Name: Rights_pkey; Type: CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -4827,6 +5144,7 @@ ALTER TABLE ONLY "Rights"
 
 
 --
+-- TOC entry 3250 (class 2606 OID 1600472)
 -- Name: Token_pkey; Type: CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -4835,6 +5153,7 @@ ALTER TABLE ONLY "Token"
 
 
 --
+-- TOC entry 3252 (class 2606 OID 1600474)
 -- Name: Users_email_key; Type: CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -4843,6 +5162,7 @@ ALTER TABLE ONLY "Users"
 
 
 --
+-- TOC entry 3244 (class 2606 OID 1600476)
 -- Name: id; Type: CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -4851,6 +5171,7 @@ ALTER TABLE ONLY "Roles"
 
 
 --
+-- TOC entry 3247 (class 2606 OID 1600478)
 -- Name: roleRight_pkey; Type: CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -4859,6 +5180,7 @@ ALTER TABLE ONLY "RolesRights"
 
 
 --
+-- TOC entry 3255 (class 2606 OID 1600480)
 -- Name: userID; Type: CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -4869,6 +5191,7 @@ ALTER TABLE ONLY "Users"
 SET search_path = sceleton, pg_catalog;
 
 --
+-- TOC entry 3257 (class 2606 OID 1600482)
 -- Name: AccessMatrices_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -4877,6 +5200,7 @@ ALTER TABLE ONLY "AccessMatrices"
 
 
 --
+-- TOC entry 3259 (class 2606 OID 1600484)
 -- Name: AccessPermissions_matrixId_roleId_rightId_key; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -4885,6 +5209,7 @@ ALTER TABLE ONLY "AccessPermissions"
 
 
 --
+-- TOC entry 3261 (class 2606 OID 1600486)
 -- Name: AccessPermissions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -4893,6 +5218,7 @@ ALTER TABLE ONLY "AccessPermissions"
 
 
 --
+-- TOC entry 3263 (class 2606 OID 1600488)
 -- Name: AnswerAttachments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -4901,6 +5227,7 @@ ALTER TABLE ONLY "AnswerAttachments"
 
 
 --
+-- TOC entry 3265 (class 2606 OID 1600490)
 -- Name: AttachmentAttempts_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -4909,6 +5236,7 @@ ALTER TABLE ONLY "AttachmentAttempts"
 
 
 --
+-- TOC entry 3267 (class 2606 OID 1600492)
 -- Name: AttachmentLinks_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -4917,6 +5245,7 @@ ALTER TABLE ONLY "AttachmentLinks"
 
 
 --
+-- TOC entry 3269 (class 2606 OID 1600494)
 -- Name: Attachments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -4925,6 +5254,7 @@ ALTER TABLE ONLY "Attachments"
 
 
 --
+-- TOC entry 3271 (class 2606 OID 1600496)
 -- Name: Discussions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -4933,6 +5263,7 @@ ALTER TABLE ONLY "Discussions"
 
 
 --
+-- TOC entry 3273 (class 2606 OID 1600498)
 -- Name: Essences_fileName_key; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -4941,6 +5272,7 @@ ALTER TABLE ONLY "Essences"
 
 
 --
+-- TOC entry 3275 (class 2606 OID 1600500)
 -- Name: Essences_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -4949,6 +5281,7 @@ ALTER TABLE ONLY "Essences"
 
 
 --
+-- TOC entry 3277 (class 2606 OID 1600502)
 -- Name: Essences_tableName_key; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -4957,6 +5290,7 @@ ALTER TABLE ONLY "Essences"
 
 
 --
+-- TOC entry 3280 (class 2606 OID 1600504)
 -- Name: Groups_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -4965,6 +5299,7 @@ ALTER TABLE ONLY "Groups"
 
 
 --
+-- TOC entry 3282 (class 2606 OID 1600506)
 -- Name: IndexQuestionWeights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -4973,6 +5308,7 @@ ALTER TABLE ONLY "IndexQuestionWeights"
 
 
 --
+-- TOC entry 3284 (class 2606 OID 1600508)
 -- Name: IndexSubindexWeights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -4981,6 +5317,7 @@ ALTER TABLE ONLY "IndexSubindexWeights"
 
 
 --
+-- TOC entry 3286 (class 2606 OID 1600510)
 -- Name: Indexes_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -4989,6 +5326,7 @@ ALTER TABLE ONLY "Indexes"
 
 
 --
+-- TOC entry 3289 (class 2606 OID 1600512)
 -- Name: Languages_code_key; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -4997,6 +5335,7 @@ ALTER TABLE ONLY "Languages"
 
 
 --
+-- TOC entry 3291 (class 2606 OID 1600514)
 -- Name: Languages_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5005,6 +5344,7 @@ ALTER TABLE ONLY "Languages"
 
 
 --
+-- TOC entry 3293 (class 2606 OID 1600516)
 -- Name: Logs_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5013,6 +5353,7 @@ ALTER TABLE ONLY "Logs"
 
 
 --
+-- TOC entry 3295 (class 2606 OID 1600518)
 -- Name: Notifications_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5021,6 +5362,7 @@ ALTER TABLE ONLY "Notifications"
 
 
 --
+-- TOC entry 3297 (class 2606 OID 1600520)
 -- Name: Organizations_adminUserId_key; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5029,6 +5371,7 @@ ALTER TABLE ONLY "Organizations"
 
 
 --
+-- TOC entry 3299 (class 2606 OID 1600522)
 -- Name: Organizations_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5037,6 +5380,7 @@ ALTER TABLE ONLY "Organizations"
 
 
 --
+-- TOC entry 3301 (class 2606 OID 1600524)
 -- Name: ProductUOA_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5045,6 +5389,7 @@ ALTER TABLE ONLY "ProductUOA"
 
 
 --
+-- TOC entry 3303 (class 2606 OID 1600526)
 -- Name: Products_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5053,6 +5398,7 @@ ALTER TABLE ONLY "Products"
 
 
 --
+-- TOC entry 3305 (class 2606 OID 1600528)
 -- Name: Projects_codeName_key; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5061,6 +5407,7 @@ ALTER TABLE ONLY "Projects"
 
 
 --
+-- TOC entry 3307 (class 2606 OID 1600530)
 -- Name: Projects_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5069,6 +5416,7 @@ ALTER TABLE ONLY "Projects"
 
 
 --
+-- TOC entry 3310 (class 2606 OID 1600532)
 -- Name: Rights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5077,6 +5425,7 @@ ALTER TABLE ONLY "Rights"
 
 
 --
+-- TOC entry 3314 (class 2606 OID 1600534)
 -- Name: RolesRights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5085,6 +5434,7 @@ ALTER TABLE ONLY "RolesRights"
 
 
 --
+-- TOC entry 3312 (class 2606 OID 1600536)
 -- Name: Roles_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5093,6 +5443,7 @@ ALTER TABLE ONLY "Roles"
 
 
 --
+-- TOC entry 3317 (class 2606 OID 1600538)
 -- Name: SubindexWeights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5101,6 +5452,7 @@ ALTER TABLE ONLY "SubindexWeights"
 
 
 --
+-- TOC entry 3319 (class 2606 OID 1600540)
 -- Name: Subindexes_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5109,6 +5461,7 @@ ALTER TABLE ONLY "Subindexes"
 
 
 --
+-- TOC entry 3322 (class 2606 OID 1600542)
 -- Name: SurveyAnswers_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5117,6 +5470,7 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
+-- TOC entry 3324 (class 2606 OID 1600544)
 -- Name: SurveyQuestionOptions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5125,6 +5479,7 @@ ALTER TABLE ONLY "SurveyQuestionOptions"
 
 
 --
+-- TOC entry 3326 (class 2606 OID 1600546)
 -- Name: SurveyQuestions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5133,6 +5488,7 @@ ALTER TABLE ONLY "SurveyQuestions"
 
 
 --
+-- TOC entry 3328 (class 2606 OID 1600548)
 -- Name: Surveys_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5141,6 +5497,7 @@ ALTER TABLE ONLY "Surveys"
 
 
 --
+-- TOC entry 3330 (class 2606 OID 1600550)
 -- Name: Tasks_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5149,6 +5506,7 @@ ALTER TABLE ONLY "Tasks"
 
 
 --
+-- TOC entry 3332 (class 2606 OID 1600552)
 -- Name: Translations_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5157,6 +5515,7 @@ ALTER TABLE ONLY "Translations"
 
 
 --
+-- TOC entry 3342 (class 2606 OID 1600554)
 -- Name: UnitOfAnalysisClassType_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5165,6 +5524,7 @@ ALTER TABLE ONLY "UnitOfAnalysisClassType"
 
 
 --
+-- TOC entry 3346 (class 2606 OID 1600556)
 -- Name: UnitOfAnalysisTagLink_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5173,6 +5533,7 @@ ALTER TABLE ONLY "UnitOfAnalysisTagLink"
 
 
 --
+-- TOC entry 3349 (class 2606 OID 1600558)
 -- Name: UnitOfAnalysisTagLink_uoaId_uoaTagId_key; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5181,6 +5542,7 @@ ALTER TABLE ONLY "UnitOfAnalysisTagLink"
 
 
 --
+-- TOC entry 3344 (class 2606 OID 1600560)
 -- Name: UnitOfAnalysisTag_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5189,6 +5551,7 @@ ALTER TABLE ONLY "UnitOfAnalysisTag"
 
 
 --
+-- TOC entry 3352 (class 2606 OID 1600562)
 -- Name: UnitOfAnalysisType_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5197,6 +5560,7 @@ ALTER TABLE ONLY "UnitOfAnalysisType"
 
 
 --
+-- TOC entry 3334 (class 2606 OID 1600564)
 -- Name: UnitOfAnalysis_name_key; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5205,6 +5569,7 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
+-- TOC entry 3336 (class 2606 OID 1600566)
 -- Name: UnitOfAnalysis_name_key1; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5213,6 +5578,7 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
+-- TOC entry 3338 (class 2606 OID 1600568)
 -- Name: UnitOfAnalysis_name_key2; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5221,6 +5587,7 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
+-- TOC entry 3340 (class 2606 OID 1600570)
 -- Name: UnitOfAnalysis_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5229,6 +5596,7 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
+-- TOC entry 3354 (class 2606 OID 1600572)
 -- Name: UserGroups_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5237,6 +5605,7 @@ ALTER TABLE ONLY "UserGroups"
 
 
 --
+-- TOC entry 3356 (class 2606 OID 1600574)
 -- Name: UserRights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5245,6 +5614,7 @@ ALTER TABLE ONLY "UserRights"
 
 
 --
+-- TOC entry 3358 (class 2606 OID 1600576)
 -- Name: UserUOA_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5253,6 +5623,7 @@ ALTER TABLE ONLY "UserUOA"
 
 
 --
+-- TOC entry 3360 (class 2606 OID 1600578)
 -- Name: Users_email_key; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5261,6 +5632,7 @@ ALTER TABLE ONLY "Users"
 
 
 --
+-- TOC entry 3362 (class 2606 OID 1600580)
 -- Name: Users_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5269,6 +5641,7 @@ ALTER TABLE ONLY "Users"
 
 
 --
+-- TOC entry 3365 (class 2606 OID 1600582)
 -- Name: Visualizations_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5277,6 +5650,7 @@ ALTER TABLE ONLY "Visualizations"
 
 
 --
+-- TOC entry 3367 (class 2606 OID 1600584)
 -- Name: WorkflowStepGroups_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5285,6 +5659,7 @@ ALTER TABLE ONLY "WorkflowStepGroups"
 
 
 --
+-- TOC entry 3369 (class 2606 OID 1600586)
 -- Name: WorkflowSteps_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5293,6 +5668,7 @@ ALTER TABLE ONLY "WorkflowSteps"
 
 
 --
+-- TOC entry 3371 (class 2606 OID 1600588)
 -- Name: Workflows_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5301,6 +5677,7 @@ ALTER TABLE ONLY "Workflows"
 
 
 --
+-- TOC entry 3373 (class 2606 OID 1600590)
 -- Name: Workflows_productId_key; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5308,10 +5685,11 @@ ALTER TABLE ONLY "Workflows"
     ADD CONSTRAINT "Workflows_productId_key" UNIQUE ("productId");
 
 
-SET search_path = spacex, pg_catalog;
+SET search_path = test, pg_catalog;
 
 --
--- Name: AccessMatrices_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3383 (class 2606 OID 1601715)
+-- Name: AccessMatrices_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "AccessMatrices"
@@ -5319,7 +5697,8 @@ ALTER TABLE ONLY "AccessMatrices"
 
 
 --
--- Name: AccessPermissions_matrixId_roleId_rightId_key; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3375 (class 2606 OID 1601685)
+-- Name: AccessPermissions_matrixId_roleId_rightId_key; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "AccessPermissions"
@@ -5327,7 +5706,8 @@ ALTER TABLE ONLY "AccessPermissions"
 
 
 --
--- Name: AccessPermissions_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3377 (class 2606 OID 1601683)
+-- Name: AccessPermissions_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "AccessPermissions"
@@ -5335,7 +5715,8 @@ ALTER TABLE ONLY "AccessPermissions"
 
 
 --
--- Name: AnswerAttachments_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3379 (class 2606 OID 1601696)
+-- Name: AnswerAttachments_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "AnswerAttachments"
@@ -5343,7 +5724,8 @@ ALTER TABLE ONLY "AnswerAttachments"
 
 
 --
--- Name: AttachmentAttempts_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3381 (class 2606 OID 1601706)
+-- Name: AttachmentAttempts_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "AttachmentAttempts"
@@ -5351,7 +5733,8 @@ ALTER TABLE ONLY "AttachmentAttempts"
 
 
 --
--- Name: AttachmentLinks_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3481 (class 2606 OID 1602090)
+-- Name: AttachmentLinks_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "AttachmentLinks"
@@ -5359,7 +5742,8 @@ ALTER TABLE ONLY "AttachmentLinks"
 
 
 --
--- Name: Attachments_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3389 (class 2606 OID 1601750)
+-- Name: Attachments_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Attachments"
@@ -5367,7 +5751,8 @@ ALTER TABLE ONLY "Attachments"
 
 
 --
--- Name: Discussions_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3385 (class 2606 OID 1601730)
+-- Name: Discussions_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Discussions"
@@ -5375,7 +5760,8 @@ ALTER TABLE ONLY "Discussions"
 
 
 --
--- Name: Essences_fileName_key; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3393 (class 2606 OID 1601770)
+-- Name: Essences_fileName_key; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Essences"
@@ -5383,7 +5769,8 @@ ALTER TABLE ONLY "Essences"
 
 
 --
--- Name: Essences_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3395 (class 2606 OID 1601768)
+-- Name: Essences_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Essences"
@@ -5391,7 +5778,8 @@ ALTER TABLE ONLY "Essences"
 
 
 --
--- Name: Essences_tableName_key; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3397 (class 2606 OID 1601772)
+-- Name: Essences_tableName_key; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Essences"
@@ -5399,7 +5787,8 @@ ALTER TABLE ONLY "Essences"
 
 
 --
--- Name: Groups_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3387 (class 2606 OID 1601740)
+-- Name: Groups_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Groups"
@@ -5407,7 +5796,8 @@ ALTER TABLE ONLY "Groups"
 
 
 --
--- Name: IndexQuestionWeights_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3391 (class 2606 OID 1601759)
+-- Name: IndexQuestionWeights_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "IndexQuestionWeights"
@@ -5415,7 +5805,8 @@ ALTER TABLE ONLY "IndexQuestionWeights"
 
 
 --
--- Name: IndexSubindexWeights_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3485 (class 2606 OID 1602103)
+-- Name: IndexSubindexWeights_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "IndexSubindexWeights"
@@ -5423,7 +5814,8 @@ ALTER TABLE ONLY "IndexSubindexWeights"
 
 
 --
--- Name: Indexes_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3433 (class 2606 OID 1601908)
+-- Name: Indexes_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Indexes"
@@ -5431,7 +5823,8 @@ ALTER TABLE ONLY "Indexes"
 
 
 --
--- Name: Languages_code_key; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3400 (class 2606 OID 1601782)
+-- Name: Languages_code_key; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Languages"
@@ -5439,7 +5832,8 @@ ALTER TABLE ONLY "Languages"
 
 
 --
--- Name: Languages_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3402 (class 2606 OID 1601780)
+-- Name: Languages_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Languages"
@@ -5447,7 +5841,8 @@ ALTER TABLE ONLY "Languages"
 
 
 --
--- Name: Logs_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3410 (class 2606 OID 1601822)
+-- Name: Logs_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Logs"
@@ -5455,7 +5850,8 @@ ALTER TABLE ONLY "Logs"
 
 
 --
--- Name: Notifications_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3404 (class 2606 OID 1601795)
+-- Name: Notifications_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Notifications"
@@ -5463,7 +5859,8 @@ ALTER TABLE ONLY "Notifications"
 
 
 --
--- Name: Organizations_adminUserId_key; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3419 (class 2606 OID 1601865)
+-- Name: Organizations_adminUserId_key; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Organizations"
@@ -5471,7 +5868,8 @@ ALTER TABLE ONLY "Organizations"
 
 
 --
--- Name: Organizations_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3421 (class 2606 OID 1601863)
+-- Name: Organizations_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Organizations"
@@ -5479,7 +5877,8 @@ ALTER TABLE ONLY "Organizations"
 
 
 --
--- Name: ProductUOA_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3431 (class 2606 OID 1601898)
+-- Name: ProductUOA_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "ProductUOA"
@@ -5487,7 +5886,8 @@ ALTER TABLE ONLY "ProductUOA"
 
 
 --
--- Name: Products_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3417 (class 2606 OID 1601852)
+-- Name: Products_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Products"
@@ -5495,7 +5895,8 @@ ALTER TABLE ONLY "Products"
 
 
 --
--- Name: Projects_codeName_key; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3406 (class 2606 OID 1601809)
+-- Name: Projects_codeName_key; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Projects"
@@ -5503,7 +5904,8 @@ ALTER TABLE ONLY "Projects"
 
 
 --
--- Name: Projects_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3408 (class 2606 OID 1601807)
+-- Name: Projects_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Projects"
@@ -5511,7 +5913,8 @@ ALTER TABLE ONLY "Projects"
 
 
 --
--- Name: Rights_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3415 (class 2606 OID 1601840)
+-- Name: Rights_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Rights"
@@ -5519,7 +5922,8 @@ ALTER TABLE ONLY "Rights"
 
 
 --
--- Name: RolesRights_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3423 (class 2606 OID 1601871)
+-- Name: RolesRights_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "RolesRights"
@@ -5527,7 +5931,8 @@ ALTER TABLE ONLY "RolesRights"
 
 
 --
--- Name: Roles_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3412 (class 2606 OID 1601830)
+-- Name: Roles_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Roles"
@@ -5535,7 +5940,8 @@ ALTER TABLE ONLY "Roles"
 
 
 --
--- Name: SubindexWeights_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3429 (class 2606 OID 1601892)
+-- Name: SubindexWeights_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "SubindexWeights"
@@ -5543,7 +5949,8 @@ ALTER TABLE ONLY "SubindexWeights"
 
 
 --
--- Name: Subindexes_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3426 (class 2606 OID 1601882)
+-- Name: Subindexes_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Subindexes"
@@ -5551,7 +5958,8 @@ ALTER TABLE ONLY "Subindexes"
 
 
 --
--- Name: SurveyAnswers_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3487 (class 2606 OID 1602114)
+-- Name: SurveyAnswers_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "SurveyAnswers"
@@ -5559,7 +5967,8 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
--- Name: SurveyQuestionOptions_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3461 (class 2606 OID 1602009)
+-- Name: SurveyQuestionOptions_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "SurveyQuestionOptions"
@@ -5567,7 +5976,8 @@ ALTER TABLE ONLY "SurveyQuestionOptions"
 
 
 --
--- Name: SurveyQuestions_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3446 (class 2606 OID 1601964)
+-- Name: SurveyQuestions_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "SurveyQuestions"
@@ -5575,7 +5985,8 @@ ALTER TABLE ONLY "SurveyQuestions"
 
 
 --
--- Name: Surveys_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3467 (class 2606 OID 1602031)
+-- Name: Surveys_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Surveys"
@@ -5583,7 +5994,8 @@ ALTER TABLE ONLY "Surveys"
 
 
 --
--- Name: Tasks_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3469 (class 2606 OID 1602042)
+-- Name: Tasks_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Tasks"
@@ -5591,7 +6003,8 @@ ALTER TABLE ONLY "Tasks"
 
 
 --
--- Name: Translations_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3444 (class 2606 OID 1601950)
+-- Name: Translations_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Translations"
@@ -5599,7 +6012,8 @@ ALTER TABLE ONLY "Translations"
 
 
 --
--- Name: UnitOfAnalysisClassType_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3448 (class 2606 OID 1601972)
+-- Name: UnitOfAnalysisClassType_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UnitOfAnalysisClassType"
@@ -5607,7 +6021,8 @@ ALTER TABLE ONLY "UnitOfAnalysisClassType"
 
 
 --
--- Name: UnitOfAnalysisTagLink_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3455 (class 2606 OID 1601994)
+-- Name: UnitOfAnalysisTagLink_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UnitOfAnalysisTagLink"
@@ -5615,7 +6030,8 @@ ALTER TABLE ONLY "UnitOfAnalysisTagLink"
 
 
 --
--- Name: UnitOfAnalysisTagLink_uoaId_uoaTagId_key; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3458 (class 2606 OID 1601996)
+-- Name: UnitOfAnalysisTagLink_uoaId_uoaTagId_key; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UnitOfAnalysisTagLink"
@@ -5623,7 +6039,8 @@ ALTER TABLE ONLY "UnitOfAnalysisTagLink"
 
 
 --
--- Name: UnitOfAnalysisTag_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3436 (class 2606 OID 1601917)
+-- Name: UnitOfAnalysisTag_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UnitOfAnalysisTag"
@@ -5631,7 +6048,8 @@ ALTER TABLE ONLY "UnitOfAnalysisTag"
 
 
 --
--- Name: UnitOfAnalysisType_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3438 (class 2606 OID 1601925)
+-- Name: UnitOfAnalysisType_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UnitOfAnalysisType"
@@ -5639,7 +6057,8 @@ ALTER TABLE ONLY "UnitOfAnalysisType"
 
 
 --
--- Name: UnitOfAnalysis_name_key; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3440 (class 2606 OID 1601941)
+-- Name: UnitOfAnalysis_name_key; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UnitOfAnalysis"
@@ -5647,23 +6066,8 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
--- Name: UnitOfAnalysis_name_key1; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
---
-
-ALTER TABLE ONLY "UnitOfAnalysis"
-    ADD CONSTRAINT "UnitOfAnalysis_name_key1" UNIQUE (name);
-
-
---
--- Name: UnitOfAnalysis_name_key2; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
---
-
-ALTER TABLE ONLY "UnitOfAnalysis"
-    ADD CONSTRAINT "UnitOfAnalysis_name_key2" UNIQUE (name);
-
-
---
--- Name: UnitOfAnalysis_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3442 (class 2606 OID 1601939)
+-- Name: UnitOfAnalysis_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UnitOfAnalysis"
@@ -5671,7 +6075,8 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
--- Name: UserGroups_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3471 (class 2606 OID 1602048)
+-- Name: UserGroups_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UserGroups"
@@ -5679,7 +6084,8 @@ ALTER TABLE ONLY "UserGroups"
 
 
 --
--- Name: UserRights_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3463 (class 2606 OID 1602015)
+-- Name: UserRights_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UserRights"
@@ -5687,7 +6093,8 @@ ALTER TABLE ONLY "UserRights"
 
 
 --
--- Name: UserUOA_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3465 (class 2606 OID 1602020)
+-- Name: UserUOA_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UserUOA"
@@ -5695,7 +6102,8 @@ ALTER TABLE ONLY "UserUOA"
 
 
 --
--- Name: Users_email_key; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3450 (class 2606 OID 1601986)
+-- Name: Users_email_key; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Users"
@@ -5703,7 +6111,8 @@ ALTER TABLE ONLY "Users"
 
 
 --
--- Name: Users_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3452 (class 2606 OID 1601984)
+-- Name: Users_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Users"
@@ -5711,7 +6120,8 @@ ALTER TABLE ONLY "Users"
 
 
 --
--- Name: Visualizations_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3473 (class 2606 OID 1602057)
+-- Name: Visualizations_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Visualizations"
@@ -5719,7 +6129,8 @@ ALTER TABLE ONLY "Visualizations"
 
 
 --
--- Name: WorkflowStepGroups_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3483 (class 2606 OID 1602095)
+-- Name: WorkflowStepGroups_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "WorkflowStepGroups"
@@ -5727,7 +6138,8 @@ ALTER TABLE ONLY "WorkflowStepGroups"
 
 
 --
--- Name: WorkflowSteps_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3479 (class 2606 OID 1602081)
+-- Name: WorkflowSteps_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "WorkflowSteps"
@@ -5735,7 +6147,8 @@ ALTER TABLE ONLY "WorkflowSteps"
 
 
 --
--- Name: Workflows_pkey; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3475 (class 2606 OID 1602068)
+-- Name: Workflows_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Workflows"
@@ -5743,7 +6156,8 @@ ALTER TABLE ONLY "Workflows"
 
 
 --
--- Name: Workflows_productId_key; Type: CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3477 (class 2606 OID 1602070)
+-- Name: Workflows_productId_key; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Workflows"
@@ -5753,6 +6167,7 @@ ALTER TABLE ONLY "Workflows"
 SET search_path = public, pg_catalog;
 
 --
+-- TOC entry 3231 (class 1259 OID 1600701)
 -- Name: Essences_upper_idx; Type: INDEX; Schema: public; Owner: indabauser
 --
 
@@ -5760,6 +6175,7 @@ CREATE UNIQUE INDEX "Essences_upper_idx" ON "Essences" USING btree (upper((name)
 
 
 --
+-- TOC entry 3240 (class 1259 OID 1600702)
 -- Name: Rights_action_idx; Type: INDEX; Schema: public; Owner: indabauser
 --
 
@@ -5767,6 +6183,7 @@ CREATE UNIQUE INDEX "Rights_action_idx" ON "Rights" USING btree (action);
 
 
 --
+-- TOC entry 3248 (class 1259 OID 1600703)
 -- Name: Token_body_idx; Type: INDEX; Schema: public; Owner: indabauser
 --
 
@@ -5774,6 +6191,7 @@ CREATE UNIQUE INDEX "Token_body_idx" ON "Token" USING btree (body);
 
 
 --
+-- TOC entry 3253 (class 1259 OID 1600704)
 -- Name: fki_roleID; Type: INDEX; Schema: public; Owner: indabauser
 --
 
@@ -5781,6 +6199,7 @@ CREATE INDEX "fki_roleID" ON "Users" USING btree ("roleID");
 
 
 --
+-- TOC entry 3245 (class 1259 OID 1600705)
 -- Name: fki_rolesrights_rightID; Type: INDEX; Schema: public; Owner: indabauser
 --
 
@@ -5790,6 +6209,7 @@ CREATE INDEX "fki_rolesrights_rightID" ON "RolesRights" USING btree ("rightID");
 SET search_path = sceleton, pg_catalog;
 
 --
+-- TOC entry 3278 (class 1259 OID 1600706)
 -- Name: Essences_upper_idx; Type: INDEX; Schema: sceleton; Owner: indabauser
 --
 
@@ -5797,6 +6217,7 @@ CREATE UNIQUE INDEX "Essences_upper_idx" ON "Essences" USING btree (upper((name)
 
 
 --
+-- TOC entry 3287 (class 1259 OID 1600707)
 -- Name: Indexes_productId_idx; Type: INDEX; Schema: sceleton; Owner: indabauser
 --
 
@@ -5804,6 +6225,7 @@ CREATE INDEX "Indexes_productId_idx" ON "Indexes" USING btree ("productId");
 
 
 --
+-- TOC entry 3308 (class 1259 OID 1600708)
 -- Name: Rights_action_idx; Type: INDEX; Schema: sceleton; Owner: indabauser
 --
 
@@ -5811,6 +6233,7 @@ CREATE UNIQUE INDEX "Rights_action_idx" ON "Rights" USING btree (action);
 
 
 --
+-- TOC entry 3315 (class 1259 OID 1600709)
 -- Name: RolesRights_rightID_idx; Type: INDEX; Schema: sceleton; Owner: indabauser
 --
 
@@ -5818,6 +6241,7 @@ CREATE INDEX "RolesRights_rightID_idx" ON "RolesRights" USING btree ("rightID");
 
 
 --
+-- TOC entry 3320 (class 1259 OID 1600710)
 -- Name: Subindexes_productId_idx; Type: INDEX; Schema: sceleton; Owner: indabauser
 --
 
@@ -5825,6 +6249,7 @@ CREATE INDEX "Subindexes_productId_idx" ON "Subindexes" USING btree ("productId"
 
 
 --
+-- TOC entry 3347 (class 1259 OID 1600711)
 -- Name: UnitOfAnalysisTagLink_uoaId_idx; Type: INDEX; Schema: sceleton; Owner: indabauser
 --
 
@@ -5832,6 +6257,7 @@ CREATE INDEX "UnitOfAnalysisTagLink_uoaId_idx" ON "UnitOfAnalysisTagLink" USING 
 
 
 --
+-- TOC entry 3350 (class 1259 OID 1600712)
 -- Name: UnitOfAnalysisTagLink_uoaTagId_idx; Type: INDEX; Schema: sceleton; Owner: indabauser
 --
 
@@ -5839,65 +6265,74 @@ CREATE INDEX "UnitOfAnalysisTagLink_uoaTagId_idx" ON "UnitOfAnalysisTagLink" USI
 
 
 --
+-- TOC entry 3363 (class 1259 OID 1600713)
 -- Name: Users_roleID_idx; Type: INDEX; Schema: sceleton; Owner: indabauser
 --
 
 CREATE INDEX "Users_roleID_idx" ON "Users" USING btree ("roleID");
 
 
-SET search_path = spacex, pg_catalog;
+SET search_path = test, pg_catalog;
 
 --
--- Name: Essences_upper_idx; Type: INDEX; Schema: spacex; Owner: indabauser
+-- TOC entry 3398 (class 1259 OID 1601773)
+-- Name: Essences_upper_idx; Type: INDEX; Schema: test; Owner: indaba
 --
 
 CREATE UNIQUE INDEX "Essences_upper_idx" ON "Essences" USING btree (upper((name)::text));
 
 
 --
--- Name: Indexes_productId_idx; Type: INDEX; Schema: spacex; Owner: indabauser
+-- TOC entry 3434 (class 1259 OID 1601909)
+-- Name: Indexes_productId_idx; Type: INDEX; Schema: test; Owner: indaba
 --
 
 CREATE INDEX "Indexes_productId_idx" ON "Indexes" USING btree ("productId");
 
 
 --
--- Name: Rights_action_idx; Type: INDEX; Schema: spacex; Owner: indabauser
+-- TOC entry 3413 (class 1259 OID 1601841)
+-- Name: Rights_action_idx; Type: INDEX; Schema: test; Owner: indaba
 --
 
 CREATE UNIQUE INDEX "Rights_action_idx" ON "Rights" USING btree (action);
 
 
 --
--- Name: RolesRights_rightID_idx; Type: INDEX; Schema: spacex; Owner: indabauser
+-- TOC entry 3424 (class 1259 OID 1601872)
+-- Name: RolesRights_rightID_idx; Type: INDEX; Schema: test; Owner: indaba
 --
 
 CREATE INDEX "RolesRights_rightID_idx" ON "RolesRights" USING btree ("rightID");
 
 
 --
--- Name: Subindexes_productId_idx; Type: INDEX; Schema: spacex; Owner: indabauser
+-- TOC entry 3427 (class 1259 OID 1601883)
+-- Name: Subindexes_productId_idx; Type: INDEX; Schema: test; Owner: indaba
 --
 
 CREATE INDEX "Subindexes_productId_idx" ON "Subindexes" USING btree ("productId");
 
 
 --
--- Name: UnitOfAnalysisTagLink_uoaId_idx; Type: INDEX; Schema: spacex; Owner: indabauser
+-- TOC entry 3456 (class 1259 OID 1601997)
+-- Name: UnitOfAnalysisTagLink_uoaId_idx; Type: INDEX; Schema: test; Owner: indaba
 --
 
 CREATE INDEX "UnitOfAnalysisTagLink_uoaId_idx" ON "UnitOfAnalysisTagLink" USING btree ("uoaId");
 
 
 --
--- Name: UnitOfAnalysisTagLink_uoaTagId_idx; Type: INDEX; Schema: spacex; Owner: indabauser
+-- TOC entry 3459 (class 1259 OID 1601998)
+-- Name: UnitOfAnalysisTagLink_uoaTagId_idx; Type: INDEX; Schema: test; Owner: indaba
 --
 
 CREATE INDEX "UnitOfAnalysisTagLink_uoaTagId_idx" ON "UnitOfAnalysisTagLink" USING btree ("uoaTagId");
 
 
 --
--- Name: Users_roleID_idx; Type: INDEX; Schema: spacex; Owner: indabauser
+-- TOC entry 3453 (class 1259 OID 1601987)
+-- Name: Users_roleID_idx; Type: INDEX; Schema: test; Owner: indaba
 --
 
 CREATE INDEX "Users_roleID_idx" ON "Users" USING btree ("roleID");
@@ -5906,6 +6341,7 @@ CREATE INDEX "Users_roleID_idx" ON "Users" USING btree ("roleID");
 SET search_path = public, pg_catalog;
 
 --
+-- TOC entry 3661 (class 2620 OID 1600722)
 -- Name: tr_delete_token; Type: TRIGGER; Schema: public; Owner: indabauser
 --
 
@@ -5913,6 +6349,7 @@ CREATE TRIGGER tr_delete_token BEFORE INSERT ON "Token" FOR EACH ROW EXECUTE PRO
 
 
 --
+-- TOC entry 3662 (class 2620 OID 1600723)
 -- Name: users_before_update; Type: TRIGGER; Schema: public; Owner: indabauser
 --
 
@@ -5920,6 +6357,7 @@ CREATE TRIGGER users_before_update BEFORE UPDATE ON "Users" FOR EACH ROW EXECUTE
 
 
 --
+-- TOC entry 3489 (class 2606 OID 1600724)
 -- Name: Logs_essence_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -5928,6 +6366,7 @@ ALTER TABLE ONLY "Logs"
 
 
 --
+-- TOC entry 3488 (class 2606 OID 1600729)
 -- Name: Logs_user_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -5936,6 +6375,7 @@ ALTER TABLE ONLY "Logs"
 
 
 --
+-- TOC entry 3492 (class 2606 OID 1600734)
 -- Name: Notifications_essenceId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -5944,6 +6384,7 @@ ALTER TABLE ONLY "Notifications"
 
 
 --
+-- TOC entry 3491 (class 2606 OID 1600739)
 -- Name: Notifications_userFrom_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -5952,6 +6393,7 @@ ALTER TABLE ONLY "Notifications"
 
 
 --
+-- TOC entry 3490 (class 2606 OID 1600744)
 -- Name: Notifications_userTo_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -5960,6 +6402,7 @@ ALTER TABLE ONLY "Notifications"
 
 
 --
+-- TOC entry 3493 (class 2606 OID 1600749)
 -- Name: Rights_essence_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -5968,6 +6411,7 @@ ALTER TABLE ONLY "Rights"
 
 
 --
+-- TOC entry 3495 (class 2606 OID 1600754)
 -- Name: RolesRights_roleID_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -5976,6 +6420,7 @@ ALTER TABLE ONLY "RolesRights"
 
 
 --
+-- TOC entry 3497 (class 2606 OID 1600759)
 -- Name: Users_langId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -5984,6 +6429,7 @@ ALTER TABLE ONLY "Users"
 
 
 --
+-- TOC entry 3496 (class 2606 OID 1600764)
 -- Name: Users_roleID_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -5992,6 +6438,7 @@ ALTER TABLE ONLY "Users"
 
 
 --
+-- TOC entry 3494 (class 2606 OID 1600769)
 -- Name: rolesrights_rightID; Type: FK CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -6002,6 +6449,7 @@ ALTER TABLE ONLY "RolesRights"
 SET search_path = sceleton, pg_catalog;
 
 --
+-- TOC entry 3499 (class 2606 OID 1600774)
 -- Name: AnswerAttachments_answerId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6010,6 +6458,7 @@ ALTER TABLE ONLY "AnswerAttachments"
 
 
 --
+-- TOC entry 3498 (class 2606 OID 1600779)
 -- Name: AnswerAttachments_owner_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6018,6 +6467,7 @@ ALTER TABLE ONLY "AnswerAttachments"
 
 
 --
+-- TOC entry 3500 (class 2606 OID 1600784)
 -- Name: AttachmentLinks_essenceId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6026,6 +6476,7 @@ ALTER TABLE ONLY "AttachmentLinks"
 
 
 --
+-- TOC entry 3506 (class 2606 OID 1600789)
 -- Name: Discussions_questionId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6034,6 +6485,7 @@ ALTER TABLE ONLY "Discussions"
 
 
 --
+-- TOC entry 3505 (class 2606 OID 1600794)
 -- Name: Discussions_returnTaskId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6042,6 +6494,7 @@ ALTER TABLE ONLY "Discussions"
 
 
 --
+-- TOC entry 3504 (class 2606 OID 1600799)
 -- Name: Discussions_stepFromId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6050,6 +6503,7 @@ ALTER TABLE ONLY "Discussions"
 
 
 --
+-- TOC entry 3503 (class 2606 OID 1600804)
 -- Name: Discussions_stepId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6058,6 +6512,7 @@ ALTER TABLE ONLY "Discussions"
 
 
 --
+-- TOC entry 3502 (class 2606 OID 1600809)
 -- Name: Discussions_taskId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6066,6 +6521,7 @@ ALTER TABLE ONLY "Discussions"
 
 
 --
+-- TOC entry 3501 (class 2606 OID 1600814)
 -- Name: Discussions_userFromId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6074,6 +6530,7 @@ ALTER TABLE ONLY "Discussions"
 
 
 --
+-- TOC entry 3508 (class 2606 OID 1600819)
 -- Name: Groups_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6082,6 +6539,7 @@ ALTER TABLE ONLY "Groups"
 
 
 --
+-- TOC entry 3507 (class 2606 OID 1600824)
 -- Name: Groups_organizationId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6090,6 +6548,7 @@ ALTER TABLE ONLY "Groups"
 
 
 --
+-- TOC entry 3510 (class 2606 OID 1600829)
 -- Name: IndexQuestionWeights_indexId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6098,6 +6557,7 @@ ALTER TABLE ONLY "IndexQuestionWeights"
 
 
 --
+-- TOC entry 3509 (class 2606 OID 1600834)
 -- Name: IndexQuestionWeights_questionId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6106,6 +6566,7 @@ ALTER TABLE ONLY "IndexQuestionWeights"
 
 
 --
+-- TOC entry 3512 (class 2606 OID 1600839)
 -- Name: IndexSubindexWeights_indexId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6114,6 +6575,7 @@ ALTER TABLE ONLY "IndexSubindexWeights"
 
 
 --
+-- TOC entry 3511 (class 2606 OID 1600844)
 -- Name: IndexSubindexWeights_subindexId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6122,6 +6584,7 @@ ALTER TABLE ONLY "IndexSubindexWeights"
 
 
 --
+-- TOC entry 3513 (class 2606 OID 1600849)
 -- Name: Indexes_productId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6130,6 +6593,7 @@ ALTER TABLE ONLY "Indexes"
 
 
 --
+-- TOC entry 3515 (class 2606 OID 1600854)
 -- Name: Logs_essence_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6138,6 +6602,7 @@ ALTER TABLE ONLY "Logs"
 
 
 --
+-- TOC entry 3514 (class 2606 OID 1600859)
 -- Name: Logs_user_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6146,6 +6611,7 @@ ALTER TABLE ONLY "Logs"
 
 
 --
+-- TOC entry 3518 (class 2606 OID 1600864)
 -- Name: Notifications_essenceId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6154,6 +6620,7 @@ ALTER TABLE ONLY "Notifications"
 
 
 --
+-- TOC entry 3517 (class 2606 OID 1600869)
 -- Name: Notifications_userFrom_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6162,6 +6629,7 @@ ALTER TABLE ONLY "Notifications"
 
 
 --
+-- TOC entry 3516 (class 2606 OID 1600874)
 -- Name: Notifications_userTo_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6170,6 +6638,7 @@ ALTER TABLE ONLY "Notifications"
 
 
 --
+-- TOC entry 3519 (class 2606 OID 1600879)
 -- Name: Organizations_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6178,6 +6647,7 @@ ALTER TABLE ONLY "Organizations"
 
 
 --
+-- TOC entry 3522 (class 2606 OID 1600884)
 -- Name: ProductUOA_UOAid_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6186,6 +6656,7 @@ ALTER TABLE ONLY "ProductUOA"
 
 
 --
+-- TOC entry 3521 (class 2606 OID 1600889)
 -- Name: ProductUOA_currentStepId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6194,6 +6665,7 @@ ALTER TABLE ONLY "ProductUOA"
 
 
 --
+-- TOC entry 3520 (class 2606 OID 1600894)
 -- Name: ProductUOA_productId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6202,6 +6674,7 @@ ALTER TABLE ONLY "ProductUOA"
 
 
 --
+-- TOC entry 3526 (class 2606 OID 1600899)
 -- Name: Products_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6210,6 +6683,7 @@ ALTER TABLE ONLY "Products"
 
 
 --
+-- TOC entry 3525 (class 2606 OID 1600904)
 -- Name: Products_originalLangId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6218,6 +6692,7 @@ ALTER TABLE ONLY "Products"
 
 
 --
+-- TOC entry 3524 (class 2606 OID 1600909)
 -- Name: Products_projectId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6226,6 +6701,7 @@ ALTER TABLE ONLY "Products"
 
 
 --
+-- TOC entry 3523 (class 2606 OID 1600914)
 -- Name: Products_surveyId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6234,6 +6710,7 @@ ALTER TABLE ONLY "Products"
 
 
 --
+-- TOC entry 3530 (class 2606 OID 1600919)
 -- Name: Projects_accessMatrixId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6242,6 +6719,7 @@ ALTER TABLE ONLY "Projects"
 
 
 --
+-- TOC entry 3529 (class 2606 OID 1600924)
 -- Name: Projects_adminUserId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6250,6 +6728,7 @@ ALTER TABLE ONLY "Projects"
 
 
 --
+-- TOC entry 3528 (class 2606 OID 1600929)
 -- Name: Projects_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6258,6 +6737,7 @@ ALTER TABLE ONLY "Projects"
 
 
 --
+-- TOC entry 3527 (class 2606 OID 1600934)
 -- Name: Projects_organizationId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6266,6 +6746,7 @@ ALTER TABLE ONLY "Projects"
 
 
 --
+-- TOC entry 3531 (class 2606 OID 1600939)
 -- Name: Rights_essence_id_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6274,6 +6755,7 @@ ALTER TABLE ONLY "Rights"
 
 
 --
+-- TOC entry 3533 (class 2606 OID 1600944)
 -- Name: RolesRights_roleID_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6282,6 +6764,7 @@ ALTER TABLE ONLY "RolesRights"
 
 
 --
+-- TOC entry 3535 (class 2606 OID 1600949)
 -- Name: SubindexWeights_questionId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6290,6 +6773,7 @@ ALTER TABLE ONLY "SubindexWeights"
 
 
 --
+-- TOC entry 3534 (class 2606 OID 1600954)
 -- Name: SubindexWeights_subindexId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6298,6 +6782,7 @@ ALTER TABLE ONLY "SubindexWeights"
 
 
 --
+-- TOC entry 3536 (class 2606 OID 1600959)
 -- Name: Subindexes_productId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6306,6 +6791,7 @@ ALTER TABLE ONLY "Subindexes"
 
 
 --
+-- TOC entry 3542 (class 2606 OID 1600964)
 -- Name: SurveyAnswers_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6314,6 +6800,7 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
+-- TOC entry 3541 (class 2606 OID 1600969)
 -- Name: SurveyAnswers_productId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6322,6 +6809,7 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
+-- TOC entry 3540 (class 2606 OID 1600974)
 -- Name: SurveyAnswers_questionId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6330,6 +6818,7 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
+-- TOC entry 3539 (class 2606 OID 1600979)
 -- Name: SurveyAnswers_surveyId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6338,6 +6827,7 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
+-- TOC entry 3538 (class 2606 OID 1600984)
 -- Name: SurveyAnswers_userId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6346,6 +6836,7 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
+-- TOC entry 3537 (class 2606 OID 1600989)
 -- Name: SurveyAnswers_wfStepId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6354,6 +6845,7 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
+-- TOC entry 3544 (class 2606 OID 1600994)
 -- Name: SurveyQuestionOptions_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6362,6 +6854,7 @@ ALTER TABLE ONLY "SurveyQuestionOptions"
 
 
 --
+-- TOC entry 3546 (class 2606 OID 1600999)
 -- Name: SurveyQuestions_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6370,6 +6863,7 @@ ALTER TABLE ONLY "SurveyQuestions"
 
 
 --
+-- TOC entry 3545 (class 2606 OID 1601004)
 -- Name: SurveyQuestions_surveyId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6378,6 +6872,7 @@ ALTER TABLE ONLY "SurveyQuestions"
 
 
 --
+-- TOC entry 3548 (class 2606 OID 1601009)
 -- Name: Surveys_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6386,6 +6881,7 @@ ALTER TABLE ONLY "Surveys"
 
 
 --
+-- TOC entry 3547 (class 2606 OID 1601014)
 -- Name: Surveys_projectId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6394,6 +6890,7 @@ ALTER TABLE ONLY "Surveys"
 
 
 --
+-- TOC entry 3553 (class 2606 OID 1601019)
 -- Name: Tasks_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6402,6 +6899,7 @@ ALTER TABLE ONLY "Tasks"
 
 
 --
+-- TOC entry 3552 (class 2606 OID 1601024)
 -- Name: Tasks_productId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6410,6 +6908,7 @@ ALTER TABLE ONLY "Tasks"
 
 
 --
+-- TOC entry 3551 (class 2606 OID 1601029)
 -- Name: Tasks_stepId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6418,6 +6917,7 @@ ALTER TABLE ONLY "Tasks"
 
 
 --
+-- TOC entry 3550 (class 2606 OID 1601034)
 -- Name: Tasks_uoaId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6426,6 +6926,7 @@ ALTER TABLE ONLY "Tasks"
 
 
 --
+-- TOC entry 3549 (class 2606 OID 1601039)
 -- Name: Tasks_userId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6434,6 +6935,7 @@ ALTER TABLE ONLY "Tasks"
 
 
 --
+-- TOC entry 3555 (class 2606 OID 1601044)
 -- Name: Translations_essence_id_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6442,6 +6944,7 @@ ALTER TABLE ONLY "Translations"
 
 
 --
+-- TOC entry 3554 (class 2606 OID 1601049)
 -- Name: Translations_lang_id_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6450,6 +6953,7 @@ ALTER TABLE ONLY "Translations"
 
 
 --
+-- TOC entry 3560 (class 2606 OID 1601054)
 -- Name: UnitOfAnalysisClassType_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6458,6 +6962,7 @@ ALTER TABLE ONLY "UnitOfAnalysisClassType"
 
 
 --
+-- TOC entry 3564 (class 2606 OID 1601059)
 -- Name: UnitOfAnalysisTagLink_uoaId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6466,6 +6971,7 @@ ALTER TABLE ONLY "UnitOfAnalysisTagLink"
 
 
 --
+-- TOC entry 3563 (class 2606 OID 1601064)
 -- Name: UnitOfAnalysisTagLink_uoaTagId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6474,6 +6980,7 @@ ALTER TABLE ONLY "UnitOfAnalysisTagLink"
 
 
 --
+-- TOC entry 3562 (class 2606 OID 1601069)
 -- Name: UnitOfAnalysisTag_classTypeId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6482,6 +6989,7 @@ ALTER TABLE ONLY "UnitOfAnalysisTag"
 
 
 --
+-- TOC entry 3561 (class 2606 OID 1601074)
 -- Name: UnitOfAnalysisTag_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6490,6 +6998,7 @@ ALTER TABLE ONLY "UnitOfAnalysisTag"
 
 
 --
+-- TOC entry 3565 (class 2606 OID 1601079)
 -- Name: UnitOfAnalysisType_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6498,6 +7007,7 @@ ALTER TABLE ONLY "UnitOfAnalysisType"
 
 
 --
+-- TOC entry 3559 (class 2606 OID 1601084)
 -- Name: UnitOfAnalysis_creatorId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6506,6 +7016,7 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
+-- TOC entry 3558 (class 2606 OID 1601089)
 -- Name: UnitOfAnalysis_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6514,6 +7025,7 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
+-- TOC entry 3557 (class 2606 OID 1601094)
 -- Name: UnitOfAnalysis_ownerId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6522,6 +7034,7 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
+-- TOC entry 3556 (class 2606 OID 1601099)
 -- Name: UnitOfAnalysis_unitOfAnalysisType_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6530,6 +7043,7 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
+-- TOC entry 3567 (class 2606 OID 1601104)
 -- Name: UserGroups_groupId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6538,6 +7052,7 @@ ALTER TABLE ONLY "UserGroups"
 
 
 --
+-- TOC entry 3566 (class 2606 OID 1601109)
 -- Name: UserGroups_userId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6546,6 +7061,7 @@ ALTER TABLE ONLY "UserGroups"
 
 
 --
+-- TOC entry 3569 (class 2606 OID 1601114)
 -- Name: UserUOA_UOAid_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6554,6 +7070,7 @@ ALTER TABLE ONLY "UserUOA"
 
 
 --
+-- TOC entry 3568 (class 2606 OID 1601119)
 -- Name: UserUOA_UserId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6562,6 +7079,7 @@ ALTER TABLE ONLY "UserUOA"
 
 
 --
+-- TOC entry 3572 (class 2606 OID 1601124)
 -- Name: Users_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6570,6 +7088,7 @@ ALTER TABLE ONLY "Users"
 
 
 --
+-- TOC entry 3571 (class 2606 OID 1601129)
 -- Name: Users_organizationId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6578,6 +7097,7 @@ ALTER TABLE ONLY "Users"
 
 
 --
+-- TOC entry 3570 (class 2606 OID 1601134)
 -- Name: Users_roleID_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6586,6 +7106,7 @@ ALTER TABLE ONLY "Users"
 
 
 --
+-- TOC entry 3574 (class 2606 OID 1601139)
 -- Name: Visualizations_organizationId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6594,6 +7115,7 @@ ALTER TABLE ONLY "Visualizations"
 
 
 --
+-- TOC entry 3573 (class 2606 OID 1601144)
 -- Name: Visualizations_productId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6602,6 +7124,7 @@ ALTER TABLE ONLY "Visualizations"
 
 
 --
+-- TOC entry 3576 (class 2606 OID 1601149)
 -- Name: WorkflowStepGroups_groupId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6610,6 +7133,7 @@ ALTER TABLE ONLY "WorkflowStepGroups"
 
 
 --
+-- TOC entry 3575 (class 2606 OID 1601154)
 -- Name: WorkflowStepGroups_stepId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6618,6 +7142,7 @@ ALTER TABLE ONLY "WorkflowStepGroups"
 
 
 --
+-- TOC entry 3578 (class 2606 OID 1601159)
 -- Name: WorkflowSteps_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6626,6 +7151,7 @@ ALTER TABLE ONLY "WorkflowSteps"
 
 
 --
+-- TOC entry 3577 (class 2606 OID 1601164)
 -- Name: WorkflowSteps_worflowId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6634,6 +7160,7 @@ ALTER TABLE ONLY "WorkflowSteps"
 
 
 --
+-- TOC entry 3579 (class 2606 OID 1601169)
 -- Name: Workflows_productId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6642,6 +7169,7 @@ ALTER TABLE ONLY "Workflows"
 
 
 --
+-- TOC entry 3532 (class 2606 OID 1601174)
 -- Name: rolesrights_rightID; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6650,6 +7178,7 @@ ALTER TABLE ONLY "RolesRights"
 
 
 --
+-- TOC entry 3543 (class 2606 OID 1601179)
 -- Name: surveyQuestionOptions_questionId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6657,10 +7186,11 @@ ALTER TABLE ONLY "SurveyQuestionOptions"
     ADD CONSTRAINT "surveyQuestionOptions_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
 
 
-SET search_path = spacex, pg_catalog;
+SET search_path = test, pg_catalog;
 
 --
--- Name: AnswerAttachments_answerId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3581 (class 2606 OID 1602116)
+-- Name: AnswerAttachments_answerId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "AnswerAttachments"
@@ -6668,7 +7198,8 @@ ALTER TABLE ONLY "AnswerAttachments"
 
 
 --
--- Name: AnswerAttachments_owner_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3580 (class 2606 OID 1602121)
+-- Name: AnswerAttachments_owner_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "AnswerAttachments"
@@ -6676,7 +7207,8 @@ ALTER TABLE ONLY "AnswerAttachments"
 
 
 --
--- Name: AttachmentLinks_essenceId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3650 (class 2606 OID 1602126)
+-- Name: AttachmentLinks_essenceId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "AttachmentLinks"
@@ -6684,7 +7216,8 @@ ALTER TABLE ONLY "AttachmentLinks"
 
 
 --
--- Name: Discussions_questionId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3587 (class 2606 OID 1602131)
+-- Name: Discussions_questionId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Discussions"
@@ -6692,7 +7225,8 @@ ALTER TABLE ONLY "Discussions"
 
 
 --
--- Name: Discussions_returnTaskId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3586 (class 2606 OID 1602136)
+-- Name: Discussions_returnTaskId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Discussions"
@@ -6700,7 +7234,8 @@ ALTER TABLE ONLY "Discussions"
 
 
 --
--- Name: Discussions_stepFromId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3585 (class 2606 OID 1602141)
+-- Name: Discussions_stepFromId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Discussions"
@@ -6708,7 +7243,8 @@ ALTER TABLE ONLY "Discussions"
 
 
 --
--- Name: Discussions_stepId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3584 (class 2606 OID 1602146)
+-- Name: Discussions_stepId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Discussions"
@@ -6716,7 +7252,8 @@ ALTER TABLE ONLY "Discussions"
 
 
 --
--- Name: Discussions_taskId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3583 (class 2606 OID 1602151)
+-- Name: Discussions_taskId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Discussions"
@@ -6724,7 +7261,8 @@ ALTER TABLE ONLY "Discussions"
 
 
 --
--- Name: Discussions_userFromId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3582 (class 2606 OID 1602156)
+-- Name: Discussions_userFromId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Discussions"
@@ -6732,7 +7270,8 @@ ALTER TABLE ONLY "Discussions"
 
 
 --
--- Name: Groups_langId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3589 (class 2606 OID 1602161)
+-- Name: Groups_langId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Groups"
@@ -6740,7 +7279,8 @@ ALTER TABLE ONLY "Groups"
 
 
 --
--- Name: Groups_organizationId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3588 (class 2606 OID 1602166)
+-- Name: Groups_organizationId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Groups"
@@ -6748,7 +7288,8 @@ ALTER TABLE ONLY "Groups"
 
 
 --
--- Name: IndexQuestionWeights_indexId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3591 (class 2606 OID 1602171)
+-- Name: IndexQuestionWeights_indexId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "IndexQuestionWeights"
@@ -6756,7 +7297,8 @@ ALTER TABLE ONLY "IndexQuestionWeights"
 
 
 --
--- Name: IndexQuestionWeights_questionId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3590 (class 2606 OID 1602176)
+-- Name: IndexQuestionWeights_questionId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "IndexQuestionWeights"
@@ -6764,7 +7306,8 @@ ALTER TABLE ONLY "IndexQuestionWeights"
 
 
 --
--- Name: IndexSubindexWeights_indexId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3654 (class 2606 OID 1602181)
+-- Name: IndexSubindexWeights_indexId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "IndexSubindexWeights"
@@ -6772,7 +7315,8 @@ ALTER TABLE ONLY "IndexSubindexWeights"
 
 
 --
--- Name: IndexSubindexWeights_subindexId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3653 (class 2606 OID 1602186)
+-- Name: IndexSubindexWeights_subindexId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "IndexSubindexWeights"
@@ -6780,7 +7324,8 @@ ALTER TABLE ONLY "IndexSubindexWeights"
 
 
 --
--- Name: Indexes_productId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3615 (class 2606 OID 1602191)
+-- Name: Indexes_productId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Indexes"
@@ -6788,7 +7333,8 @@ ALTER TABLE ONLY "Indexes"
 
 
 --
--- Name: Logs_essence_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3600 (class 2606 OID 1602196)
+-- Name: Logs_essence_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Logs"
@@ -6796,7 +7342,8 @@ ALTER TABLE ONLY "Logs"
 
 
 --
--- Name: Logs_user_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3599 (class 2606 OID 1602201)
+-- Name: Logs_user_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Logs"
@@ -6804,7 +7351,8 @@ ALTER TABLE ONLY "Logs"
 
 
 --
--- Name: Notifications_essenceId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3594 (class 2606 OID 1602206)
+-- Name: Notifications_essenceId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Notifications"
@@ -6812,7 +7360,8 @@ ALTER TABLE ONLY "Notifications"
 
 
 --
--- Name: Notifications_userFrom_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3593 (class 2606 OID 1602211)
+-- Name: Notifications_userFrom_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Notifications"
@@ -6820,7 +7369,8 @@ ALTER TABLE ONLY "Notifications"
 
 
 --
--- Name: Notifications_userTo_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3592 (class 2606 OID 1602216)
+-- Name: Notifications_userTo_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Notifications"
@@ -6828,7 +7378,8 @@ ALTER TABLE ONLY "Notifications"
 
 
 --
--- Name: Organizations_langId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3606 (class 2606 OID 1602221)
+-- Name: Organizations_langId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Organizations"
@@ -6836,7 +7387,8 @@ ALTER TABLE ONLY "Organizations"
 
 
 --
--- Name: ProductUOA_UOAid_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3614 (class 2606 OID 1602226)
+-- Name: ProductUOA_UOAid_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "ProductUOA"
@@ -6844,7 +7396,8 @@ ALTER TABLE ONLY "ProductUOA"
 
 
 --
--- Name: ProductUOA_currentStepId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3613 (class 2606 OID 1602231)
+-- Name: ProductUOA_currentStepId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "ProductUOA"
@@ -6852,7 +7405,8 @@ ALTER TABLE ONLY "ProductUOA"
 
 
 --
--- Name: ProductUOA_productId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3612 (class 2606 OID 1602236)
+-- Name: ProductUOA_productId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "ProductUOA"
@@ -6860,7 +7414,8 @@ ALTER TABLE ONLY "ProductUOA"
 
 
 --
--- Name: Products_langId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3605 (class 2606 OID 1602241)
+-- Name: Products_langId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Products"
@@ -6868,7 +7423,8 @@ ALTER TABLE ONLY "Products"
 
 
 --
--- Name: Products_originalLangId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3604 (class 2606 OID 1602246)
+-- Name: Products_originalLangId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Products"
@@ -6876,7 +7432,8 @@ ALTER TABLE ONLY "Products"
 
 
 --
--- Name: Products_projectId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3603 (class 2606 OID 1602251)
+-- Name: Products_projectId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Products"
@@ -6884,7 +7441,8 @@ ALTER TABLE ONLY "Products"
 
 
 --
--- Name: Products_surveyId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3602 (class 2606 OID 1602256)
+-- Name: Products_surveyId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Products"
@@ -6892,7 +7450,8 @@ ALTER TABLE ONLY "Products"
 
 
 --
--- Name: Projects_accessMatrixId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3598 (class 2606 OID 1602261)
+-- Name: Projects_accessMatrixId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Projects"
@@ -6900,7 +7459,8 @@ ALTER TABLE ONLY "Projects"
 
 
 --
--- Name: Projects_adminUserId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3597 (class 2606 OID 1602266)
+-- Name: Projects_adminUserId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Projects"
@@ -6908,7 +7468,8 @@ ALTER TABLE ONLY "Projects"
 
 
 --
--- Name: Projects_langId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3596 (class 2606 OID 1602271)
+-- Name: Projects_langId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Projects"
@@ -6916,7 +7477,8 @@ ALTER TABLE ONLY "Projects"
 
 
 --
--- Name: Projects_organizationId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3595 (class 2606 OID 1602276)
+-- Name: Projects_organizationId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Projects"
@@ -6924,7 +7486,8 @@ ALTER TABLE ONLY "Projects"
 
 
 --
--- Name: Rights_essence_id_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3601 (class 2606 OID 1602281)
+-- Name: Rights_essence_id_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Rights"
@@ -6932,7 +7495,8 @@ ALTER TABLE ONLY "Rights"
 
 
 --
--- Name: RolesRights_roleID_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3608 (class 2606 OID 1602286)
+-- Name: RolesRights_roleID_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "RolesRights"
@@ -6940,7 +7504,8 @@ ALTER TABLE ONLY "RolesRights"
 
 
 --
--- Name: SubindexWeights_questionId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3611 (class 2606 OID 1602291)
+-- Name: SubindexWeights_questionId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "SubindexWeights"
@@ -6948,7 +7513,8 @@ ALTER TABLE ONLY "SubindexWeights"
 
 
 --
--- Name: SubindexWeights_subindexId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3610 (class 2606 OID 1602296)
+-- Name: SubindexWeights_subindexId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "SubindexWeights"
@@ -6956,7 +7522,8 @@ ALTER TABLE ONLY "SubindexWeights"
 
 
 --
--- Name: Subindexes_productId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3609 (class 2606 OID 1602301)
+-- Name: Subindexes_productId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Subindexes"
@@ -6964,7 +7531,8 @@ ALTER TABLE ONLY "Subindexes"
 
 
 --
--- Name: SurveyAnswers_langId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3660 (class 2606 OID 1602306)
+-- Name: SurveyAnswers_langId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "SurveyAnswers"
@@ -6972,7 +7540,8 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
--- Name: SurveyAnswers_productId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3659 (class 2606 OID 1602311)
+-- Name: SurveyAnswers_productId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "SurveyAnswers"
@@ -6980,7 +7549,8 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
--- Name: SurveyAnswers_questionId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3658 (class 2606 OID 1602316)
+-- Name: SurveyAnswers_questionId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "SurveyAnswers"
@@ -6988,7 +7558,8 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
--- Name: SurveyAnswers_surveyId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3657 (class 2606 OID 1602321)
+-- Name: SurveyAnswers_surveyId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "SurveyAnswers"
@@ -6996,7 +7567,8 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
--- Name: SurveyAnswers_userId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3656 (class 2606 OID 1602326)
+-- Name: SurveyAnswers_userId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "SurveyAnswers"
@@ -7004,7 +7576,8 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
--- Name: SurveyAnswers_wfStepId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3655 (class 2606 OID 1602331)
+-- Name: SurveyAnswers_wfStepId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "SurveyAnswers"
@@ -7012,7 +7585,8 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
--- Name: SurveyQuestionOptions_langId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3634 (class 2606 OID 1602336)
+-- Name: SurveyQuestionOptions_langId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "SurveyQuestionOptions"
@@ -7020,7 +7594,8 @@ ALTER TABLE ONLY "SurveyQuestionOptions"
 
 
 --
--- Name: SurveyQuestions_langId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3626 (class 2606 OID 1602341)
+-- Name: SurveyQuestions_langId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "SurveyQuestions"
@@ -7028,7 +7603,8 @@ ALTER TABLE ONLY "SurveyQuestions"
 
 
 --
--- Name: SurveyQuestions_surveyId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3625 (class 2606 OID 1602346)
+-- Name: SurveyQuestions_surveyId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "SurveyQuestions"
@@ -7036,7 +7612,8 @@ ALTER TABLE ONLY "SurveyQuestions"
 
 
 --
--- Name: Surveys_langId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3638 (class 2606 OID 1602351)
+-- Name: Surveys_langId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Surveys"
@@ -7044,7 +7621,8 @@ ALTER TABLE ONLY "Surveys"
 
 
 --
--- Name: Surveys_projectId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3637 (class 2606 OID 1602356)
+-- Name: Surveys_projectId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Surveys"
@@ -7052,7 +7630,8 @@ ALTER TABLE ONLY "Surveys"
 
 
 --
--- Name: Tasks_langId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3642 (class 2606 OID 1602361)
+-- Name: Tasks_langId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Tasks"
@@ -7060,7 +7639,8 @@ ALTER TABLE ONLY "Tasks"
 
 
 --
--- Name: Tasks_productId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3641 (class 2606 OID 1602366)
+-- Name: Tasks_productId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Tasks"
@@ -7068,7 +7648,8 @@ ALTER TABLE ONLY "Tasks"
 
 
 --
--- Name: Tasks_stepId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3640 (class 2606 OID 1602371)
+-- Name: Tasks_stepId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Tasks"
@@ -7076,7 +7657,8 @@ ALTER TABLE ONLY "Tasks"
 
 
 --
--- Name: Tasks_uoaId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3639 (class 2606 OID 1602376)
+-- Name: Tasks_uoaId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Tasks"
@@ -7084,15 +7666,8 @@ ALTER TABLE ONLY "Tasks"
 
 
 --
--- Name: Tasks_userId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
---
-
-ALTER TABLE ONLY "Tasks"
-    ADD CONSTRAINT "Tasks_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"(id);
-
-
---
--- Name: Translations_essence_id_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3624 (class 2606 OID 1602386)
+-- Name: Translations_essence_id_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Translations"
@@ -7100,7 +7675,8 @@ ALTER TABLE ONLY "Translations"
 
 
 --
--- Name: Translations_lang_id_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3623 (class 2606 OID 1602391)
+-- Name: Translations_lang_id_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Translations"
@@ -7108,7 +7684,8 @@ ALTER TABLE ONLY "Translations"
 
 
 --
--- Name: UnitOfAnalysisClassType_langId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3627 (class 2606 OID 1602396)
+-- Name: UnitOfAnalysisClassType_langId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UnitOfAnalysisClassType"
@@ -7116,7 +7693,8 @@ ALTER TABLE ONLY "UnitOfAnalysisClassType"
 
 
 --
--- Name: UnitOfAnalysisTagLink_uoaId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3632 (class 2606 OID 1602401)
+-- Name: UnitOfAnalysisTagLink_uoaId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UnitOfAnalysisTagLink"
@@ -7124,7 +7702,8 @@ ALTER TABLE ONLY "UnitOfAnalysisTagLink"
 
 
 --
--- Name: UnitOfAnalysisTagLink_uoaTagId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3631 (class 2606 OID 1602406)
+-- Name: UnitOfAnalysisTagLink_uoaTagId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UnitOfAnalysisTagLink"
@@ -7132,7 +7711,8 @@ ALTER TABLE ONLY "UnitOfAnalysisTagLink"
 
 
 --
--- Name: UnitOfAnalysisTag_classTypeId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3617 (class 2606 OID 1602411)
+-- Name: UnitOfAnalysisTag_classTypeId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UnitOfAnalysisTag"
@@ -7140,7 +7720,8 @@ ALTER TABLE ONLY "UnitOfAnalysisTag"
 
 
 --
--- Name: UnitOfAnalysisTag_langId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3616 (class 2606 OID 1602416)
+-- Name: UnitOfAnalysisTag_langId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UnitOfAnalysisTag"
@@ -7148,7 +7729,8 @@ ALTER TABLE ONLY "UnitOfAnalysisTag"
 
 
 --
--- Name: UnitOfAnalysisType_langId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3618 (class 2606 OID 1602421)
+-- Name: UnitOfAnalysisType_langId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UnitOfAnalysisType"
@@ -7156,7 +7738,8 @@ ALTER TABLE ONLY "UnitOfAnalysisType"
 
 
 --
--- Name: UnitOfAnalysis_creatorId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3622 (class 2606 OID 1602426)
+-- Name: UnitOfAnalysis_creatorId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UnitOfAnalysis"
@@ -7164,7 +7747,8 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
--- Name: UnitOfAnalysis_langId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3621 (class 2606 OID 1602431)
+-- Name: UnitOfAnalysis_langId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UnitOfAnalysis"
@@ -7172,7 +7756,8 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
--- Name: UnitOfAnalysis_ownerId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3620 (class 2606 OID 1602436)
+-- Name: UnitOfAnalysis_ownerId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UnitOfAnalysis"
@@ -7180,7 +7765,8 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
--- Name: UnitOfAnalysis_unitOfAnalysisType_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3619 (class 2606 OID 1602441)
+-- Name: UnitOfAnalysis_unitOfAnalysisType_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UnitOfAnalysis"
@@ -7188,7 +7774,8 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
--- Name: UserGroups_groupId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3644 (class 2606 OID 1602446)
+-- Name: UserGroups_groupId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UserGroups"
@@ -7196,7 +7783,8 @@ ALTER TABLE ONLY "UserGroups"
 
 
 --
--- Name: UserGroups_userId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3643 (class 2606 OID 1602451)
+-- Name: UserGroups_userId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UserGroups"
@@ -7204,7 +7792,8 @@ ALTER TABLE ONLY "UserGroups"
 
 
 --
--- Name: UserUOA_UOAid_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3636 (class 2606 OID 1602456)
+-- Name: UserUOA_UOAid_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UserUOA"
@@ -7212,7 +7801,8 @@ ALTER TABLE ONLY "UserUOA"
 
 
 --
--- Name: UserUOA_UserId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3635 (class 2606 OID 1602461)
+-- Name: UserUOA_UserId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "UserUOA"
@@ -7220,7 +7810,8 @@ ALTER TABLE ONLY "UserUOA"
 
 
 --
--- Name: Users_langId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3630 (class 2606 OID 1602466)
+-- Name: Users_langId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Users"
@@ -7228,7 +7819,8 @@ ALTER TABLE ONLY "Users"
 
 
 --
--- Name: Users_organizationId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3629 (class 2606 OID 1602471)
+-- Name: Users_organizationId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Users"
@@ -7236,7 +7828,8 @@ ALTER TABLE ONLY "Users"
 
 
 --
--- Name: Users_roleID_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3628 (class 2606 OID 1602476)
+-- Name: Users_roleID_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Users"
@@ -7244,7 +7837,8 @@ ALTER TABLE ONLY "Users"
 
 
 --
--- Name: Visualizations_organizationId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3646 (class 2606 OID 1602481)
+-- Name: Visualizations_organizationId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Visualizations"
@@ -7252,7 +7846,8 @@ ALTER TABLE ONLY "Visualizations"
 
 
 --
--- Name: Visualizations_productId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3645 (class 2606 OID 1602486)
+-- Name: Visualizations_productId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Visualizations"
@@ -7260,7 +7855,8 @@ ALTER TABLE ONLY "Visualizations"
 
 
 --
--- Name: WorkflowStepGroups_groupId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3652 (class 2606 OID 1602491)
+-- Name: WorkflowStepGroups_groupId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "WorkflowStepGroups"
@@ -7268,7 +7864,8 @@ ALTER TABLE ONLY "WorkflowStepGroups"
 
 
 --
--- Name: WorkflowStepGroups_stepId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3651 (class 2606 OID 1602496)
+-- Name: WorkflowStepGroups_stepId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "WorkflowStepGroups"
@@ -7276,7 +7873,8 @@ ALTER TABLE ONLY "WorkflowStepGroups"
 
 
 --
--- Name: WorkflowSteps_langId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3649 (class 2606 OID 1602501)
+-- Name: WorkflowSteps_langId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "WorkflowSteps"
@@ -7284,7 +7882,8 @@ ALTER TABLE ONLY "WorkflowSteps"
 
 
 --
--- Name: WorkflowSteps_worflowId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3648 (class 2606 OID 1602506)
+-- Name: WorkflowSteps_worflowId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "WorkflowSteps"
@@ -7292,7 +7891,8 @@ ALTER TABLE ONLY "WorkflowSteps"
 
 
 --
--- Name: Workflows_productId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3647 (class 2606 OID 1602511)
+-- Name: Workflows_productId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "Workflows"
@@ -7300,7 +7900,8 @@ ALTER TABLE ONLY "Workflows"
 
 
 --
--- Name: rolesrights_rightID; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3607 (class 2606 OID 1602516)
+-- Name: rolesrights_rightID; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "RolesRights"
@@ -7308,7 +7909,8 @@ ALTER TABLE ONLY "RolesRights"
 
 
 --
--- Name: surveyQuestionOptions_questionId_fkey; Type: FK CONSTRAINT; Schema: spacex; Owner: indabauser
+-- TOC entry 3633 (class 2606 OID 1602521)
+-- Name: surveyQuestionOptions_questionId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "SurveyQuestionOptions"
@@ -7316,15 +7918,19 @@ ALTER TABLE ONLY "SurveyQuestionOptions"
 
 
 --
+-- TOC entry 3777 (class 0 OID 0)
+-- Dependencies: 9
 -- Name: public; Type: ACL; Schema: -; Owner: sean
 --
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
---REVOKE ALL ON SCHEMA public FROM <username>;
---GRANT ALL ON SCHEMA public TO <username>;
+REVOKE ALL ON SCHEMA public FROM sean;
+GRANT ALL ON SCHEMA public TO sean;
 GRANT ALL ON SCHEMA public TO indabauser;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
+
+-- Completed on 2017-04-11 13:34:40 EDT
 
 --
 -- PostgreSQL database dump complete

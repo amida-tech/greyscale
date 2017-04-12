@@ -436,7 +436,7 @@
             "MODAL_TITLE": "Subjects <small>For \"{{product.title}}\" Project</small>",
             "NAME": "Name",
             "SHORT_NAME": "Short Name",
-            "TABLE_TITLE": "Product Subjects",
+            "TABLE_TITLE": "Subjects",
             "TYPE": "Type"
         },
         "WORKFLOW": {
