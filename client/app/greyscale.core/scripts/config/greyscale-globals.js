@@ -132,13 +132,13 @@ angular.module('greyscale.core')
                     'section_end',
                     'section_break',
                     'bullet_points',
-                    'date',
-                    'scale'
+                    'date'
                 ],
                 excluded: [
                     'section_start',
                     'section_end',
-                    'section_break'
+                    'section_break',
+                    'scale'
                 ],
                 excludedIndexes: []
             },

@@ -89,7 +89,7 @@ angular.module('greyscaleApp')
 
                         case 'scale':
                         case 'number':
-                            body = '<div class="input-group"><input type="number" ' + commonPart +
+                            body = '<div class="input-group input-group-number"><input type="number" ' + commonPart +
                                 ' min="{{field.minLength}}" max="{{field.maxLength}}" gs-int="field">' +
                                 '<span class="input-group-addon" ng-show="field.units">{{field.units}}</span></div>';
 
@@ -133,7 +133,7 @@ angular.module('greyscaleApp')
 
                             if (scope.field.withOther) {
                                 body += '<div class="input-group"><span class="input-group-addon"><div class="checkbox">' +
-                                    '<label><input type="checkbox" ng-model="field.otherOption.checked" ng-disabled="field.flags.readonly || isDisabled" ' +
+                                    '<label class="input-group-addon__input-label>Other<input type="checkbox" ng-model="field.otherOption.checked" ng-disabled="field.flags.readonly || isDisabled" ' +
                                     'ng-required="field.required && !selectedOpts(field)" gs-valid="field">' +
                                     '<div class="chk-box"></div></label></div></span>' +
                                     '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="field.flags.readonly"' +
@@ -152,7 +152,7 @@ angular.module('greyscaleApp')
                             }
                             if (scope.field.withOther) {
                                 body += '<div class="input-group"><span class="input-group-addon"><div class="radio">' +
-                                    '<label><input type="radio" ng-model="field.answer" ng-disabled="field.flags.readonly || isDisabled" ' +
+                                    '<label class="input-group-addon__input-label">Other<input type="radio" ng-model="field.answer" ng-disabled="field.flags.readonly || isDisabled" ' +
                                     'ng-required="field.required" name="{{field.cid}}" gs-valid="field" ng-value="field.otherOption">' +
                                     '<div class="chk-box"></div></label></div></span>' +
                                     '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="field.flags.readonly" ' +
