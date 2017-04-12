@@ -436,7 +436,7 @@
             "MODAL_TITLE": "Субъекты <small>для проекта \"{{product.title}}\"</small>",
             "NAME": "Название",
             "SHORT_NAME": "Короткое название",
-            "TABLE_TITLE": "Субъекты проекта",
+            "TABLE_TITLE": "Субъекты",
             "TYPE": "Тип"
         },
         "WORKFLOW": {

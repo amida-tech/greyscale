@@ -107,10 +107,6 @@ angular.module('greyscale.tables')
                 title: tns + 'TASKS',
                 class: 'info',
                 handler: _editProductTasks
-            }, {
-                title: tns + 'INDEXES',
-                class: 'info',
-                handler: _editProductIndexes
             }]
         }, {
             show: true,
