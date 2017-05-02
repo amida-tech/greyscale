@@ -53,7 +53,7 @@
     },
     "socket.io-client": {
       "main": [
-        "socket.io.js"
+        "dist/socket.io.js"
       ]
     }
   },
