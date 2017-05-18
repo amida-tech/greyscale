@@ -7,4 +7,6 @@ COPY start-nginx.sh /start-nginx.sh
 ADD dist /usr/share/nginx/html/
 
 RUN chmod -R 777 /var/log/nginx /var/cache/nginx/ \
- && chmod -R 644 /etc/nginx/*
+ && chmod -R 644 /etc/nginx/* \
+ && rm -rf /var/log/nginx/error.log \
+ && rm -rf /var/log/nginx/access.log
