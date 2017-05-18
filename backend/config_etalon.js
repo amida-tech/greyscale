@@ -17,7 +17,7 @@ var environments = {
             sceletonSchema: 'sceleton'
         },
         mc: { // memcache
-            host: process.env.MEMCACHED_PORT_11211_TCP_ADDR || 'localhost',
+            host: process.env.MEMCACHED_HOST || 'localhost',
             port: 11211,
             lifetime: 300 // seconds
         },
