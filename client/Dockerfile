@@ -1,5 +1,7 @@
 FROM nginx
 
+EXPOSE 8080
+
 CMD ["/bin/bash", "/start-nginx.sh"]
 
 COPY docker-nginx.conf /etc/nginx/conf.d/default.conf
