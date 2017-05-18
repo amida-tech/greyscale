@@ -113,24 +113,6 @@ kubectl proxy
 gcloud container clusters delete greyscale-cluster
 ```
 
-## Deployment with RedHat OpenShift (Kubernetes)
-
-1. Log in with the `oc` command line tool. Verify your project status.
-```
-oc status
-```
-2. From the web dashboard, add a Postgres DB to the project.
-
-3. Set the appropriate environment variables in `.env`
-
-4. Use `oc import` to deploy the `docker-compose.yml` to OpenShift
-```sh
-# in the project root dir
-oc import docker-compose -f ./docker-compose.yml
-```
-There are no reliable cleanup steps as of now.
------
-
 ## Contributing
 
 Contributors are welcome. See issues https://github.com/amida-tech/greyscale/issues
