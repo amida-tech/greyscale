@@ -2,42 +2,42 @@
 
 [Indaba by Amida](indaba.amida-tech.com)
 
-##High Level Overview
+## High Level Overview
 
 Indaba puts your stakeholder and expert network at your fingertips. It converts their knowledge into data that you can analyze, publish, and use to make decisions.
 
-###Indaba's Process
+### Indaba's Process
 
 ![Indaba's Process](images/Indaba_process.png)
 
-====
-###Data collection and management
+---
+### Data collection and management
 
 ![Indaba's Project Management](images/Indaba_PM.png)
 
-====
-###Data review and dissemination
+---
+### Data review and dissemination
 
 ![Indaba's Data Review](images/Indaba_review.png)
 
-====
+---
 
-##Prerequisites
-###Backend
+## Prerequisites
+### Backend
 - Node.js (v5 - we recommend using [node version manager](https://github.com/creationix/nvm))
 - PostgreSQL
 - pgAdmin (optional)
 - memcached
 - nginx (for server deployment)
 
-###Frontend
+### Frontend
 - Ruby
 - Compass
 - Node.js and npm
 
-====
+---
 
-##Deployment with Docker
+## Deployment with Docker
 
 1. Set up a Docker Postgres container:
 
@@ -73,13 +73,13 @@ Indaba puts your stakeholder and expert network at your fingertips. It converts 
 9. Check localhost:80. If you’re on a Mac, you may have a defalt Apache server running that you need to kill.
 10. If you need to free up space after development, run ``docker rmi `docker ps -aq` `` 
 
-====
+---
 
 ## Contributing
 
 Contributors are welcome. See issues https://github.com/amida-tech/greyscale/issues
 
-====
+---
 
 ## Contributors
 
@@ -91,7 +91,7 @@ Contributors are welcome. See issues https://github.com/amida-tech/greyscale/iss
 - Harry Rickards (summer '15 intern, MIT)
 - Nadia Wallace (winter '15 intern, MIT)
 
-====
+---
 ## License
 
 Licensed under [Apache 2.0](./LICENSE)
