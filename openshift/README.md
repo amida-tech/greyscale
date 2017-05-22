@@ -19,6 +19,11 @@ oc create -f greyscale.yml
 ```
 It is also possible to import the file from the OpenShift console. This allows you to view and modify all project parameters before deploying the application.
 
+### Note on Postgres
+In the current iteration of the Indaba backend, seed `.sql` files are required to properly configure the database. You can create a tunnel connection
+to your postgres pod to complete these steps. However, the `data.tar.gz` file contains an initial DB directory structure, which can be copied with
+`rsync` to `/var/lib/pgsql/data/` in the postgres persistent volume.
+
 ## TODO
 - Add health checks
 - Add dev/staging/prod environment setup
@@ -27,5 +32,4 @@ It is also possible to import the file from the OpenShift console. This allows y
 - Add rolling deployment configuration
 - Add autoscaling behavior
 - HTTPS
-- Fix backend setup steps
 - Github hooks

@@ -21,7 +21,7 @@ items:
     source:
       contextDir: client
       git:
-        ref: feature/openshift-template
+        ref: develop
         uri: https://github.com/amida-tech/greyscale.git
       type: Git
     strategy:
@@ -29,7 +29,6 @@ items:
         from:
           kind: ImageStreamTag
           name: nginx:latest
-          namespace: greyscale
       type: Docker
     triggers:
     - github:
@@ -38,9 +37,9 @@ items:
     - generic:
         secret: N4L7UdAatrRsQwzALfmc
       type: Generic
-    - type: ConfigChange
     - imageChange: {}
       type: ImageChange
+    - type: ConfigChange
   status:
     lastVersion: 0
 - apiVersion: v1
@@ -64,7 +63,7 @@ items:
     source:
       contextDir: backend
       git:
-        ref: feature/openshift-template
+        ref: develop
         uri: https://github.com/amida-tech/greyscale.git
       type: Git
     strategy:
@@ -72,7 +71,6 @@ items:
         from:
           kind: ImageStreamTag
           name: node:5.10.1-onbuild
-          namespace: greyscale
       type: Docker
     triggers:
     - github:
@@ -81,9 +79,9 @@ items:
     - generic:
         secret: mHGohEIi-fKczJYawc8n
       type: Generic
-    - type: ConfigChange
     - imageChange: {}
       type: ImageChange
+    - type: ConfigChange
   status:
     lastVersion: 0
 - apiVersion: v1
@@ -1047,7 +1045,7 @@ items:
                 name: postgresql
           - name: POSTGRESQL_DATABASE
             value: indaba
-          image: ' '
+          image: centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad
           imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
@@ -1101,7 +1099,7 @@ items:
         from:
           kind: ImageStreamTag
           name: postgresql:9.5
-          namespace: greyscale
+          namespace: openshift
       type: ImageChange
     - type: ConfigChange
   status:
@@ -2043,6 +2041,541 @@ items:
   status:
     replicas: 0
 - apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/desired-replicas: "1"
+      openshift.io/deployer-pod.name: postgresql-1-deploy
+      openshift.io/deployment-config.latest-version: "1"
+      openshift.io/deployment-config.name: postgresql
+      openshift.io/deployment.phase: Failed
+      openshift.io/deployment.replicas: "0"
+      openshift.io/deployment.status-reason: image change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"postgresql","namespace":"greyscale","selfLink":"/oapi/v1/namespaces/greyscale/deploymentconfigs/postgresql","uid":"3dfe0a86-3f01-11e7-8c79-c67124360ad1","resourceVersion":"12581","generation":2,"creationTimestamp":"2017-05-22T15:13:42Z","labels":{"app":"postgresql-persistent","template":"postgresql-persistent-template"}},"spec":{"strategy":{"type":"Recreate","recreateParams":{"timeoutSeconds":600},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["postgresql"],"from":{"kind":"ImageStreamTag","namespace":"openshift","name":"postgresql:9.5"},"lastTriggeredImage":"centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad"}},{"type":"ConfigChange"}],"replicas":1,"test":false,"selector":{"name":"postgresql"},"template":{"metadata":{"creationTimestamp":null,"labels":{"name":"postgresql"}},"spec":{"volumes":[{"name":"postgresql-data","persistentVolumeClaim":{"claimName":"postgresql"}}],"containers":[{"name":"postgresql","image":"centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad","ports":[{"containerPort":5432,"protocol":"TCP"}],"env":[{"name":"POSTGRESQL_USER","valueFrom":{"secretKeyRef":{"name":"postgresql","key":"database-user"}}},{"name":"POSTGRESQL_PASSWORD","valueFrom":{"secretKeyRef":{"name":"postgresql","key":"database-password"}}},{"name":"POSTGRESQL_DATABASE","value":"indaba"}],"resources":{"limits":{"memory":"512Mi"}},"volumeMounts":[{"name":"postgresql-data","mountPath":"/var/lib/pgsql/data"}],"livenessProbe":{"tcpSocket":{"port":5432},"initialDelaySeconds":30,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"readinessProbe":{"exec":{"command":["/bin/sh","-i","-c","psql -h 127.0.0.1 -U $POSTGRESQL_USER -q -d $POSTGRESQL_DATABASE -c 'SELECT 1'"]},"initialDelaySeconds":5,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"terminationMessagePath":"/dev/termination-log","imagePullPolicy":"IfNotPresent","securityContext":{"capabilities":{},"privileged":false}}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{}}}},"status":{"latestVersion":1,"observedGeneration":1,"replicas":0,"updatedReplicas":0,"availableReplicas":0,"unavailableReplicas":0,"details":{"message":"image change","causes":[{"type":"ImageChange","imageTrigger":{"from":{"kind":"ImageStreamTag","namespace":"openshift","name":"postgresql:9.5"}}}]},"conditions":[{"type":"Available","status":"False","lastUpdateTime":"2017-05-22T15:13:42Z","lastTransitionTime":"2017-05-22T15:13:42Z","message":"Deployment config does not have minimum availability."}]}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: postgresql-persistent
+      openshift.io/deployment-config.name: postgresql
+      template: postgresql-persistent-template
+    name: postgresql-1
+  spec:
+    replicas: 0
+    selector:
+      deployment: postgresql-1
+      deploymentconfig: postgresql
+      name: postgresql
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "1"
+          openshift.io/deployment-config.name: postgresql
+          openshift.io/deployment.name: postgresql-1
+        creationTimestamp: null
+        labels:
+          deployment: postgresql-1
+          deploymentconfig: postgresql
+          name: postgresql
+      spec:
+        containers:
+        - env:
+          - name: POSTGRESQL_USER
+            valueFrom:
+              secretKeyRef:
+                key: database-user
+                name: postgresql
+          - name: POSTGRESQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: database-password
+                name: postgresql
+          - name: POSTGRESQL_DATABASE
+            value: indaba
+          image: centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 5432
+            timeoutSeconds: 1
+          name: postgresql
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -i
+              - -c
+              - psql -h 127.0.0.1 -U $POSTGRESQL_USER -q -d $POSTGRESQL_DATABASE -c
+                'SELECT 1'
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+          securityContext:
+            capabilities: {}
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+          - mountPath: /var/lib/pgsql/data
+            name: postgresql-data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: postgresql-data
+          persistentVolumeClaim:
+            claimName: postgresql
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/desired-replicas: "1"
+      openshift.io/deployer-pod.name: postgresql-2-deploy
+      openshift.io/deployment-config.latest-version: "2"
+      openshift.io/deployment-config.name: postgresql
+      openshift.io/deployment.phase: Failed
+      openshift.io/deployment.replicas: "0"
+      openshift.io/deployment.status-reason: config change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"postgresql","namespace":"greyscale","selfLink":"/oapi/v1/namespaces/greyscale/deploymentconfigs/postgresql","uid":"3dfe0a86-3f01-11e7-8c79-c67124360ad1","resourceVersion":"12609","generation":4,"creationTimestamp":"2017-05-22T15:13:42Z","labels":{"app":"postgresql-persistent","template":"postgresql-persistent-template"}},"spec":{"strategy":{"type":"Recreate","recreateParams":{"timeoutSeconds":600},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["postgresql"],"from":{"kind":"ImageStreamTag","namespace":"openshift","name":"postgresql:9.5"},"lastTriggeredImage":"centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad"}},{"type":"ConfigChange"}],"replicas":1,"test":false,"selector":{"name":"postgresql"},"template":{"metadata":{"creationTimestamp":null,"labels":{"name":"postgresql"}},"spec":{"volumes":[{"name":"postgresql-data","persistentVolumeClaim":{"claimName":"postgresql"}}],"containers":[{"name":"postgresql","image":"centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad","ports":[{"containerPort":5432,"protocol":"TCP"}],"env":[{"name":"POSTGRESQL_USER","valueFrom":{"secretKeyRef":{"name":"postgresql","key":"database-user"}}},{"name":"POSTGRESQL_PASSWORD","valueFrom":{"secretKeyRef":{"name":"postgresql","key":"database-password"}}},{"name":"POSTGRESQL_DATABASE","value":"indaba"}],"resources":{"limits":{"memory":"512Mi"}},"volumeMounts":[{"name":"postgresql-data","mountPath":"/var/lib/pgsql/data"}],"terminationMessagePath":"/dev/termination-log","imagePullPolicy":"IfNotPresent","securityContext":{"capabilities":{},"privileged":false}}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{}}}},"status":{"latestVersion":2,"observedGeneration":3,"replicas":0,"updatedReplicas":0,"availableReplicas":0,"unavailableReplicas":0,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Available","status":"False","lastUpdateTime":"2017-05-22T15:13:42Z","lastTransitionTime":"2017-05-22T15:13:42Z","message":"Deployment config does not have minimum availability."},{"type":"Progressing","status":"False","lastUpdateTime":"2017-05-22T15:13:42Z","lastTransitionTime":"2017-05-22T15:13:42Z","reason":"ProgressDeadlineExceeded","message":"replication controller \"postgresql-1\" has failed progressing"}]}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: postgresql-persistent
+      openshift.io/deployment-config.name: postgresql
+      template: postgresql-persistent-template
+    name: postgresql-2
+  spec:
+    replicas: 0
+    selector:
+      deployment: postgresql-2
+      deploymentconfig: postgresql
+      name: postgresql
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "2"
+          openshift.io/deployment-config.name: postgresql
+          openshift.io/deployment.name: postgresql-2
+        creationTimestamp: null
+        labels:
+          deployment: postgresql-2
+          deploymentconfig: postgresql
+          name: postgresql
+      spec:
+        containers:
+        - env:
+          - name: POSTGRESQL_USER
+            valueFrom:
+              secretKeyRef:
+                key: database-user
+                name: postgresql
+          - name: POSTGRESQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: database-password
+                name: postgresql
+          - name: POSTGRESQL_DATABASE
+            value: indaba
+          image: centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad
+          imagePullPolicy: IfNotPresent
+          name: postgresql
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          resources:
+            limits:
+              memory: 512Mi
+          securityContext:
+            capabilities: {}
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+          - mountPath: /var/lib/pgsql/data
+            name: postgresql-data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: postgresql-data
+          persistentVolumeClaim:
+            claimName: postgresql
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      openshift.io/deployer-pod.name: postgresql-3-deploy
+      openshift.io/deployment-config.latest-version: "3"
+      openshift.io/deployment-config.name: postgresql
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: "1"
+      openshift.io/deployment.status-reason: config change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"postgresql","namespace":"greyscale","selfLink":"/oapi/v1/namespaces/greyscale/deploymentconfigs/postgresql","uid":"3dfe0a86-3f01-11e7-8c79-c67124360ad1","resourceVersion":"12617","generation":5,"creationTimestamp":"2017-05-22T15:13:42Z","labels":{"app":"postgresql-persistent","template":"postgresql-persistent-template"}},"spec":{"strategy":{"type":"Recreate","recreateParams":{"timeoutSeconds":600},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["postgresql"],"from":{"kind":"ImageStreamTag","namespace":"openshift","name":"postgresql:9.5"},"lastTriggeredImage":"centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad"}},{"type":"ConfigChange"}],"replicas":1,"test":false,"selector":{"name":"postgresql"},"template":{"metadata":{"creationTimestamp":null,"labels":{"name":"postgresql"}},"spec":{"volumes":[{"name":"postgresql-data","persistentVolumeClaim":{"claimName":"postgresql"}}],"containers":[{"name":"postgresql","image":"centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad","ports":[{"containerPort":5432,"protocol":"TCP"}],"env":[{"name":"POSTGRESQL_USER","valueFrom":{"secretKeyRef":{"name":"postgresql","key":"database-user"}}},{"name":"POSTGRESQL_PASSWORD","valueFrom":{"secretKeyRef":{"name":"postgresql","key":"database-password"}}},{"name":"POSTGRESQL_DATABASE","value":"indaba"}],"resources":{"limits":{"memory":"512Mi"}},"volumeMounts":[{"name":"postgresql-data","mountPath":"/var/lib/pgsql/data"}],"terminationMessagePath":"/dev/termination-log","imagePullPolicy":"IfNotPresent","securityContext":{"capabilities":{},"privileged":false}}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{}}}},"status":{"latestVersion":3,"observedGeneration":4,"replicas":0,"updatedReplicas":0,"availableReplicas":0,"unavailableReplicas":0,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Available","status":"False","lastUpdateTime":"2017-05-22T15:13:42Z","lastTransitionTime":"2017-05-22T15:13:42Z","message":"Deployment config does not have minimum availability."},{"type":"Progressing","status":"False","lastUpdateTime":"2017-05-22T15:14:47Z","lastTransitionTime":"2017-05-22T15:14:47Z","reason":"ProgressDeadlineExceeded","message":"replication controller \"postgresql-2\" has failed progressing"}]}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: postgresql-persistent
+      openshift.io/deployment-config.name: postgresql
+      template: postgresql-persistent-template
+    name: postgresql-3
+  spec:
+    replicas: 0
+    selector:
+      deployment: postgresql-3
+      deploymentconfig: postgresql
+      name: postgresql
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "3"
+          openshift.io/deployment-config.name: postgresql
+          openshift.io/deployment.name: postgresql-3
+        creationTimestamp: null
+        labels:
+          deployment: postgresql-3
+          deploymentconfig: postgresql
+          name: postgresql
+      spec:
+        containers:
+        - env:
+          - name: POSTGRESQL_USER
+            valueFrom:
+              secretKeyRef:
+                key: database-user
+                name: postgresql
+          - name: POSTGRESQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: database-password
+                name: postgresql
+          - name: POSTGRESQL_DATABASE
+            value: indaba
+          image: centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad
+          imagePullPolicy: IfNotPresent
+          name: postgresql
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          resources:
+            limits:
+              memory: 512Mi
+          securityContext:
+            capabilities: {}
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+          - mountPath: /var/lib/pgsql/data
+            name: postgresql-data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: postgresql-data
+          persistentVolumeClaim:
+            claimName: postgresql
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      openshift.io/deployer-pod.name: postgresql-4-deploy
+      openshift.io/deployment-config.latest-version: "4"
+      openshift.io/deployment-config.name: postgresql
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: "1"
+      openshift.io/deployment.status-reason: config change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"postgresql","namespace":"greyscale","selfLink":"/oapi/v1/namespaces/greyscale/deploymentconfigs/postgresql","uid":"3dfe0a86-3f01-11e7-8c79-c67124360ad1","resourceVersion":"12865","generation":7,"creationTimestamp":"2017-05-22T15:13:42Z","labels":{"app":"postgresql-persistent","template":"postgresql-persistent-template"}},"spec":{"strategy":{"type":"Recreate","recreateParams":{"timeoutSeconds":600},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["postgresql"],"from":{"kind":"ImageStreamTag","namespace":"openshift","name":"postgresql:9.5"},"lastTriggeredImage":"centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad"}},{"type":"ConfigChange"}],"replicas":1,"test":false,"selector":{"name":"postgresql"},"template":{"metadata":{"creationTimestamp":null,"labels":{"name":"postgresql"}},"spec":{"volumes":[{"name":"postgresql-data","persistentVolumeClaim":{"claimName":"postgresql"}}],"containers":[{"name":"postgresql","image":"centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad","ports":[{"containerPort":5432,"protocol":"TCP"}],"env":[{"name":"POSTGRESQL_USER","valueFrom":{"secretKeyRef":{"name":"postgresql","key":"database-user"}}},{"name":"POSTGRESQL_PASSWORD","valueFrom":{"secretKeyRef":{"name":"postgresql","key":"database-password"}}},{"name":"POSTGRESQL_DATABASE","value":"indaba"}],"resources":{"limits":{"memory":"512Mi"}},"volumeMounts":[{"name":"postgresql-data","mountPath":"/var/lib/pgsql/data"}],"livenessProbe":{"tcpSocket":{"port":5432},"initialDelaySeconds":30,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"terminationMessagePath":"/dev/termination-log","imagePullPolicy":"IfNotPresent","securityContext":{"capabilities":{},"privileged":false}}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{}}}},"status":{"latestVersion":4,"observedGeneration":6,"replicas":1,"updatedReplicas":1,"availableReplicas":1,"unavailableReplicas":0,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Available","status":"True","lastUpdateTime":"2017-05-22T15:15:04Z","lastTransitionTime":"2017-05-22T15:15:04Z","message":"Deployment config has minimum availability."},{"type":"Progressing","status":"True","lastUpdateTime":"2017-05-22T15:15:05Z","lastTransitionTime":"2017-05-22T15:15:05Z","reason":"NewReplicationControllerAvailable","message":"replication controller \"postgresql-3\" successfully rolled out"}],"readyReplicas":1}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: postgresql-persistent
+      openshift.io/deployment-config.name: postgresql
+      template: postgresql-persistent-template
+    name: postgresql-4
+  spec:
+    replicas: 0
+    selector:
+      deployment: postgresql-4
+      deploymentconfig: postgresql
+      name: postgresql
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "4"
+          openshift.io/deployment-config.name: postgresql
+          openshift.io/deployment.name: postgresql-4
+        creationTimestamp: null
+        labels:
+          deployment: postgresql-4
+          deploymentconfig: postgresql
+          name: postgresql
+      spec:
+        containers:
+        - env:
+          - name: POSTGRESQL_USER
+            valueFrom:
+              secretKeyRef:
+                key: database-user
+                name: postgresql
+          - name: POSTGRESQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: database-password
+                name: postgresql
+          - name: POSTGRESQL_DATABASE
+            value: indaba
+          image: centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 5432
+            timeoutSeconds: 1
+          name: postgresql
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          resources:
+            limits:
+              memory: 512Mi
+          securityContext:
+            capabilities: {}
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+          - mountPath: /var/lib/pgsql/data
+            name: postgresql-data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: postgresql-data
+          persistentVolumeClaim:
+            claimName: postgresql
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/desired-replicas: "1"
+      openshift.io/deployer-pod.name: postgresql-5-deploy
+      openshift.io/deployment-config.latest-version: "5"
+      openshift.io/deployment-config.name: postgresql
+      openshift.io/deployment.cancelled: "true"
+      openshift.io/deployment.phase: Failed
+      openshift.io/deployment.replicas: "0"
+      openshift.io/deployment.status-reason: newer deployment was found running
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"postgresql","namespace":"greyscale","selfLink":"/oapi/v1/namespaces/greyscale/deploymentconfigs/postgresql","uid":"3dfe0a86-3f01-11e7-8c79-c67124360ad1","resourceVersion":"12988","generation":9,"creationTimestamp":"2017-05-22T15:13:42Z","labels":{"app":"postgresql-persistent","template":"postgresql-persistent-template"}},"spec":{"strategy":{"type":"Recreate","recreateParams":{"timeoutSeconds":600},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["postgresql"],"from":{"kind":"ImageStreamTag","namespace":"openshift","name":"postgresql:9.5"},"lastTriggeredImage":"centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad"}},{"type":"ConfigChange"}],"replicas":1,"test":false,"selector":{"name":"postgresql"},"template":{"metadata":{"creationTimestamp":null,"labels":{"name":"postgresql"}},"spec":{"volumes":[{"name":"postgresql-data","persistentVolumeClaim":{"claimName":"postgresql"}}],"containers":[{"name":"postgresql","image":"centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad","ports":[{"containerPort":5432,"protocol":"TCP"}],"env":[{"name":"POSTGRESQL_USER","valueFrom":{"secretKeyRef":{"name":"postgresql","key":"database-user"}}},{"name":"POSTGRESQL_PASSWORD","valueFrom":{"secretKeyRef":{"name":"postgresql","key":"database-password"}}},{"name":"POSTGRESQL_DATABASE","value":"indaba"}],"resources":{"limits":{"memory":"512Mi"}},"volumeMounts":[{"name":"postgresql-data","mountPath":"/var/lib/pgsql/data"}],"livenessProbe":{"tcpSocket":{"port":5432},"initialDelaySeconds":30,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"readinessProbe":{"exec":{"command":["/bin/sh","-i","-c"]},"initialDelaySeconds":5,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"terminationMessagePath":"/dev/termination-log","imagePullPolicy":"IfNotPresent","securityContext":{"capabilities":{},"privileged":false}}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{}}}},"status":{"latestVersion":5,"observedGeneration":8,"replicas":1,"updatedReplicas":1,"availableReplicas":1,"unavailableReplicas":0,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Available","status":"True","lastUpdateTime":"2017-05-22T15:31:31Z","lastTransitionTime":"2017-05-22T15:31:31Z","message":"Deployment config has minimum availability."},{"type":"Progressing","status":"True","lastUpdateTime":"2017-05-22T15:31:32Z","lastTransitionTime":"2017-05-22T15:31:29Z","reason":"NewReplicationControllerAvailable","message":"replication controller \"postgresql-4\" successfully rolled out"}],"readyReplicas":1}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: postgresql-persistent
+      openshift.io/deployment-config.name: postgresql
+      template: postgresql-persistent-template
+    name: postgresql-5
+  spec:
+    replicas: 0
+    selector:
+      deployment: postgresql-5
+      deploymentconfig: postgresql
+      name: postgresql
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "5"
+          openshift.io/deployment-config.name: postgresql
+          openshift.io/deployment.name: postgresql-5
+        creationTimestamp: null
+        labels:
+          deployment: postgresql-5
+          deploymentconfig: postgresql
+          name: postgresql
+      spec:
+        containers:
+        - env:
+          - name: POSTGRESQL_USER
+            valueFrom:
+              secretKeyRef:
+                key: database-user
+                name: postgresql
+          - name: POSTGRESQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: database-password
+                name: postgresql
+          - name: POSTGRESQL_DATABASE
+            value: indaba
+          image: centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 5432
+            timeoutSeconds: 1
+          name: postgresql
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -i
+              - -c
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+          securityContext:
+            capabilities: {}
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+          - mountPath: /var/lib/pgsql/data
+            name: postgresql-data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: postgresql-data
+          persistentVolumeClaim:
+            claimName: postgresql
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      openshift.io/deployer-pod.name: postgresql-6-deploy
+      openshift.io/deployment-config.latest-version: "6"
+      openshift.io/deployment-config.name: postgresql
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: "1"
+      openshift.io/deployment.status-reason: config change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"postgresql","namespace":"greyscale","selfLink":"/oapi/v1/namespaces/greyscale/deploymentconfigs/postgresql","uid":"3dfe0a86-3f01-11e7-8c79-c67124360ad1","resourceVersion":"13068","generation":11,"creationTimestamp":"2017-05-22T15:13:42Z","labels":{"app":"postgresql-persistent","template":"postgresql-persistent-template"}},"spec":{"strategy":{"type":"Recreate","recreateParams":{"timeoutSeconds":600},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["postgresql"],"from":{"kind":"ImageStreamTag","namespace":"openshift","name":"postgresql:9.5"},"lastTriggeredImage":"centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad"}},{"type":"ConfigChange"}],"replicas":1,"test":false,"selector":{"name":"postgresql"},"template":{"metadata":{"creationTimestamp":null,"labels":{"name":"postgresql"}},"spec":{"volumes":[{"name":"postgresql-data","persistentVolumeClaim":{"claimName":"postgresql"}}],"containers":[{"name":"postgresql","image":"centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad","ports":[{"containerPort":5432,"protocol":"TCP"}],"env":[{"name":"POSTGRESQL_USER","valueFrom":{"secretKeyRef":{"name":"postgresql","key":"database-user"}}},{"name":"POSTGRESQL_PASSWORD","valueFrom":{"secretKeyRef":{"name":"postgresql","key":"database-password"}}},{"name":"POSTGRESQL_DATABASE","value":"indaba"}],"resources":{"limits":{"memory":"512Mi"}},"volumeMounts":[{"name":"postgresql-data","mountPath":"/var/lib/pgsql/data"}],"livenessProbe":{"tcpSocket":{"port":5432},"initialDelaySeconds":30,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"readinessProbe":{"exec":{"command":["/bin/sh","-i","-c","psql -h 127.0.0.1 -U $POSTGRESQL_USER -q -d $POSTGRESQL_DATABASE -c 'SELECT 1'"]},"initialDelaySeconds":5,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"terminationMessagePath":"/dev/termination-log","imagePullPolicy":"IfNotPresent","securityContext":{"capabilities":{},"privileged":false}}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{}}}},"status":{"latestVersion":6,"observedGeneration":10,"replicas":1,"updatedReplicas":1,"availableReplicas":0,"unavailableReplicas":1,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Available","status":"False","lastUpdateTime":"2017-05-22T15:36:43Z","lastTransitionTime":"2017-05-22T15:36:43Z","message":"Deployment config does not have minimum availability."},{"type":"Progressing","status":"True","lastUpdateTime":"2017-05-22T15:36:44Z","lastTransitionTime":"2017-05-22T15:36:44Z","reason":"ReplicationControllerUpdated","message":"replication controller \"postgresql-5\" is progressing"}]}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: postgresql-persistent
+      openshift.io/deployment-config.name: postgresql
+      template: postgresql-persistent-template
+    name: postgresql-6
+  spec:
+    replicas: 1
+    selector:
+      deployment: postgresql-6
+      deploymentconfig: postgresql
+      name: postgresql
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "6"
+          openshift.io/deployment-config.name: postgresql
+          openshift.io/deployment.name: postgresql-6
+        creationTimestamp: null
+        labels:
+          deployment: postgresql-6
+          deploymentconfig: postgresql
+          name: postgresql
+      spec:
+        containers:
+        - env:
+          - name: POSTGRESQL_USER
+            valueFrom:
+              secretKeyRef:
+                key: database-user
+                name: postgresql
+          - name: POSTGRESQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: database-password
+                name: postgresql
+          - name: POSTGRESQL_DATABASE
+            value: indaba
+          image: centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 5432
+            timeoutSeconds: 1
+          name: postgresql
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -i
+              - -c
+              - psql -h 127.0.0.1 -U $POSTGRESQL_USER -q -d $POSTGRESQL_DATABASE -c
+                'SELECT 1'
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+          securityContext:
+            capabilities: {}
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+          - mountPath: /var/lib/pgsql/data
+            name: postgresql-data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: postgresql-data
+          persistentVolumeClaim:
+            claimName: postgresql
+  status:
+    replicas: 0
+- apiVersion: v1
   kind: Route
   metadata:
     annotations:
@@ -2228,7 +2761,7 @@ items:
   metadata:
     annotations:
       kubernetes.io/created-by: |
-        {"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicationController","namespace":"greyscale","name":"greyscale-11","uid":"bf851cca-3be0-11e7-8ee3-7aa5a07c67b4","apiVersion":"v1","resourceVersion":"7879"}}
+        {"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicationController","namespace":"greyscale","name":"greyscale-11","uid":"bf851cca-3be0-11e7-8ee3-7aa5a07c67b4","apiVersion":"v1","resourceVersion":"13170"}}
       openshift.io/deployment-config.latest-version: "11"
       openshift.io/deployment-config.name: greyscale
       openshift.io/deployment.name: greyscale-11
@@ -2914,7 +3447,7 @@ items:
   metadata:
     annotations:
       kubernetes.io/created-by: |
-        {"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicationController","namespace":"greyscale","name":"greyscale-backend-3","uid":"5cd376b7-3bd9-11e7-8ee3-7aa5a07c67b4","apiVersion":"v1","resourceVersion":"6374"}}
+        {"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicationController","namespace":"greyscale","name":"greyscale-backend-3","uid":"5cd376b7-3bd9-11e7-8ee3-7aa5a07c67b4","apiVersion":"v1","resourceVersion":"13144"}}
       openshift.io/deployment-config.latest-version: "3"
       openshift.io/deployment-config.name: greyscale-backend
       openshift.io/deployment.name: greyscale-backend-3
@@ -3050,6 +3583,278 @@ items:
     serviceAccountName: default
     terminationGracePeriodSeconds: 30
     volumes:
+    - name: default-token-rq17f
+      secret:
+        defaultMode: 420
+        secretName: default-token-rq17f
+  status:
+    phase: Pending
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      openshift.io/deployment.name: postgresql-1
+      openshift.io/scc: restricted
+    creationTimestamp: null
+    labels:
+      openshift.io/deployer-pod-for.name: postgresql-1
+    name: postgresql-1-deploy
+  spec:
+    activeDeadlineSeconds: 21600
+    containers:
+    - env:
+      - name: KUBERNETES_MASTER
+        value: https://192.168.99.100:8443
+      - name: OPENSHIFT_MASTER
+        value: https://192.168.99.100:8443
+      - name: BEARER_TOKEN_FILE
+        value: /var/run/secrets/kubernetes.io/serviceaccount/token
+      - name: OPENSHIFT_CA_DATA
+        value: |
+          -----BEGIN CERTIFICATE-----
+          MIIC6jCCAdKgAwIBAgIBATANBgkqhkiG9w0BAQsFADAmMSQwIgYDVQQDDBtvcGVu
+          c2hpZnQtc2lnbmVyQDE0OTQ1MzIzNzcwHhcNMTcwNTExMTk1MjU2WhcNMjIwNTEw
+          MTk1MjU3WjAmMSQwIgYDVQQDDBtvcGVuc2hpZnQtc2lnbmVyQDE0OTQ1MzIzNzcw
+          ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC1lRC2DTwC4mkhM0gI+sIV
+          rUYh7HOWxg5mp5YdjJbDSMY4OpKb4k3Y5vkJkBzYxU9tq4YdQT4bu42O+UM9koX4
+          1JtyWUhzyzBcgn1+eZA7Tx305S5Tk6eEW0VI5IMRZmPtzWg5IdFUX8M+c+z90kTD
+          aesKQSY/W9WKG/RgfRn8Y7JC+vXu/j6uu6Hln5HTCrUU6RUHmlD+jRjkXhBYlvKR
+          Si4dNOZnJmIV94NJ8MPCFJThVsO6LE+8iRKLO+I6XNs3BK2Eju9+WFhbu7DohV9R
+          AR2V5G6funI0mRdNpm9WDtRUC0w2RsSlgtSKteeQnA2cikWXkf4T7a+yOvIHEqj7
+          AgMBAAGjIzAhMA4GA1UdDwEB/wQEAwICpDAPBgNVHRMBAf8EBTADAQH/MA0GCSqG
+          SIb3DQEBCwUAA4IBAQCyobiOZ1pQWLhXl9K3Z1CaLkx5RWOQHQZv68wtePVWuDhK
+          ZVGOSWc2K7qjkOi6fGaOeqpQfoVffi4F8RDRLQS4x62NJnMvXWhIZFM/1Qa2xh4T
+          X0z1nLHkReBZ2xW08/awILfgKrLxRb0l7gpRCAYxbveYHqkAXJLPDR/flyMbXksy
+          TfUtxa4L2F6HHhxRWyZgSkVWWdqhzkf4HGsbf9GaF4b0yu6bKrxR2Wh1t2btnCve
+          ODqxP7OZJdbK+AWUmmaR3C666ntEWxSZ7pTSdeYXIefl+gHzaTlNTbfyCY7o+gea
+          5/doFBIY1Ltg+rvzCtHdb2AVUUV9fOP0IM4ofYYw
+          -----END CERTIFICATE-----
+      - name: OPENSHIFT_DEPLOYMENT_NAME
+        value: postgresql-1
+      - name: OPENSHIFT_DEPLOYMENT_NAMESPACE
+        value: greyscale
+      image: openshift/origin-deployer:v1.5.0
+      imagePullPolicy: IfNotPresent
+      name: deployment
+      resources: {}
+      securityContext:
+        capabilities:
+          drop:
+          - KILL
+          - MKNOD
+          - SETGID
+          - SETUID
+          - SYS_CHROOT
+        privileged: false
+        runAsUser: 1000040000
+        seLinuxOptions:
+          level: s0:c6,c5
+      terminationMessagePath: /dev/termination-log
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: deployer-token-4q38q
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    imagePullSecrets:
+    - name: deployer-dockercfg-d09bm
+    nodeName: 192.168.99.100
+    restartPolicy: Never
+    securityContext:
+      fsGroup: 1000040000
+      seLinuxOptions:
+        level: s0:c6,c5
+    serviceAccount: deployer
+    serviceAccountName: deployer
+    terminationGracePeriodSeconds: 10
+    volumes:
+    - name: deployer-token-4q38q
+      secret:
+        defaultMode: 420
+        secretName: deployer-token-4q38q
+  status:
+    phase: Pending
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      openshift.io/deployment.name: postgresql-2
+      openshift.io/scc: restricted
+    creationTimestamp: null
+    labels:
+      openshift.io/deployer-pod-for.name: postgresql-2
+    name: postgresql-2-deploy
+  spec:
+    activeDeadlineSeconds: 21600
+    containers:
+    - env:
+      - name: KUBERNETES_MASTER
+        value: https://192.168.99.100:8443
+      - name: OPENSHIFT_MASTER
+        value: https://192.168.99.100:8443
+      - name: BEARER_TOKEN_FILE
+        value: /var/run/secrets/kubernetes.io/serviceaccount/token
+      - name: OPENSHIFT_CA_DATA
+        value: |
+          -----BEGIN CERTIFICATE-----
+          MIIC6jCCAdKgAwIBAgIBATANBgkqhkiG9w0BAQsFADAmMSQwIgYDVQQDDBtvcGVu
+          c2hpZnQtc2lnbmVyQDE0OTQ1MzIzNzcwHhcNMTcwNTExMTk1MjU2WhcNMjIwNTEw
+          MTk1MjU3WjAmMSQwIgYDVQQDDBtvcGVuc2hpZnQtc2lnbmVyQDE0OTQ1MzIzNzcw
+          ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC1lRC2DTwC4mkhM0gI+sIV
+          rUYh7HOWxg5mp5YdjJbDSMY4OpKb4k3Y5vkJkBzYxU9tq4YdQT4bu42O+UM9koX4
+          1JtyWUhzyzBcgn1+eZA7Tx305S5Tk6eEW0VI5IMRZmPtzWg5IdFUX8M+c+z90kTD
+          aesKQSY/W9WKG/RgfRn8Y7JC+vXu/j6uu6Hln5HTCrUU6RUHmlD+jRjkXhBYlvKR
+          Si4dNOZnJmIV94NJ8MPCFJThVsO6LE+8iRKLO+I6XNs3BK2Eju9+WFhbu7DohV9R
+          AR2V5G6funI0mRdNpm9WDtRUC0w2RsSlgtSKteeQnA2cikWXkf4T7a+yOvIHEqj7
+          AgMBAAGjIzAhMA4GA1UdDwEB/wQEAwICpDAPBgNVHRMBAf8EBTADAQH/MA0GCSqG
+          SIb3DQEBCwUAA4IBAQCyobiOZ1pQWLhXl9K3Z1CaLkx5RWOQHQZv68wtePVWuDhK
+          ZVGOSWc2K7qjkOi6fGaOeqpQfoVffi4F8RDRLQS4x62NJnMvXWhIZFM/1Qa2xh4T
+          X0z1nLHkReBZ2xW08/awILfgKrLxRb0l7gpRCAYxbveYHqkAXJLPDR/flyMbXksy
+          TfUtxa4L2F6HHhxRWyZgSkVWWdqhzkf4HGsbf9GaF4b0yu6bKrxR2Wh1t2btnCve
+          ODqxP7OZJdbK+AWUmmaR3C666ntEWxSZ7pTSdeYXIefl+gHzaTlNTbfyCY7o+gea
+          5/doFBIY1Ltg+rvzCtHdb2AVUUV9fOP0IM4ofYYw
+          -----END CERTIFICATE-----
+      - name: OPENSHIFT_DEPLOYMENT_NAME
+        value: postgresql-2
+      - name: OPENSHIFT_DEPLOYMENT_NAMESPACE
+        value: greyscale
+      image: openshift/origin-deployer:v1.5.0
+      imagePullPolicy: IfNotPresent
+      name: deployment
+      resources: {}
+      securityContext:
+        capabilities:
+          drop:
+          - KILL
+          - MKNOD
+          - SETGID
+          - SETUID
+          - SYS_CHROOT
+        privileged: false
+        runAsUser: 1000040000
+        seLinuxOptions:
+          level: s0:c6,c5
+      terminationMessagePath: /dev/termination-log
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: deployer-token-4q38q
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    imagePullSecrets:
+    - name: deployer-dockercfg-d09bm
+    nodeName: 192.168.99.100
+    restartPolicy: Never
+    securityContext:
+      fsGroup: 1000040000
+      seLinuxOptions:
+        level: s0:c6,c5
+    serviceAccount: deployer
+    serviceAccountName: deployer
+    terminationGracePeriodSeconds: 10
+    volumes:
+    - name: deployer-token-4q38q
+      secret:
+        defaultMode: 420
+        secretName: deployer-token-4q38q
+  status:
+    phase: Pending
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      kubernetes.io/created-by: |
+        {"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicationController","namespace":"greyscale","name":"postgresql-6","uid":"b3783275-3f04-11e7-8c79-c67124360ad1","apiVersion":"v1","resourceVersion":"13107"}}
+      openshift.io/deployment-config.latest-version: "6"
+      openshift.io/deployment-config.name: postgresql
+      openshift.io/deployment.name: postgresql-6
+      openshift.io/scc: restricted
+    creationTimestamp: null
+    generateName: postgresql-6-
+    labels:
+      deployment: postgresql-6
+      deploymentconfig: postgresql
+      name: postgresql
+  spec:
+    containers:
+    - env:
+      - name: POSTGRESQL_USER
+        valueFrom:
+          secretKeyRef:
+            key: database-user
+            name: postgresql
+      - name: POSTGRESQL_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            key: database-password
+            name: postgresql
+      - name: POSTGRESQL_DATABASE
+        value: indaba
+      image: centos/postgresql-95-centos7@sha256:3a20fe72d4906533eb7d26f394d03137e32c4857e8632561662549590e25d8ad
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        failureThreshold: 3
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        tcpSocket:
+          port: 5432
+        timeoutSeconds: 1
+      name: postgresql
+      ports:
+      - containerPort: 5432
+        protocol: TCP
+      readinessProbe:
+        exec:
+          command:
+          - /bin/sh
+          - -i
+          - -c
+          - psql -h 127.0.0.1 -U $POSTGRESQL_USER -q -d $POSTGRESQL_DATABASE -c 'SELECT
+            1'
+        failureThreshold: 3
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          memory: 512Mi
+        requests:
+          memory: 512Mi
+      securityContext:
+        capabilities:
+          drop:
+          - KILL
+          - MKNOD
+          - SETGID
+          - SETUID
+          - SYS_CHROOT
+        privileged: false
+        runAsUser: 1000040000
+        seLinuxOptions:
+          level: s0:c6,c5
+      terminationMessagePath: /dev/termination-log
+      volumeMounts:
+      - mountPath: /var/lib/pgsql/data
+        name: postgresql-data
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: default-token-rq17f
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    imagePullSecrets:
+    - name: default-dockercfg-zp0wc
+    nodeName: 192.168.99.100
+    restartPolicy: Always
+    securityContext:
+      fsGroup: 1000040000
+      seLinuxOptions:
+        level: s0:c6,c5
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    volumes:
+    - name: postgresql-data
+      persistentVolumeClaim:
+        claimName: postgresql
     - name: default-token-rq17f
       secret:
         defaultMode: 420
