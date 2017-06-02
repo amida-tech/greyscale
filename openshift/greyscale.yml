@@ -822,10 +822,28 @@ items:
             value: http://greyscale-backend.greyscale.svc:3005
           image: 172.30.1.1:5000/greyscale/greyscale@sha256:7a7761183510e1e96c5240b20bc2acd7eedf54d12deda69fd4b5c117b113264a
           imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8080
+            timeoutSeconds: 1
           name: greyscale
           ports:
           - containerPort: 8080
             protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
           resources: {}
           terminationMessagePath: /dev/termination-log
         dnsPolicy: ClusterFirst
@@ -903,10 +921,28 @@ items:
             value: memcached.greyscale.svc
           image: 172.30.1.1:5000/greyscale/greyscale-backend@sha256:d42f273cfbbb9fc8ecf07439326f943d503e4359e025b0a0492c1890e5ece493
           imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 3005
+            timeoutSeconds: 1
           name: greyscale-backend
           ports:
           - containerPort: 3005
             protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /public/v0.2/languages
+              port: 3005
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
           resources: {}
           terminationMessagePath: /dev/termination-log
         dnsPolicy: ClusterFirst
@@ -969,17 +1005,29 @@ items:
         containers:
         - image: memcached@sha256:a2dfef5700944ec8bb2d2c0d6f5b2819324b1b91647dc09847ce81e7a91e3fe4
           imagePullPolicy: Always
-          name: memcached
-          ports:
-          - containerPort: 11211
-            protocol: TCP
-          readinessProbe:
+          livenessProbe:
             failureThreshold: 3
             initialDelaySeconds: 5
             periodSeconds: 10
             successThreshold: 1
             tcpSocket:
               port: 11211
+            timeoutSeconds: 1
+          name: memcached
+          ports:
+          - containerPort: 11211
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -i
+              - -c
+              - ps aux | grep "[m]emcached"
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
             timeoutSeconds: 1
           resources: {}
           terminationMessagePath: /dev/termination-log
@@ -1225,6 +1273,7 @@ items:
   kind: ReplicationController
   metadata:
     annotations:
+      kubectl.kubernetes.io/original-replicas: "1"
       openshift.io/deployer-pod.name: greyscale-11-deploy
       openshift.io/deployment-config.latest-version: "11"
       openshift.io/deployment-config.name: greyscale
@@ -1240,7 +1289,7 @@ items:
       openshift.io/deployment-config.name: greyscale
     name: greyscale-11
   spec:
-    replicas: 1
+    replicas: 0
     selector:
       app: greyscale
       deployment: greyscale-11
@@ -1268,6 +1317,79 @@ items:
           ports:
           - containerPort: 8080
             protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      openshift.io/deployer-pod.name: greyscale-12-deploy
+      openshift.io/deployment-config.latest-version: "12"
+      openshift.io/deployment-config.name: greyscale
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: ""
+      openshift.io/deployment.status-reason: config change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"greyscale","namespace":"greyscale","selfLink":"/oapi/v1/namespaces/greyscale/deploymentconfigs/greyscale","uid":"9bc8f445-3b4f-11e7-8ee3-7aa5a07c67b4","resourceVersion":"15494","generation":25,"creationTimestamp":"2017-05-17T22:24:36Z","labels":{"app":"greyscale"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ConfigChange"},{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["greyscale"],"from":{"kind":"ImageStreamTag","namespace":"greyscale","name":"greyscale:latest"},"lastTriggeredImage":"172.30.1.1:5000/greyscale/greyscale@sha256:7a7761183510e1e96c5240b20bc2acd7eedf54d12deda69fd4b5c117b113264a"}}],"replicas":1,"test":false,"selector":{"app":"greyscale","deploymentconfig":"greyscale"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"greyscale","deploymentconfig":"greyscale"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"containers":[{"name":"greyscale","image":"172.30.1.1:5000/greyscale/greyscale@sha256:7a7761183510e1e96c5240b20bc2acd7eedf54d12deda69fd4b5c117b113264a","ports":[{"containerPort":8080,"protocol":"TCP"}],"env":[{"name":"INDABA_URL","value":"http://greyscale-backend.greyscale.svc:3005"}],"resources":{},"livenessProbe":{"tcpSocket":{"port":8080},"initialDelaySeconds":5,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"readinessProbe":{"httpGet":{"path":"/","port":8080,"scheme":"HTTP"},"initialDelaySeconds":5,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"terminationMessagePath":"/dev/termination-log","imagePullPolicy":"Always"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{}}}},"status":{"latestVersion":12,"observedGeneration":24,"replicas":1,"updatedReplicas":1,"availableReplicas":1,"unavailableReplicas":0,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Progressing","status":"True","lastUpdateTime":"2017-05-18T15:43:40Z","lastTransitionTime":"2017-05-18T15:43:38Z","reason":"NewReplicationControllerAvailable","message":"replication controller \"greyscale-11\" successfully rolled out"},{"type":"Available","status":"True","lastUpdateTime":"2017-06-02T19:41:07Z","lastTransitionTime":"2017-06-02T19:41:07Z","message":"Deployment config has minimum availability."}],"readyReplicas":1}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: greyscale
+      openshift.io/deployment-config.name: greyscale
+    name: greyscale-12
+  spec:
+    replicas: 1
+    selector:
+      app: greyscale
+      deployment: greyscale-12
+      deploymentconfig: greyscale
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "12"
+          openshift.io/deployment-config.name: greyscale
+          openshift.io/deployment.name: greyscale-12
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: greyscale
+          deployment: greyscale-12
+          deploymentconfig: greyscale
+      spec:
+        containers:
+        - env:
+          - name: INDABA_URL
+            value: http://greyscale-backend.greyscale.svc:3005
+          image: 172.30.1.1:5000/greyscale/greyscale@sha256:7a7761183510e1e96c5240b20bc2acd7eedf54d12deda69fd4b5c117b113264a
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8080
+            timeoutSeconds: 1
+          name: greyscale
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
           resources: {}
           terminationMessagePath: /dev/termination-log
         dnsPolicy: ClusterFirst
@@ -1864,6 +1986,7 @@ items:
   kind: ReplicationController
   metadata:
     annotations:
+      kubectl.kubernetes.io/original-replicas: "1"
       openshift.io/deployer-pod.name: greyscale-backend-3-deploy
       openshift.io/deployment-config.latest-version: "3"
       openshift.io/deployment-config.name: greyscale-backend
@@ -1879,7 +2002,7 @@ items:
       openshift.io/deployment-config.name: greyscale-backend
     name: greyscale-backend-3
   spec:
-    replicas: 1
+    replicas: 0
     selector:
       app: greyscale-backend
       deployment: greyscale-backend-3
@@ -1919,6 +2042,167 @@ items:
           ports:
           - containerPort: 3005
             protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/original-replicas: "1"
+      openshift.io/deployer-pod.name: greyscale-backend-4-deploy
+      openshift.io/deployment-config.latest-version: "4"
+      openshift.io/deployment-config.name: greyscale-backend
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: ""
+      openshift.io/deployment.status-reason: config change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"greyscale-backend","namespace":"greyscale","selfLink":"/oapi/v1/namespaces/greyscale/deploymentconfigs/greyscale-backend","uid":"94b002b5-3b4f-11e7-8ee3-7aa5a07c67b4","resourceVersion":"15556","generation":12,"creationTimestamp":"2017-05-17T22:24:24Z","labels":{"app":"greyscale-backend"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ConfigChange"},{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["greyscale-backend"],"from":{"kind":"ImageStreamTag","namespace":"greyscale","name":"greyscale-backend:latest"},"lastTriggeredImage":"172.30.1.1:5000/greyscale/greyscale-backend@sha256:d42f273cfbbb9fc8ecf07439326f943d503e4359e025b0a0492c1890e5ece493"}}],"replicas":1,"test":false,"selector":{"app":"greyscale-backend","deploymentconfig":"greyscale-backend"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"greyscale-backend","deploymentconfig":"greyscale-backend"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"containers":[{"name":"greyscale-backend","image":"172.30.1.1:5000/greyscale/greyscale-backend@sha256:d42f273cfbbb9fc8ecf07439326f943d503e4359e025b0a0492c1890e5ece493","ports":[{"containerPort":3005,"protocol":"TCP"}],"env":[{"name":"AUTH_SALT","value":"nMsDo)_1fh"},{"name":"INDABA_ENV","value":"dev"},{"name":"INDABA_PG_DB","value":"indaba"},{"name":"RDS_HOSTNAME","value":"postgresql.greyscale.svc"},{"name":"RDS_PASSWORD","value":"indabapassword"},{"name":"RDS_USERNAME","value":"indabauser"},{"name":"MEMCACHED_HOST","value":"memcached.greyscale.svc"}],"resources":{},"livenessProbe":{"tcpSocket":{"port":3005},"initialDelaySeconds":5,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"terminationMessagePath":"/dev/termination-log","imagePullPolicy":"Always"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{}}}},"status":{"latestVersion":4,"observedGeneration":11,"replicas":1,"updatedReplicas":1,"availableReplicas":1,"unavailableReplicas":0,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Progressing","status":"True","lastUpdateTime":"2017-05-18T14:50:44Z","lastTransitionTime":"2017-05-18T14:50:44Z","reason":"NewReplicationControllerAvailable","message":"replication controller \"greyscale-backend-3\" successfully rolled out"},{"type":"Available","status":"True","lastUpdateTime":"2017-06-02T19:41:07Z","lastTransitionTime":"2017-06-02T19:41:07Z","message":"Deployment config has minimum availability."}],"readyReplicas":1}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: greyscale-backend
+      openshift.io/deployment-config.name: greyscale-backend
+    name: greyscale-backend-4
+  spec:
+    replicas: 0
+    selector:
+      app: greyscale-backend
+      deployment: greyscale-backend-4
+      deploymentconfig: greyscale-backend
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "4"
+          openshift.io/deployment-config.name: greyscale-backend
+          openshift.io/deployment.name: greyscale-backend-4
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: greyscale-backend
+          deployment: greyscale-backend-4
+          deploymentconfig: greyscale-backend
+      spec:
+        containers:
+        - env:
+          - name: AUTH_SALT
+            value: nMsDo)_1fh
+          - name: INDABA_ENV
+            value: dev
+          - name: INDABA_PG_DB
+            value: indaba
+          - name: RDS_HOSTNAME
+            value: postgresql.greyscale.svc
+          - name: RDS_PASSWORD
+            value: indabapassword
+          - name: RDS_USERNAME
+            value: indabauser
+          - name: MEMCACHED_HOST
+            value: memcached.greyscale.svc
+          image: 172.30.1.1:5000/greyscale/greyscale-backend@sha256:d42f273cfbbb9fc8ecf07439326f943d503e4359e025b0a0492c1890e5ece493
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 3005
+            timeoutSeconds: 1
+          name: greyscale-backend
+          ports:
+          - containerPort: 3005
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      openshift.io/deployer-pod.name: greyscale-backend-5-deploy
+      openshift.io/deployment-config.latest-version: "5"
+      openshift.io/deployment-config.name: greyscale-backend
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: ""
+      openshift.io/deployment.status-reason: config change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"greyscale-backend","namespace":"greyscale","selfLink":"/oapi/v1/namespaces/greyscale/deploymentconfigs/greyscale-backend","uid":"94b002b5-3b4f-11e7-8ee3-7aa5a07c67b4","resourceVersion":"15644","generation":14,"creationTimestamp":"2017-05-17T22:24:24Z","labels":{"app":"greyscale-backend"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ConfigChange"},{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["greyscale-backend"],"from":{"kind":"ImageStreamTag","namespace":"greyscale","name":"greyscale-backend:latest"},"lastTriggeredImage":"172.30.1.1:5000/greyscale/greyscale-backend@sha256:d42f273cfbbb9fc8ecf07439326f943d503e4359e025b0a0492c1890e5ece493"}}],"replicas":1,"test":false,"selector":{"app":"greyscale-backend","deploymentconfig":"greyscale-backend"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"greyscale-backend","deploymentconfig":"greyscale-backend"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"containers":[{"name":"greyscale-backend","image":"172.30.1.1:5000/greyscale/greyscale-backend@sha256:d42f273cfbbb9fc8ecf07439326f943d503e4359e025b0a0492c1890e5ece493","ports":[{"containerPort":3005,"protocol":"TCP"}],"env":[{"name":"AUTH_SALT","value":"nMsDo)_1fh"},{"name":"INDABA_ENV","value":"dev"},{"name":"INDABA_PG_DB","value":"indaba"},{"name":"RDS_HOSTNAME","value":"postgresql.greyscale.svc"},{"name":"RDS_PASSWORD","value":"indabapassword"},{"name":"RDS_USERNAME","value":"indabauser"},{"name":"MEMCACHED_HOST","value":"memcached.greyscale.svc"}],"resources":{},"livenessProbe":{"tcpSocket":{"port":3005},"initialDelaySeconds":5,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"readinessProbe":{"httpGet":{"path":"/public/v0.2/languages","port":3005,"scheme":"HTTP"},"initialDelaySeconds":5,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"terminationMessagePath":"/dev/termination-log","imagePullPolicy":"Always"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{}}}},"status":{"latestVersion":5,"observedGeneration":13,"replicas":1,"updatedReplicas":1,"availableReplicas":1,"unavailableReplicas":0,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Available","status":"True","lastUpdateTime":"2017-06-02T19:41:07Z","lastTransitionTime":"2017-06-02T19:41:07Z","message":"Deployment config has minimum availability."},{"type":"Progressing","status":"True","lastUpdateTime":"2017-06-02T20:24:03Z","lastTransitionTime":"2017-06-02T20:24:02Z","reason":"NewReplicationControllerAvailable","message":"replication controller \"greyscale-backend-4\" successfully rolled out"}],"readyReplicas":1}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: greyscale-backend
+      openshift.io/deployment-config.name: greyscale-backend
+    name: greyscale-backend-5
+  spec:
+    replicas: 1
+    selector:
+      app: greyscale-backend
+      deployment: greyscale-backend-5
+      deploymentconfig: greyscale-backend
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "5"
+          openshift.io/deployment-config.name: greyscale-backend
+          openshift.io/deployment.name: greyscale-backend-5
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: greyscale-backend
+          deployment: greyscale-backend-5
+          deploymentconfig: greyscale-backend
+      spec:
+        containers:
+        - env:
+          - name: AUTH_SALT
+            value: nMsDo)_1fh
+          - name: INDABA_ENV
+            value: dev
+          - name: INDABA_PG_DB
+            value: indaba
+          - name: RDS_HOSTNAME
+            value: postgresql.greyscale.svc
+          - name: RDS_PASSWORD
+            value: indabapassword
+          - name: RDS_USERNAME
+            value: indabauser
+          - name: MEMCACHED_HOST
+            value: memcached.greyscale.svc
+          image: 172.30.1.1:5000/greyscale/greyscale-backend@sha256:d42f273cfbbb9fc8ecf07439326f943d503e4359e025b0a0492c1890e5ece493
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 3005
+            timeoutSeconds: 1
+          name: greyscale-backend
+          ports:
+          - containerPort: 3005
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /public/v0.2/languages
+              port: 3005
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
           resources: {}
           terminationMessagePath: /dev/termination-log
         dnsPolicy: ClusterFirst
@@ -1984,6 +2268,7 @@ items:
   kind: ReplicationController
   metadata:
     annotations:
+      kubectl.kubernetes.io/original-replicas: "1"
       openshift.io/deployer-pod.name: memcached-2-deploy
       openshift.io/deployment-config.latest-version: "2"
       openshift.io/deployment-config.name: memcached
@@ -1999,7 +2284,7 @@ items:
       openshift.io/deployment-config.name: memcached
     name: memcached-2
   spec:
-    replicas: 1
+    replicas: 0
     selector:
       app: memcached
       deployment: memcached-2
@@ -2031,6 +2316,302 @@ items:
             successThreshold: 1
             tcpSocket:
               port: 11211
+            timeoutSeconds: 1
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/desired-replicas: "1"
+      kubectl.kubernetes.io/update-source-id: memcached-2:e0837c8b-3bde-11e7-8ee3-7aa5a07c67b4
+      openshift.io/deployer-pod.name: memcached-3-deploy
+      openshift.io/deployment-config.latest-version: "3"
+      openshift.io/deployment-config.name: memcached
+      openshift.io/deployment.cancelled: "true"
+      openshift.io/deployment.phase: Failed
+      openshift.io/deployment.replicas: "0"
+      openshift.io/deployment.status-reason: newer deployment was found running
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"memcached","namespace":"greyscale","selfLink":"/oapi/v1/namespaces/greyscale/deploymentconfigs/memcached","uid":"1829123c-3b50-11e7-8ee3-7aa5a07c67b4","resourceVersion":"14580","generation":6,"creationTimestamp":"2017-05-17T22:28:04Z","labels":{"app":"memcached"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ConfigChange"},{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["memcached"],"from":{"kind":"ImageStreamTag","namespace":"greyscale","name":"memcached:latest"},"lastTriggeredImage":"memcached@sha256:a2dfef5700944ec8bb2d2c0d6f5b2819324b1b91647dc09847ce81e7a91e3fe4"}}],"replicas":1,"test":false,"selector":{"app":"memcached","deploymentconfig":"memcached"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"memcached","deploymentconfig":"memcached"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"containers":[{"name":"memcached","image":"memcached@sha256:a2dfef5700944ec8bb2d2c0d6f5b2819324b1b91647dc09847ce81e7a91e3fe4","ports":[{"containerPort":11211,"protocol":"TCP"}],"resources":{},"livenessProbe":{"tcpSocket":{"port":11211},"initialDelaySeconds":5,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"readinessProbe":{"exec":{"command":["/bin/sh","-i","-c"]},"initialDelaySeconds":5,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"terminationMessagePath":"/dev/termination-log","imagePullPolicy":"Always"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{}}}},"status":{"latestVersion":3,"observedGeneration":5,"replicas":1,"updatedReplicas":1,"availableReplicas":1,"unavailableReplicas":0,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Progressing","status":"True","lastUpdateTime":"2017-05-18T15:30:25Z","lastTransitionTime":"2017-05-18T15:30:23Z","reason":"NewReplicationControllerAvailable","message":"replication controller \"memcached-2\" successfully rolled out"},{"type":"Available","status":"True","lastUpdateTime":"2017-06-02T18:53:24Z","lastTransitionTime":"2017-06-02T18:53:24Z","message":"Deployment config has minimum availability."}],"readyReplicas":1}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: memcached
+      openshift.io/deployment-config.name: memcached
+    name: memcached-3
+  spec:
+    replicas: 0
+    selector:
+      app: memcached
+      deployment: memcached-3
+      deploymentconfig: memcached
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "3"
+          openshift.io/deployment-config.name: memcached
+          openshift.io/deployment.name: memcached-3
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: memcached
+          deployment: memcached-3
+          deploymentconfig: memcached
+      spec:
+        containers:
+        - image: memcached@sha256:a2dfef5700944ec8bb2d2c0d6f5b2819324b1b91647dc09847ce81e7a91e3fe4
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 11211
+            timeoutSeconds: 1
+          name: memcached
+          ports:
+          - containerPort: 11211
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -i
+              - -c
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/desired-replicas: "1"
+      kubectl.kubernetes.io/update-source-id: memcached-2:e0837c8b-3bde-11e7-8ee3-7aa5a07c67b4
+      openshift.io/deployer-pod.name: memcached-4-deploy
+      openshift.io/deployment-config.latest-version: "4"
+      openshift.io/deployment-config.name: memcached
+      openshift.io/deployment.cancelled: "true"
+      openshift.io/deployment.phase: Failed
+      openshift.io/deployment.replicas: "0"
+      openshift.io/deployment.status-reason: The deployment was cancelled by the user
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"memcached","namespace":"greyscale","selfLink":"/oapi/v1/namespaces/greyscale/deploymentconfigs/memcached","uid":"1829123c-3b50-11e7-8ee3-7aa5a07c67b4","resourceVersion":"14754","generation":8,"creationTimestamp":"2017-05-17T22:28:04Z","labels":{"app":"memcached"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ConfigChange"},{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["memcached"],"from":{"kind":"ImageStreamTag","namespace":"greyscale","name":"memcached:latest"},"lastTriggeredImage":"memcached@sha256:a2dfef5700944ec8bb2d2c0d6f5b2819324b1b91647dc09847ce81e7a91e3fe4"}}],"replicas":1,"test":false,"selector":{"app":"memcached","deploymentconfig":"memcached"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"memcached","deploymentconfig":"memcached"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"containers":[{"name":"memcached","image":"memcached@sha256:a2dfef5700944ec8bb2d2c0d6f5b2819324b1b91647dc09847ce81e7a91e3fe4","ports":[{"containerPort":11211,"protocol":"TCP"}],"resources":{},"livenessProbe":{"tcpSocket":{"port":11211},"initialDelaySeconds":5,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"readinessProbe":{"exec":{"command":["/bin/sh","-i","-c","telnet localhost 11211"]},"initialDelaySeconds":5,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"terminationMessagePath":"/dev/termination-log","imagePullPolicy":"Always"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{}}}},"status":{"latestVersion":4,"observedGeneration":7,"replicas":2,"updatedReplicas":1,"availableReplicas":1,"unavailableReplicas":1,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Progressing","status":"True","lastUpdateTime":"2017-06-02T19:36:15Z","lastTransitionTime":"2017-06-02T19:36:15Z","reason":"ReplicationControllerUpdated","message":"replication controller \"memcached-3\" is progressing"},{"type":"Available","status":"True","lastUpdateTime":"2017-06-02T19:41:07Z","lastTransitionTime":"2017-06-02T19:41:07Z","message":"Deployment config has minimum availability."}],"readyReplicas":1}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: memcached
+      openshift.io/deployment-config.name: memcached
+    name: memcached-4
+  spec:
+    replicas: 0
+    selector:
+      app: memcached
+      deployment: memcached-4
+      deploymentconfig: memcached
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "4"
+          openshift.io/deployment-config.name: memcached
+          openshift.io/deployment.name: memcached-4
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: memcached
+          deployment: memcached-4
+          deploymentconfig: memcached
+      spec:
+        containers:
+        - image: memcached@sha256:a2dfef5700944ec8bb2d2c0d6f5b2819324b1b91647dc09847ce81e7a91e3fe4
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 11211
+            timeoutSeconds: 1
+          name: memcached
+          ports:
+          - containerPort: 11211
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -i
+              - -c
+              - telnet localhost 11211
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/desired-replicas: "1"
+      kubectl.kubernetes.io/update-source-id: memcached-2:e0837c8b-3bde-11e7-8ee3-7aa5a07c67b4
+      openshift.io/deployer-pod.name: memcached-5-deploy
+      openshift.io/deployment-config.latest-version: "5"
+      openshift.io/deployment-config.name: memcached
+      openshift.io/deployment.cancelled: "true"
+      openshift.io/deployment.phase: Failed
+      openshift.io/deployment.replicas: "0"
+      openshift.io/deployment.status-reason: The deployment was cancelled by the user
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"memcached","namespace":"greyscale","selfLink":"/oapi/v1/namespaces/greyscale/deploymentconfigs/memcached","uid":"1829123c-3b50-11e7-8ee3-7aa5a07c67b4","resourceVersion":"14934","generation":10,"creationTimestamp":"2017-05-17T22:28:04Z","labels":{"app":"memcached"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ConfigChange"},{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["memcached"],"from":{"kind":"ImageStreamTag","namespace":"greyscale","name":"memcached:latest"},"lastTriggeredImage":"memcached@sha256:a2dfef5700944ec8bb2d2c0d6f5b2819324b1b91647dc09847ce81e7a91e3fe4"}}],"replicas":1,"test":false,"selector":{"app":"memcached","deploymentconfig":"memcached"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"memcached","deploymentconfig":"memcached"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"containers":[{"name":"memcached","image":"memcached@sha256:a2dfef5700944ec8bb2d2c0d6f5b2819324b1b91647dc09847ce81e7a91e3fe4","ports":[{"containerPort":11211,"protocol":"TCP"}],"resources":{},"livenessProbe":{"tcpSocket":{"port":11211},"initialDelaySeconds":5,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"readinessProbe":{"exec":{"command":["/bin/sh","-i","-c","echo \"stats settings\" | nc localhost 11211"]},"initialDelaySeconds":5,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"terminationMessagePath":"/dev/termination-log","imagePullPolicy":"Always"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{}}}},"status":{"latestVersion":5,"observedGeneration":9,"replicas":1,"updatedReplicas":0,"availableReplicas":1,"unavailableReplicas":0,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Available","status":"True","lastUpdateTime":"2017-06-02T19:41:07Z","lastTransitionTime":"2017-06-02T19:41:07Z","message":"Deployment config has minimum availability."},{"type":"Progressing","status":"False","lastUpdateTime":"2017-06-02T19:43:46Z","lastTransitionTime":"2017-06-02T19:43:46Z","reason":"ProgressDeadlineExceeded","message":"replication controller \"memcached-4\" has failed progressing"}],"readyReplicas":1}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: memcached
+      openshift.io/deployment-config.name: memcached
+    name: memcached-5
+  spec:
+    replicas: 0
+    selector:
+      app: memcached
+      deployment: memcached-5
+      deploymentconfig: memcached
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "5"
+          openshift.io/deployment-config.name: memcached
+          openshift.io/deployment.name: memcached-5
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: memcached
+          deployment: memcached-5
+          deploymentconfig: memcached
+      spec:
+        containers:
+        - image: memcached@sha256:a2dfef5700944ec8bb2d2c0d6f5b2819324b1b91647dc09847ce81e7a91e3fe4
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 11211
+            timeoutSeconds: 1
+          name: memcached
+          ports:
+          - containerPort: 11211
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -i
+              - -c
+              - echo "stats settings" | nc localhost 11211
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      openshift.io/deployer-pod.name: memcached-6-deploy
+      openshift.io/deployment-config.latest-version: "6"
+      openshift.io/deployment-config.name: memcached
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: ""
+      openshift.io/deployment.status-reason: config change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"memcached","namespace":"greyscale","selfLink":"/oapi/v1/namespaces/greyscale/deploymentconfigs/memcached","uid":"1829123c-3b50-11e7-8ee3-7aa5a07c67b4","resourceVersion":"15035","generation":12,"creationTimestamp":"2017-05-17T22:28:04Z","labels":{"app":"memcached"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ConfigChange"},{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["memcached"],"from":{"kind":"ImageStreamTag","namespace":"greyscale","name":"memcached:latest"},"lastTriggeredImage":"memcached@sha256:a2dfef5700944ec8bb2d2c0d6f5b2819324b1b91647dc09847ce81e7a91e3fe4"}}],"replicas":1,"test":false,"selector":{"app":"memcached","deploymentconfig":"memcached"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"memcached","deploymentconfig":"memcached"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"containers":[{"name":"memcached","image":"memcached@sha256:a2dfef5700944ec8bb2d2c0d6f5b2819324b1b91647dc09847ce81e7a91e3fe4","ports":[{"containerPort":11211,"protocol":"TCP"}],"resources":{},"livenessProbe":{"tcpSocket":{"port":11211},"initialDelaySeconds":5,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"readinessProbe":{"exec":{"command":["/bin/sh","-i","-c","ps aux | grep \"[m]emcached\""]},"initialDelaySeconds":5,"timeoutSeconds":1,"periodSeconds":10,"successThreshold":1,"failureThreshold":3},"terminationMessagePath":"/dev/termination-log","imagePullPolicy":"Always"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{}}}},"status":{"latestVersion":6,"observedGeneration":11,"replicas":1,"updatedReplicas":0,"availableReplicas":1,"unavailableReplicas":0,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Available","status":"True","lastUpdateTime":"2017-06-02T19:41:07Z","lastTransitionTime":"2017-06-02T19:41:07Z","message":"Deployment config has minimum availability."},{"type":"Progressing","status":"False","lastUpdateTime":"2017-06-02T19:50:00Z","lastTransitionTime":"2017-06-02T19:50:00Z","reason":"ProgressDeadlineExceeded","message":"replication controller \"memcached-5\" has failed progressing"}],"readyReplicas":1}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: memcached
+      openshift.io/deployment-config.name: memcached
+    name: memcached-6
+  spec:
+    replicas: 1
+    selector:
+      app: memcached
+      deployment: memcached-6
+      deploymentconfig: memcached
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "6"
+          openshift.io/deployment-config.name: memcached
+          openshift.io/deployment.name: memcached-6
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: memcached
+          deployment: memcached-6
+          deploymentconfig: memcached
+      spec:
+        containers:
+        - image: memcached@sha256:a2dfef5700944ec8bb2d2c0d6f5b2819324b1b91647dc09847ce81e7a91e3fe4
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 11211
+            timeoutSeconds: 1
+          name: memcached
+          ports:
+          - containerPort: 11211
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -i
+              - -c
+              - ps aux | grep "[m]emcached"
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
             timeoutSeconds: 1
           resources: {}
           terminationMessagePath: /dev/termination-log
@@ -2761,17 +3342,17 @@ items:
   metadata:
     annotations:
       kubernetes.io/created-by: |
-        {"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicationController","namespace":"greyscale","name":"greyscale-11","uid":"bf851cca-3be0-11e7-8ee3-7aa5a07c67b4","apiVersion":"v1","resourceVersion":"13170"}}
-      openshift.io/deployment-config.latest-version: "11"
+        {"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicationController","namespace":"greyscale","name":"greyscale-12","uid":"5d4808e9-47d1-11e7-b128-e294e5449792","apiVersion":"v1","resourceVersion":"15513"}}
+      openshift.io/deployment-config.latest-version: "12"
       openshift.io/deployment-config.name: greyscale
-      openshift.io/deployment.name: greyscale-11
+      openshift.io/deployment.name: greyscale-12
       openshift.io/generated-by: OpenShiftNewApp
       openshift.io/scc: restricted
     creationTimestamp: null
-    generateName: greyscale-11-
+    generateName: greyscale-12-
     labels:
       app: greyscale
-      deployment: greyscale-11
+      deployment: greyscale-12
       deploymentconfig: greyscale
   spec:
     containers:
@@ -2780,10 +3361,28 @@ items:
         value: http://greyscale-backend.greyscale.svc:3005
       image: 172.30.1.1:5000/greyscale/greyscale@sha256:7a7761183510e1e96c5240b20bc2acd7eedf54d12deda69fd4b5c117b113264a
       imagePullPolicy: Always
+      livenessProbe:
+        failureThreshold: 3
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        tcpSocket:
+          port: 8080
+        timeoutSeconds: 1
       name: greyscale
       ports:
       - containerPort: 8080
         protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /
+          port: 8080
+          scheme: HTTP
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
       resources: {}
       securityContext:
         capabilities:
@@ -3447,17 +4046,17 @@ items:
   metadata:
     annotations:
       kubernetes.io/created-by: |
-        {"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicationController","namespace":"greyscale","name":"greyscale-backend-3","uid":"5cd376b7-3bd9-11e7-8ee3-7aa5a07c67b4","apiVersion":"v1","resourceVersion":"13144"}}
-      openshift.io/deployment-config.latest-version: "3"
+        {"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicationController","namespace":"greyscale","name":"greyscale-backend-5","uid":"a666a302-47d1-11e7-b128-e294e5449792","apiVersion":"v1","resourceVersion":"15663"}}
+      openshift.io/deployment-config.latest-version: "5"
       openshift.io/deployment-config.name: greyscale-backend
-      openshift.io/deployment.name: greyscale-backend-3
+      openshift.io/deployment.name: greyscale-backend-5
       openshift.io/generated-by: OpenShiftNewApp
       openshift.io/scc: restricted
     creationTimestamp: null
-    generateName: greyscale-backend-3-
+    generateName: greyscale-backend-5-
     labels:
       app: greyscale-backend
-      deployment: greyscale-backend-3
+      deployment: greyscale-backend-5
       deploymentconfig: greyscale-backend
   spec:
     containers:
@@ -3478,10 +4077,28 @@ items:
         value: memcached.greyscale.svc
       image: 172.30.1.1:5000/greyscale/greyscale-backend@sha256:d42f273cfbbb9fc8ecf07439326f943d503e4359e025b0a0492c1890e5ece493
       imagePullPolicy: Always
+      livenessProbe:
+        failureThreshold: 3
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        tcpSocket:
+          port: 3005
+        timeoutSeconds: 1
       name: greyscale-backend
       ports:
       - containerPort: 3005
         protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /public/v0.2/languages
+          port: 3005
+          scheme: HTTP
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
       resources: {}
       securityContext:
         capabilities:
@@ -3524,33 +4141,45 @@ items:
   metadata:
     annotations:
       kubernetes.io/created-by: |
-        {"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicationController","namespace":"greyscale","name":"memcached-2","uid":"e0837c8b-3bde-11e7-8ee3-7aa5a07c67b4","apiVersion":"v1","resourceVersion":"7559"}}
-      openshift.io/deployment-config.latest-version: "2"
+        {"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicationController","namespace":"greyscale","name":"memcached-6","uid":"cb575cc0-47cc-11e7-b128-e294e5449792","apiVersion":"v1","resourceVersion":"15052"}}
+      openshift.io/deployment-config.latest-version: "6"
       openshift.io/deployment-config.name: memcached
-      openshift.io/deployment.name: memcached-2
+      openshift.io/deployment.name: memcached-6
       openshift.io/generated-by: OpenShiftNewApp
       openshift.io/scc: restricted
     creationTimestamp: null
-    generateName: memcached-2-
+    generateName: memcached-6-
     labels:
       app: memcached
-      deployment: memcached-2
+      deployment: memcached-6
       deploymentconfig: memcached
   spec:
     containers:
     - image: memcached@sha256:a2dfef5700944ec8bb2d2c0d6f5b2819324b1b91647dc09847ce81e7a91e3fe4
       imagePullPolicy: Always
-      name: memcached
-      ports:
-      - containerPort: 11211
-        protocol: TCP
-      readinessProbe:
+      livenessProbe:
         failureThreshold: 3
         initialDelaySeconds: 5
         periodSeconds: 10
         successThreshold: 1
         tcpSocket:
           port: 11211
+        timeoutSeconds: 1
+      name: memcached
+      ports:
+      - containerPort: 11211
+        protocol: TCP
+      readinessProbe:
+        exec:
+          command:
+          - /bin/sh
+          - -i
+          - -c
+          - ps aux | grep "[m]emcached"
+        failureThreshold: 3
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
         timeoutSeconds: 1
       resources: {}
       securityContext:
