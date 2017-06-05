@@ -10,17 +10,19 @@ Indaba puts your stakeholder and expert network at your fingertips. It converts 
 
 ![Indaba's Process](images/Indaba_process.png)
 
------
+---
+
 ### Data collection and management
 
 ![Indaba's Project Management](images/Indaba_PM.png)
 
------
+---
+
 ### Data review and dissemination
 
 ![Indaba's Data Review](images/Indaba_review.png)
 
------
+---
 
 ## Prerequisites
 ### Backend
@@ -35,11 +37,10 @@ Indaba puts your stakeholder and expert network at your fingertips. It converts 
 - Compass
 - Node.js and npm
 
------
-
 ## Deployment with Docker
 NOTE: when using a Docker image with dependencies and minified files, it is a good idea
 to rebuild with the `--no-cache` option.
+---
 
 1. Set up a Docker Postgres container:
 
@@ -112,12 +113,13 @@ kubectl proxy
 ```
 gcloud container clusters delete greyscale-cluster
 ```
+---
 
 ## Contributing
 
 Contributors are welcome. See issues https://github.com/amida-tech/greyscale/issues
 
------
+---
 
 ## Contributors
 
@@ -129,7 +131,8 @@ Contributors are welcome. See issues https://github.com/amida-tech/greyscale/iss
 - Harry Rickards (summer '15 intern, MIT)
 - Nadia Wallace (winter '15 intern, MIT)
 
------
+---
+
 ## License
 
 Licensed under [Apache 2.0](./LICENSE)
