@@ -1,0 +1,16 @@
+// email - email
+// first-name - string (all strings must not include comma)
+// last-name - string
+// company-admin: 2 - client, 3 - user 
+// activate: yes/no (also understand true/false and 1/0 not case sensitive) - activate user on creation
+// timezone - string
+// location - string
+// mobile - string
+// phone -string
+// address - string
+// lang: language (e.g. ru, if omit - en default)
+// bio - string
+// notify - yes/no - send notification to user about account creation, if no - no emails will be sent to user, if yes and user activate on creation - send email to login (with password)
+//
+// email, first-name, last-name, company-admin, activate,timezone,location,mobile,phone,address,lang,bio,notify
+example1@mail.net,firstName,lastName,2,yes,,example location, example mobile, example phone, example address, en, example bio, yes
