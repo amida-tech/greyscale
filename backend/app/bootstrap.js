@@ -124,14 +124,15 @@ app.on('start', function () {
             next(err);
         }
     });
-    
+
     // Setup error handlers
     app.use(function (err, req, res, next) {
         error(JSON.stringify(err));
         if (err) {
             switch (err.name) {
             case 'HttpError':
-                res.status(400).json(err.message);
+                var status = err.status || 400;
+                res.status(status).json(err.message);
                 return;
             case 'error':
                 res.status(400).json({
