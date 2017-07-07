@@ -2,6 +2,8 @@
 
 'use strict';
 
+process.env.NODE_ENV = 'test';
+
 const path = require('path');
 const fs = require('fs');
 const childProcess = require('child_process');
@@ -13,15 +15,10 @@ const config = require('../config');
 describe('legacy tests', function bootstrapDb() {
     const dbname = 'indabatest'
 
-    let pgConnect = null;
-
     it(`drop/create database ${dbname}`, function resetDb(done) {
-        pgUtil.resetDatabase(config.pgConnect, dbname, done);
-    });
-
-    it(`form connection object for db ${dbname}`, function resetDb() {
-        pgConnect = _.cloneDeep(config.pgConnect);
-        pgConnect.database = dbname;
+        const pgConnect = _.cloneDeep(config.pgConnect);
+        pgConnect.database = 'indaba';
+        pgUtil.resetDatabase(pgConnect, dbname, done);
     });
 
     it(`initialize db ${dbname}`, function initDb() {
