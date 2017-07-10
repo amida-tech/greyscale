@@ -79,4 +79,17 @@ module.exports = class IndaSupertest {
         const base  = `/${realm}/v0.2`;
         return this.update('post', base, endpoint, payload, status, header);
     }
+
+    put(realm, endpoint, payload, status, header) {
+        const base  = `/${realm}/v0.2`;
+        return this.update('put', base, endpoint, payload, status, header);
+    }
+
+    delete(realm, endpoint, status) {
+        const r = this.server.delete(`/${realm}/v0.2/${endpoint}`);
+        if (this.token) {
+            r.set('token', this.token);
+        }
+        return r.expect(status);
+    }
 };
