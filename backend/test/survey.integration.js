@@ -14,6 +14,7 @@ const expect = chai.expect;
 const SharedIntegration = require('./util/shared-integration')
 const IndaSuperTest = require('./util/inda-supertest');
 const userCommon = require('./util/user-common');
+const organizationCommon = require('./util/organization-common');
 const comparator = require('./util/comparator');
 
 const insertItem = {
@@ -125,6 +126,7 @@ describe('survey integration', function surveyIntegration() {
     const dbname = 'indabatestsurvey'
     const superTest = new IndaSuperTest();
     const shared = new SharedIntegration(superTest);
+    const orgTests = new organizationCommon.IntegrationTests(superTest);
     const userTests = new userCommon.IntegrationTests(superTest);
 
     const superAdmin = config.testEntities.superAdmin;
@@ -136,13 +138,9 @@ describe('survey integration', function surveyIntegration() {
 
     it('login as super user', shared.loginAdminFn(superAdmin));
 
-    it('create organization', function createOrganization() {
-        return superTest.postAdmin('organizations', organization, 201);
-    });
+    it('create organization', orgTests.createOrganizationFn(organization));
 
-    it('set realm', function setAdminRealm() {
-        superTest.setRealm(organization.realm);
-    });
+    it('set realm', orgTests.setRealmFn(0));
 
     it('invite organization admin', userTests.inviteUserFn(admin));
 
