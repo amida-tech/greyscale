@@ -22,6 +22,7 @@ class SharedIntegration {
         const mcl = new memcacheMock.Client();
         return function setUp(done) {
             const dbname = options.dbname;
+            config.pgConnect.database = dbname;
             const pgConnect = _.cloneDeep(config.pgConnect);
             pgConnect.database = 'indaba';
             pgUtil.resetDatabase(pgConnect, dbname, (err) => {
@@ -56,10 +57,10 @@ class SharedIntegration {
         };
     }
 
-    loginFn(realm, user) {
+    loginFn(user) {
         const indaSuperTest = this.indaSuperTest;
         return function login() {
-            return indaSuperTest.authBasic(realm, user);
+            return indaSuperTest.authBasic(user);
         };
     }
 

@@ -120,7 +120,7 @@ var insertQuestion = {
 };
 
 describe('survey integration', function surveyIntegration() {
-    const dbname = 'indabatest'
+    const dbname = 'indabatestsurvey'
     const superTest = new IndaSuperTest();
     const shared = new SharedIntegration(superTest);
 
@@ -139,9 +139,12 @@ describe('survey integration', function surveyIntegration() {
 
     let activationToken;
 
+    it('set realm', function setAdminRealm() {
+        superTest.setRealm(organization.realm);
+    });
+
     it('invite organization admin', function inviteAdmin() {
-        const realm = organization.realm;
-        return superTest.post(realm, 'users/self/organization/invite', admin, 200)
+        return superTest.post('users/self/organization/invite', admin, 200)
             .then((res) => {
                 expect(!!res.body.activationToken).to.equal(true);
                 activationToken = res.body.activationToken;
@@ -149,8 +152,7 @@ describe('survey integration', function surveyIntegration() {
     });
 
     it('list surveys', function listSurveys() {
-        const realm = organization.realm;
-        return superTest.get(realm, 'surveys', 200)
+        return superTest.get('surveys', 200)
             .then((res) => {
                 expect(res.body).has.length(0);
             });
@@ -159,15 +161,13 @@ describe('survey integration', function surveyIntegration() {
     it('logout as super user', shared.logoutFn());
 
     it('organization admin activates', function adminSelfActivate() {
-        const realm = organization.realm;
-        return superTest.post(realm, `users/activate/${activationToken}`, admin, 200);
+        return superTest.post(`users/activate/${activationToken}`, admin, 200);
     })
 
-    it('login as admin', shared.loginFn(organization.realm, admin));
+    it('login as admin', shared.loginFn(admin));
 
     it('create survey', function createSurvey() {
-        const realm = organization.realm;
-        return superTest.post(realm, 'surveys', insertItem, 201)
+        return superTest.post('surveys', insertItem, 201)
             .then((res) => {
                 surveyId = res.body.id;
                 expect(!!surveyId).to.equal(true);
@@ -175,8 +175,7 @@ describe('survey integration', function surveyIntegration() {
     });
 
     it('get survey', function getSurvey() {
-        const realm = organization.realm;
-        return superTest.get(realm, `surveys/${surveyId}`, 200)
+        return superTest.get(`surveys/${surveyId}`, 200)
             .then((res) => {
                 const actual = _.pick(res.body, ['description', 'title', 'projectId']);
                 expect(actual).to.deep.equal(insertItem);
@@ -184,8 +183,7 @@ describe('survey integration', function surveyIntegration() {
     });
 
     it('list surveys', function listSurveys() {
-        const realm = organization.realm;
-        return superTest.get(realm, 'surveys', 200)
+        return superTest.get('surveys', 200)
             .then((res) => {
                 expect(res.body).has.length(1);
                 const actual = _.pick(res.body[0], ['description', 'title', 'projectId']);
@@ -194,13 +192,11 @@ describe('survey integration', function surveyIntegration() {
     });
 
     it('update survey', function updateSurvey() {
-        const realm = organization.realm;
-        return superTest.put(realm,  `surveys/${surveyId}`, updateItem, 202);
+        return superTest.put( `surveys/${surveyId}`, updateItem, 202);
     });
 
     it('get survey', function getSurvey() {
-        const realm = organization.realm;
-        return superTest.get(realm, `surveys/${surveyId}`, 200)
+        return superTest.get(`surveys/${surveyId}`, 200)
             .then((res) => {
                 const actual = _.pick(res.body, ['description', 'title', 'projectId']);
                 const expected = _.cloneDeep(insertItem);
@@ -210,13 +206,11 @@ describe('survey integration', function surveyIntegration() {
     });
 
     it('delete survey', function updateSurvey() {
-        const realm = organization.realm;
-        return superTest.delete(realm,  `surveys/${surveyId}`, 204);
+        return superTest.delete( `surveys/${surveyId}`, 204);
     });
 
     it('list surveys', function listSurveys() {
-        const realm = organization.realm;
-        return superTest.get(realm, 'surveys', 200)
+        return superTest.get('surveys', 200)
             .then((res) => {
                 expect(res.body).has.length(0);
             });
@@ -227,8 +221,7 @@ describe('survey integration', function surveyIntegration() {
     });
 
     it('create survey', function createSurvey() {
-        const realm = organization.realm;
-        return superTest.post(realm, 'surveys', insertItem, 201)
+        return superTest.post('surveys', insertItem, 201)
             .then((res) => {
                 surveyId = res.body.id;
                 expect(!!surveyId).to.equal(true);
@@ -236,8 +229,7 @@ describe('survey integration', function surveyIntegration() {
     });
 
     it('get survey', function getSurvey() {
-        const realm = organization.realm;
-        return superTest.get(realm, `surveys/${surveyId}`, 200)
+        return superTest.get(`surveys/${surveyId}`, 200)
             .then((res) => {
                 const actual = _.pick(res.body, ['description', 'title', 'projectId', 'questions']);
                 const expected = _.cloneDeep(insertItem);
@@ -268,16 +260,14 @@ describe('survey integration', function surveyIntegration() {
     });
 
     it('list surveys', function listSurveys() {
-        const realm = organization.realm;
-        return superTest.get(realm, 'surveys', 200)
+        return superTest.get('surveys', 200)
             .then((res) => {
                 expect(res.body).has.length(1);
             });
     });
 
     it('get survey questions', function getSurveyQuestions() {
-        const realm = organization.realm;
-        return superTest.get(realm, `surveys/${surveyId}/questions`, 200, { order: 'id' })
+        return superTest.get(`surveys/${surveyId}/questions`, 200, { order: 'id' })
             .then((res) => {
                 const actual = res.body.map((question) => {
                     const result = _.omitBy(question, _.isNil);
@@ -312,8 +302,7 @@ describe('survey integration', function surveyIntegration() {
     let questionId;
 
     it('add a new question for survey', function addQuestionToSurvey() {
-        const realm = organization.realm;
-        return superTest.post(realm, `surveys/${surveyId}/questions`, insertQuestion, 201)
+        return superTest.post(`surveys/${surveyId}/questions`, insertQuestion, 201)
             .then((res) => {
                 questionId = res.body.id;
                 expect(!!questionId).to.equal(true);
@@ -323,8 +312,7 @@ describe('survey integration', function surveyIntegration() {
     });
 
     it('get survey questions', function getSurveyQuestions() {
-        const realm = organization.realm;
-        return superTest.get(realm, `surveys/${surveyId}/questions`, 200, { order: 'id' })
+        return superTest.get(`surveys/${surveyId}/questions`, 200, { order: 'id' })
             .then((res) => {
                 const actual = res.body.map((question) => {
                     const result = _.omitBy(question, _.isNil);
@@ -357,14 +345,12 @@ describe('survey integration', function surveyIntegration() {
     });
 
     it('update new question', function updateNewQuestion() {
-        const realm = organization.realm;
         insertQuestion.label = insertQuestion.label + ' --- updated';
-        return superTest.put(realm, `questions/${questionId}`, insertQuestion, 202);
+        return superTest.put(`questions/${questionId}`, insertQuestion, 202);
     });
 
     it('get survey questions', function getSurveyQuestions() {
-        const realm = organization.realm;
-        return superTest.get(realm, `surveys/${surveyId}/questions`, 200, { order: 'id' })
+        return superTest.get(`surveys/${surveyId}/questions`, 200, { order: 'id' })
             .then((res) => {
                 const actual = res.body.map((question) => {
                     const result = _.omitBy(question, _.isNil);
@@ -397,14 +383,12 @@ describe('survey integration', function surveyIntegration() {
     });
 
     it('delete new question', function deleteNewQuestion() {
-        const realm = organization.realm;
         surveyQuestions.splice(surveyQuestions.length - 1, 1);
-        return superTest.delete(realm, `questions/${questionId}`, 204);
+        return superTest.delete(`questions/${questionId}`, 204);
     });
 
     it('get survey questions', function getSurveyQuestions() {
-        const realm = organization.realm;
-        return superTest.get(realm, `surveys/${surveyId}/questions`, 200, { order: 'id' })
+        return superTest.get(`surveys/${surveyId}/questions`, 200, { order: 'id' })
             .then((res) => {
                 const actual = res.body.map((question) => {
                     const result = _.omitBy(question, _.isNil);
@@ -437,13 +421,11 @@ describe('survey integration', function surveyIntegration() {
     });
 
     it('delete survey', function updateSurvey() {
-        const realm = organization.realm;
-        return superTest.delete(realm,  `surveys/${surveyId}`, 204);
+        return superTest.delete( `surveys/${surveyId}`, 204);
     });
 
     it('list surveys', function listSurveys() {
-        const realm = organization.realm;
-        return superTest.get(realm, 'surveys', 200)
+        return superTest.get('surveys', 200)
             .then((res) => {
                 expect(res.body).has.length(0);
             });

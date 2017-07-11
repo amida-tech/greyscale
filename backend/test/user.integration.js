@@ -15,7 +15,7 @@ const SharedIntegration = require('./util/shared-integration')
 const IndaSuperTest = require('./util/inda-supertest');
 
 describe('user integration', function userIntegration() {
-    const dbname = 'indabatest'
+    const dbname = 'indabatestuser'
     const superTest = new IndaSuperTest();
     const shared = new SharedIntegration(superTest);
 
@@ -36,9 +36,12 @@ describe('user integration', function userIntegration() {
             });
     });
 
+    it('set realm', function setAdminRealm() {
+        superTest.setRealm(organization.realm);
+    });
+
     it('get organization', function getOrganization() {
-        const realm = organization.realm;
-        return superTest.get(realm, `organizations/${orgId}`, 200)
+        return superTest.get(`organizations/${orgId}`, 200)
             .then((res) => {
                 const expected = Object.assign({ id: orgId }, organization);
                 const actual = _.pick(res.body, ['id', 'realm', 'name']);
@@ -49,8 +52,7 @@ describe('user integration', function userIntegration() {
     let activationToken;
 
     it('invite organization admin', function inviteAdmin() {
-        const realm = organization.realm;
-        return superTest.post(realm, 'users/self/organization/invite', admin, 200)
+        return superTest.post('users/self/organization/invite', admin, 200)
             .then((res) => {
                 expect(!!res.body.activationToken).to.equal(true);
                 activationToken = res.body.activationToken;
@@ -60,23 +62,20 @@ describe('user integration', function userIntegration() {
     it('logout as super user', shared.logoutFn());
 
     it('organization admin checks activation token', function adminSelfActivateCheck() {
-        const realm = organization.realm;
-        return superTest.get(realm, `users/activate/${activationToken}`, 200);
+        return superTest.get(`users/activate/${activationToken}`, 200);
     })
 
     it('organization admin activates', function adminSelfActivate() {
-        const realm = organization.realm;
-        return superTest.post(realm, `users/activate/${activationToken}`, admin, 200);
+        return superTest.post(`users/activate/${activationToken}`, admin, 200);
     })
 
-    it('login as admin', shared.loginFn(organization.realm, admin));
+    it('login as admin', shared.loginFn(admin));
 
     const userActivationTokens = [];
 
     users.forEach((user, index) => {
         it(`invite user ${index}`, function inviteUser() {
-            const realm = organization.realm;
-            return superTest.post(realm, 'users/self/organization/invite', user, 200)
+            return superTest.post('users/self/organization/invite', user, 200)
                 .then((res) => {
                     expect(!!res.body.activationToken).to.equal(true);
                     userActivationTokens.push(res.body.activationToken);
@@ -88,12 +87,11 @@ describe('user integration', function userIntegration() {
 
     users.forEach((user, index) => {
         it(`user ${index} activates`, function userActivate() {
-            const realm = organization.realm;
             const token = userActivationTokens[index];
-            return superTest.post(realm, `users/activate/${token}`, user, 200);
+            return superTest.post(`users/activate/${token}`, user, 200);
         })
 
-        it(`login as user ${index}`, shared.loginFn(organization.realm, user));
+        it(`login as user ${index}`, shared.loginFn(user));
 
         it(`logout as user ${index}`, shared.logoutFn());
     });

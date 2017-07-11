@@ -13,6 +13,7 @@ module.exports = class IndaSupertest {
         this.server = null;
         this.baseAdminUrl = `/${config.pgConnect.adminSchema}/v0.2`;
         this.token = null;
+        this.realm = null;
     }
 
     initialize(app) {
@@ -39,8 +40,12 @@ module.exports = class IndaSupertest {
         return this.authCommon(endpoint, user, status);
     }
 
-    authBasic(realm, user, status = 200) {
-        const endpoint = `/${realm}/v0.2/users/token`;
+    setRealm(realm) {
+        this.realm = realm;
+    }
+
+    authBasic(user, status = 200) {
+        const endpoint = `/${this.realm}/v0.2/users/token`;
         return this.authCommon(endpoint, user, status);
     }
 
@@ -64,8 +69,8 @@ module.exports = class IndaSupertest {
         return this.update('post', this.baseAdminUrl, endpoint, payload, status, header);
     }
 
-    get(realm, endpoint, status, query) {
-        let r = this.server.get(`/${realm}/v0.2/${endpoint}`);
+    get(endpoint, status, query) {
+        let r = this.server.get(`/${this.realm}/v0.2/${endpoint}`);
         if (this.token) {
             r.set('token', this.token);
         }
@@ -75,18 +80,18 @@ module.exports = class IndaSupertest {
         return r.expect(status);
     }
 
-    post(realm, endpoint, payload, status, header) {
-        const base  = `/${realm}/v0.2`;
+    post(endpoint, payload, status, header) {
+        const base  = `/${this.realm}/v0.2`;
         return this.update('post', base, endpoint, payload, status, header);
     }
 
-    put(realm, endpoint, payload, status, header) {
-        const base  = `/${realm}/v0.2`;
+    put(endpoint, payload, status, header) {
+        const base  = `/${this.realm}/v0.2`;
         return this.update('put', base, endpoint, payload, status, header);
     }
 
-    delete(realm, endpoint, status) {
-        const r = this.server.delete(`/${realm}/v0.2/${endpoint}`);
+    delete(endpoint, status) {
+        const r = this.server.delete(`/${this.realm}/v0.2/${endpoint}`);
         if (this.token) {
             r.set('token', this.token);
         }
