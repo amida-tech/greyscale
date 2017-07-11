@@ -13,6 +13,7 @@ const expect = chai.expect;
 
 const SharedIntegration = require('./util/shared-integration')
 const IndaSuperTest = require('./util/inda-supertest');
+const comparator = require('./util/comparator');
 
 const insertItem = {
     title: 'Test survey',
@@ -231,31 +232,7 @@ describe('survey integration', function surveyIntegration() {
     it('get survey', function getSurvey() {
         return superTest.get(`surveys/${surveyId}`, 200)
             .then((res) => {
-                const actual = _.pick(res.body, ['description', 'title', 'projectId', 'questions']);
-                const expected = _.cloneDeep(insertItem);
-                actual.questions =  actual.questions.map((question) => {
-                    const result = _.omitBy(question, _.isNil);
-                    delete result.id;
-                    result.options = result.options.map((option) => {
-                        const optionResult = _.omitBy(option, _.isNil)
-                        delete optionResult.id;
-                        delete optionResult.questionId;
-                        return optionResult;
-                    });
-                    if (result.options.length === 1 && _.isEmpty(result.options[0])) {
-                        delete result.options;
-                    }
-                    return result;
-                });
-                expected.questions = expected.questions.map((question) => {
-                    const result = _.cloneDeep(question);
-                    result.surveyId = surveyId;
-                    ['withLinks', 'incOtherOpt', 'intOnly', 'isWordmml'].forEach((key) => {
-                        result[key] = result[key] || false;
-                    });
-                    return result;
-                })
-                expect(actual).to.deep.equal(expected);
+                comparator.survey(insertItem, res.body);
             });
     });
 
@@ -269,33 +246,8 @@ describe('survey integration', function surveyIntegration() {
     it('get survey questions', function getSurveyQuestions() {
         return superTest.get(`surveys/${surveyId}/questions`, 200, { order: 'id' })
             .then((res) => {
-                const actual = res.body.map((question) => {
-                    const result = _.omitBy(question, _.isNil);
-                    delete result.id;
-                    if (result.options) {
-                        result.options = result.options.map((option) => {
-                            const optionResult = _.omitBy(option, _.isNil)
-                            delete optionResult.id;
-                            delete optionResult.questionId;
-                            return optionResult;
-                        });
-                        if (result.options.length === 1 && _.isEmpty(result.options[0])) {
-                            delete result.options;
-                        }
-                    }
-                    delete result.answers;
-                    return result;
-                });
-                const expected = insertItem.questions.map((question) => {
-                    const result = _.cloneDeep(question);
-                    result.surveyId = surveyId;
-                    ['withLinks', 'incOtherOpt', 'intOnly', 'isWordmml'].forEach((key) => {
-                        result[key] = result[key] || false;
-                    });
-                    delete result.options;
-                    return result;
-                })
-                expect(actual).to.deep.equal(expected);
+                const opts = { noOptions: true, surveyId };
+                comparator.questions(insertItem.questions, res.body, opts);
             });
     });
 
@@ -314,33 +266,8 @@ describe('survey integration', function surveyIntegration() {
     it('get survey questions', function getSurveyQuestions() {
         return superTest.get(`surveys/${surveyId}/questions`, 200, { order: 'id' })
             .then((res) => {
-                const actual = res.body.map((question) => {
-                    const result = _.omitBy(question, _.isNil);
-                    delete result.id;
-                    if (result.options) {
-                        result.options = result.options.map((option) => {
-                            const optionResult = _.omitBy(option, _.isNil)
-                            delete optionResult.id;
-                            delete optionResult.questionId;
-                            return optionResult;
-                        });
-                        if (result.options.length === 1 && _.isEmpty(result.options[0])) {
-                            delete result.options;
-                        }
-                    }
-                    delete result.answers;
-                    return result;
-                });
-                const expected = insertItem.questions.map((question) => {
-                    const result = _.cloneDeep(question);
-                    result.surveyId = surveyId;
-                    ['withLinks', 'incOtherOpt', 'intOnly', 'isWordmml'].forEach((key) => {
-                        result[key] = result[key] || false;
-                    });
-                    delete result.options;
-                    return result;
-                })
-                expect(actual).to.deep.equal(expected);
+                const opts = { noOptions: true, surveyId };
+                comparator.questions(insertItem.questions, res.body, opts);
             });
     });
 
@@ -352,33 +279,8 @@ describe('survey integration', function surveyIntegration() {
     it('get survey questions', function getSurveyQuestions() {
         return superTest.get(`surveys/${surveyId}/questions`, 200, { order: 'id' })
             .then((res) => {
-                const actual = res.body.map((question) => {
-                    const result = _.omitBy(question, _.isNil);
-                    delete result.id;
-                    if (result.options) {
-                        result.options = result.options.map((option) => {
-                            const optionResult = _.omitBy(option, _.isNil)
-                            delete optionResult.id;
-                            delete optionResult.questionId;
-                            return optionResult;
-                        });
-                        if (result.options.length === 1 && _.isEmpty(result.options[0])) {
-                            delete result.options;
-                        }
-                    }
-                    delete result.answers;
-                    return result;
-                });
-                const expected = insertItem.questions.map((question) => {
-                    const result = _.cloneDeep(question);
-                    result.surveyId = surveyId;
-                    ['withLinks', 'incOtherOpt', 'intOnly', 'isWordmml'].forEach((key) => {
-                        result[key] = result[key] || false;
-                    });
-                    delete result.options;
-                    return result;
-                })
-                expect(actual).to.deep.equal(expected);
+                const opts = { noOptions: true, surveyId };
+                comparator.questions(insertItem.questions, res.body, opts);
             });
     });
 
@@ -390,33 +292,8 @@ describe('survey integration', function surveyIntegration() {
     it('get survey questions', function getSurveyQuestions() {
         return superTest.get(`surveys/${surveyId}/questions`, 200, { order: 'id' })
             .then((res) => {
-                const actual = res.body.map((question) => {
-                    const result = _.omitBy(question, _.isNil);
-                    delete result.id;
-                    if (result.options) {
-                        result.options = result.options.map((option) => {
-                            const optionResult = _.omitBy(option, _.isNil)
-                            delete optionResult.id;
-                            delete optionResult.questionId;
-                            return optionResult;
-                        });
-                        if (result.options.length === 1 && _.isEmpty(result.options[0])) {
-                            delete result.options;
-                        }
-                    }
-                    delete result.answers;
-                    return result;
-                });
-                const expected = insertItem.questions.map((question) => {
-                    const result = _.cloneDeep(question);
-                    result.surveyId = surveyId;
-                    ['withLinks', 'incOtherOpt', 'intOnly', 'isWordmml'].forEach((key) => {
-                        result[key] = result[key] || false;
-                    });
-                    delete result.options;
-                    return result;
-                })
-                expect(actual).to.deep.equal(expected);
+                const opts = { noOptions: true, surveyId };
+                comparator.questions(insertItem.questions, res.body, opts);
             });
     });
 
