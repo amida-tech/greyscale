@@ -13,11 +13,13 @@ const expect = chai.expect;
 
 const SharedIntegration = require('./util/shared-integration')
 const IndaSuperTest = require('./util/inda-supertest');
+const userCommon = require('./util/user-common');
 
 describe('user integration', function userIntegration() {
     const dbname = 'indabatestuser'
     const superTest = new IndaSuperTest();
     const shared = new SharedIntegration(superTest);
+    const userTests = new userCommon.IntegrationTests(superTest);
 
     const superAdmin = config.testEntities.superAdmin;
     const organization = config.testEntities.organization;
@@ -49,47 +51,24 @@ describe('user integration', function userIntegration() {
             });
     });
 
-    let activationToken;
-
-    it('invite organization admin', function inviteAdmin() {
-        return superTest.post('users/self/organization/invite', admin, 200)
-            .then((res) => {
-                expect(!!res.body.activationToken).to.equal(true);
-                activationToken = res.body.activationToken;
-            });
-    });
+    it('invite organization admin', userTests.inviteUserFn(admin));
 
     it('logout as super user', shared.logoutFn());
 
-    it('organization admin checks activation token', function adminSelfActivateCheck() {
-        return superTest.get(`users/activate/${activationToken}`, 200);
-    })
+    it('organization admin checks activation token', userTests.checkActivitabilityFn(0));
 
-    it('organization admin activates', function adminSelfActivate() {
-        return superTest.post(`users/activate/${activationToken}`, admin, 200);
-    })
+    it('organization admin activates', userTests.selfActivateFn(0));
 
     it('login as admin', shared.loginFn(admin));
 
-    const userActivationTokens = [];
-
     users.forEach((user, index) => {
-        it(`invite user ${index}`, function inviteUser() {
-            return superTest.post('users/self/organization/invite', user, 200)
-                .then((res) => {
-                    expect(!!res.body.activationToken).to.equal(true);
-                    userActivationTokens.push(res.body.activationToken);
-                });
-        });
+        it(`invite user ${index}`, userTests.inviteUserFn(user));
     });
 
     it('logout as admin', shared.logoutFn());
 
     users.forEach((user, index) => {
-        it(`user ${index} activates`, function userActivate() {
-            const token = userActivationTokens[index];
-            return superTest.post(`users/activate/${token}`, user, 200);
-        })
+        it(`user ${index} activates`, userTests.selfActivateFn(index + 1));
 
         it(`login as user ${index}`, shared.loginFn(user));
 

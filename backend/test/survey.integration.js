@@ -13,6 +13,7 @@ const expect = chai.expect;
 
 const SharedIntegration = require('./util/shared-integration')
 const IndaSuperTest = require('./util/inda-supertest');
+const userCommon = require('./util/user-common');
 const comparator = require('./util/comparator');
 
 const insertItem = {
@@ -124,6 +125,7 @@ describe('survey integration', function surveyIntegration() {
     const dbname = 'indabatestsurvey'
     const superTest = new IndaSuperTest();
     const shared = new SharedIntegration(superTest);
+    const userTests = new userCommon.IntegrationTests(superTest);
 
     const superAdmin = config.testEntities.superAdmin;
     const organization = config.testEntities.organization;
@@ -138,19 +140,11 @@ describe('survey integration', function surveyIntegration() {
         return superTest.postAdmin('organizations', organization, 201);
     });
 
-    let activationToken;
-
     it('set realm', function setAdminRealm() {
         superTest.setRealm(organization.realm);
     });
 
-    it('invite organization admin', function inviteAdmin() {
-        return superTest.post('users/self/organization/invite', admin, 200)
-            .then((res) => {
-                expect(!!res.body.activationToken).to.equal(true);
-                activationToken = res.body.activationToken;
-            });
-    });
+    it('invite organization admin', userTests.inviteUserFn(admin));
 
     it('list surveys', function listSurveys() {
         return superTest.get('surveys', 200)
@@ -161,9 +155,7 @@ describe('survey integration', function surveyIntegration() {
 
     it('logout as super user', shared.logoutFn());
 
-    it('organization admin activates', function adminSelfActivate() {
-        return superTest.post(`users/activate/${activationToken}`, admin, 200);
-    })
+    it('organization admin activates', userTests.selfActivateFn(0));
 
     it('login as admin', shared.loginFn(admin));
 
