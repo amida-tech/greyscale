@@ -79,8 +79,25 @@ const comparator = {
             }
         });
         const opts = Object.assign({ surveyId: server.id }, options);
-        expected.questions = this.questions(expected.questions, server.questions, opts);
+        if (server.questions && server.questions.length) {
+            expected.questions = this.questions(expected.questions, server.questions, opts);
+        }
+        if (server.projectId && !expected.projectId) {
+            expected.projectId = server.projectId;
+        }
         expect(server).to.deep.equal(expected);
+        return expected;
+    },
+    surveys(client, server, options) {
+        expect(server.length).to.equal(client.length);
+        if (server.length) {
+            const expected = client.map((survey, index) => {
+                const actual = server[index];
+                return this.survey(survey, actual, options);
+            });
+            expect(server).to.deep.equal(expected);
+            return expected;
+        }
     },
 };
 

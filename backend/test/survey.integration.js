@@ -15,100 +15,20 @@ const SharedIntegration = require('./util/shared-integration')
 const IndaSuperTest = require('./util/inda-supertest');
 const userCommon = require('./util/user-common');
 const organizationCommon = require('./util/organization-common');
+const surveyCommon = require('./util/survey-common');
 const comparator = require('./util/comparator');
+const examples = require('./fixtures/example/surveys');
 
-const insertItem = {
-    title: 'Test survey',
-    description: 'Description of test survey',
-    projectId: 2 // TODO get from user self
-};
+const legacy = _.cloneDeep(examples.legacy);
+
+const insertItem = _.omit(legacy, 'questions');
 
 const updateItem = {
     title: insertItem.title + ' --- updated',
     description: insertItem.description + ' --- updated'
 };
 
-const surveyQuestions = [{
-    'label': 'Text 1',
-    'isRequired': true,
-    'hasComments': true,
-    'type': 0,
-    'position': 1,
-    'description': '',
-    'qid': '',
-    'skip': 0,
-    'size': 0
-}, {
-    'label': 'Bullet points 2',
-    'isRequired': true,
-    'attachment': true,
-    'hasComments': true,
-    'withLinks': false,
-    'type': 11,
-    'position': 2,
-    'description': 'Description 2',
-    'qid': 'Question ID 1',
-    'skip': 0,
-    'size': 0,
-    'value': 'Value 1'
-}, {
-    'label': 'Paragraph 3',
-    'isRequired': true,
-    'type': 1,
-    'position': 3,
-    'description': '',
-    'qid': '',
-    'skip': 0,
-    'size': 0
-}, {
-    'label': 'Multiple choice 4',
-    'isRequired': true,
-    'attachment': true,
-    'hasComments': true,
-    'withLinks': false,
-    'type': 3,
-    'position': 4,
-    'description': 'Description 4',
-    'qid': '',
-    'skip': 0,
-    'size': 0,
-    'incOtherOpt': true,
-    'value': 'Value Other',
-    'optionNumbering': 'decimal',
-    'options': [{
-        'label': 'Label 1',
-        'value': 'Value 1',
-        'isSelected': true
-    }, {
-        'label': 'Label 2',
-        'value': 'Value 2',
-        'isSelected': false
-    }]
-}, {
-    'label': 'Checkboxes 5',
-    'isRequired': true,
-    'attachment': true,
-    'hasComments': true,
-    'withLinks': false,
-    'type': 2,
-    'position': 5,
-    'description': '',
-    'qid': '',
-    'skip': 0,
-    'size': 0,
-    'incOtherOpt': true,
-    'value': 'Other3',
-    'optionNumbering': 'lower-latin',
-    'options': [{
-        'label': 'L1',
-        'value': 'V1',
-        'isSelected': true
-    }, {
-        'label': 'L2',
-        'value': 'V2',
-        'isSelected': false
-    }]
-}];
+const surveyQuestions = legacy.questions;
 
 var insertQuestion = {
     'label': 'One more text',
@@ -128,6 +48,7 @@ describe('survey integration', function surveyIntegration() {
     const shared = new SharedIntegration(superTest);
     const orgTests = new organizationCommon.IntegrationTests(superTest);
     const userTests = new userCommon.IntegrationTests(superTest);
+    const tests = new surveyCommon.IntegrationTests(superTest);
 
     const superAdmin = config.testEntities.superAdmin;
     const organization = config.testEntities.organization;
@@ -144,12 +65,7 @@ describe('survey integration', function surveyIntegration() {
 
     it('invite organization admin', userTests.inviteUserFn(admin));
 
-    it('list surveys', function listSurveys() {
-        return superTest.get('surveys', 200)
-            .then((res) => {
-                expect(res.body).has.length(0);
-            });
-    });
+    it('list surveys', tests.listSurveysFn());
 
     it('logout as super user', shared.logoutFn());
 
@@ -157,55 +73,19 @@ describe('survey integration', function surveyIntegration() {
 
     it('login as admin', shared.loginFn(admin));
 
-    it('create survey', function createSurvey() {
-        return superTest.post('surveys', insertItem, 201)
-            .then((res) => {
-                surveyId = res.body.id;
-                expect(!!surveyId).to.equal(true);
-            });
-    });
+    it('create survey', tests.createSurveyFn(insertItem));
 
-    it('get survey', function getSurvey() {
-        return superTest.get(`surveys/${surveyId}`, 200)
-            .then((res) => {
-                const actual = _.pick(res.body, ['description', 'title', 'projectId']);
-                expect(actual).to.deep.equal(insertItem);
-            });
-    });
+    it('get survey', tests.getSurveyFn(0));
 
-    it('list surveys', function listSurveys() {
-        return superTest.get('surveys', 200)
-            .then((res) => {
-                expect(res.body).has.length(1);
-                const actual = _.pick(res.body[0], ['description', 'title', 'projectId']);
-                expect(actual).to.deep.equal(insertItem);
-            });
-    });
+    it('list surveys', tests.listSurveysFn());
 
-    it('update survey', function updateSurvey() {
-        return superTest.put( `surveys/${surveyId}`, updateItem, 202);
-    });
+    it('update survey', tests.updateSurveyFn(0, updateItem));
 
-    it('get survey', function getSurvey() {
-        return superTest.get(`surveys/${surveyId}`, 200)
-            .then((res) => {
-                const actual = _.pick(res.body, ['description', 'title', 'projectId']);
-                const expected = _.cloneDeep(insertItem);
-                Object.assign(expected, updateItem);
-                expect(actual).to.deep.equal(expected);
-            });
-    });
+    it('get survey', tests.getSurveyFn(0));
 
-    it('delete survey', function updateSurvey() {
-        return superTest.delete( `surveys/${surveyId}`, 204);
-    });
+    it('delete survey', tests.deleteSurveyFn(0));
 
-    it('list surveys', function listSurveys() {
-        return superTest.get('surveys', 200)
-            .then((res) => {
-                expect(res.body).has.length(0);
-            });
-    });
+    it('list surveys', tests.listSurveysFn());
 
     it('add questions to survey', function addQuestionsToSurvey() {
         insertItem.questions = surveyQuestions;
