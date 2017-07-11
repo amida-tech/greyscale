@@ -49,10 +49,6 @@ describe('survey integration', function surveyIntegration() {
 
     it('create survey', surveyTests.createSurveyFn(legacy));
 
-    it('logout as admin', shared.logoutFn());
-
-    it('login as super user', shared.loginAdminFn(superAdmin));
-
     it('list products', tests.listProductsFn());
 
     it('create product', tests.createProductFn(0));
@@ -61,7 +57,7 @@ describe('survey integration', function surveyIntegration() {
 
     it('list products', tests.listProductsFn());
 
-    it('logout as super user', shared.logoutFn());
+    it('logout as admin', shared.logoutFn());
 
     after(shared.unsetupFn());
 });
