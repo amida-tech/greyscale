@@ -99,6 +99,24 @@ const comparator = {
             return expected;
         }
     },
+    product(client, server) {
+        const expected = _.cloneDeep(client);
+        this.addNull(expected, server);
+        expected.id = server.id;
+        expect(server).to.deep.equal(expected);
+        return expected;
+    },
+    products(client, server) {
+        expect(server.length).to.equal(client.length);
+        if (server.length) {
+            const expected = client.map((product, index) => {
+                const actual = server[index];
+                return this.product(product, actual);
+            });
+            expect(server).to.deep.equal(expected);
+            return expected;
+        }
+    },
 };
 
 module.exports = comparator;
