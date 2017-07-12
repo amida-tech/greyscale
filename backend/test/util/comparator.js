@@ -117,6 +117,24 @@ const comparator = {
             return expected;
         }
     },
+    workflow(client, server) {
+        const expected = _.cloneDeep(client);
+        expected.id = server.id;
+        expected.created = server.created;
+        expect(server).to.deep.equal(expected);
+        return expected;
+    },
+    workflows(client, server) {
+        expect(server.length).to.equal(client.length);
+        if (server.length) {
+            const expected = client.map((workflow, index) => {
+                const actual = server[index];
+                return this.workflow(workflow, actual);
+            });
+            expect(server).to.deep.equal(expected);
+            return expected;
+        }
+    },
 };
 
 module.exports = comparator;

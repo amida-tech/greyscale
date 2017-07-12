@@ -14,18 +14,20 @@ const userCommon = require('./util/user-common');
 const organizationCommon = require('./util/organization-common');
 const surveyCommon = require('./util/survey-common');
 const productCommon = require('./util/product-common');
+const workflowCommon = require('./util/workflow-common');
 const examples = require('./fixtures/example/surveys');
 
 const legacy = _.cloneDeep(examples.legacy);
 
-describe('product integration', function surveyIntegration() {
+describe('workflow integration', function surveyIntegration() {
     const dbname = 'indabatestproduct'
     const superTest = new IndaSuperTest();
     const shared = new SharedIntegration(superTest);
     const orgTests = new organizationCommon.IntegrationTests(superTest);
     const userTests = new userCommon.IntegrationTests(superTest);
     const surveyTests = new surveyCommon.IntegrationTests(superTest);
-    const tests = new productCommon.IntegrationTests(superTest, surveyTests.hxSurvey);
+    const productTests = new productCommon.IntegrationTests(superTest, surveyTests.hxSurvey);
+    const tests = new workflowCommon.IntegrationTests(superTest, surveyTests.hxSurvey, productTests.hxProduct);
 
     const superAdmin = config.testEntities.superAdmin;
     const organization = config.testEntities.organization;
@@ -49,13 +51,15 @@ describe('product integration', function surveyIntegration() {
 
     it('create survey', surveyTests.createSurveyFn(legacy));
 
-    it('list products', tests.listProductsFn());
+    it('create product', productTests.createProductFn(0));
 
-    it('create product', tests.createProductFn(0));
+    it('list workflows', tests.listWorkflowsFn());
 
-    it('get product', tests.getProductFn(0));
+    it('create workflow', tests.createWorkflowFn(0));
 
-    it('list products', tests.listProductsFn());
+    it('get workflow', tests.getWorkflowFn(0));
+
+    it('list workflows', tests.listWorkflowsFn());
 
     it('logout as admin', shared.logoutFn());
 
