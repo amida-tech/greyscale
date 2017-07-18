@@ -1,7 +1,6 @@
 'use strict';
 
 const chai = require('chai');
-const _ = require('lodash');
 
 const History = require('./history');
 const comparator = require('./comparator');
