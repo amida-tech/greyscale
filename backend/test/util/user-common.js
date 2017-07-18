@@ -39,7 +39,10 @@ const IntegrationTests = class IntegrationTests {
         return function selfActivate() {
             const activationToken = hxUser.server(index).activationToken;
             const client = hxUser.client(index);
-            return supertest.post(`users/activate/${activationToken}`, client, 200);
+            return supertest.post(`users/activate/${activationToken}`, client, 200)
+                .then((res) => {
+                    hxUser.server(index).id = res.body.id;
+                });
         };
     }
 };

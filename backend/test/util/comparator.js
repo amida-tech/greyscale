@@ -2,6 +2,7 @@
 
 const chai = require('chai');
 const _ = require('lodash');
+const moment = require('moment');
 
 const expect = chai.expect;
 
@@ -172,6 +173,44 @@ const comparator = {
             const expected = client.map((uoaTag, index) => {
                 const actual = server[index];
                 return this.uoaTag(uoaTag, actual);
+            });
+            expect(server).to.deep.equal(expected);
+            return expected;
+        }
+    },
+    timestamp(server, property) {
+        const compareDateTime = moment().subtract(2, 'second');
+        const serverStamp = server[property];
+        const dateTime = moment(serverStamp);
+        expect(dateTime.isAfter(compareDateTime)).to.equal(true);
+        return serverStamp;
+    },
+    uoa(client, server) {
+        const expected = _.cloneDeep(client);
+        expected.id = server.id;
+        this.addNull(expected, server);
+        if (!expected.langId) {
+            expected.langId = 1;
+        }
+        if (!expected.visibility) {
+            expected.visibility = 1;
+        }
+        if (!expected.status) {
+            expected.status = 1;
+        }
+        expected.created = this.timestamp(server, 'created');
+        if (server.updated) {
+            expected.updated = this.timestamp(server, 'updated');
+        }
+        expect(server).to.deep.equal(expected);
+        return expected;
+    },
+    uoas(client, server) {
+        expect(server.length).to.equal(client.length);
+        if (server.length) {
+            const expected = client.map((uoa, index) => {
+                const actual = server[index];
+                return this.uoa(uoa, actual);
             });
             expect(server).to.deep.equal(expected);
             return expected;
