@@ -156,6 +156,27 @@ const comparator = {
             return expected;
         }
     },
+    uoaTag(client, server) {
+        const expected = _.cloneDeep(client);
+        expected.id = server.id;
+        this.addNull(expected, server);
+        if (!expected.langId) {
+            expected.langId = 1;
+        }
+        expect(server).to.deep.equal(expected);
+        return expected;
+    },
+    uoaTags(client, server) {
+        expect(server.length).to.equal(client.length);
+        if (server.length) {
+            const expected = client.map((uoaTag, index) => {
+                const actual = server[index];
+                return this.uoaTag(uoaTag, actual);
+            });
+            expect(server).to.deep.equal(expected);
+            return expected;
+        }
+    },
 };
 
 module.exports = comparator;
