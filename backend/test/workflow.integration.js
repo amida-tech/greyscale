@@ -20,7 +20,7 @@ const examples = require('./fixtures/example/surveys');
 const legacy = _.cloneDeep(examples.legacy);
 
 describe('workflow integration', function surveyIntegration() {
-    const dbname = 'indabatestproduct'
+    const dbname = 'indabatestworkflow'
     const superTest = new IndaSuperTest();
     const shared = new SharedIntegration(superTest);
     const orgTests = new organizationCommon.IntegrationTests(superTest);

@@ -135,6 +135,27 @@ const comparator = {
             return expected;
         }
     },
+    uoaType(client, server) {
+        const expected = _.cloneDeep(client);
+        expected.id = server.id;
+        this.addNull(expected, server);
+        if (!expected.langId) {
+            expected.langId = 1;
+        }
+        expect(server).to.deep.equal(expected);
+        return expected;
+    },
+    uoaTypes(client, server) {
+        expect(server.length).to.equal(client.length);
+        if (server.length) {
+            const expected = client.map((uoaType, index) => {
+                const actual = server[index];
+                return this.uoaType(uoaType, actual);
+            });
+            expect(server).to.deep.equal(expected);
+            return expected;
+        }
+    },
 };
 
 module.exports = comparator;
