@@ -15,7 +15,7 @@ const Generator = class {
 
     generate() {
         return {
-            name: `uoa_type_${this.index}`,
+            name: `uoa_class_type_${this.index}`,
         }
     }
 
@@ -29,69 +29,69 @@ const Generator = class {
 const IntegrationTests = class IntegrationTests {
     constructor(supertest) {
         this.supertest = supertest;
-        this.hxUOAType = new History();
+        this.hxUOAClassType = new History();
         this.generator = new Generator();
     }
 
-    createUOATypeFn() {
+    createUOAClassTypeFn() {
         const supertest = this.supertest;
         const generator = this.generator;
-        const hxUOAType = this.hxUOAType;
-        return function createUOAType() {
+        const hxUOAClassType = this.hxUOAClassType;
+        return function createUOAClassType() {
             const uoaType = generator.generate();
-            return supertest.post('uoatypes', uoaType, 201)
+            return supertest.post('uoaclasstypes', uoaType, 201)
                 .then((res) => {
                     expect(!!res.body.id).to.equal(true);
-                    hxUOAType.push(uoaType, res.body);
+                    hxUOAClassType.push(uoaType, res.body);
                 });
         }
     }
 
-    getUOATypeFn(index) {
+    getUOAClassTypeFn(index) {
         const supertest = this.supertest;
-        const hxUOAType = this.hxUOAType;
-        return function getUOAType() {
-            const id = hxUOAType.id(index);
-            return supertest.get(`uoatypes/${id}`, 200)
+        const hxUOAClassType = this.hxUOAClassType;
+        return function getUOAClassType() {
+            const id = hxUOAClassType.id(index);
+            return supertest.get(`uoaclasstypes/${id}`, 200)
                 .then((res) => {
-                    const client = hxUOAType.client(index);
+                    const client = hxUOAClassType.client(index);
                     comparator.uoaType(client, res.body);
                 });
         };
     }
 
-    updateUOATypeFn(index) {
+    updateUOAClassTypeFn(index) {
         const supertest = this.supertest;
         const generator = this.generator;
-        const hxUOAType = this.hxUOAType;
-        return function updateUOAType() {
-            const client = hxUOAType.client(index);
+        const hxUOAClassType = this.hxUOAClassType;
+        return function updateUOAClassType() {
+            const client = hxUOAClassType.client(index);
             const update = generator.update(client);
             Object.assign(client, update);
-            const id = hxUOAType.id(index);
-            return supertest.put(`uoatypes/${id}`, update, 202);
+            const id = hxUOAClassType.id(index);
+            return supertest.put(`uoaclasstypes/${id}`, update, 202);
         }
     }
 
-    listUOATypesFn() {
+    listUOAClassTypesFn() {
         const supertest = this.supertest;
-        const hxUOAType = this.hxUOAType;
-        return function listUOATypes() {
-            const list = hxUOAType.listClients();
-            return supertest.get('uoatypes', 200)
+        const hxUOAClassType = this.hxUOAClassType;
+        return function listUOAClassTypes() {
+            const list = hxUOAClassType.listClients();
+            return supertest.get('uoaclasstypes', 200)
                 .then((res) => {
                     comparator.uoaTypes(list, res.body);
                 });
         }
     }
 
-    deleteUOATypeFn(index) {
+    deleteUOAClassTypeFn(index) {
         const supertest = this.supertest;
-        const hxUOAType = this.hxUOAType;
-        return function deleteUOAType() {
-            const id = hxUOAType.id(index);
-            return supertest.delete(`uoatypes/${id}`, 204)
-                .then(() => hxUOAType.remove(index));
+        const hxUOAClassType = this.hxUOAClassType;
+        return function deleteUOAClassType() {
+            const id = hxUOAClassType.id(index);
+            return supertest.delete(`uoaclasstypes/${id}`, 204)
+                .then(() => hxUOAClassType.remove(index));
         };
     }
 };
