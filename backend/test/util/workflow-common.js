@@ -21,14 +21,15 @@ const IntegrationTests = class IntegrationTests {
         this.supertest = supertest;
         this.hxSurvey = options.hxSurvey;
         this.hxProduct = options.hxProduct;
+        this.hxGroup = options.hxGroup;
         this.hxWorkflow = new History();
         this.hxWorkflowStep = new Map();
     }
 
-    createWorkflowFn(surveyIndex) {
+    createWorkflowFn(productIndex) {
         const that = this;
         return function createWorkflow() {
-            const productId = that.hxSurvey.id(surveyIndex);
+            const productId = that.hxProduct.id(productIndex);
             const workflow = generate(productId);
             return that.supertest.post('workflows', workflow, 201)
                 .then((res) => {
@@ -64,22 +65,36 @@ const IntegrationTests = class IntegrationTests {
         }
     }
 
-    createWorkflowStepsFn(index, count = 4) {
+    createWorkflowStepsFn(index, options = {}) {
         const that = this;
         return function createWorkflowSteps() {
             const id = that.hxWorkflow.id(index);
-            const steps = _.range(count).map((stepIndex) => ({
-                title: `title_${stepIndex}`,
-            }));
+            const count = options.count || 4;
+            const groups = options.groups;
+            const steps = _.range(count).map((stepIndex) => {
+                const step = {
+                    title: `title_${stepIndex}`,
+                };
+                if (groups) {
+                    const groupIndices = groups[stepIndex];
+                    if (groupIndices) {
+                        const usergroupId = groupIndices.map((gndx) => that.hxGroup.id(gndx));
+                        step.usergroupId = usergroupId;
+                    }
+                }
+                return step;
+            });
             return that.supertest.put(`workflows/${id}/steps`, steps, 200)
                 .then((res) => {
                     const hxWorkflowStep = that.hxWorkflowStep.get(id);
                     expect(res.body.inserted).to.have.length(steps.length);
                     steps.forEach((step, index) => {
                         step.workflowId = id;
-                        step.usergroupId = [];
+                        if (!step.usergroupId) {
+                            step.usergroupId = [];
+                        }
                         hxWorkflowStep.push(step, res.body.inserted[index]);
-                    })
+                    });
                 });
         }
     }
