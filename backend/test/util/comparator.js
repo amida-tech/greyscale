@@ -234,6 +234,27 @@ const comparator = {
             return expected;
         }
     },
+    group(client, server) {
+        const expected = _.cloneDeep(client);
+        expected.id = server.id;
+        this.addNull(expected, server);
+        if (server.userIds && server.userIds[0] === null) {
+            expected.userIds = server.userIds;
+        }
+        expect(server).to.deep.equal(expected);
+        return expected;
+    },
+    groups(client, server) {
+        expect(server.length).to.equal(client.length);
+        if (server.length) {
+            const expected = client.map((group, index) => {
+                const actual = server[index];
+                return this.group(group, actual);
+            });
+            expect(server).to.deep.equal(expected);
+            return expected;
+        }
+    },
 };
 
 module.exports = comparator;
