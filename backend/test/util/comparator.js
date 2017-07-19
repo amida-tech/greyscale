@@ -268,6 +268,25 @@ const comparator = {
         expect(server).to.deep.equal(expected);
         return expected;
     },
+    workflowStep(client, server) {
+        const expected = _.cloneDeep(client);
+        expected.id = server.id;
+        this.addNull(expected, server);
+        expected.allowEdit = server.allowEdit || false;
+        expect(server).to.deep.equal(expected);
+        return expected;
+    },
+    workflowSteps(client, server) {
+        expect(server.length).to.equal(client.length);
+        if (server.length) {
+            const expected = client.map((workflowStep, index) => {
+                const actual = server[index];
+                return this.workflowStep(workflowStep, actual);
+            });
+            expect(server).to.deep.equal(expected);
+            return expected;
+        }
+    },
 };
 
 module.exports = comparator;

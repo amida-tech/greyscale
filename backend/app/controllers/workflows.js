@@ -259,9 +259,7 @@ module.exports = {
             return {
                 deleted: deleteIds,
                 updated: updatedIds,
-                inserted: insertIds.map(function (value) {
-                    return value.id;
-                })
+                inserted: insertIds
             };
 
         }).then(function (data) {

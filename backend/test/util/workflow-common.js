@@ -1,6 +1,7 @@
 'use strict';
 
 const chai = require('chai');
+const _ = require('lodash');
 
 const History = require('./history');
 const comparator = require('./comparator');
@@ -16,24 +17,24 @@ const generate = function (productId) {
 };
 
 const IntegrationTests = class IntegrationTests {
-    constructor(supertest, hxSurvey, hxProduct) {
+    constructor(supertest, options) {
         this.supertest = supertest;
-        this.hxSurvey = hxSurvey;
-        this.hxProduct = hxProduct;
+        this.hxSurvey = options.hxSurvey;
+        this.hxProduct = options.hxProduct;
         this.hxWorkflow = new History();
+        this.hxWorkflowStep = new Map();
     }
 
-    createWorkflowFn(productIndex) {
-        const supertest = this.supertest;
-        const hxSurvey = this.hxSurvey;
-        const hxWorkflow = this.hxWorkflow;
+    createWorkflowFn(surveyIndex) {
+        const that = this;
         return function createWorkflow() {
-            const productId = hxSurvey.id(productIndex);
+            const productId = that.hxSurvey.id(surveyIndex);
             const workflow = generate(productId);
-            return supertest.post('workflows', workflow, 201)
+            return that.supertest.post('workflows', workflow, 201)
                 .then((res) => {
                     expect(!!res.body.id).to.equal(true);
-                    hxWorkflow.push(workflow, res.body);
+                    that.hxWorkflow.push(workflow, res.body);
+                    that.hxWorkflowStep.set(res.body.id, new History());
                 });
         }
     }
@@ -56,9 +57,41 @@ const IntegrationTests = class IntegrationTests {
         const hxWorkflow = this.hxWorkflow;
         return function listWorkflow() {
             const list = hxWorkflow.listClients();
-            return supertest.get('Workflows', 200)
+            return supertest.get('workflows', 200)
                 .then((res) => {
                     comparator.workflows(list, res.body);
+                });
+        }
+    }
+
+    createWorkflowStepsFn(index, count = 4) {
+        const that = this;
+        return function createWorkflowSteps() {
+            const id = that.hxWorkflow.id(index);
+            const steps = _.range(count).map((stepIndex) => ({
+                title: `title_${stepIndex}`,
+            }));
+            return that.supertest.put(`workflows/${id}/steps`, steps, 200)
+                .then((res) => {
+                    const hxWorkflowStep = that.hxWorkflowStep.get(id);
+                    expect(res.body.inserted).to.have.length(steps.length);
+                    steps.forEach((step, index) => {
+                        step.workflowId = id;
+                        step.usergroupId = [];
+                        hxWorkflowStep.push(step, res.body.inserted[index]);
+                    })
+                });
+        }
+    }
+
+    getWorkflowStepsFn(index) {
+        const that = this;
+        return function getWorkflowSteps() {
+            const id = that.hxWorkflow.id(index);
+            return that.supertest.get(`workflows/${id}/steps`, 200)
+                .then((res) => {
+                    const list = that.hxWorkflowStep.get(id).listClients();
+                    comparator.workflowSteps(list, res.body);
                 });
         }
     }

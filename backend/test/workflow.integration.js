@@ -27,7 +27,9 @@ describe('workflow integration', function surveyIntegration() {
     const userTests = new userCommon.IntegrationTests(superTest);
     const surveyTests = new surveyCommon.IntegrationTests(superTest);
     const productTests = new productCommon.IntegrationTests(superTest, surveyTests.hxSurvey);
-    const tests = new workflowCommon.IntegrationTests(superTest, surveyTests.hxSurvey, productTests.hxProduct);
+
+    const workFlowOptions = { hxSurvey: surveyTests.hxSurvey, hxProduct: productTests.hxProduct };
+    const tests = new workflowCommon.IntegrationTests(superTest, workFlowOptions);
 
     const superAdmin = config.testEntities.superAdmin;
     const organization = config.testEntities.organization;
@@ -60,6 +62,11 @@ describe('workflow integration', function surveyIntegration() {
     it('get workflow', tests.getWorkflowFn(0));
 
     it('list workflows', tests.listWorkflowsFn());
+
+    it('create workflow steps', tests.createWorkflowStepsFn(0, 4))
+    it('get workflow steps', tests.getWorkflowStepsFn(0));
+
+    it('get workflow (no step information)', tests.getWorkflowFn(0));
 
     it('logout as admin', shared.logoutFn());
 
