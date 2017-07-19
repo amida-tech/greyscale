@@ -3,13 +3,15 @@
 const chai = require('chai');
 
 const History = require('./history');
+const comparator = require('./comparator');
 
 const expect = chai.expect;
 
 const IntegrationTests = class IntegrationTests {
-    constructor(supertest) {
+    constructor(supertest, options={}) {
         this.supertest = supertest;
-        this.hxUser = new History();
+        this.hxUser = options.hxUser || new History();
+        this.hxGroup = options.hxGroup;
     }
 
     inviteUserFn(user) {
@@ -44,6 +46,34 @@ const IntegrationTests = class IntegrationTests {
                     hxUser.server(index).id = res.body.id;
                 });
         };
+    }
+
+    getUserFn(index) {
+        const supertest = this.supertest;
+        const hxUser = this.hxUser;
+        return function verifyUser() {
+            const id = hxUser.id(index);
+            return supertest.get(`users/${id}`, 200)
+                .then((res) => {
+                    const client = hxUser.client(index);
+                    comparator.user(client, res.body);
+                });
+        }
+    }
+
+    updateUserGroupsFn(index, groupIndices) {
+        const supertest = this.supertest;
+        const hxUser = this.hxUser;
+        const hxGroup = this.hxGroup;
+        return function updateUserGroups() {
+            const id = hxUser.id(index);
+            const usergroupId = groupIndices.map((ndx) => hxGroup.id(ndx));
+            return supertest.put(`users/${id}`, { usergroupId }, 202)
+                .then(() => {
+                    const client = hxUser.client(index);
+                    client.usergroupId = usergroupId;
+                });
+        }
     }
 };
 

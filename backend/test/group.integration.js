@@ -11,6 +11,7 @@ const IndaSuperTest = require('./util/inda-supertest');
 const organizationCommon = require('./util/organization-common');
 const userCommon = require('./util/user-common');
 const groupCommon = require('./util/group-common');
+const History = require('./util/History');
 
 describe('group integration', function uoaTypeIntegration() {
     const dbname = 'indabatestgroup'
@@ -23,8 +24,12 @@ describe('group integration', function uoaTypeIntegration() {
     const superTest = new IndaSuperTest();
     const shared = new SharedIntegration(superTest);
     const orgTests = new organizationCommon.IntegrationTests(superTest);
-    const userTests = new userCommon.IntegrationTests(superTest);
-    const tests = new groupCommon.IntegrationTests(superTest, orgTests.hxOrganization);
+
+    const hxGroup = new History();
+    const userTests = new userCommon.IntegrationTests(superTest, { hxGroup });
+
+    const groupOptions = { hxOrganization: orgTests.hxOrganization, hxGroup };
+    const tests = new groupCommon.IntegrationTests(superTest, groupOptions);
 
     const admin = config.testEntities.admin;
     const users = config.testEntities.users;

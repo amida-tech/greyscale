@@ -255,6 +255,19 @@ const comparator = {
             return expected;
         }
     },
+    user(client, server) {
+        const expected = _.cloneDeep(client);
+        expected.id = server.id;
+        this.addNull(expected, server);
+        delete expected.password;
+        delete expected.token;
+        expected.created = this.timestamp(server, 'created');
+        expected.isActive = true;
+        expected.isAnonymous = false;
+        expected.organizationId = server.organizationId;
+        expect(server).to.deep.equal(expected);
+        return expected;
+    },
 };
 
 module.exports = comparator;

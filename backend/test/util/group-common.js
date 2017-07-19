@@ -27,11 +27,11 @@ const Generator = class {
 };
 
 const IntegrationTests = class IntegrationTests {
-    constructor(supertest, hxOrganization) {
+    constructor(supertest, options) {
         this.supertest = supertest;
-        this.hxGroup = new History();
+        this.hxGroup = options.hxGroup || new History();
         this.generator = new Generator();
-        this.hxOrganization = hxOrganization;
+        this.hxOrganization = options.hxOrganization;
     }
 
     createGroupFn() {
