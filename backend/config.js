@@ -1,3 +1,9 @@
+'use strict';
+
+const dotenv = require('dotenv');
+
+dotenv.config();
+
 var environments = {
     development: {
         port: 3005,
@@ -145,11 +151,11 @@ var environments = {
 
         testEntities: {
             superAdmin: {
-                email: 'test-su@mail.net',
+                email: 'su@mail.net',
                 firstName: 'SuperAdmin',
                 lastName: 'Test',
                 roleID: 1,
-                password: 'testsuperadmin',
+                password: 'testuser',
                 token: ''
             },
             admin: {
@@ -253,7 +259,13 @@ var environments = {
                 notificationBody: './views/notifications/comment.html',
                 emailBody: './views/emails/comment.html'
             }
-        }
+        },
+        aws: {
+            accessKeyId: 'YOURAWSACCESSKEY',
+            secretAccessKey: 'yourAwsSecretAccessKey',
+            region: 'us-east-1'
+        },
+        awsBucket : "your-aws-bucket"
     }
 };
 
