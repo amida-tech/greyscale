@@ -2780,7 +2780,9 @@ CREATE TABLE "Tasks" (
     "startDate" timestamp with time zone,
     "endDate" timestamp with time zone,
     "userId" integer,
-    "langId" integer
+    "langId" integer,
+    "userIds" integer[],
+    "groupIds" integer[]
 );
 
 

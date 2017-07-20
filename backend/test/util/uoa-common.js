@@ -28,12 +28,12 @@ const Generator = class {
 };
 
 const IntegrationTests = class IntegrationTests {
-    constructor(supertest, hxUOAType, hxUser) {
+    constructor(supertest, options) {
         this.supertest = supertest;
-        this.hxUOA = new History();
+        this.hxUOA = options.hxUOA || new History();
         this.generator = new Generator();
-        this.hxUOAType = hxUOAType;
-        this.hxUser = hxUser;
+        this.hxUOAType = options.hxUOAType;
+        this.hxUser = options.hxUser;
     }
 
     createUOAFn(typeIndex, userIndex) {

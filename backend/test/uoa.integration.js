@@ -20,7 +20,10 @@ describe('uoa integration', function uoaTypeIntegration() {
     const orgTests = new organizationCommon.IntegrationTests(superTest);
     const userTests = new userCommon.IntegrationTests(superTest);
     const uoaTypeTests = new uoatypeCommon.IntegrationTests(superTest);
-    const tests = new uoaCommon.IntegrationTests(superTest, uoaTypeTests.hxUOAType, userTests.hxUser);
+    const tests = new uoaCommon.IntegrationTests(superTest, {
+        hxUOAType: uoaTypeTests.hxUOAType,
+        hxUser: userTests.hxUser,
+    });
 
     const superAdmin = config.testEntities.superAdmin;
     const organization = config.testEntities.organization;

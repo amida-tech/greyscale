@@ -25,7 +25,10 @@ describe('uoa tag link integration', function uoaTypeIntegration() {
     const classTypeTests = new uoaclasstypeCommon.IntegrationTests(superTest);
     const tagTests = new uoatagCommon.IntegrationTests(superTest, classTypeTests.hxUOAClassType);
     const uoaTypeTests = new uoatypeCommon.IntegrationTests(superTest);
-    const uoaTests = new uoaCommon.IntegrationTests(superTest, uoaTypeTests.hxUOAType, userTests.hxUser);
+    const uoaTests = new uoaCommon.IntegrationTests(superTest, {
+        hxUOAType: uoaTypeTests.hxUOAType,
+        hxUser: userTests.hxUser,
+    });
     const tests = new uoataglinkCommon.IntegrationTests(superTest, uoaTests.hxUOA, tagTests.hxUOATag);
 
     const superAdmin = config.testEntities.superAdmin;

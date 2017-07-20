@@ -34,8 +34,9 @@ const IntegrationTests = class IntegrationTests {
             return that.supertest.post('workflows', workflow, 201)
                 .then((res) => {
                     expect(!!res.body.id).to.equal(true);
+                    const index = that.hxWorkflow.length();
                     that.hxWorkflow.push(workflow, res.body);
-                    that.hxWorkflowStep.set(res.body.id, new History());
+                    that.hxWorkflowStep.set(index, new History());
                 });
         }
     }
@@ -86,14 +87,14 @@ const IntegrationTests = class IntegrationTests {
             });
             return that.supertest.put(`workflows/${id}/steps`, steps, 200)
                 .then((res) => {
-                    const hxWorkflowStep = that.hxWorkflowStep.get(id);
+                    const hxWorkflowStep = that.hxWorkflowStep.get(index);
                     expect(res.body.inserted).to.have.length(steps.length);
-                    steps.forEach((step, index) => {
+                    steps.forEach((step, stepIndex) => {
                         step.workflowId = id;
                         if (!step.usergroupId) {
                             step.usergroupId = [];
                         }
-                        hxWorkflowStep.push(step, res.body.inserted[index]);
+                        hxWorkflowStep.push(step, { id: res.body.inserted[stepIndex] });
                     });
                 });
         }
@@ -105,7 +106,7 @@ const IntegrationTests = class IntegrationTests {
             const id = that.hxWorkflow.id(index);
             return that.supertest.get(`workflows/${id}/steps`, 200)
                 .then((res) => {
-                    const list = that.hxWorkflowStep.get(id).listClients();
+                    const list = that.hxWorkflowStep.get(index).listClients();
                     comparator.workflowSteps(list, res.body);
                 });
         }
