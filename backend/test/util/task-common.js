@@ -59,6 +59,17 @@ const IntegrationTests = class IntegrationTests {
                 });
         };
     }
+
+    listTasksFn() {
+        const that = this;
+        return function listTasks() {
+            return that.supertest.get(`tasks`, 200)
+                .then((res) => {
+                    const client = that.hxTask.listClients();
+                    comparator.tasks(client, res.body);
+                });
+        }
+    }
 };
 
 module.exports = {

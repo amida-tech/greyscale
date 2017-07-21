@@ -125,6 +125,12 @@ describe('task integration', function surveyIntegration() {
         productIndex: 0, uoaIndex: 0, userIndex: 0, workflowIndex: 0, stepIndex: 3,
     }));
 
+    _.range(4).forEach((index) => {
+        it(`get task ${index}`, tests.getTaskFn(index));
+    });
+
+    it(`list tasks`, tests.listTasksFn());
+
     it('logout as admin', shared.logoutFn());
 
     after(shared.unsetupFn());

@@ -287,6 +287,33 @@ const comparator = {
             return expected;
         }
     },
+    task(client, server, listView) {
+        const expected = _.cloneDeep(client);
+        expected.id = server.id;
+        this.addNull(expected, server);
+        expected.created = this.timestamp(server, 'created');
+        if (!listView) {
+            expected.flagged = expected.flagged || false;
+            expected.flaggedcount = expected.flaggedcount || "0";
+            expected.status = server.status || 'waiting';
+        }
+        if (expected.userId) {
+            expected.userIds = [expected.userId];
+            expected.userId = null;
+        }
+        expect(server).to.deep.equal(expected);
+        return expected;
+    },
+    tasks(client, server) {
+        if (server.length) {
+            const expected = client.map((task, index) => {
+                const actual = server[index];
+                return this.task(task, actual, true);
+            });
+            expect(server).to.deep.equal(expected);
+            return expected;
+        }
+    },
 };
 
 module.exports = comparator;
