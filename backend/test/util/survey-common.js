@@ -1,0 +1,78 @@
+'use strict';
+
+const chai = require('chai');
+
+const History = require('./history');
+const comparator = require('./comparator');
+
+const expect = chai.expect;
+
+const IntegrationTests = class IntegrationTests {
+    constructor(supertest) {
+        this.supertest = supertest;
+        this.hxSurvey = new History();
+    }
+
+    createSurveyFn(survey) {
+        const supertest = this.supertest;
+        const hxSurvey = this.hxSurvey;
+        return function createSurvey() {
+            return supertest.post('surveys', survey, 201)
+                .then((res) => {
+                    expect(!!res.body.id).to.equal(true);
+                    hxSurvey.push(survey, res.body);
+                });
+        }
+    }
+
+    getSurveyFn(index) {
+        const supertest = this.supertest;
+        const hxSurvey = this.hxSurvey;
+        return function getSurvey() {
+            const id = hxSurvey.id(index);
+            return supertest.get(`surveys/${id}`, 200)
+                .then((res) => {
+                    const client = hxSurvey.client(index);
+                    comparator.survey(client, res.body);
+                });
+        };
+    }
+
+    updateSurveyFn(index, update) {
+        const supertest = this.supertest;
+        const hxSurvey = this.hxSurvey;
+        return function updateSurvey() {
+            const id = hxSurvey.id(index);
+            return supertest.put(`surveys/${id}`, update, 202)
+                .then(() => {
+                    hxSurvey.updateClient(index, update);
+                });
+        };
+    }
+
+    listSurveysFn() {
+        const supertest = this.supertest;
+        const hxSurvey = this.hxSurvey;
+        return function listSurvey() {
+            const list = hxSurvey.listClients();
+            return supertest.get('surveys', 200)
+                .then((res) => {
+                    comparator.surveys(list, res.body);
+                });
+        }
+    }
+
+    deleteSurveyFn(index) {
+        const supertest = this.supertest;
+        const hxSurvey = this.hxSurvey;
+        return function deleteSurvey() {
+            const id = hxSurvey.id(index);
+            return supertest.delete( `surveys/${id}`, 204)
+                .then(() => hxSurvey.remove(index));
+        };
+    }
+};
+
+module.exports = {
+    IntegrationTests,
+};
