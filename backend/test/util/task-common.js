@@ -70,6 +70,19 @@ const IntegrationTests = class IntegrationTests {
                 });
         }
     }
+
+    listProductTasksFn(productIndex) {
+        const that = this;
+        return function listProductTasks() {
+            const id = that.hxProduct.id(productIndex);
+            return that.supertest.get(`products/${id}/tasks`, 200)
+                .then((res) => {
+                    const list = that.hxTask.listClients().filter((r) => r.productId === id);
+                    console.log(JSON.stringify(res.body, undefined, 4));
+                    comparator.tasks(list, res.body, false, true);
+                });
+        }
+    }
 };
 
 module.exports = {

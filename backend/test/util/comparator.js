@@ -301,14 +301,17 @@ const comparator = {
             expected.userIds = [expected.userId];
             expected.userId = null;
         }
+        if ((expected.position === undefined) && (server.position !== undefined)) {
+            expected.position = server.position;
+        }
         expect(server).to.deep.equal(expected);
         return expected;
     },
-    tasks(client, server) {
+    tasks(client, server, listView=true) {
         if (server.length) {
             const expected = client.map((task, index) => {
                 const actual = server[index];
-                return this.task(task, actual, true);
+                return this.task(task, actual, listView);
             });
             expect(server).to.deep.equal(expected);
             return expected;
