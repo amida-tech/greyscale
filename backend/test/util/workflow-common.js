@@ -75,6 +75,7 @@ const IntegrationTests = class IntegrationTests {
             const steps = _.range(count).map((stepIndex) => {
                 const step = {
                     title: `title_${stepIndex}`,
+                    position: stepIndex,
                 };
                 if (groups) {
                     const groupIndices = groups[stepIndex];

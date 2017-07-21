@@ -59,6 +59,30 @@ const IntegrationTests = class IntegrationTests {
                 });
         };
     }
+
+    listTasksFn() {
+        const that = this;
+        return function listTasks() {
+            return that.supertest.get(`tasks`, 200)
+                .then((res) => {
+                    const client = that.hxTask.listClients();
+                    comparator.tasks(client, res.body);
+                });
+        }
+    }
+
+    listProductTasksFn(productIndex) {
+        const that = this;
+        return function listProductTasks() {
+            const id = that.hxProduct.id(productIndex);
+            return that.supertest.get(`products/${id}/tasks`, 200)
+                .then((res) => {
+                    const list = that.hxTask.listClients().filter((r) => r.productId === id);
+                    console.log(JSON.stringify(res.body, undefined, 4));
+                    comparator.tasks(list, res.body, false, true);
+                });
+        }
+    }
 };
 
 module.exports = {
