@@ -74,7 +74,17 @@ to rebuild with the `--no-cache` option.
 
 8. Confirm everything is running with `docker ps`
 9. Check localhost:80. If you’re on a Mac, you may have a defalt Apache server running that you need to kill.
-10. If you need to free up space after development, run ``docker rmi `docker ps -aq` `` 
+10. If you need to free up space after development, run ``docker rmi `docker ps -aq` ``
+
+## Configuration
+
+A list of full environment variable settings is below.  They can be either manually set in the shell or can be included in the `.env` file.  Defaults indicated in paranthesis.
+
+- INDABA_PG_USERNAME: Database user (db_user)
+- INDABA_PG_DB: Database name (database)
+- AUTH_SALT: Authorization salt (saltForHash)
+- INDABA_PG_TESTUSER: Dtabase user for test (indabauser)
+- INDABA_USER_TOKEN: Token for user authentication.  Makes it possible to use API without authentication for a particular user.
 
 ## Deployment with Google Cloud (Kubernetes)
 NOTE: Container Engine SQL support in Google Cloud is bad right now and will probably change.

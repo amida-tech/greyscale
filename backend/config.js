@@ -1,3 +1,19 @@
+'use strict';
+
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+const base = {
+    devUserToken: process.env.INDABA_USER_TOKEN,
+    aws: {
+        accessKeyId: 'YOURAWSACCESSKEY',
+        secretAccessKey: 'yourAwsSecretAccessKey',
+        region: 'us-east-1'
+    },
+    awsBucket : "your-aws-bucket",
+};
+
 var environments = {
     development: {
         port: 3005,
@@ -84,13 +100,7 @@ var environments = {
                 notificationBody: './views/notifications/welcome.html',
                 emailBody: './views/emails/welcome.html'
             }
-        },
-        aws: {
-            accessKeyId: 'YOURAWSACCESSKEY',
-            secretAccessKey: 'yourAwsSecretAccessKey',
-            region: 'us-east-1'
-        },
-        awsBucket : "your-aws-bucket"
+        }
     },
 
     test: {
@@ -145,11 +155,11 @@ var environments = {
 
         testEntities: {
             superAdmin: {
-                email: 'test-su@mail.net',
+                email: 'su@mail.net',
                 firstName: 'SuperAdmin',
                 lastName: 'Test',
                 roleID: 1,
-                password: 'testsuperadmin',
+                password: 'testuser',
                 token: ''
             },
             admin: {
@@ -258,10 +268,7 @@ var environments = {
 };
 
 // Take configuration according to environment
-var nodeEnv = process.env.NODE_ENV || 'development';
-module.exports = environments[nodeEnv] || environments.development;
+const nodeEnv = process.env.NODE_ENV || 'development';
+const nodeEnvConfig = environments[nodeEnv] || environments.development;
 
-
-
-
-
+module.exports = Object.assign(base, nodeEnvConfig);

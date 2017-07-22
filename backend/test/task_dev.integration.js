@@ -25,8 +25,8 @@ const examples = require('./fixtures/example/surveys');
 
 const legacy = _.cloneDeep(examples.legacy);
 
-describe('task integration', function surveyIntegration() {
-    const dbname = 'indabatesttask'
+describe('task integration with config authentication', function surveyIntegration() {
+    const dbname = 'indabatesttaskdev'
     const superTest = new IndaSuperTest();
     const shared = new SharedIntegration(superTest);
     const orgTests = new organizationCommon.IntegrationTests(superTest);
@@ -84,6 +84,12 @@ describe('task integration', function surveyIntegration() {
 
     it('login as admin', shared.loginFn(admin));
 
+    it('set token in config to emulate login', function emulateLogin() {
+        config.devUserToken = superTest.token;
+    });
+
+    it('logout as admin', shared.logoutFn());
+
     _.range(2).forEach((index) => {
         it(`create group ${index}`, groupTests.createGroupFn());
     });
@@ -94,15 +100,12 @@ describe('task integration', function surveyIntegration() {
     });
 
     it('create survey', surveyTests.createSurveyFn(legacy));
-
-    _.range(2).forEach((index) => {
-        it(`create product ${index}`, productTests.createProductFn(0));
-        it(`create workflow ${index}`, workflowTests.createWorkflowFn(index));
-        it(`create workflow ${index} steps`, workflowTests.createWorkflowStepsFn(index, {
-            count: 4,
-            groups: [[0, 1], null, null, [1]],
-        }))
-    });
+    it('create product', productTests.createProductFn(0));
+    it(`create workflow`, workflowTests.createWorkflowFn(0));
+    it('create workflow steps', workflowTests.createWorkflowStepsFn(0, {
+        count: 4,
+        groups: [[0, 1], null, null, [1]],
+    }))
 
     it('add uoa type already loaded (hard coded in assumed sql)', function () {
         uoaTests.hxUOAType.push({
@@ -115,37 +118,22 @@ describe('task integration', function surveyIntegration() {
 
     it('create unit of analysis', uoaTests.createUOAFn(1, 0));
 
-    it('create product 0 task 0', tests.createTaskFn({
+    it('create task 0', tests.createTaskFn({
         productIndex: 0, uoaIndex: 0, userIndex: 1, workflowIndex: 0, stepIndex: 0,
     }));
-    it('create product 0 task 1', tests.createTaskFn({
+    it('create task 1', tests.createTaskFn({
         productIndex: 0, uoaIndex: 0, userIndex: 2, workflowIndex: 0, stepIndex: 1,
     }));
-    it('create product 0 task 2', tests.createTaskFn({
+    it('create task 2', tests.createTaskFn({
         productIndex: 0, uoaIndex: 0, userIndex: 3, workflowIndex: 0, stepIndex: 2,
     }));
-    it('create product 0 task 3', tests.createTaskFn({
+    it('create task 3', tests.createTaskFn({
         productIndex: 0, uoaIndex: 0, userIndex: 0, workflowIndex: 0, stepIndex: 3,
     }));
 
-    it('create product 1 task 0', tests.createTaskFn({
-        productIndex: 1, uoaIndex: 0, userIndex: 1, workflowIndex: 1, stepIndex: 0,
-    }));
-    it('create product 1 task 2', tests.createTaskFn({
-        productIndex: 1, uoaIndex: 0, userIndex: 3, workflowIndex: 1, stepIndex: 2,
-    }));
-
-    _.range(4).forEach((index) => {
-        it(`get task ${index}`, tests.getTaskFn(index));
+    it('reset config', function resetConfig() {
+        config.devUserToken  = null;
     });
-
-    it(`list tasks`, tests.listTasksFn());
-
-    _.range(2).forEach((index) => {
-        it(`list product tasks`, tests.listProductTasksFn(index));
-    });
-
-    it('logout as admin', shared.logoutFn());
 
     after(shared.unsetupFn());
 });
