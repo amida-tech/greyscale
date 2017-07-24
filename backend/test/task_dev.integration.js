@@ -40,7 +40,9 @@ describe('task integration with config authentication', function surveyIntegrati
     });
 
     const surveyTests = new surveyCommon.IntegrationTests(superTest);
-    const productTests = new productCommon.IntegrationTests(superTest, surveyTests.hxSurvey);
+    const productTests = new productCommon.IntegrationTests(superTest, {
+        hxSurvey: surveyTests.hxSurvey,
+    });
 
     const workflowTests = new workflowCommon.IntegrationTests(superTest, {
         hxSurvey: surveyTests.hxSurvey,

@@ -25,7 +25,9 @@ describe('product integration', function surveyIntegration() {
     const orgTests = new organizationCommon.IntegrationTests(superTest);
     const userTests = new userCommon.IntegrationTests(superTest);
     const surveyTests = new surveyCommon.IntegrationTests(superTest);
-    const tests = new productCommon.IntegrationTests(superTest, surveyTests.hxSurvey);
+    const tests = new productCommon.IntegrationTests(superTest, {
+        hxSurvey: surveyTests.hxSurvey
+    });
 
     const superAdmin = config.testEntities.superAdmin;
     const organization = config.testEntities.organization;
