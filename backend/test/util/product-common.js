@@ -20,9 +20,10 @@ const generate = function (surveyId) {
 };
 
 const IntegrationTests = class IntegrationTests {
-    constructor(supertest, hxSurvey) {
+    constructor(supertest, { hxSurvey, hxUOA }) {
         this.supertest = supertest;
         this.hxSurvey = hxSurvey;
+        this.hxUOA = hxUOA;
         this.hxProduct = new History();
     }
 
@@ -63,7 +64,25 @@ const IntegrationTests = class IntegrationTests {
                 .then((res) => {
                     comparator.products(list, res.body);
                 });
-        }
+        };
+    }
+
+    addUOAFn({ index, uoaIndex }) {
+        const that = this;
+        return function startProduct() {
+            const id = that.hxProduct.id(index);
+            const uoaId = that.hxUOA.id(uoaIndex);
+            return that.supertest.post(`products/${id}/uoa/${uoaId}`, {}, 201);
+        };
+    }
+
+    startProductFn(index) {
+        const that = this;
+        return function startProduct() {
+            const id = that.hxProduct.id(index);
+            const payload = { status: Products.statuses[1] };
+            return that.supertest.put(`products/${id}`, payload, 202);
+        };
     }
 };
 
