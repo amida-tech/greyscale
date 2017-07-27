@@ -22,7 +22,7 @@ module.exports = class IndaSupertest {
         this.token = null;
     }
 
-    authCommon(endpoint, user, status) {
+    authCommon(endpoint, user, status, userId) {
         return this.server
             .get(endpoint)
             .auth(user.email, user.password)
@@ -31,6 +31,7 @@ module.exports = class IndaSupertest {
                 const token = res.body.token;
                 expect(!!token).to.equal(true);
                 this.token = token;
+                this.userId = userId;
             });
     }
 
@@ -44,9 +45,9 @@ module.exports = class IndaSupertest {
         this.realm = realm;
     }
 
-    authBasic(user, status = 200) {
+    authBasic(user, status = 200, userId = null) {
         const endpoint = `/${this.realm}/v0.2/users/token`;
-        return this.authCommon(endpoint, user, status);
+        return this.authCommon(endpoint, user, status, userId);
     }
 
     resetAuth() {

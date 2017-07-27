@@ -317,6 +317,29 @@ const comparator = {
             return expected;
         }
     },
+    discussionEntryScope(client, server) {
+        const expected = _.cloneDeep(client);
+        expect(server).to.deep.equal(expected);
+        return expected;
+    },
+    discussion(client, server) {
+        const expected = _.cloneDeep(client);
+        this.addNull(expected, server);
+        expected.created = this.timestamp(server, 'created');
+        expect(server).to.deep.equal(expected);
+        return expected;
+    },
+    discussions(client, server) {
+        expect(server.length).to.equal(client.length);
+        if (server.length) {
+            const expected = client.map((discussion, index) => {
+                const actual = server[index];
+                return this.discussion(discussion, actual);
+            });
+            expect(server).to.deep.equal(expected);
+            return expected;
+        }
+    }
 };
 
 module.exports = comparator;
