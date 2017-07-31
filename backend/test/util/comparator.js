@@ -326,6 +326,9 @@ const comparator = {
         const expected = _.cloneDeep(client);
         this.addNull(expected, server);
         expected.created = this.timestamp(server, 'created');
+        if (server.updated) {
+            expected.updated = this.timestamp(server, 'updated');
+        }
         expect(server).to.deep.equal(expected);
         return expected;
     },

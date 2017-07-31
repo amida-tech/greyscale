@@ -18,6 +18,11 @@ const Generator = class {
         const entry = `discussion entry ${this.index}`;
         return { entry };
     }
+
+    update(client) {
+        const entry = `updated -- ${client.entry}`;
+        return { entry };
+    }
 };
 
 const IntegrationTests = class IntegrationTests {
@@ -61,6 +66,18 @@ const IntegrationTests = class IntegrationTests {
                     server.order = 1;
                     that.hxDiscussion.push(discussion, server);
                 });
+        }
+    }
+
+    updateDiscussionFn(index) {
+        const that = this;
+        return function updateDiscussion() {
+            const client = that.hxDiscussion.client(index);
+            const server = that.hxDiscussion.server(index);
+            const update = that.generator.update(client);
+            Object.assign(client, update);
+            Object.assign(server, update);
+            return that.supertest.put(`discussions/${server.id}`, update, 202);
         }
     }
 
