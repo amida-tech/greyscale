@@ -68,7 +68,7 @@ const IntegrationTests = class IntegrationTests {
                     const client = that.hxTask.listClients();
                     comparator.tasks(client, res.body);
                 });
-        }
+        };
     }
 
     listProductTasksFn(productIndex) {
@@ -78,10 +78,18 @@ const IntegrationTests = class IntegrationTests {
             return that.supertest.get(`products/${id}/tasks`, 200)
                 .then((res) => {
                     const list = that.hxTask.listClients().filter((r) => r.productId === id);
-                    console.log(JSON.stringify(res.body, undefined, 4));
                     comparator.tasks(list, res.body, false, true);
                 });
         }
+    }
+
+    moveProductFn({ productIndex, uoaIndex }) {
+        const that = this;
+        return function moveProduct() {
+            const id = that.hxProduct.id(productIndex);
+            const uoaId = that.hxUOA.id(uoaIndex);
+            return that.supertest.get(`products/${id}/move/${uoaId}`, 200);
+        };
     }
 };
 

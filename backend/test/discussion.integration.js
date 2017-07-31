@@ -19,38 +19,46 @@ const groupCommon = require('./util/group-common');
 const uoaCommon = require('./util/uoa-common');
 const uoatypeCommon = require('./util/uoatype-common');
 const taskCommon = require('./util/task-common');
+const discussionCommon = require('./util/discussion-common');
 const History = require('./util/History');
 
 const examples = require('./fixtures/example/surveys');
 
 const legacy = _.cloneDeep(examples.legacy);
 
-describe('task integration with config authentication', function surveyIntegration() {
-    const dbname = 'indabatesttaskdev'
+describe('discussion integration', function surveyIntegration() {
+    const dbname = 'indabatestdiscussion'
+    const hxUser = new History();
     const superTest = new IndaSuperTest();
-    const shared = new SharedIntegration(superTest);
+    const shared = new SharedIntegration(superTest, hxUser);
     const orgTests = new organizationCommon.IntegrationTests(superTest);
 
     const hxGroup = new History();
-    const userTests = new userCommon.IntegrationTests(superTest, { hxGroup });
+    const hxSurvey = new History();
+    const hxQuestion = new History();
+    const hxUOA = new History();
+    const userTests = new userCommon.IntegrationTests(superTest, { hxUser, hxGroup });
 
     const groupTests = new groupCommon.IntegrationTests(superTest, {
         hxOrganization: orgTests.hxOrganization,
         hxGroup,
     });
 
-    const surveyTests = new surveyCommon.IntegrationTests(superTest);
+    const surveyTests = new surveyCommon.IntegrationTests(superTest, {
+        hxSurvey,
+        hxQuestion
+    });
     const productTests = new productCommon.IntegrationTests(superTest, {
         hxSurvey: surveyTests.hxSurvey,
+        hxUOA,
     });
 
     const workflowTests = new workflowCommon.IntegrationTests(superTest, {
-        hxSurvey: surveyTests.hxSurvey,
+        hxSurvey,
         hxProduct: productTests.hxProduct,
         hxGroup
     });
 
-    const hxUOA = new History();
     const uoaTypeTests = new uoatypeCommon.IntegrationTests(superTest);
     const uoaTests = new uoaCommon.IntegrationTests(superTest, {
         hxUOAType: uoaTypeTests.hxUOAType,
@@ -58,11 +66,18 @@ describe('task integration with config authentication', function surveyIntegrati
         hxUOA,
     });
 
-    const tests = new taskCommon.IntegrationTests(superTest, {
+    const taskTests = new taskCommon.IntegrationTests(superTest, {
         hxProduct: productTests.hxProduct,
         hxUser: userTests.hxUser,
         hxWorkflowStep: workflowTests.hxWorkflowStep,
         hxUOA,
+    });
+
+    const tests = new discussionCommon.IntegrationTests(superTest, {
+        hxQuestion,
+        hxTask: taskTests.hxTask,
+        hxWorkflowStep: workflowTests.hxWorkflowStep,
+        hxProduct: productTests.hxProduct,
     });
 
     const superAdmin = config.testEntities.superAdmin;
@@ -84,13 +99,7 @@ describe('task integration with config authentication', function surveyIntegrati
 
     it('organization admin activates', userTests.selfActivateFn(0));
 
-    it('login as admin', shared.loginFn(admin));
-
-    it('set token in config to emulate login', function emulateLogin() {
-        config.devUserToken = superTest.token;
-    });
-
-    it('logout as admin', shared.logoutFn());
+    it('login as admin', shared.loginIndexFn(0));
 
     _.range(2).forEach((index) => {
         it(`create group ${index}`, groupTests.createGroupFn());
@@ -102,12 +111,15 @@ describe('task integration with config authentication', function surveyIntegrati
     });
 
     it('create survey', surveyTests.createSurveyFn(legacy));
-    it('create product', productTests.createProductFn(0));
-    it(`create workflow`, workflowTests.createWorkflowFn(0));
-    it('create workflow steps', workflowTests.createWorkflowStepsFn(0, {
-        count: 4,
-        groups: [[0, 1], null, null, [1]],
-    }))
+
+    _.range(2).forEach((index) => {
+        it(`create product ${index}`, productTests.createProductFn(0));
+        it(`create workflow ${index}`, workflowTests.createWorkflowFn(index));
+        it(`create workflow ${index} steps`, workflowTests.createWorkflowStepsFn(index, {
+            count: 4,
+            groups: [[1], [1], [1], [1]],
+        }))
+    });
 
     it('add uoa type already loaded (hard coded in assumed sql)', function () {
         uoaTests.hxUOAType.push({
@@ -120,22 +132,39 @@ describe('task integration with config authentication', function surveyIntegrati
 
     it('create unit of analysis', uoaTests.createUOAFn(1, 0));
 
-    it('create task 0', tests.createTaskFn({
+    it('create product 0 task 0', taskTests.createTaskFn({
         productIndex: 0, uoaIndex: 0, userIndex: 1, workflowIndex: 0, stepIndex: 0,
     }));
-    it('create task 1', tests.createTaskFn({
+    it('create product 0 task 1', taskTests.createTaskFn({
         productIndex: 0, uoaIndex: 0, userIndex: 2, workflowIndex: 0, stepIndex: 1,
     }));
-    it('create task 2', tests.createTaskFn({
+    it('create product 0 task 2', taskTests.createTaskFn({
         productIndex: 0, uoaIndex: 0, userIndex: 3, workflowIndex: 0, stepIndex: 2,
     }));
-    it('create task 3', tests.createTaskFn({
+    it('create product 0 task 3', taskTests.createTaskFn({
         productIndex: 0, uoaIndex: 0, userIndex: 0, workflowIndex: 0, stepIndex: 3,
     }));
 
-    it('reset config', function resetConfig() {
-        config.devUserToken  = null;
-    });
+    it('add product 0 uoa 0 link', productTests.addUOAFn({ index: 0, uoaIndex: 0 } ));
+
+    it('start product 0', productTests.startProductFn(0));
+
+    it('logout as admin', shared.logoutFn());
+
+    // actual test
+
+    it('login as admin', shared.loginIndexFn(0));
+    it('create discussion 0 from admin to task 0 step 1', tests.createDiscussionFn({
+        questionIndex: 0,
+        taskIndex: 0,
+        workflowIndex: 0,
+        stepIndex: 1,
+    }));
+    it('get discussion 0 entry scope', tests.getDiscussionEntryScopeFn(0, { canUpdate: false }));
+    it('update discussion 0', tests.updateDiscussionFn(0))
+    it('get discussion 0 entry scope', tests.getDiscussionEntryScopeFn(0, { canUpdate: false }));
+
+    it('list discussions', tests.listDiscussionsFn({ taskIndex: 0 }));
 
     after(shared.unsetupFn());
 });

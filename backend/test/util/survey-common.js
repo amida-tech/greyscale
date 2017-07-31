@@ -8,19 +8,25 @@ const comparator = require('./comparator');
 const expect = chai.expect;
 
 const IntegrationTests = class IntegrationTests {
-    constructor(supertest) {
+    constructor(supertest, { hxSurvey, hxQuestion } = {}) {
         this.supertest = supertest;
-        this.hxSurvey = new History();
+        this.hxSurvey = hxSurvey || new History();
+        this.hxQuestion = hxQuestion || new History();
     }
 
     createSurveyFn(survey) {
-        const supertest = this.supertest;
-        const hxSurvey = this.hxSurvey;
+        const that = this;
         return function createSurvey() {
-            return supertest.post('surveys', survey, 201)
+            return that.supertest.post('surveys', survey, 201)
                 .then((res) => {
                     expect(!!res.body.id).to.equal(true);
-                    hxSurvey.push(survey, res.body);
+                    that.hxSurvey.push(survey, res.body);
+                    const questions = survey.questions;
+                    if (questions) {
+                        questions.forEach((question, index) => {
+                            that.hxQuestion.push(question, res.body.questions[index]);
+                        });
+                    }
                 });
         }
     }

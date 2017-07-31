@@ -19,8 +19,6 @@ describe('group integration', function uoaTypeIntegration() {
     const superAdmin = config.testEntities.superAdmin;
     const organization = config.testEntities.organization;
 
-    console.log(organization);
-
     const superTest = new IndaSuperTest();
     const shared = new SharedIntegration(superTest);
     const orgTests = new organizationCommon.IntegrationTests(superTest);
