@@ -31,7 +31,7 @@ module.exports = class IndaSupertest {
             .then((res) => {
                 const token = res.body.token;
                 expect(!!token).to.equal(true);
-                this.token = token;
+                this.token = 'JWT '+ token;
                 this.userId = userId;
             });
     }
@@ -57,13 +57,16 @@ module.exports = class IndaSupertest {
     }
 
     update(operation, base, endpoint, payload, status, header) {
+        console.log('FOR ORGANIZATION, END POINT IS: ' + endpoint);
         const r = this.server[operation](`${base}/${endpoint}`);
         if (this.token) {
+            console.log('FIRST FOR ORGANIZATION, TOKEN IS: ' + this.token);
             r.set('token', this.token);
         }
         if (header) {
             _.toPairs(header).forEach(([key, value]) => r.set(key, value));
         }
+        console.log('FOR ORGANIZATION, TRYING TO HIT END POINT IS:');
         return r.send(payload).expect(status);
     }
 

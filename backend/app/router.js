@@ -279,7 +279,7 @@ var organizations = require('./controllers/organizations');
 
 router.route('/:realm/v0.2/organizations')
     .get(authenticate('token').always, organizations.select)
-    .post(authenticate('token').always, jsonParser, checkRight('organization_new'), organizations.insertOne);
+    .post(authenticate('jwt').always, jsonParser, checkRight('organization_new'), organizations.insertOne);
 
 router.route('/:realm/v0.2/organizations/:id')
     .get(authenticate('token').always, organizations.selectOne)
@@ -313,7 +313,7 @@ router.route('/:realm/v0.2/users/token')
     .get(authenticate('basic').always, /*checkRight('users_token'),*/ users.token);
 
 router.route('/:realm/v0.2/users/test')
-    .get(passport.authenticate('jwt', { session: false }),
+    .get(authenticate('jwt').always,
         function(req, res) {
             res.json('!SUCCESS!!');
         }
