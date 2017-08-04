@@ -23,6 +23,7 @@ module.exports = class IndaSupertest {
     }
 
     authCommon(endpoint, user, status, userId) {
+            console.log('IN THE AUTHCOMMON FN. USER IS: ' + user.email + ' ' + user.password);
         return this.server
             .get(endpoint)
             .auth(user.email, user.password)

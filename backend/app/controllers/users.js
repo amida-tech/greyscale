@@ -50,14 +50,17 @@ module.exports = {
                 realm: req.params.realm
             }));
             if (!data.length) {
+                console.log('NO TOKEN WAS FOUND')
                 needNewToken = true;
             }
             //if (!needNewToken && new Date(data[0].issuedAt).getTime() + config.authToken.expiresAfterSeconds < Date.now()) {
             //    needNewToken = true;
             //}
             if (needNewToken) {
+                console.log('CREATING A NEW TOKEN');
                 var token = yield thunkrandomBytes(32);
                 token = token.toString('hex');
+                console.log('TOKEN CREATED IS: ' + token);
                 var record = yield thunkQuery(Token.insert({
                     userID: req.user.id,
                     body: token,

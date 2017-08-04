@@ -1,6 +1,8 @@
 var passport = require('passport'),
     BasicStrategy = require('passport-http').BasicStrategy,
     TokenStrategy = require('../lib/passport_token'),
+    jwt = require("jsonwebtoken"),
+    passportJWT = require("passport-jwt"),
     client = require('./db_bootstrap'),
     User = require('./models/users'),
     Role = require('./models/roles'),
@@ -13,6 +15,13 @@ var passport = require('passport'),
     HttpError = require('./error').HttpError,
     util = require('util'),
     config = require('../config');
+
+var ExtractJwt = passportJWT.ExtractJwt,
+    JwtStrategy = passportJWT.Strategy;
+
+var jwtOptions = {};
+jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
+jwtOptions.secretOrKey = 'testJWT';
 
 var Query = require('./util').Query,
     query = new Query(),
