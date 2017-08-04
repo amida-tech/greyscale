@@ -278,7 +278,7 @@ var users = require('./controllers/users');
 var organizations = require('./controllers/organizations');
 
 router.route('/:realm/v0.2/organizations')
-    .get(authenticate('token').always, organizations.select)
+    .get(authenticate('jwt').always, organizations.select)
     .post(authenticate('jwt').always, jsonParser, checkRight('organization_new'), organizations.insertOne);
 
 router.route('/:realm/v0.2/organizations/:id')
