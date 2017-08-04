@@ -47,6 +47,7 @@ var Query = require('../util').Query,
 
 module.exports = {
     token: function (req, res, next) {
+        console.log('IN TOKEN FN. USER IS: ' + req.user.email);
         var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
         co(function* () {
             var needNewToken = true; // before false. Always new token
@@ -55,7 +56,7 @@ module.exports = {
                 realm: req.params.realm
             }));
             if (!data.length) {
-                console.log('NO TOKEN WAS FOUND')
+                console.log('NO TOKEN WAS FOUND');
                 needNewToken = true;
             }
             //if (!needNewToken && new Date(data[0].issuedAt).getTime() + config.authToken.expiresAfterSeconds < Date.now()) {
@@ -78,6 +79,7 @@ module.exports = {
                     body: token,
                     realm: req.params.realm
                 }).returning(Token.body));
+                console.log('STORED TOKEN IN DB SUCCESSFULLY '+ record);
                 bologger.log({
                     //req: req, Does not use req if you want to use public namespace TODO realm?
                     user: req.user,
@@ -91,6 +93,7 @@ module.exports = {
                     quantity: 1,
                     info: 'Add new token'
                 });
+                console.log('STORED TOKEN IN DB '+ record.userID);
                 return record;
             } else {
                 return data;

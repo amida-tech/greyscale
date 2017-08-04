@@ -22,6 +22,8 @@ var ExtractJwt = passportJWT.ExtractJwt,
 var jwtOptions = {};
 jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
 jwtOptions.secretOrKey = 'testJWT';
+jwtOptions.passReqToCallback = true;
+
 
 var Query = require('./util').Query,
     query = new Query(),
@@ -180,16 +182,18 @@ passport.use(new BasicStrategy({
 
 
 // Register strategy for Token auth
-passport.use(new JwtStrategy({
-        passReqToCallback: true
-    },
-    function (req, tokenBody, done) {
+passport.use(new JwtStrategy(jwtOptions,
+    function (req, decodedJWTPayload, done) {
     console.log('I GOT IN THE JWT STRATEGY FN');
 
         co(function* () {
 
             var user;
+            var tokenBody = req.headers.authorization.split(' ')[1];
             // we are looking for all tokens only in public schema
+            console.log('THE  DECODED TOKEN U_ID IS: ' + decodedJWTPayload.id);
+            console.log('THE  DECODED TOKEN EMAIL IS: ' + decodedJWTPayload.email);
+            console.log('THE  TOKEN IS: ' + tokenBody);
             try {
                 user = yield * findToken(req, tokenBody);
                 console.log('I GOT IN THE JWT STRATEGY FN. user is: ' + user);
@@ -238,6 +242,8 @@ passport.use(new JwtStrategy({
         function* findToken(req, tokenBody) {
 
             var admThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
+            console.log('TRYING TO FIND TOKEN IN TOKEN TABLE');
+            console.log('IN FIND-TOKEN FN: '+ tokenBody);
 
             var existToken = yield admThunkQuery( // select from public
                 Token
@@ -249,6 +255,7 @@ passport.use(new JwtStrategy({
             );
 
             if (!existToken[0]) {
+                console.log('NO TOKEN WAS FOUND IN FIND-TOKEN');
                 return false;
             }
 
@@ -257,6 +264,7 @@ passport.use(new JwtStrategy({
 
             var clientThunkQuery, data;
             if (existToken[0].realm === config.pgConnect.adminSchema) { // admin
+                console.log('TRYING TO FIND USER WITH THE TOKEN FOUND');
                 data = yield admThunkQuery(
                     User
                     .select(
