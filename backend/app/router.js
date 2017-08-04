@@ -1,4 +1,5 @@
 var express = require('express'),
+    passport = require("passport"),
     authenticate = require('./auth').authenticate,
     authorize = require('./auth').authorize,
     checkRight = require('./auth').checkRight,
@@ -310,6 +311,13 @@ router.route('/:realm/v0.2/users')
 
 router.route('/:realm/v0.2/users/token')
     .get(authenticate('basic').always, /*checkRight('users_token'),*/ users.token);
+
+router.route('/:realm/v0.2/users/test')
+    .get(passport.authenticate('jwt', { session: false }),
+        function(req, res) {
+            res.json('!SUCCESS!!');
+        }
+    );
 
 router.route('/:realm/v0.2/users/checkToken/:token')
     .get(users.checkToken);
