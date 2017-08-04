@@ -30,7 +30,12 @@ var client = require('../db_bootstrap'),
     Essence = require('../models/essences'),
     mc = require('../mc_helper'),
     sql = require('sql'),
-    notifications = require('../controllers/notifications');
+    notifications = require('../controllers/notifications'),
+    jwt = require('jsonwebtoken');
+
+var jwtOptions = {
+    secretOrKey: 'testJWT',
+};
 
 var Role = require('../models/roles');
 var Query = require('../util').Query,
@@ -58,8 +63,15 @@ module.exports = {
             //}
             if (needNewToken) {
                 console.log('CREATING A NEW TOKEN');
-                var token = yield thunkrandomBytes(32);
-                token = token.toString('hex');
+                // var token = yield thunkrandomBytes(32);
+                // token = token.toString('hex');
+
+                var payload = {
+                    id: req.user.id,
+                    email: req.user.email,
+                };
+                var token = jwt.sign(payload, jwtOptions.secretOrKey);
+
                 console.log('TOKEN CREATED IS: ' + token);
                 var record = yield thunkQuery(Token.insert({
                     userID: req.user.id,
