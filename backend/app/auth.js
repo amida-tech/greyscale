@@ -169,11 +169,22 @@ passport.use(new BasicStrategy({
     }
 ));
 
+// passport.use(new JwtStrategy(jwtOptions, function (jwtPayload, done) {
+//     // var user = GET USER FROM DATABASE
+//     // if (user) {
+//     //     done(null, user);
+//     // } else {
+//     //     done(null, false);
+//     // }
+// }) )
+
+
 // Register strategy for Token auth
-passport.use(new TokenStrategy({
+passport.use(new JwtStrategy({
         passReqToCallback: true
     },
     function (req, tokenBody, done) {
+    console.log('I GOT IN THE JWT STRATEGY FN');
 
         co(function* () {
 
@@ -181,6 +192,7 @@ passport.use(new TokenStrategy({
             // we are looking for all tokens only in public schema
             try {
                 user = yield * findToken(req, tokenBody);
+                console.log('I GOT IN THE JWT STRATEGY FN. user is: ' + user);
             } catch (err) {
                 throw new HttpError(500, 'Database error ' + err);
             }
