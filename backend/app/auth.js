@@ -171,17 +171,7 @@ passport.use(new BasicStrategy({
     }
 ));
 
-// passport.use(new JwtStrategy(jwtOptions, function (jwtPayload, done) {
-//     // var user = GET USER FROM DATABASE
-//     // if (user) {
-//     //     done(null, user);
-//     // } else {
-//     //     done(null, false);
-//     // }
-// }) )
-
-
-// Register strategy for Token auth
+// JWT strategy for Token auth
 passport.use(new JwtStrategy(jwtOptions,
     function (req, decodedJWTPayload, done) {
 
