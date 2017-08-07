@@ -296,7 +296,7 @@ router.route('/:realm/v0.2/users/self/organization')
     .put(authenticate('token').always, jsonParser, users.selfOrganizationUpdate);
 
 router.route('/:realm/v0.2/users/self/organization/invite')
-    .post(authenticate('token').always, jsonParser, users.selfOrganizationInvite);
+    .post(authenticate('jwt').always, jsonParser, users.selfOrganizationInvite);
 
 router.route('/:realm/v0.2/users/self/tasks')
     .get(authenticate('token').always, users.tasks);
@@ -311,13 +311,6 @@ router.route('/:realm/v0.2/users')
 
 router.route('/:realm/v0.2/users/token')
     .get(authenticate('basic').always, /*checkRight('users_token'),*/ users.token);
-
-router.route('/:realm/v0.2/users/test')
-    .get(authenticate('jwt').always,
-        function(req, res) {
-            res.json('!SUCCESS!!');
-        }
-    );
 
 router.route('/:realm/v0.2/users/checkToken/:token')
     .get(users.checkToken);
@@ -349,9 +342,9 @@ router.route('/:realm/v0.2/users/self')
     .put(authenticate('token').always, jsonParser, /*checkRight('users_edit_self'), */ users.updateSelf);
 
 router.route('/:realm/v0.2/users/:id')
-    .get(authenticate('token').always, checkRight('users_view_one'), users.selectOne)
-    .put(authenticate('token').always, jsonParser, checkRight('users_edit_one'), users.updateOne)
-    .delete(authenticate('token').always, checkRight('users_delete_one'), users.deleteOne);
+    .get(authenticate('jwt').always, checkRight('users_view_one'), users.selectOne)
+    .put(authenticate('jwt').always, jsonParser, checkRight('users_edit_one'), users.updateOne)
+    .delete(authenticate('jwt').always, checkRight('users_delete_one'), users.deleteOne);
 
 router.route('/:realm/v0.2/users/:id/uoa')
     .get(authenticate('token').always, checkRight('users_uoa'), users.UOAselect)
@@ -369,8 +362,8 @@ router.route('/:realm/v0.2/users/:id/uoa/:uoaid')
 var groups = require('./controllers/groups');
 
 router.route('/:realm/v0.2/organizations/:organizationId/groups')
-    .get(authenticate('token').always, groups.selectByOrg)
-    .post(authenticate('token').always, jsonParser, groups.insertOne);
+    .get(authenticate('jwt').always, groups.selectByOrg)
+    .post(authenticate('jwt').always, jsonParser, groups.insertOne);
 
 router.route('/:realm/v0.2/groups/:id')
     .get(authenticate('token').always, groups.selectOne)

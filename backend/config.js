@@ -6,6 +6,7 @@ dotenv.config();
 
 const base = {
     devUserToken: process.env.INDABA_USER_TOKEN,
+    jwtSecret: process.env.JWT_SECRET,
     aws: {
         accessKeyId: 'YOURAWSACCESSKEY',
         secretAccessKey: 'yourAwsSecretAccessKey',

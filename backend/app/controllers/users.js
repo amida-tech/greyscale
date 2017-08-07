@@ -34,7 +34,7 @@ var client = require('../db_bootstrap'),
     jwt = require('jsonwebtoken');
 
 var jwtOptions = {
-    secretOrKey: 'testJWT',
+    secretOrKey: config.jwtSecret,
 };
 
 var Role = require('../models/roles');
@@ -47,7 +47,6 @@ var Query = require('../util').Query,
 
 module.exports = {
     token: function (req, res, next) {
-        console.log('IN TOKEN FN. USER IS: ' + req.user.email);
         var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
         co(function* () {
             var needNewToken = true; // before false. Always new token
@@ -56,30 +55,23 @@ module.exports = {
                 realm: req.params.realm
             }));
             if (!data.length) {
-                console.log('NO TOKEN WAS FOUND');
                 needNewToken = true;
             }
             //if (!needNewToken && new Date(data[0].issuedAt).getTime() + config.authToken.expiresAfterSeconds < Date.now()) {
             //    needNewToken = true;
             //}
             if (needNewToken) {
-                console.log('CREATING A NEW TOKEN');
-                // var token = yield thunkrandomBytes(32);
-                // token = token.toString('hex');
-
                 var payload = {
                     id: req.user.id,
                     email: req.user.email,
+                    roleID: req.user.roleID,
                 };
                 var token = jwt.sign(payload, jwtOptions.secretOrKey);
-
-                console.log('TOKEN CREATED IS: ' + token);
                 var record = yield thunkQuery(Token.insert({
                     userID: req.user.id,
                     body: token,
                     realm: req.params.realm
                 }).returning(Token.body));
-                console.log('STORED TOKEN IN DB SUCCESSFULLY '+ record);
                 bologger.log({
                     //req: req, Does not use req if you want to use public namespace TODO realm?
                     user: req.user,
@@ -93,7 +85,6 @@ module.exports = {
                     quantity: 1,
                     info: 'Add new token'
                 });
-                console.log('STORED TOKEN IN DB '+ record.userID);
                 return record;
             } else {
                 return data;
