@@ -22,8 +22,7 @@ module.exports = class IndaSupertest {
         this.token = null;
     }
 
-    authCommon(endpoint, user, status, userId) {
-            console.log('IN THE AUTHCOMMON FN. USER IS: ' + user.email + ' ' + user.password);
+    authCommon(endpoint, user, status, userId) {         
         return this.server
             .get(endpoint)
             .auth(user.email, user.password)
@@ -57,16 +56,13 @@ module.exports = class IndaSupertest {
     }
 
     update(operation, base, endpoint, payload, status, header) {
-        console.log('FOR ORGANIZATION, END POINT IS: ' + endpoint);
         const r = this.server[operation](`${base}/${endpoint}`);
         if (this.token) {
-            console.log('FIRST FOR ORGANIZATION, TOKEN IS: ' + this.token);
             r.set('token', this.token);
         }
         if (header) {
             _.toPairs(header).forEach(([key, value]) => r.set(key, value));
         }
-        console.log('FOR ORGANIZATION, TRYING TO HIT END POINT IS:');
         return r.send(payload).expect(status);
     }
 
