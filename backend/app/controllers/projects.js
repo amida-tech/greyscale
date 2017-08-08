@@ -1,3 +1,6 @@
+
+'use strict';
+
 var client = require('../db_bootstrap'),
     _ = require('underscore'),
     config = require('../../config'),
@@ -32,6 +35,29 @@ module.exports = {
         }, function (err) {
             next(err);
         });
+    },
+
+    aggregate: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        var projectList = [];
+        var users [];
+        var stages = [];
+        var userGroups = [];
+        var subjects = []; // unit of analysis in the DB
+        var aggregateObject = {};
+
+        var projects = yield thunkQuery(Project.select().from(Project), req.query);
+
+        if (!projects) {
+            throw new HttpError(404, 'No projects found');
+        } else {
+            for (var i = 0; i < projects.length; i++) {
+                aggregateObject.id = projects[i].id;
+                aggregateObject.name = projects[i].codeName;
+                aggregateObject.lastUpdated = null; // need to figure out wha this is
+                aggregateObject.status = projects[i].status;
+            }
+        }
     },
 
     selectOne: function (req, res, next) {
@@ -181,6 +207,8 @@ module.exports = {
             next(err);
         });
     }
+
+
 
 };
 
