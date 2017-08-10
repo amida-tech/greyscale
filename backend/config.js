@@ -42,7 +42,7 @@ var environments = {
         adminRole: 'admin',
         clientRole: 'client',
         auth: {
-            salt: process.env.AUTH_SALT || 'nMsDo)_1fh'
+            salt: process.env.AUTH_SALT || 'saltForHash'
         },
         allowedDomains: '*', // for CORS
         email: {
@@ -131,7 +131,7 @@ var environments = {
         adminRole: 'admin',
         clientRole: 'client',
         auth: {
-            salt: process.env.AUTH_SALT || 'nMsDo)_1fh'
+            salt: process.env.AUTH_SALT || 'saltForHash'
         },
         allowedDomains: '*', // for CORS
         email: {
