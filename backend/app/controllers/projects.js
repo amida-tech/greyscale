@@ -1,4 +1,3 @@
-
 'use strict';
 
 var client = require('../db_bootstrap'),
@@ -10,11 +9,17 @@ var client = require('../db_bootstrap'),
     Project = require('../models/projects'),
     Product = require('../models/products'),
     Workflow = require('../models/workflows'),
+    WorkflowSteps = require('../models/workflow_steps'),
+    WorkflowStepGroup = require('../models/workflow_step_groups'),
     Survey = require('../models/surveys'),
     SurveyQuestion = require('../models/survey_questions'),
     AccessMatrix = require('../models/access_matrices'),
     Organization = require('../models/organizations'),
+    Group = require('../models/groups'),
+    UserGroup = require('../models/user_groups'),
     User = require('../models/users'),
+    UnitOfAnalysis = require('../models/uoas'),
+    UserUOA = require('../models/user_uoa'),
     co = require('co'),
     Query = require('../util').Query,
     vl = require('validator'),
