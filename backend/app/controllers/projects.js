@@ -109,20 +109,29 @@ module.exports = {
                     );
 
                     var userGroups = yield thunkQuery(
-                        UserGroup
+                        Group
                             .select(
-                                UserGroup.groupId
+                                Group.star(),
+                                'array_agg(row_to_json("Users" .*)) as users'
                             )
                             .from(
                                 Group
                                     .leftJoin(UserGroup)
                                     .on(UserGroup.groupId.equals(Group.id))
-                                    .leftJoin(Project)
-                                    .on(Group.organizationId.equals(projects[i].organizationId))
                                     .leftJoin(User)
-                                    .on(UserGroup.userId.equals(User.id))
+                                    .on(User.id.equals(UserGroup.userId))
                             )
+                            .where(User.organizationId.equals(projects[i].organizationId))
+                            .group(Group.id)
                     );
+
+                    userGroups.map((userGroupObject) =>  {
+                        var users = userGroupObject.users.map((user) => {
+                                return user.id;
+                });
+                    userGroupObject.users = users;
+                    return userGroupObject;
+                });
 
                     var subjects = yield thunkQuery(
                         UnitOfAnalysis
@@ -143,12 +152,12 @@ module.exports = {
                     aggregateObject.name = projects[i].codeName;
                     aggregateObject.lastUpdated = null; // need to figure out wha this is
                     aggregateObject.status = projects[i].status;
-                    aggregateObject.users = userList;
+                    aggregateObject.users = _.map(userList, 'id');
                     aggregateObject.stages = stages;
                     aggregateObject.userGroups = userGroups;
                     aggregateObject.subjects = subjects;
                     aggregateObject.workflowIDs = workflowIDs;
-                    aggregateObject.productIDs = productIDs;
+                    aggregateObject.productIDs = _.map(productIDs, 'id');
                 }
                 projectList.push(aggregateObject);
             }
