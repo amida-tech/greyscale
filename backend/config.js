@@ -26,7 +26,7 @@ var environments = {
             user: process.env.RDS_USERNAME || process.env.INDABA_PG_USERNAME || 'indabauser',
             testuser: process.env.RDS_TESTUSER || process.env.INDABA_PG_TESTUSER || 'test', // make trust method for this user in PostgreSQL Client Authentication Configuration File (pg_hba.conf)
             password: process.env.RDS_PASSWORD || process.env.INDABA_PG_PASSWORD || 'password',
-            database: 'indabatestuser' || process.env.INDABA_PG_DB || 'indaba',
+            database: process.env.INDABA_PG_DB || 'indaba',
             host: process.env.RDS_HOSTNAME || process.env.INDABA_PG_HOSTNAME || 'localhost',
             port: 5432,
             adminSchema: 'public',
@@ -115,7 +115,7 @@ var environments = {
             // make trust method for this user in PostgreSQL Client Authentication Configuration File (pg_hba.conf)
             testuser: process.env.RDS_TESTUSER || process.env.INDABA_PG_TESTUSER || 'test',
             password: process.env.RDS_PASSWORD || process.env.INDABA_PG_PASSWORD || 'password',
-            database: 'indabatestuser' || process.env.INDABA_PG_DB || 'indaba',
+            database: process.env.INDABA_PG_DB || 'indaba',
             host: process.env.RDS_HOSTNAME || process.env.INDABA_PG_HOSTNAME || 'localhost',
             port: 5432,
             adminSchema: 'public',

@@ -302,9 +302,6 @@ module.exports = {
             next(err);
         });
     }
-
-
-
 };
 
 function* checkProjectData(req) {
