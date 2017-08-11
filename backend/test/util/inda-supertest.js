@@ -22,7 +22,7 @@ module.exports = class IndaSupertest {
         this.token = null;
     }
 
-    authCommon(endpoint, user, status, userId) {         
+    authCommon(endpoint, user, status, userId) {
         return this.server
             .get(endpoint)
             .auth(user.email, user.password)
@@ -58,7 +58,7 @@ module.exports = class IndaSupertest {
     update(operation, base, endpoint, payload, status, header) {
         const r = this.server[operation](`${base}/${endpoint}`);
         if (this.token) {
-            r.set('token', this.token);
+            r.set('authorization', this.token);
         }
         if (header) {
             _.toPairs(header).forEach(([key, value]) => r.set(key, value));
@@ -73,7 +73,7 @@ module.exports = class IndaSupertest {
     get(endpoint, status, query) {
         let r = this.server.get(`/${this.realm}/v0.2/${endpoint}`);
         if (this.token) {
-            r.set('token', this.token);
+            r.set('authorization', this.token);
         }
         if (query) {
             r = r.query(query);
@@ -94,7 +94,7 @@ module.exports = class IndaSupertest {
     delete(endpoint, status) {
         const r = this.server.delete(`/${this.realm}/v0.2/${endpoint}`);
         if (this.token) {
-            r.set('token', this.token);
+            r.set('authorization', this.token);
         }
         return r.expect(status);
     }
