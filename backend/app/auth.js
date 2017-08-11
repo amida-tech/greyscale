@@ -24,7 +24,6 @@ jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
 jwtOptions.secretOrKey = config.jwtSecret;
 jwtOptions.passReqToCallback = true;
 
-
 var Query = require('./util').Query,
     query = new Query(),
     sql = require('sql'),
