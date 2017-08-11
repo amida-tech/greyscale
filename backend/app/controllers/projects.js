@@ -19,7 +19,7 @@ var client = require('../db_bootstrap'),
     UserGroup = require('../models/user_groups'),
     User = require('../models/users'),
     UnitOfAnalysis = require('../models/uoas'),
-    UserUOA = require('../models/user_uoa'),
+    ProductUOA = require('../models/product_uoa'),
     co = require('co'),
     Query = require('../util').Query,
     vl = require('validator'),
@@ -96,16 +96,8 @@ module.exports = {
                         }
                     }
 
-                    var productIDs = yield thunkQuery(
-                        Product
-                            .select(
-                                Product.id
-                            )
-                            .from(
-                                Product
-                                    .leftJoin(Project)
-                                    .on(Product.projectId.equals(projects[i].id))
-                            )
+                    var productId = yield thunkQuery(
+                        Product.select(Product.id).from(Product).where(Product.projectId.equals(projects[i].id))
                     );
 
                     var userGroups = yield thunkQuery(
@@ -127,11 +119,11 @@ module.exports = {
 
                     userGroups.map((userGroupObject) =>  {
                         var users = userGroupObject.users.map((user) => {
-                                return user.id;
-                });
-                    userGroupObject.users = users;
-                    return userGroupObject;
-                });
+                            return user.id;
+                        });
+                        userGroupObject.users = users;
+                        return userGroupObject;
+                    });
 
                     var subjects = yield thunkQuery(
                         UnitOfAnalysis
@@ -140,12 +132,12 @@ module.exports = {
                             )
                             .from(
                                 UnitOfAnalysis
-                                    .leftJoin(UserUOA)
-                                    .on(UnitOfAnalysis.id.equals(UserUOA.UOAid))
-                                    .leftJoin(User)
-                                    .on(User.id.equals(UserUOA.UserId))
+                                    .leftJoin(ProductUOA)
+                                    .on(UnitOfAnalysis.id.equals(ProductUOA.UOAid))
+                                    .leftJoin(Product)
+                                    .on(ProductUOA.productId.equals(Product.id))
                             )
-                            .where(User.organizationId.equals(projects[i].organizationId))
+                            .where(Product.projectId.equals(projects[i].id))
                     );
 
                     aggregateObject.id = projects[i].id;
@@ -155,9 +147,9 @@ module.exports = {
                     aggregateObject.users = _.map(userList, 'id');
                     aggregateObject.stages = stages;
                     aggregateObject.userGroups = userGroups;
-                    aggregateObject.subjects = subjects;
+                    aggregateObject.subjects = _.map(subjects, 'name');
                     aggregateObject.workflowIDs = workflowIDs;
-                    aggregateObject.productIDs = _.map(productIDs, 'id');
+                    aggregateObject.productId = _.first(_.map(productId, 'id'));
                 }
                 projectList.push(aggregateObject);
             }
