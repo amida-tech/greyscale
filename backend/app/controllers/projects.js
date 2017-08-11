@@ -1,3 +1,5 @@
+'use strict';
+
 var client = require('../db_bootstrap'),
     _ = require('underscore'),
     config = require('../../config'),
@@ -7,11 +9,17 @@ var client = require('../db_bootstrap'),
     Project = require('../models/projects'),
     Product = require('../models/products'),
     Workflow = require('../models/workflows'),
+    WorkflowSteps = require('../models/workflow_steps'),
+    WorkflowStepGroup = require('../models/workflow_step_groups'),
     Survey = require('../models/surveys'),
     SurveyQuestion = require('../models/survey_questions'),
     AccessMatrix = require('../models/access_matrices'),
     Organization = require('../models/organizations'),
+    Group = require('../models/groups'),
+    UserGroup = require('../models/user_groups'),
     User = require('../models/users'),
+    UnitOfAnalysis = require('../models/uoas'),
+    ProductUOA = require('../models/product_uoa'),
     co = require('co'),
     Query = require('../util').Query,
     vl = require('validator'),
@@ -27,6 +35,125 @@ module.exports = {
 
         co(function* () {
             return yield thunkQuery(Project.select().from(Project), req.query);
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    aggregate: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        var projectList = [];
+        var aggregateObject = {};
+        var workflowIDs = [];
+
+        co(function* () {
+            var projects = yield thunkQuery(Project.select().from(Project), req.query);
+
+            if (!projects) {
+                throw new HttpError(404, 'No projects found');
+            } else {
+                for (var i = 0; i < projects.length; i++) {
+
+                    // List of users that belong to the organization of a particular project
+                    var userList = yield thunkQuery(
+                        User
+                            .select(
+                                User.id
+                            )
+                            .from(
+                                User
+                                    .leftJoin(Project)
+                                    .on(User.organizationId.equals(projects[i].organizationId))
+                            )
+                            .where(User.roleID.notEquals(1))
+                    );
+
+                    var stages = yield thunkQuery(
+                        WorkflowSteps
+                            .select(
+                                WorkflowSteps.star(),
+                                'array_agg(row_to_json("WorkflowStepGroups" .*)) as userGroups'
+                            )
+                            .from(
+                                WorkflowSteps
+                                    .leftJoin(Workflow)
+                                    .on(WorkflowSteps.workflowId.equals(Workflow.id))
+                                    .leftJoin(Product)
+                                    .on(Product.id.equals(Workflow.productId))
+                                    .leftJoin(WorkflowStepGroup)
+                                    .on(WorkflowStepGroup.stepId.equals(WorkflowSteps.id))
+                            )
+                            .where(Product.projectId.equals(projects[i].id))
+                            .group(WorkflowSteps.id)
+                    );
+
+                    // Add unique workflowID's to a new list
+                    for (var index = 0; index < stages.length; index++) {
+                        if (stages[index].workflowId && !(workflowIDs.indexOf(stages[index].workflowId) >= 0)) {
+                            workflowIDs.push(stages[index].workflowId);
+                        }
+                    }
+
+                    var productId = yield thunkQuery(
+                        Product.select(Product.id).from(Product).where(Product.projectId.equals(projects[i].id))
+                    );
+
+                    var userGroups = yield thunkQuery(
+                        Group
+                            .select(
+                                Group.star(),
+                                'array_agg(row_to_json("Users" .*)) as users'
+                            )
+                            .from(
+                                Group
+                                    .leftJoin(UserGroup)
+                                    .on(UserGroup.groupId.equals(Group.id))
+                                    .leftJoin(User)
+                                    .on(User.id.equals(UserGroup.userId))
+                            )
+                            .where(User.organizationId.equals(projects[i].organizationId))
+                            .group(Group.id)
+                    );
+
+                    userGroups.map((userGroupObject) =>  {
+                        var users = userGroupObject.users.map((user) => {
+                            return user.id;
+                        });
+                        userGroupObject.users = users;
+                        return userGroupObject;
+                    });
+
+                    var subjects = yield thunkQuery(
+                        UnitOfAnalysis
+                            .select(
+                                UnitOfAnalysis.name
+                            )
+                            .from(
+                                UnitOfAnalysis
+                                    .leftJoin(ProductUOA)
+                                    .on(UnitOfAnalysis.id.equals(ProductUOA.UOAid))
+                                    .leftJoin(Product)
+                                    .on(ProductUOA.productId.equals(Product.id))
+                            )
+                            .where(Product.projectId.equals(projects[i].id))
+                    );
+
+                    aggregateObject.id = projects[i].id;
+                    aggregateObject.name = projects[i].codeName;
+                    aggregateObject.lastUpdated = null; // need to figure out wha this is
+                    aggregateObject.status = projects[i].status;
+                    aggregateObject.users = _.map(userList, 'id');
+                    aggregateObject.stages = stages;
+                    aggregateObject.userGroups = userGroups;
+                    aggregateObject.subjects = _.map(subjects, 'name');
+                    aggregateObject.workflowIDs = workflowIDs;
+                    aggregateObject.productId = _.first(_.map(productId, 'id'));
+                }
+                projectList.push(aggregateObject);
+            }
+            return projectList;
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -181,7 +308,6 @@ module.exports = {
             next(err);
         });
     }
-
 };
 
 function* checkProjectData(req) {
