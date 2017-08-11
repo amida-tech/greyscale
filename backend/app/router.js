@@ -68,7 +68,7 @@ router.route('/:realm/v0.2/essences/:id')
 var projects = require('./controllers/projects');
 
 router.route('/:realm/v0.2/projects')
-    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ projects.select)
+    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ projects.aggregate)
     .post(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ projects.insertOne);
 
 router.route('/:realm/v0.2/projects/:id')
