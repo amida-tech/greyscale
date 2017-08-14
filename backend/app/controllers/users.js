@@ -67,6 +67,7 @@ module.exports = {
                     roleID: req.user.roleID,
                 };
                 var token = jwt.sign(payload, jwtOptions.secretOrKey);
+                res.cookie('inba-jwt-token', token);
                 var record = yield thunkQuery(Token.insert({
                     userID: req.user.id,
                     body: token,

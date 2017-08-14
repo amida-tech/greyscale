@@ -17,6 +17,7 @@ const Query = require('./util').Query;
 
 const query = new Query();
 const thunkQuery = thunkify(query);
+const _ = require('lodash');
 
 const newExpress = function () {
     const app = express();
@@ -117,6 +118,7 @@ const initExpress = function (app) {
     // Init passport engine
     app.use(passport.initialize());
 
+
     // json pretty
     app.set('json spaces', 2);
 
@@ -142,6 +144,15 @@ const initExpress = function (app) {
         } else {
             next(err);
         }
+    });
+
+    app.use(function (req, res, next) {
+        const isAuth = req.url.indexOf('/users/token') >= 0;
+        const token = _.get(req, 'cookies.inba-jwt-token');
+        if (token && !isAuth) {
+            _.set(req, 'headers.authorization', `JWT ${token}`);
+        }
+        next();
     });
 
     // Setup error handlers
