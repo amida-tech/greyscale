@@ -146,15 +146,6 @@ const initExpress = function (app) {
         }
     });
 
-    app.use(function (req, res, next) {
-        const isAuth = req.url.indexOf('/users/token') >= 0;
-        const token = _.get(req, 'cookies.inba-jwt-token');
-        if (token && !isAuth) {
-            _.set(req, 'headers.authorization', `JWT ${token}`);
-        }
-        next();
-    });
-
     // Setup error handlers
     app.use(function (err, req, res, next) {
         if (err) {
