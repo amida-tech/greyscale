@@ -17,7 +17,6 @@ const Query = require('./util').Query;
 
 const query = new Query();
 const thunkQuery = thunkify(query);
-const _ = require('lodash');
 
 const newExpress = function () {
     const app = express();
