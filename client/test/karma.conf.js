@@ -57,7 +57,7 @@ module.exports = function(config) {
       'bower_components/pivottable/dist/pivot.js',
       'bower_components/plotly.js/plotly.js',
       'bower_components/restangular/dist/restangular.js',
-      'bower_components/socket.io-client/socket.io.js',
+      'bower_components/socket.io-client/dist/socket.io.js',
       // endbower
       ".tmp/l10n/en.js",
       "app/greyscale.core/scripts/greyscale.core.js",

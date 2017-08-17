@@ -1,7 +1,11 @@
-var passport = require('passport'),
-    util = require('util');
+'use strict';
 
-var debug = require('debug')('passport_token');
+const passport = require('passport');
+const util = require('util');
+
+const debug = require('debug')('passport_token');
+
+const config = require('../config');
 
 function Strategy(options, verify) {
     if (typeof options === 'function') {
@@ -24,7 +28,11 @@ util.inherits(Strategy, passport.Strategy);
 
 Strategy.prototype.authenticate = function (req, options) {
     options = options || {};
-    var token = lookup(req.headers, this._tokenHeader);
+    let token = lookup(req.headers, this._tokenHeader);
+
+    if (!token && config.devUserToken) {
+        token = config.devUserToken;
+    }
 
     if (!token) {
         var msg = 'Token not found when trying to authenticate';
