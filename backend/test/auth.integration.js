@@ -34,7 +34,6 @@ describe('auth integration', function authIntegration() {
     const admin = config.testEntities.admin;
     const users = config.testEntities.users;
 
-
     before(shared.setupFn({ dbname }));
 
     it('login as super user', shared.loginAdminFn(superAdmin));
@@ -53,15 +52,17 @@ describe('auth integration', function authIntegration() {
 
     it('organization admin activates', userTests.selfActivateFn(0));
 
-    // it('generate token for user', shared.loginFn(admin));
+    it('access restricted content without token', authTests.getUsersWithoutTokenFn());
 
-    it('get bad token', authTests.getBadTokenOnLoginFn(admin));
+    it('get invalid token with log in as admin', authTests.getBadTokenOnLoginFn(admin));
 
-    it('Access restricted content with invalid token', authTests.inviteUserWithBadTokenFn(users[0]));
+    it('access restricted route with invalid token', authTests.inviteUserWithInvalidTokenFn(users[0]));
 
-    // it('login as admin', shared.loginFn(admin));
-    //
+    it('logout as admin', shared.logoutFn());
+
+    it('get valid token with login as admin', shared.loginFn(admin));
+
+    it('access restricted route with valid token', authTests.inviteUserWithValidTokenFn(users[0]));
 
     after(shared.unsetupFn());
-
 });
