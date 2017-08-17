@@ -184,7 +184,10 @@ module.exports = {
         co(function* () {
             return yield * insertOne(req, res, next);
         }).then(function (data) {
-            res.status(201).json(User.view(_.first(data)));
+            res.status(201).json({
+                user: User.view(_.first(data)),
+                id: data.id
+            });
         }, function (err) {
             next(err);
         });
