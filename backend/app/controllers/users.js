@@ -182,8 +182,7 @@ module.exports = {
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            var d = yield * insertOne(req, res, next);
-            return d;
+            return yield * insertOne(req, res, next);
         }).then(function (data) {
             res.status(201).json({
                 id: data.id,
@@ -1261,20 +1260,20 @@ function* insertOne(req, res, next) {
         user = _.first(user);
 
         var essenceId = yield * common.getEssenceId(req, 'Users');
-        // var note = yield * notifications.createNotification(req, {
-        //         userFrom: req.user.realmUserId,
-        //         userTo: user.id,
-        //         body: 'Thank you for registering at Indaba',
-        //         essenceId: essenceId,
-        //         entityId: user.id,
-        //         notifyLevel: req.body.notifyLevel,
-        //         name: req.body.firstName,
-        //         surname: req.body.lastName,
-        //         subject: 'Thank you for registering at Indaba',
-        //         config: config
-        //     },
-        //     'welcome'
-        // );
+        var note = yield * notifications.createNotification(req, {
+                userFrom: req.user.realmUserId,
+                userTo: user.id,
+                body: 'Thank you for registering at Indaba',
+                essenceId: essenceId,
+                entityId: user.id,
+                notifyLevel: req.body.notifyLevel,
+                name: req.body.firstName,
+                surname: req.body.lastName,
+                subject: 'Thank you for registering at Indaba',
+                config: config
+            },
+            'welcome'
+        );
     }
     return user;
 }
