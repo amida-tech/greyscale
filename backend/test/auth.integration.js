@@ -4,11 +4,9 @@
 
 process.env.NODE_ENV = 'test';
 
-const jwt = require('jsonwebtoken');
 const chai = require('chai');
 const sinon = require('sinon');
 const _ = require('lodash');
-
 
 const config = require('../config');
 

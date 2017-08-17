@@ -117,7 +117,6 @@ const initExpress = function (app) {
     // Init passport engine
     app.use(passport.initialize());
 
-
     // json pretty
     app.set('json spaces', 2);
 
