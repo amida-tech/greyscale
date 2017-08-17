@@ -186,8 +186,12 @@ module.exports = {
             return d;
         }).then(function (data) {
             res.status(201).json({
-                user: User.view(_.first(data)),
-                id: data.id
+                id: data.id,
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                email: req.body.email,
+                notifications: "OFF",
+                status: "INACTIVE",
             });
         }, function (err) {
             next(err);
@@ -251,20 +255,20 @@ module.exports = {
 
             var essenceId = yield * common.getEssenceId(req, 'Users');
             var note = yield * notifications.createNotification(req, {
-                    userFrom: req.user.realmUserId ? req.user.realmUserId : req.user.id,
-                    userTo: _.first(user).id,
-                    body: 'Superadmin Invite',
-                    essenceId: essenceId,
-                    entityId: _.first(user).id,
-                    notifyLevel: req.body.notifyLevel,
-                    name: req.body.firstName,
-                    surname: req.body.lastName,
-                    login: req.body.email,
-                    password: pass,
-                    token: activationToken,
-                    subject: 'Indaba. Superadmin invite',
-                    config: config
-                },
+                userFrom: req.user.realmUserId ? req.user.realmUserId : req.user.id,
+                userTo: _.first(user).id,
+                body: 'Superadmin Invite',
+                essenceId: essenceId,
+                entityId: _.first(user).id,
+                notifyLevel: req.body.notifyLevel,
+                name: req.body.firstName,
+                surname: req.body.lastName,
+                login: req.body.email,
+                password: pass,
+                token: activationToken,
+                subject: 'Indaba. Superadmin invite',
+                config: config
+            },
                 'invite'
             );
 
@@ -472,20 +476,20 @@ module.exports = {
                 var essenceId = yield * common.getEssenceId(req, 'Users');
 
                 var note = yield * notifications.createNotification(req, {
-                        userFrom: newUserId,
-                        userTo: newUserId,
-                        body: 'Invite',
-                        essenceId: essenceId,
-                        entityId: newUserId,
-                        notifyLevel: req.body.notifyLevel,
-                        name: firstName,
-                        surname: lastName,
-                        company: org,
-                        inviter: req.user,
-                        token: activationToken,
-                        subject: 'Indaba. Organization membership',
-                        config: config
-                    },
+                    userFrom: newUserId,
+                    userTo: newUserId,
+                    body: 'Invite',
+                    essenceId: essenceId,
+                    entityId: newUserId,
+                    notifyLevel: req.body.notifyLevel,
+                    name: firstName,
+                    surname: lastName,
+                    company: org,
+                    inviter: req.user,
+                    token: activationToken,
+                    subject: 'Indaba. Organization membership',
+                    config: config
+                },
                     'orgInvite'
                 );
 
@@ -1015,19 +1019,19 @@ module.exports = {
                 var essenceId = yield * common.getEssenceId(req, 'Users');
                 var notifyLevel = 2; // always send eMail
                 var note = yield * notifications.createNotification(req, {
-                        userFrom: user.id, // ToDo: userFrom???
-                        userTo: user.id,
-                        realm: req.params.realm,
-                        body: 'Indaba. Restore password',
-                        essenceId: essenceId,
-                        entityId: user.id,
-                        notifyLevel: notifyLevel,
-                        name: user.firstName,
-                        surname: user.lastName,
-                        token: token,
-                        subject: 'Indaba. Restore password',
-                        config: config
-                    },
+                    userFrom: user.id, // ToDo: userFrom???
+                    userTo: user.id,
+                    realm: req.params.realm,
+                    body: 'Indaba. Restore password',
+                    essenceId: essenceId,
+                    entityId: user.id,
+                    notifyLevel: notifyLevel,
+                    name: user.firstName,
+                    surname: user.lastName,
+                    token: token,
+                    subject: 'Indaba. Restore password',
+                    config: config
+                },
                     'forgot'
                 );
             }
