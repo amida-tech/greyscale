@@ -182,9 +182,13 @@ module.exports = {
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            return yield * insertOne(req, res, next);
+            var d = yield * insertOne(req, res, next);
+            return d;
         }).then(function (data) {
-            res.status(201).json(User.view(_.first(data)));
+            res.status(201).json({
+                user: User.view(_.first(data)),
+                id: data.id
+            });
         }, function (err) {
             next(err);
         });
@@ -1253,20 +1257,20 @@ function* insertOne(req, res, next) {
         user = _.first(user);
 
         var essenceId = yield * common.getEssenceId(req, 'Users');
-        var note = yield * notifications.createNotification(req, {
-                userFrom: req.user.realmUserId,
-                userTo: user.id,
-                body: 'Thank you for registering at Indaba',
-                essenceId: essenceId,
-                entityId: user.id,
-                notifyLevel: req.body.notifyLevel,
-                name: req.body.firstName,
-                surname: req.body.lastName,
-                subject: 'Thank you for registering at Indaba',
-                config: config
-            },
-            'welcome'
-        );
+        // var note = yield * notifications.createNotification(req, {
+        //         userFrom: req.user.realmUserId,
+        //         userTo: user.id,
+        //         body: 'Thank you for registering at Indaba',
+        //         essenceId: essenceId,
+        //         entityId: user.id,
+        //         notifyLevel: req.body.notifyLevel,
+        //         name: req.body.firstName,
+        //         surname: req.body.lastName,
+        //         subject: 'Thank you for registering at Indaba',
+        //         config: config
+        //     },
+        //     'welcome'
+        // );
     }
     return user;
 }
