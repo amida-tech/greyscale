@@ -13,7 +13,7 @@ const userCommon = require('./util/user-common');
 const uoatypeCommon = require('./util/uoatype-common');
 
 describe('uoa type integration', function uoaTypeIntegration() {
-    const dbname = 'indabatestuoatype'
+    const dbname = 'indabatestuoatype';
     const superTest = new IndaSuperTest();
     const shared = new SharedIntegration(superTest);
     const orgTests = new organizationCommon.IntegrationTests(superTest);

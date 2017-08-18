@@ -6,6 +6,7 @@ dotenv.config();
 
 const base = {
     devUserToken: process.env.INDABA_USER_TOKEN,
+    jwtSecret: process.env.JWT_SECRET,
     aws: {
         accessKeyId: 'YOURAWSACCESSKEY',
         secretAccessKey: 'yourAwsSecretAccessKey',
@@ -42,7 +43,7 @@ var environments = {
         adminRole: 'admin',
         clientRole: 'client',
         auth: {
-            salt: process.env.AUTH_SALT || 'saltForHash'
+            salt: process.env.AUTH_SALT || 'salt'
         },
         allowedDomains: '*', // for CORS
         email: {
@@ -131,7 +132,7 @@ var environments = {
         adminRole: 'admin',
         clientRole: 'client',
         auth: {
-            salt: process.env.AUTH_SALT || 'saltForHash'
+            salt: process.env.AUTH_SALT || 'salt'
         },
         allowedDomains: '*', // for CORS
         email: {

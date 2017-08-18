@@ -1,6 +1,8 @@
 var passport = require('passport'),
     BasicStrategy = require('passport-http').BasicStrategy,
     TokenStrategy = require('../lib/passport_token'),
+    jwt = require("jsonwebtoken"),
+    passportJWT = require("passport-jwt"),
     client = require('./db_bootstrap'),
     User = require('./models/users'),
     Role = require('./models/roles'),
@@ -13,6 +15,14 @@ var passport = require('passport'),
     HttpError = require('./error').HttpError,
     util = require('util'),
     config = require('../config');
+
+var ExtractJwt = passportJWT.ExtractJwt,
+    JwtStrategy = passportJWT.Strategy;
+
+var jwtOptions = {};
+jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
+jwtOptions.secretOrKey = config.jwtSecret;
+jwtOptions.passReqToCallback = true;
 
 var Query = require('./util').Query,
     query = new Query(),
@@ -160,15 +170,14 @@ passport.use(new BasicStrategy({
     }
 ));
 
-// Register strategy for Token auth
-passport.use(new TokenStrategy({
-        passReqToCallback: true
-    },
-    function (req, tokenBody, done) {
+// JWT strategy for Token auth
+passport.use(new JwtStrategy(jwtOptions,
+    function (req, decodedJWTPayload, done) {
 
         co(function* () {
 
             var user;
+            var tokenBody = req.headers.authorization.split(' ')[1];
             // we are looking for all tokens only in public schema
             try {
                 user = yield * findToken(req, tokenBody);

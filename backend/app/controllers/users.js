@@ -30,7 +30,12 @@ var client = require('../db_bootstrap'),
     Essence = require('../models/essences'),
     mc = require('../mc_helper'),
     sql = require('sql'),
-    notifications = require('../controllers/notifications');
+    notifications = require('../controllers/notifications'),
+    jwt = require('jsonwebtoken');
+
+var jwtOptions = {
+    secretOrKey: config.jwtSecret,
+};
 
 var Role = require('../models/roles');
 var Query = require('../util').Query,
@@ -56,8 +61,13 @@ module.exports = {
             //    needNewToken = true;
             //}
             if (needNewToken) {
-                var token = yield thunkrandomBytes(32);
-                token = token.toString('hex');
+                var payload = {
+                    id: req.user.id,
+                    email: req.user.email,
+                    roleID: req.user.roleID,
+                };
+                var token = jwt.sign(payload, jwtOptions.secretOrKey);
+                res.cookie('inba-jwt-token', token);
                 var record = yield thunkQuery(Token.insert({
                     userID: req.user.id,
                     body: token,

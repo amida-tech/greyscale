@@ -8,7 +8,7 @@ const _ = require('lodash');
 
 const config = require('../config');
 
-const SharedIntegration = require('./util/shared-integration')
+const SharedIntegration = require('./util/shared-integration');
 const IndaSuperTest = require('./util/inda-supertest');
 const organizationCommon = require('./util/organization-common');
 const userCommon = require('./util/user-common');
