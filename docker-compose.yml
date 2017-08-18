@@ -7,7 +7,6 @@ indaba-backend:
     RDS_TESTUSER: ${RDS_TESTUSER}
     INDABA_PG_DB: ${INDABA_PG_DB}
     AUTH_SALT:    ${AUTH_SALT}
-    GET_HOSTS_FROM: dns
   ports:
   - "3005:3005"
   links:
@@ -15,8 +14,8 @@ indaba-backend:
 
 memcached:
   image: "memcached:latest"
-  ports:
-  - "11211:11211"
+  expose:
+  - "11211"
 
 indaba-frontend:
   image: "amidatech/greyscale-client:${INDABA_ENV}"
@@ -24,9 +23,6 @@ indaba-frontend:
   - "indaba-backend"
   environment:
     INDABA_URL: http://indaba-backend:3005
-    GET_HOSTS_FROM: dns
   ports:
   - "80:80"
   - "443:443"
-  labels:
-    kompose.service.type: LoadBalancer

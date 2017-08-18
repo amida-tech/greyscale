@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "dependencies": {
     "formbuilder": "https://github.com/amida-tech/indaba-formbuilder.git#ntrlab",
-    "angular": "1.6.4",
+    "angular": "1.5",
     "angular-bootstrap": "~1.3.3",
     "angular-cookies": "^1.4.0",
     "angular-file-upload": "~2.3.4",
@@ -53,11 +53,11 @@
     },
     "socket.io-client": {
       "main": [
-        "dist/socket.io.js"
+        "socket.io.js"
       ]
     }
   },
   "resolutions": {
-    "angular": "^1.6.4"
+    "angular": "^1.5.3  "
   }
 }

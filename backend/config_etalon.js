@@ -1,19 +1,3 @@
-'use strict';
-
-const dotenv = require('dotenv');
-
-dotenv.config();
-
-const base = {
-    devUserToken: process.env.INDABA_USER_TOKEN,
-    aws: {
-        accessKeyId: 'YOURAWSACCESSKEY',
-        secretAccessKey: 'yourAwsSecretAccessKey',
-        region: 'us-east-1'
-    },
-    awsBucket : "your-aws-bucket",
-};
-
 var environments = {
     development: {
         port: 3005,
@@ -23,17 +7,17 @@ var environments = {
             expiresAfterSeconds: 360000 * 24 // 24 hour
         },
         pgConnect: {
-            user: process.env.RDS_USERNAME || process.env.INDABA_PG_USERNAME || 'indabauser',
+            user: process.env.RDS_USERNAME || process.env.INDABA_PG_USERNAME || 'db_user',
             testuser: process.env.RDS_TESTUSER || process.env.INDABA_PG_TESTUSER || 'test', // make trust method for this user in PostgreSQL Client Authentication Configuration File (pg_hba.conf)
             password: process.env.RDS_PASSWORD || process.env.INDABA_PG_PASSWORD || 'password',
-            database: process.env.INDABA_PG_DB || 'indaba',
+            database: process.env.INDABA_PG_DB || 'database',
             host: process.env.RDS_HOSTNAME || process.env.INDABA_PG_HOSTNAME || 'localhost',
             port: 5432,
             adminSchema: 'public',
             sceletonSchema: 'sceleton'
         },
         mc: { // memcache
-            host: process.env.MEMCACHED_HOST || 'localhost',
+            host: process.env.MEMCACHED_PORT_11211_TCP_ADDR || 'localhost',
             port: 11211,
             lifetime: 300 // seconds
         },
@@ -100,7 +84,13 @@ var environments = {
                 notificationBody: './views/notifications/welcome.html',
                 emailBody: './views/emails/welcome.html'
             }
-        }
+        },
+        aws: {
+            accessKeyId: 'YOURAWSACCESSKEY',
+            secretAccessKey: 'yourAwsSecretAccessKey',
+            region: 'us-east-1'
+        },
+        awsBucket : "your-aws-bucket"
     },
 
     test: {
@@ -111,11 +101,11 @@ var environments = {
             expiresAfterSeconds: 360000 * 24 // 24 hour
         },
         pgConnect: {
-            user: process.env.RDS_USERNAME || process.env.INDABA_PG_USERNAME || 'indabauser',
+            user: process.env.RDS_USERNAME || process.env.INDABA_PG_USERNAME || 'db_user',
             // make trust method for this user in PostgreSQL Client Authentication Configuration File (pg_hba.conf)
             testuser: process.env.RDS_TESTUSER || process.env.INDABA_PG_TESTUSER || 'test',
             password: process.env.RDS_PASSWORD || process.env.INDABA_PG_PASSWORD || 'password',
-            database: process.env.INDABA_PG_DB || 'indaba',
+            database: process.env.INDABA_PG_DB || 'database',
             host: process.env.RDS_HOSTNAME || process.env.INDABA_PG_HOSTNAME || 'localhost',
             port: 5432,
             adminSchema: 'public',
@@ -155,11 +145,11 @@ var environments = {
 
         testEntities: {
             superAdmin: {
-                email: 'su@mail.net',
+                email: 'test-su@mail.net',
                 firstName: 'SuperAdmin',
                 lastName: 'Test',
                 roleID: 1,
-                password: 'testuser',
+                password: 'testsuperadmin',
                 token: ''
             },
             admin: {
@@ -268,7 +258,10 @@ var environments = {
 };
 
 // Take configuration according to environment
-const nodeEnv = process.env.NODE_ENV || 'development';
-const nodeEnvConfig = environments[nodeEnv] || environments.development;
+var nodeEnv = process.env.NODE_ENV || 'development';
+module.exports = environments[nodeEnv] || environments.development;
 
-module.exports = Object.assign(base, nodeEnvConfig);
+
+
+
+

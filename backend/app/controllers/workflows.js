@@ -41,7 +41,6 @@ module.exports = {
             if (!_.first(data)) {
                 throw new HttpError(404, 'Not found');
             }
-            return data;
         }).then(function (data) {
             res.status(200).json(_.first(data));
         }, function (err) {
@@ -259,7 +258,9 @@ module.exports = {
             return {
                 deleted: deleteIds,
                 updated: updatedIds,
-                inserted: insertIds
+                inserted: insertIds.map(function (value) {
+                    return value.id;
+                })
             };
 
         }).then(function (data) {

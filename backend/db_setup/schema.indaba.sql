@@ -13,6 +13,7 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
+SET row_security = off;
 
 --
 -- TOC entry 7 (class 2615 OID 1599530)
@@ -32,7 +33,7 @@ ALTER SCHEMA sceleton OWNER TO indabauser;
 CREATE SCHEMA test;
 
 
-ALTER SCHEMA test OWNER TO indabauser;
+ALTER SCHEMA test OWNER TO indaba;
 
 SET search_path = public, pg_catalog;
 
@@ -149,17 +150,17 @@ BEGIN
     FROM pg_namespace
    WHERE nspname = quote_ident(source_schema);
   IF NOT FOUND
-    THEN
+    THEN 
     RAISE NOTICE 'source schema % does not exist!', source_schema;
     RETURN ;
   END IF;
 
   -- Check that dest_schema does not yet exist
-  PERFORM nspname
+  PERFORM nspname 
     FROM pg_namespace
    WHERE nspname = quote_ident(dest_schema);
   IF FOUND
-    THEN
+    THEN 
     RAISE NOTICE 'dest schema % already exists!', dest_schema;
     RETURN ;
   END IF;
@@ -169,67 +170,67 @@ BEGIN
   -- Create sequences
   -- TODO: Find a way to make this sequence's owner is the correct table.
   FOR object IN
-    SELECT sequence_name::text
+    SELECT sequence_name::text 
       FROM information_schema.sequences
      WHERE sequence_schema = quote_ident(source_schema)
   LOOP
     EXECUTE 'CREATE SEQUENCE ' || quote_ident(dest_schema) || '.' || quote_ident(object);
     srctbl := quote_ident(source_schema) || '.' || quote_ident(object);
 
-    EXECUTE 'SELECT last_value, max_value, start_value, increment_by, min_value, cache_value, log_cnt, is_cycled, is_called
-              FROM ' || quote_ident(source_schema) || '.' || quote_ident(object) || ';'
-              INTO sq_last_value, sq_max_value, sq_start_value, sq_increment_by, sq_min_value, sq_cache_value, sq_log_cnt, sq_is_cycled, sq_is_called ;
+    EXECUTE 'SELECT last_value, max_value, start_value, increment_by, min_value, cache_value, log_cnt, is_cycled, is_called 
+              FROM ' || quote_ident(source_schema) || '.' || quote_ident(object) || ';' 
+              INTO sq_last_value, sq_max_value, sq_start_value, sq_increment_by, sq_min_value, sq_cache_value, sq_log_cnt, sq_is_cycled, sq_is_called ; 
 
-    IF sq_is_cycled
-      THEN
+    IF sq_is_cycled 
+      THEN 
         sq_cycled := 'CYCLE';
     ELSE
         sq_cycled := 'NO CYCLE';
     END IF;
 
-    EXECUTE 'ALTER SEQUENCE '   || quote_ident(dest_schema) || '.' || quote_ident(object)
+    EXECUTE 'ALTER SEQUENCE '   || quote_ident(dest_schema) || '.' || quote_ident(object) 
             || ' INCREMENT BY ' || sq_increment_by
-            || ' MINVALUE '     || sq_min_value
+            || ' MINVALUE '     || sq_min_value 
             || ' MAXVALUE '     || sq_max_value
             || ' START WITH '   || sq_start_value
-            || ' RESTART '      || sq_min_value
-            || ' CACHE '        || sq_cache_value
+            || ' RESTART '      || sq_min_value 
+            || ' CACHE '        || sq_cache_value 
             || sq_cycled || ' ;' ;
 
     buffer := quote_ident(dest_schema) || '.' || quote_ident(object);
-    IF include_recs
+    IF include_recs 
         THEN
-            EXECUTE 'SELECT setval( ''' || buffer || ''', ' || sq_last_value || ', ' || sq_is_called || ');' ;
+            EXECUTE 'SELECT setval( ''' || buffer || ''', ' || sq_last_value || ', ' || sq_is_called || ');' ; 
     ELSE
             EXECUTE 'SELECT setval( ''' || buffer || ''', ' || sq_start_value || ', ' || sq_is_called || ');' ;
     END IF;
 
   END LOOP;
 
--- Create tables
+-- Create tables 
   FOR object IN
-    SELECT TABLE_NAME::text
-      FROM information_schema.tables
+    SELECT TABLE_NAME::text 
+      FROM information_schema.tables 
      WHERE table_schema = quote_ident(source_schema)
        AND table_type = 'BASE TABLE'
 
   LOOP
     buffer := dest_schema || '.' || quote_ident(object);
-    EXECUTE 'CREATE TABLE ' || buffer || ' (LIKE ' || quote_ident(source_schema) || '.' || quote_ident(object)
+    EXECUTE 'CREATE TABLE ' || buffer || ' (LIKE ' || quote_ident(source_schema) || '.' || quote_ident(object) 
         || ' INCLUDING ALL)';
 
-    IF include_recs
-      THEN
+    IF include_recs 
+      THEN 
       -- Insert records from source table
       EXECUTE 'INSERT INTO ' || buffer || ' SELECT * FROM ' || quote_ident(source_schema) || '.' || quote_ident(object) || ';';
     END IF;
-
+ 
     FOR column_, default_ IN
-      SELECT column_name::text,
-             REPLACE(REPLACE(column_default::text, quote_ident(source_schema) || '.', ''), 'nextval(''', 'nextval(''' || dest_schema || '.')
-        FROM information_schema.COLUMNS
-       WHERE table_schema = dest_schema
-         AND TABLE_NAME = object
+      SELECT column_name::text, 
+             REPLACE(REPLACE(column_default::text, quote_ident(source_schema) || '.', ''), 'nextval(''', 'nextval(''' || dest_schema || '.') 
+        FROM information_schema.COLUMNS 
+       WHERE table_schema = dest_schema 
+         AND TABLE_NAME = object 
          AND column_default LIKE 'nextval(%::regclass)'
     LOOP
       EXECUTE 'ALTER TABLE ' || buffer || ' ALTER COLUMN ' || column_ || ' SET DEFAULT ' || default_;
@@ -239,8 +240,8 @@ BEGIN
 
 --  add FK constraint
   FOR qry IN
-    SELECT 'ALTER TABLE ' || quote_ident(dest_schema) || '.' || quote_ident(rn.relname)
-                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' '
+    SELECT 'ALTER TABLE ' || quote_ident(dest_schema) || '.' || quote_ident(rn.relname) 
+                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' ' 
                           || REPLACE(REPLACE(pg_get_constraintdef(ct.oid), quote_ident(source_schema) || '.', ''), 'REFERENCES ', 'REFERENCES ' || dest_schema || '.') || ';'
 
       FROM pg_constraint ct
@@ -248,17 +249,17 @@ BEGIN
      WHERE connamespace = src_oid
        AND rn.relkind = 'r'
        AND ct.contype = 'f'
-
+         
     LOOP
       EXECUTE qry;
 
     END LOOP;
 
 
--- Create views
+-- Create views 
   FOR object IN
     SELECT table_name::text,
-           view_definition
+           view_definition 
       FROM information_schema.views
      WHERE table_schema = quote_ident(source_schema)
 
@@ -268,28 +269,28 @@ BEGIN
       FROM information_schema.views
      WHERE table_schema = quote_ident(source_schema)
        AND table_name = quote_ident(object);
-
+     
     EXECUTE 'CREATE OR REPLACE VIEW ' || buffer || ' AS ' || v_def || ';' ;
 
   END LOOP;
 
--- Create functions
+-- Create functions 
   FOR func_oid IN
     SELECT oid
-      FROM pg_proc
+      FROM pg_proc 
      WHERE pronamespace = src_oid
 
-  LOOP
+  LOOP      
     SELECT pg_get_functiondef(func_oid) INTO qry;
     SELECT replace(qry, source_schema, dest_schema) INTO dest_qry;
     EXECUTE dest_qry;
 
   END LOOP;
-
-  RETURN;
-
+  
+  RETURN; 
+ 
 END;
-
+ 
 $$;
 
 
@@ -306,7 +307,7 @@ CREATE FUNCTION fix_schema_references(schema text) RETURNS void
 
 
 
--- This function will fix
+-- This function will fix 
 -- 1) reference to sequence with using correct namespace
 -- 2) FK constraints  reference with using correct namespace
 -- SAMPLE CALL:
@@ -329,7 +330,7 @@ BEGIN
     FROM pg_namespace
    WHERE nspname = quote_ident(schema);
   IF NOT FOUND
-    THEN
+    THEN 
     RAISE NOTICE 'Target schema % does not exist!', schema;
     RETURN ;
   END IF;
@@ -338,21 +339,21 @@ BEGIN
   RAISE NOTICE '%', 'SET search_path TO ' || schema || ';';
   EXECUTE 'SET search_path TO ' || schema || ';';
 
--- Fix reference to sequence
+-- Fix reference to sequence 
   FOR object IN
-    SELECT TABLE_NAME::text
-      FROM information_schema.tables
+    SELECT TABLE_NAME::text 
+      FROM information_schema.tables 
      WHERE table_schema = quote_ident(schema)
        AND table_type = 'BASE TABLE'
 
   LOOP
     buffer := schema || '.' || quote_ident(object);
     FOR column_, default_ IN
-      SELECT column_name::text,
-             REPLACE(REPLACE(column_default::text, 'public.', ''), 'nextval(''', 'nextval(''' || schema || '.')
-        FROM information_schema.COLUMNS
-       WHERE table_schema = schema
-         AND TABLE_NAME = object
+      SELECT column_name::text, 
+             REPLACE(REPLACE(column_default::text, 'public.', ''), 'nextval(''', 'nextval(''' || schema || '.') 
+        FROM information_schema.COLUMNS 
+       WHERE table_schema = schema 
+         AND TABLE_NAME = object 
          AND column_default LIKE 'nextval(%::regclass)'
     LOOP
       RAISE NOTICE '%', 'ALTER TABLE ' || buffer || ' ALTER COLUMN ' || column_ || ' SET DEFAULT ' || default_;
@@ -364,16 +365,16 @@ BEGIN
 
 --  add FK constraint
   FOR qry IN
-    SELECT 'ALTER TABLE ' || quote_ident(schema) || '.' || quote_ident(rn.relname)
-													|| ' DROP CONSTRAINT ' || quote_ident(ct.conname) || ', '
-                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' '
+    SELECT 'ALTER TABLE ' || quote_ident(schema) || '.' || quote_ident(rn.relname) 
+													|| ' DROP CONSTRAINT ' || quote_ident(ct.conname) || ', ' 
+                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' ' 
                           || overlay(pg_get_constraintdef(ct.oid) placing 'REFERENCES '||schema||'.' from position('REFERENCES' in pg_get_constraintdef(ct.oid)) for 11) || ';'
       FROM pg_constraint ct
       JOIN pg_class rn ON rn.oid = ct.conrelid
      WHERE connamespace = src_oid
        AND rn.relkind = 'r'
        AND ct.contype = 'f'
-
+         
     LOOP
       RAISE NOTICE '%', qry;
       EXECUTE qry;
@@ -381,7 +382,7 @@ BEGIN
     END LOOP;
 
 END;
-
+ 
 $$;
 
 
@@ -464,7 +465,7 @@ CREATE FUNCTION twc_get_token(body character varying, exp character varying) RET
     FROM "Token" t
    where (t."body" = twc_get_token.body)
    and ((now() - t."issuedAt") < (twc_get_token.exp || ' milliseconds')::interval);
-
+         
 END$$;
 
 
@@ -480,17 +481,17 @@ CREATE FUNCTION user_company_check() RETURNS trigger
     AS $$BEGIN
   if (
     exists (
-	select *
-	  from "Users"
-	        left join "Roles" on "Users"."roleID" = "Roles"."id"
+	select * 
+	  from "Users" 
+	        left join "Roles" on "Users"."roleID" = "Roles"."id"  
 	 where "Users"."id" = new."userID"
 	       and "Roles"."name" = 'customer')
-  )
+  )		
   then
     RAISE EXCEPTION 'Bad user role - customer!';
   end if;
-
-  RETURN NEW;
+    
+  RETURN NEW; 
 END;$$;
 
 
@@ -558,17 +559,17 @@ BEGIN
     FROM pg_namespace
    WHERE nspname = quote_ident(source_schema);
   IF NOT FOUND
-    THEN
+    THEN 
     RAISE NOTICE 'source schema % does not exist!', source_schema;
     RETURN ;
   END IF;
 
   -- Check that dest_schema does not yet exist
-  PERFORM nspname
+  PERFORM nspname 
     FROM pg_namespace
    WHERE nspname = quote_ident(dest_schema);
   IF FOUND
-    THEN
+    THEN 
     RAISE NOTICE 'dest schema % already exists!', dest_schema;
     RETURN ;
   END IF;
@@ -578,67 +579,67 @@ BEGIN
   -- Create sequences
   -- TODO: Find a way to make this sequence's owner is the correct table.
   FOR object IN
-    SELECT sequence_name::text
+    SELECT sequence_name::text 
       FROM information_schema.sequences
      WHERE sequence_schema = quote_ident(source_schema)
   LOOP
     EXECUTE 'CREATE SEQUENCE ' || quote_ident(dest_schema) || '.' || quote_ident(object);
     srctbl := quote_ident(source_schema) || '.' || quote_ident(object);
 
-    EXECUTE 'SELECT last_value, max_value, start_value, increment_by, min_value, cache_value, log_cnt, is_cycled, is_called
-              FROM ' || quote_ident(source_schema) || '.' || quote_ident(object) || ';'
-              INTO sq_last_value, sq_max_value, sq_start_value, sq_increment_by, sq_min_value, sq_cache_value, sq_log_cnt, sq_is_cycled, sq_is_called ;
+    EXECUTE 'SELECT last_value, max_value, start_value, increment_by, min_value, cache_value, log_cnt, is_cycled, is_called 
+              FROM ' || quote_ident(source_schema) || '.' || quote_ident(object) || ';' 
+              INTO sq_last_value, sq_max_value, sq_start_value, sq_increment_by, sq_min_value, sq_cache_value, sq_log_cnt, sq_is_cycled, sq_is_called ; 
 
-    IF sq_is_cycled
-      THEN
+    IF sq_is_cycled 
+      THEN 
         sq_cycled := 'CYCLE';
     ELSE
         sq_cycled := 'NO CYCLE';
     END IF;
 
-    EXECUTE 'ALTER SEQUENCE '   || quote_ident(dest_schema) || '.' || quote_ident(object)
+    EXECUTE 'ALTER SEQUENCE '   || quote_ident(dest_schema) || '.' || quote_ident(object) 
             || ' INCREMENT BY ' || sq_increment_by
-            || ' MINVALUE '     || sq_min_value
+            || ' MINVALUE '     || sq_min_value 
             || ' MAXVALUE '     || sq_max_value
             || ' START WITH '   || sq_start_value
-            || ' RESTART '      || sq_min_value
-            || ' CACHE '        || sq_cache_value
+            || ' RESTART '      || sq_min_value 
+            || ' CACHE '        || sq_cache_value 
             || sq_cycled || ' ;' ;
 
     buffer := quote_ident(dest_schema) || '.' || quote_ident(object);
-    IF include_recs
+    IF include_recs 
         THEN
-            EXECUTE 'SELECT setval( ''' || buffer || ''', ' || sq_last_value || ', ' || sq_is_called || ');' ;
+            EXECUTE 'SELECT setval( ''' || buffer || ''', ' || sq_last_value || ', ' || sq_is_called || ');' ; 
     ELSE
             EXECUTE 'SELECT setval( ''' || buffer || ''', ' || sq_start_value || ', ' || sq_is_called || ');' ;
     END IF;
 
   END LOOP;
 
--- Create tables
+-- Create tables 
   FOR object IN
-    SELECT TABLE_NAME::text
-      FROM information_schema.tables
+    SELECT TABLE_NAME::text 
+      FROM information_schema.tables 
      WHERE table_schema = quote_ident(source_schema)
        AND table_type = 'BASE TABLE'
 
   LOOP
     buffer := dest_schema || '.' || quote_ident(object);
-    EXECUTE 'CREATE TABLE ' || buffer || ' (LIKE ' || quote_ident(source_schema) || '.' || quote_ident(object)
+    EXECUTE 'CREATE TABLE ' || buffer || ' (LIKE ' || quote_ident(source_schema) || '.' || quote_ident(object) 
         || ' INCLUDING ALL)';
 
-    IF include_recs
-      THEN
+    IF include_recs 
+      THEN 
       -- Insert records from source table
       EXECUTE 'INSERT INTO ' || buffer || ' SELECT * FROM ' || quote_ident(source_schema) || '.' || quote_ident(object) || ';';
     END IF;
-
+ 
     FOR column_, default_ IN
-      SELECT column_name::text,
-             REPLACE(REPLACE(column_default::text, quote_ident(source_schema) || '.', ''), 'nextval(''', 'nextval(''' || dest_schema || '.')
-        FROM information_schema.COLUMNS
-       WHERE table_schema = dest_schema
-         AND TABLE_NAME = object
+      SELECT column_name::text, 
+             REPLACE(REPLACE(column_default::text, quote_ident(source_schema) || '.', ''), 'nextval(''', 'nextval(''' || dest_schema || '.') 
+        FROM information_schema.COLUMNS 
+       WHERE table_schema = dest_schema 
+         AND TABLE_NAME = object 
          AND column_default LIKE 'nextval(%::regclass)'
     LOOP
       EXECUTE 'ALTER TABLE ' || buffer || ' ALTER COLUMN ' || column_ || ' SET DEFAULT ' || default_;
@@ -648,8 +649,8 @@ BEGIN
 
 --  add FK constraint
   FOR qry IN
-    SELECT 'ALTER TABLE ' || quote_ident(dest_schema) || '.' || quote_ident(rn.relname)
-                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' '
+    SELECT 'ALTER TABLE ' || quote_ident(dest_schema) || '.' || quote_ident(rn.relname) 
+                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' ' 
                           || REPLACE(REPLACE(pg_get_constraintdef(ct.oid), quote_ident(source_schema) || '.', ''), 'REFERENCES ', 'REFERENCES ' || dest_schema || '.') || ';'
 
       FROM pg_constraint ct
@@ -657,17 +658,17 @@ BEGIN
      WHERE connamespace = src_oid
        AND rn.relkind = 'r'
        AND ct.contype = 'f'
-
+         
     LOOP
       EXECUTE qry;
 
     END LOOP;
 
 
--- Create views
+-- Create views 
   FOR object IN
     SELECT table_name::text,
-           view_definition
+           view_definition 
       FROM information_schema.views
      WHERE table_schema = quote_ident(source_schema)
 
@@ -677,28 +678,28 @@ BEGIN
       FROM information_schema.views
      WHERE table_schema = quote_ident(source_schema)
        AND table_name = quote_ident(object);
-
+     
     EXECUTE 'CREATE OR REPLACE VIEW ' || buffer || ' AS ' || v_def || ';' ;
 
   END LOOP;
 
--- Create functions
+-- Create functions 
   FOR func_oid IN
     SELECT oid
-      FROM pg_proc
+      FROM pg_proc 
      WHERE pronamespace = src_oid
 
-  LOOP
+  LOOP      
     SELECT pg_get_functiondef(func_oid) INTO qry;
     SELECT replace(qry, source_schema, dest_schema) INTO dest_qry;
     EXECUTE dest_qry;
 
   END LOOP;
-
-  RETURN;
-
+  
+  RETURN; 
+ 
 END;
-
+ 
 $$;
 
 
@@ -715,7 +716,7 @@ CREATE FUNCTION fix_schema_references(schema text) RETURNS void
 
 
 
--- This function will fix
+-- This function will fix 
 -- 1) reference to sequence with using correct namespace
 -- 2) FK constraints  reference with using correct namespace
 -- SAMPLE CALL:
@@ -738,7 +739,7 @@ BEGIN
     FROM pg_namespace
    WHERE nspname = quote_ident(schema);
   IF NOT FOUND
-    THEN
+    THEN 
     RAISE NOTICE 'Target schema % does not exist!', schema;
     RETURN ;
   END IF;
@@ -747,21 +748,21 @@ BEGIN
   RAISE NOTICE '%', 'SET search_path TO ' || schema || ';';
   EXECUTE 'SET search_path TO ' || schema || ';';
 
--- Fix reference to sequence
+-- Fix reference to sequence 
   FOR object IN
-    SELECT TABLE_NAME::text
-      FROM information_schema.tables
+    SELECT TABLE_NAME::text 
+      FROM information_schema.tables 
      WHERE table_schema = quote_ident(schema)
        AND table_type = 'BASE TABLE'
 
   LOOP
     buffer := schema || '.' || quote_ident(object);
     FOR column_, default_ IN
-      SELECT column_name::text,
-             REPLACE(REPLACE(column_default::text, 'sceleton.', ''), 'nextval(''', 'nextval(''' || schema || '.')
-        FROM information_schema.COLUMNS
-       WHERE table_schema = schema
-         AND TABLE_NAME = object
+      SELECT column_name::text, 
+             REPLACE(REPLACE(column_default::text, 'sceleton.', ''), 'nextval(''', 'nextval(''' || schema || '.') 
+        FROM information_schema.COLUMNS 
+       WHERE table_schema = schema 
+         AND TABLE_NAME = object 
          AND column_default LIKE 'nextval(%::regclass)'
     LOOP
       RAISE NOTICE '%', 'ALTER TABLE ' || buffer || ' ALTER COLUMN ' || column_ || ' SET DEFAULT ' || default_;
@@ -773,16 +774,16 @@ BEGIN
 
 --  add FK constraint
   FOR qry IN
-    SELECT 'ALTER TABLE ' || quote_ident(schema) || '.' || quote_ident(rn.relname)
-													|| ' DROP CONSTRAINT ' || quote_ident(ct.conname) || ', '
-                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' '
+    SELECT 'ALTER TABLE ' || quote_ident(schema) || '.' || quote_ident(rn.relname) 
+													|| ' DROP CONSTRAINT ' || quote_ident(ct.conname) || ', ' 
+                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' ' 
                           || overlay(pg_get_constraintdef(ct.oid) placing 'REFERENCES '||schema||'.' from position('REFERENCES' in pg_get_constraintdef(ct.oid)) for 11) || ';'
       FROM pg_constraint ct
       JOIN pg_class rn ON rn.oid = ct.conrelid
      WHERE connamespace = src_oid
        AND rn.relkind = 'r'
        AND ct.contype = 'f'
-
+         
     LOOP
       RAISE NOTICE '%', qry;
       EXECUTE qry;
@@ -790,7 +791,7 @@ BEGIN
     END LOOP;
 
 END;
-
+ 
 $$;
 
 
@@ -873,7 +874,7 @@ CREATE FUNCTION twc_get_token(body character varying, exp character varying) RET
     FROM "Token" t
    where (t."body" = twc_get_token.body)
    and ((now() - t."issuedAt") < (twc_get_token.exp || ' milliseconds')::interval);
-
+         
 END$$;
 
 
@@ -889,17 +890,17 @@ CREATE FUNCTION user_company_check() RETURNS trigger
     AS $$BEGIN
   if (
     exists (
-	select *
-	  from "Users"
-	        left join "Roles" on "Users"."roleID" = "Roles"."id"
+	select * 
+	  from "Users" 
+	        left join "Roles" on "Users"."roleID" = "Roles"."id"  
 	 where "Users"."id" = new."userID"
 	       and "Roles"."name" = 'customer')
-  )
+  )		
   then
     RAISE EXCEPTION 'Bad user role - customer!';
   end if;
-
-  RETURN NEW;
+    
+  RETURN NEW; 
 END;$$;
 
 
@@ -967,17 +968,17 @@ BEGIN
     FROM pg_namespace
    WHERE nspname = quote_ident(source_schema);
   IF NOT FOUND
-    THEN
+    THEN 
     RAISE NOTICE 'source schema % does not exist!', source_schema;
     RETURN ;
   END IF;
 
   -- Check that dest_schema does not yet exist
-  PERFORM nspname
+  PERFORM nspname 
     FROM pg_namespace
    WHERE nspname = quote_ident(dest_schema);
   IF FOUND
-    THEN
+    THEN 
     RAISE NOTICE 'dest schema % already exists!', dest_schema;
     RETURN ;
   END IF;
@@ -987,67 +988,67 @@ BEGIN
   -- Create sequences
   -- TODO: Find a way to make this sequence's owner is the correct table.
   FOR object IN
-    SELECT sequence_name::text
+    SELECT sequence_name::text 
       FROM information_schema.sequences
      WHERE sequence_schema = quote_ident(source_schema)
   LOOP
     EXECUTE 'CREATE SEQUENCE ' || quote_ident(dest_schema) || '.' || quote_ident(object);
     srctbl := quote_ident(source_schema) || '.' || quote_ident(object);
 
-    EXECUTE 'SELECT last_value, max_value, start_value, increment_by, min_value, cache_value, log_cnt, is_cycled, is_called
-              FROM ' || quote_ident(source_schema) || '.' || quote_ident(object) || ';'
-              INTO sq_last_value, sq_max_value, sq_start_value, sq_increment_by, sq_min_value, sq_cache_value, sq_log_cnt, sq_is_cycled, sq_is_called ;
+    EXECUTE 'SELECT last_value, max_value, start_value, increment_by, min_value, cache_value, log_cnt, is_cycled, is_called 
+              FROM ' || quote_ident(source_schema) || '.' || quote_ident(object) || ';' 
+              INTO sq_last_value, sq_max_value, sq_start_value, sq_increment_by, sq_min_value, sq_cache_value, sq_log_cnt, sq_is_cycled, sq_is_called ; 
 
-    IF sq_is_cycled
-      THEN
+    IF sq_is_cycled 
+      THEN 
         sq_cycled := 'CYCLE';
     ELSE
         sq_cycled := 'NO CYCLE';
     END IF;
 
-    EXECUTE 'ALTER SEQUENCE '   || quote_ident(dest_schema) || '.' || quote_ident(object)
+    EXECUTE 'ALTER SEQUENCE '   || quote_ident(dest_schema) || '.' || quote_ident(object) 
             || ' INCREMENT BY ' || sq_increment_by
-            || ' MINVALUE '     || sq_min_value
+            || ' MINVALUE '     || sq_min_value 
             || ' MAXVALUE '     || sq_max_value
             || ' START WITH '   || sq_start_value
-            || ' RESTART '      || sq_min_value
-            || ' CACHE '        || sq_cache_value
+            || ' RESTART '      || sq_min_value 
+            || ' CACHE '        || sq_cache_value 
             || sq_cycled || ' ;' ;
 
     buffer := quote_ident(dest_schema) || '.' || quote_ident(object);
-    IF include_recs
+    IF include_recs 
         THEN
-            EXECUTE 'SELECT setval( ''' || buffer || ''', ' || sq_last_value || ', ' || sq_is_called || ');' ;
+            EXECUTE 'SELECT setval( ''' || buffer || ''', ' || sq_last_value || ', ' || sq_is_called || ');' ; 
     ELSE
             EXECUTE 'SELECT setval( ''' || buffer || ''', ' || sq_start_value || ', ' || sq_is_called || ');' ;
     END IF;
 
   END LOOP;
 
--- Create tables
+-- Create tables 
   FOR object IN
-    SELECT TABLE_NAME::text
-      FROM information_schema.tables
+    SELECT TABLE_NAME::text 
+      FROM information_schema.tables 
      WHERE table_schema = quote_ident(source_schema)
        AND table_type = 'BASE TABLE'
 
   LOOP
     buffer := dest_schema || '.' || quote_ident(object);
-    EXECUTE 'CREATE TABLE ' || buffer || ' (LIKE ' || quote_ident(source_schema) || '.' || quote_ident(object)
+    EXECUTE 'CREATE TABLE ' || buffer || ' (LIKE ' || quote_ident(source_schema) || '.' || quote_ident(object) 
         || ' INCLUDING ALL)';
 
-    IF include_recs
-      THEN
+    IF include_recs 
+      THEN 
       -- Insert records from source table
       EXECUTE 'INSERT INTO ' || buffer || ' SELECT * FROM ' || quote_ident(source_schema) || '.' || quote_ident(object) || ';';
     END IF;
-
+ 
     FOR column_, default_ IN
-      SELECT column_name::text,
-             REPLACE(REPLACE(column_default::text, quote_ident(source_schema) || '.', ''), 'nextval(''', 'nextval(''' || dest_schema || '.')
-        FROM information_schema.COLUMNS
-       WHERE table_schema = dest_schema
-         AND TABLE_NAME = object
+      SELECT column_name::text, 
+             REPLACE(REPLACE(column_default::text, quote_ident(source_schema) || '.', ''), 'nextval(''', 'nextval(''' || dest_schema || '.') 
+        FROM information_schema.COLUMNS 
+       WHERE table_schema = dest_schema 
+         AND TABLE_NAME = object 
          AND column_default LIKE 'nextval(%::regclass)'
     LOOP
       EXECUTE 'ALTER TABLE ' || buffer || ' ALTER COLUMN ' || column_ || ' SET DEFAULT ' || default_;
@@ -1057,8 +1058,8 @@ BEGIN
 
 --  add FK constraint
   FOR qry IN
-    SELECT 'ALTER TABLE ' || quote_ident(dest_schema) || '.' || quote_ident(rn.relname)
-                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' '
+    SELECT 'ALTER TABLE ' || quote_ident(dest_schema) || '.' || quote_ident(rn.relname) 
+                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' ' 
                           || REPLACE(REPLACE(pg_get_constraintdef(ct.oid), quote_ident(source_schema) || '.', ''), 'REFERENCES ', 'REFERENCES ' || dest_schema || '.') || ';'
 
       FROM pg_constraint ct
@@ -1066,17 +1067,17 @@ BEGIN
      WHERE connamespace = src_oid
        AND rn.relkind = 'r'
        AND ct.contype = 'f'
-
+         
     LOOP
       EXECUTE qry;
 
     END LOOP;
 
 
--- Create views
+-- Create views 
   FOR object IN
     SELECT table_name::text,
-           view_definition
+           view_definition 
       FROM information_schema.views
      WHERE table_schema = quote_ident(source_schema)
 
@@ -1086,32 +1087,32 @@ BEGIN
       FROM information_schema.views
      WHERE table_schema = quote_ident(source_schema)
        AND table_name = quote_ident(object);
-
+     
     EXECUTE 'CREATE OR REPLACE VIEW ' || buffer || ' AS ' || v_def || ';' ;
 
   END LOOP;
 
--- Create functions
+-- Create functions 
   FOR func_oid IN
     SELECT oid
-      FROM pg_proc
+      FROM pg_proc 
      WHERE pronamespace = src_oid
 
-  LOOP
+  LOOP      
     SELECT pg_get_functiondef(func_oid) INTO qry;
     SELECT replace(qry, source_schema, dest_schema) INTO dest_qry;
     EXECUTE dest_qry;
 
   END LOOP;
-
-  RETURN;
-
+  
+  RETURN; 
+ 
 END;
-
+ 
 $$;
 
 
-ALTER FUNCTION test.clone_schema(source_schema text, dest_schema text, include_recs boolean) OWNER TO indabauser;
+ALTER FUNCTION test.clone_schema(source_schema text, dest_schema text, include_recs boolean) OWNER TO indaba;
 
 --
 -- TOC entry 469 (class 1255 OID 1602528)
@@ -1124,7 +1125,7 @@ CREATE FUNCTION fix_schema_references(schema text) RETURNS void
 
 
 
--- This function will fix
+-- This function will fix 
 -- 1) reference to sequence with using correct namespace
 -- 2) FK constraints  reference with using correct namespace
 -- SAMPLE CALL:
@@ -1147,7 +1148,7 @@ BEGIN
     FROM pg_namespace
    WHERE nspname = quote_ident(schema);
   IF NOT FOUND
-    THEN
+    THEN 
     RAISE NOTICE 'Target schema % does not exist!', schema;
     RETURN ;
   END IF;
@@ -1156,21 +1157,21 @@ BEGIN
   RAISE NOTICE '%', 'SET search_path TO ' || schema || ';';
   EXECUTE 'SET search_path TO ' || schema || ';';
 
--- Fix reference to sequence
+-- Fix reference to sequence 
   FOR object IN
-    SELECT TABLE_NAME::text
-      FROM information_schema.tables
+    SELECT TABLE_NAME::text 
+      FROM information_schema.tables 
      WHERE table_schema = quote_ident(schema)
        AND table_type = 'BASE TABLE'
 
   LOOP
     buffer := schema || '.' || quote_ident(object);
     FOR column_, default_ IN
-      SELECT column_name::text,
-             REPLACE(REPLACE(column_default::text, 'test.', ''), 'nextval(''', 'nextval(''' || schema || '.')
-        FROM information_schema.COLUMNS
-       WHERE table_schema = schema
-         AND TABLE_NAME = object
+      SELECT column_name::text, 
+             REPLACE(REPLACE(column_default::text, 'test.', ''), 'nextval(''', 'nextval(''' || schema || '.') 
+        FROM information_schema.COLUMNS 
+       WHERE table_schema = schema 
+         AND TABLE_NAME = object 
          AND column_default LIKE 'nextval(%::regclass)'
     LOOP
       RAISE NOTICE '%', 'ALTER TABLE ' || buffer || ' ALTER COLUMN ' || column_ || ' SET DEFAULT ' || default_;
@@ -1182,16 +1183,16 @@ BEGIN
 
 --  add FK constraint
   FOR qry IN
-    SELECT 'ALTER TABLE ' || quote_ident(schema) || '.' || quote_ident(rn.relname)
-													|| ' DROP CONSTRAINT ' || quote_ident(ct.conname) || ', '
-                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' '
+    SELECT 'ALTER TABLE ' || quote_ident(schema) || '.' || quote_ident(rn.relname) 
+													|| ' DROP CONSTRAINT ' || quote_ident(ct.conname) || ', ' 
+                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' ' 
                           || overlay(pg_get_constraintdef(ct.oid) placing 'REFERENCES '||schema||'.' from position('REFERENCES' in pg_get_constraintdef(ct.oid)) for 11) || ';'
       FROM pg_constraint ct
       JOIN pg_class rn ON rn.oid = ct.conrelid
      WHERE connamespace = src_oid
        AND rn.relkind = 'r'
        AND ct.contype = 'f'
-
+         
     LOOP
       RAISE NOTICE '%', qry;
       EXECUTE qry;
@@ -1199,11 +1200,11 @@ BEGIN
     END LOOP;
 
 END;
-
+ 
 $$;
 
 
-ALTER FUNCTION test.fix_schema_references(schema text) OWNER TO indabauser;
+ALTER FUNCTION test.fix_schema_references(schema text) OWNER TO indaba;
 
 --
 -- TOC entry 470 (class 1255 OID 1602529)
@@ -1219,7 +1220,7 @@ CREATE FUNCTION order_before_update() RETURNS trigger
 END$$;
 
 
-ALTER FUNCTION test.order_before_update() OWNER TO indabauser;
+ALTER FUNCTION test.order_before_update() OWNER TO indaba;
 
 --
 -- TOC entry 471 (class 1255 OID 1602530)
@@ -1236,7 +1237,7 @@ new."updated" = now();
 END;$$;
 
 
-ALTER FUNCTION test.tours_before_insert() OWNER TO indabauser;
+ALTER FUNCTION test.tours_before_insert() OWNER TO indaba;
 
 --
 -- TOC entry 472 (class 1255 OID 1602531)
@@ -1252,7 +1253,7 @@ CREATE FUNCTION tours_before_update() RETURNS trigger
 END;$$;
 
 
-ALTER FUNCTION test.tours_before_update() OWNER TO indabauser;
+ALTER FUNCTION test.tours_before_update() OWNER TO indaba;
 
 --
 -- TOC entry 473 (class 1255 OID 1602532)
@@ -1267,7 +1268,7 @@ CREATE FUNCTION twc_delete_old_token() RETURNS trigger
 END;$$;
 
 
-ALTER FUNCTION test.twc_delete_old_token() OWNER TO indabauser;
+ALTER FUNCTION test.twc_delete_old_token() OWNER TO indaba;
 
 --
 -- TOC entry 474 (class 1255 OID 1602533)
@@ -1282,11 +1283,11 @@ CREATE FUNCTION twc_get_token(body character varying, exp character varying) RET
     FROM "Token" t
    where (t."body" = twc_get_token.body)
    and ((now() - t."issuedAt") < (twc_get_token.exp || ' milliseconds')::interval);
-
+         
 END$$;
 
 
-ALTER FUNCTION test.twc_get_token(body character varying, exp character varying) OWNER TO indabauser;
+ALTER FUNCTION test.twc_get_token(body character varying, exp character varying) OWNER TO indaba;
 
 --
 -- TOC entry 475 (class 1255 OID 1602534)
@@ -1298,21 +1299,21 @@ CREATE FUNCTION user_company_check() RETURNS trigger
     AS $$BEGIN
   if (
     exists (
-	select *
-	  from "Users"
-	        left join "Roles" on "Users"."roleID" = "Roles"."id"
+	select * 
+	  from "Users" 
+	        left join "Roles" on "Users"."roleID" = "Roles"."id"  
 	 where "Users"."id" = new."userID"
 	       and "Roles"."name" = 'customer')
-  )
+  )		
   then
     RAISE EXCEPTION 'Bad user role - customer!';
   end if;
-
-  RETURN NEW;
+    
+  RETURN NEW; 
 END;$$;
 
 
-ALTER FUNCTION test.user_company_check() OWNER TO indabauser;
+ALTER FUNCTION test.user_company_check() OWNER TO indaba;
 
 --
 -- TOC entry 476 (class 1255 OID 1602535)
@@ -1328,7 +1329,7 @@ CREATE FUNCTION users_before_update() RETURNS trigger
 END$$;
 
 
-ALTER FUNCTION test.users_before_update() OWNER TO indabauser;
+ALTER FUNCTION test.users_before_update() OWNER TO indaba;
 
 SET search_path = public, pg_catalog;
 
@@ -2780,9 +2781,7 @@ CREATE TABLE "Tasks" (
     "startDate" timestamp with time zone,
     "endDate" timestamp with time zone,
     "userId" integer,
-    "langId" integer,
-    "userIds" integer[],
-    "groupIds" integer[]
+    "langId" integer
 );
 
 
@@ -3456,7 +3455,7 @@ CREATE SEQUENCE "AccessMatix_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "AccessMatix_id_seq" OWNER TO indabauser;
+ALTER TABLE "AccessMatix_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 406 (class 1259 OID 1601707)
@@ -3471,7 +3470,7 @@ CREATE TABLE "AccessMatrices" (
 );
 
 
-ALTER TABLE "AccessMatrices" OWNER TO indabauser;
+ALTER TABLE "AccessMatrices" OWNER TO indaba;
 
 --
 -- TOC entry 366 (class 1259 OID 1601604)
@@ -3486,7 +3485,7 @@ CREATE SEQUENCE "AccessPermissions_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "AccessPermissions_id_seq" OWNER TO indabauser;
+ALTER TABLE "AccessPermissions_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 403 (class 1259 OID 1601678)
@@ -3502,7 +3501,7 @@ CREATE TABLE "AccessPermissions" (
 );
 
 
-ALTER TABLE "AccessPermissions" OWNER TO indabauser;
+ALTER TABLE "AccessPermissions" OWNER TO indaba;
 
 --
 -- TOC entry 367 (class 1259 OID 1601606)
@@ -3517,7 +3516,7 @@ CREATE SEQUENCE "AnswerAttachments_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "AnswerAttachments_id_seq" OWNER TO indabauser;
+ALTER TABLE "AnswerAttachments_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 404 (class 1259 OID 1601687)
@@ -3537,7 +3536,7 @@ CREATE TABLE "AnswerAttachments" (
 );
 
 
-ALTER TABLE "AnswerAttachments" OWNER TO indabauser;
+ALTER TABLE "AnswerAttachments" OWNER TO indaba;
 
 --
 -- TOC entry 405 (class 1259 OID 1601698)
@@ -3553,7 +3552,7 @@ CREATE TABLE "AttachmentAttempts" (
 );
 
 
-ALTER TABLE "AttachmentAttempts" OWNER TO indabauser;
+ALTER TABLE "AttachmentAttempts" OWNER TO indaba;
 
 --
 -- TOC entry 442 (class 1259 OID 1602083)
@@ -3567,7 +3566,7 @@ CREATE TABLE "AttachmentLinks" (
 );
 
 
-ALTER TABLE "AttachmentLinks" OWNER TO indabauser;
+ALTER TABLE "AttachmentLinks" OWNER TO indaba;
 
 --
 -- TOC entry 368 (class 1259 OID 1601608)
@@ -3582,7 +3581,7 @@ CREATE SEQUENCE "Attachments_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Attachments_id_seq" OWNER TO indabauser;
+ALTER TABLE "Attachments_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 409 (class 1259 OID 1601742)
@@ -3601,7 +3600,7 @@ CREATE TABLE "Attachments" (
 );
 
 
-ALTER TABLE "Attachments" OWNER TO indabauser;
+ALTER TABLE "Attachments" OWNER TO indaba;
 
 --
 -- TOC entry 369 (class 1259 OID 1601610)
@@ -3616,7 +3615,7 @@ CREATE SEQUENCE "Discussions_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Discussions_id_seq" OWNER TO indabauser;
+ALTER TABLE "Discussions_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 407 (class 1259 OID 1601717)
@@ -3642,7 +3641,7 @@ CREATE TABLE "Discussions" (
 );
 
 
-ALTER TABLE "Discussions" OWNER TO indabauser;
+ALTER TABLE "Discussions" OWNER TO indaba;
 
 --
 -- TOC entry 370 (class 1259 OID 1601612)
@@ -3657,7 +3656,7 @@ CREATE SEQUENCE "Entities_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Entities_id_seq" OWNER TO indabauser;
+ALTER TABLE "Entities_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 371 (class 1259 OID 1601614)
@@ -3672,7 +3671,7 @@ CREATE SEQUENCE "EntityRoles_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "EntityRoles_id_seq" OWNER TO indabauser;
+ALTER TABLE "EntityRoles_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 411 (class 1259 OID 1601760)
@@ -3688,7 +3687,7 @@ CREATE TABLE "Essences" (
 );
 
 
-ALTER TABLE "Essences" OWNER TO indabauser;
+ALTER TABLE "Essences" OWNER TO indaba;
 
 --
 -- TOC entry 3809 (class 0 OID 0)
@@ -3721,7 +3720,7 @@ CREATE SEQUENCE "Groups_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Groups_id_seq" OWNER TO indabauser;
+ALTER TABLE "Groups_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 408 (class 1259 OID 1601732)
@@ -3736,7 +3735,7 @@ CREATE TABLE "Groups" (
 );
 
 
-ALTER TABLE "Groups" OWNER TO indabauser;
+ALTER TABLE "Groups" OWNER TO indaba;
 
 --
 -- TOC entry 410 (class 1259 OID 1601752)
@@ -3751,7 +3750,7 @@ CREATE TABLE "IndexQuestionWeights" (
 );
 
 
-ALTER TABLE "IndexQuestionWeights" OWNER TO indabauser;
+ALTER TABLE "IndexQuestionWeights" OWNER TO indaba;
 
 --
 -- TOC entry 444 (class 1259 OID 1602096)
@@ -3766,7 +3765,7 @@ CREATE TABLE "IndexSubindexWeights" (
 );
 
 
-ALTER TABLE "IndexSubindexWeights" OWNER TO indabauser;
+ALTER TABLE "IndexSubindexWeights" OWNER TO indaba;
 
 --
 -- TOC entry 373 (class 1259 OID 1601618)
@@ -3781,7 +3780,7 @@ CREATE SEQUENCE "Index_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Index_id_seq" OWNER TO indabauser;
+ALTER TABLE "Index_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 424 (class 1259 OID 1601899)
@@ -3797,7 +3796,7 @@ CREATE TABLE "Indexes" (
 );
 
 
-ALTER TABLE "Indexes" OWNER TO indabauser;
+ALTER TABLE "Indexes" OWNER TO indaba;
 
 --
 -- TOC entry 374 (class 1259 OID 1601620)
@@ -3812,7 +3811,7 @@ CREATE SEQUENCE "JSON_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "JSON_id_seq" OWNER TO indabauser;
+ALTER TABLE "JSON_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 375 (class 1259 OID 1601622)
@@ -3827,7 +3826,7 @@ CREATE SEQUENCE "Languages_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Languages_id_seq" OWNER TO indabauser;
+ALTER TABLE "Languages_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 412 (class 1259 OID 1601775)
@@ -3842,7 +3841,7 @@ CREATE TABLE "Languages" (
 );
 
 
-ALTER TABLE "Languages" OWNER TO indabauser;
+ALTER TABLE "Languages" OWNER TO indaba;
 
 --
 -- TOC entry 376 (class 1259 OID 1601624)
@@ -3857,7 +3856,7 @@ CREATE SEQUENCE "Logs_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Logs_id_seq" OWNER TO indabauser;
+ALTER TABLE "Logs_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 415 (class 1259 OID 1601811)
@@ -3879,7 +3878,7 @@ CREATE TABLE "Logs" (
 );
 
 
-ALTER TABLE "Logs" OWNER TO indabauser;
+ALTER TABLE "Logs" OWNER TO indaba;
 
 --
 -- TOC entry 377 (class 1259 OID 1601626)
@@ -3894,7 +3893,7 @@ CREATE SEQUENCE "Notifications_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Notifications_id_seq" OWNER TO indabauser;
+ALTER TABLE "Notifications_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 413 (class 1259 OID 1601784)
@@ -3924,7 +3923,7 @@ CREATE TABLE "Notifications" (
 );
 
 
-ALTER TABLE "Notifications" OWNER TO indabauser;
+ALTER TABLE "Notifications" OWNER TO indaba;
 
 --
 -- TOC entry 3811 (class 0 OID 0)
@@ -3948,7 +3947,7 @@ CREATE SEQUENCE "Organizations_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Organizations_id_seq" OWNER TO indabauser;
+ALTER TABLE "Organizations_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 419 (class 1259 OID 1601854)
@@ -3969,7 +3968,7 @@ CREATE TABLE "Organizations" (
 );
 
 
-ALTER TABLE "Organizations" OWNER TO indabauser;
+ALTER TABLE "Organizations" OWNER TO indaba;
 
 --
 -- TOC entry 423 (class 1259 OID 1601893)
@@ -3984,7 +3983,7 @@ CREATE TABLE "ProductUOA" (
 );
 
 
-ALTER TABLE "ProductUOA" OWNER TO indabauser;
+ALTER TABLE "ProductUOA" OWNER TO indaba;
 
 --
 -- TOC entry 379 (class 1259 OID 1601630)
@@ -3999,7 +3998,7 @@ CREATE SEQUENCE "Products_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Products_id_seq" OWNER TO indabauser;
+ALTER TABLE "Products_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 418 (class 1259 OID 1601843)
@@ -4018,7 +4017,7 @@ CREATE TABLE "Products" (
 );
 
 
-ALTER TABLE "Products" OWNER TO indabauser;
+ALTER TABLE "Products" OWNER TO indaba;
 
 --
 -- TOC entry 380 (class 1259 OID 1601632)
@@ -4033,7 +4032,7 @@ CREATE SEQUENCE "Projects_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Projects_id_seq" OWNER TO indabauser;
+ALTER TABLE "Projects_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 414 (class 1259 OID 1601797)
@@ -4055,7 +4054,7 @@ CREATE TABLE "Projects" (
 );
 
 
-ALTER TABLE "Projects" OWNER TO indabauser;
+ALTER TABLE "Projects" OWNER TO indaba;
 
 --
 -- TOC entry 381 (class 1259 OID 1601634)
@@ -4070,7 +4069,7 @@ CREATE SEQUENCE "Rights_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Rights_id_seq" OWNER TO indabauser;
+ALTER TABLE "Rights_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 417 (class 1259 OID 1601832)
@@ -4085,7 +4084,7 @@ CREATE TABLE "Rights" (
 );
 
 
-ALTER TABLE "Rights" OWNER TO indabauser;
+ALTER TABLE "Rights" OWNER TO indaba;
 
 --
 -- TOC entry 382 (class 1259 OID 1601636)
@@ -4100,7 +4099,7 @@ CREATE SEQUENCE role_id_seq
     CACHE 1;
 
 
-ALTER TABLE role_id_seq OWNER TO indabauser;
+ALTER TABLE role_id_seq OWNER TO indaba;
 
 --
 -- TOC entry 416 (class 1259 OID 1601824)
@@ -4114,7 +4113,7 @@ CREATE TABLE "Roles" (
 );
 
 
-ALTER TABLE "Roles" OWNER TO indabauser;
+ALTER TABLE "Roles" OWNER TO indaba;
 
 --
 -- TOC entry 420 (class 1259 OID 1601867)
@@ -4127,7 +4126,7 @@ CREATE TABLE "RolesRights" (
 );
 
 
-ALTER TABLE "RolesRights" OWNER TO indabauser;
+ALTER TABLE "RolesRights" OWNER TO indaba;
 
 --
 -- TOC entry 422 (class 1259 OID 1601885)
@@ -4142,7 +4141,7 @@ CREATE TABLE "SubindexWeights" (
 );
 
 
-ALTER TABLE "SubindexWeights" OWNER TO indabauser;
+ALTER TABLE "SubindexWeights" OWNER TO indaba;
 
 --
 -- TOC entry 383 (class 1259 OID 1601638)
@@ -4157,7 +4156,7 @@ CREATE SEQUENCE "Subindex_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Subindex_id_seq" OWNER TO indabauser;
+ALTER TABLE "Subindex_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 421 (class 1259 OID 1601873)
@@ -4173,7 +4172,7 @@ CREATE TABLE "Subindexes" (
 );
 
 
-ALTER TABLE "Subindexes" OWNER TO indabauser;
+ALTER TABLE "Subindexes" OWNER TO indaba;
 
 --
 -- TOC entry 384 (class 1259 OID 1601640)
@@ -4188,7 +4187,7 @@ CREATE SEQUENCE "SurveyAnswerVersions_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "SurveyAnswerVersions_id_seq" OWNER TO indabauser;
+ALTER TABLE "SurveyAnswerVersions_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 385 (class 1259 OID 1601642)
@@ -4203,7 +4202,7 @@ CREATE SEQUENCE "SurveyAnswers_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "SurveyAnswers_id_seq" OWNER TO indabauser;
+ALTER TABLE "SurveyAnswers_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 445 (class 1259 OID 1602104)
@@ -4232,7 +4231,7 @@ CREATE TABLE "SurveyAnswers" (
 );
 
 
-ALTER TABLE "SurveyAnswers" OWNER TO indabauser;
+ALTER TABLE "SurveyAnswers" OWNER TO indaba;
 
 --
 -- TOC entry 387 (class 1259 OID 1601646)
@@ -4247,7 +4246,7 @@ CREATE SEQUENCE "surveyQuestionOptions_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "surveyQuestionOptions_id_seq" OWNER TO indabauser;
+ALTER TABLE "surveyQuestionOptions_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 433 (class 1259 OID 1602000)
@@ -4265,7 +4264,7 @@ CREATE TABLE "SurveyQuestionOptions" (
 );
 
 
-ALTER TABLE "SurveyQuestionOptions" OWNER TO indabauser;
+ALTER TABLE "SurveyQuestionOptions" OWNER TO indaba;
 
 --
 -- TOC entry 388 (class 1259 OID 1601648)
@@ -4280,7 +4279,7 @@ CREATE SEQUENCE "SurveyQuestions_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "SurveyQuestions_id_seq" OWNER TO indabauser;
+ALTER TABLE "SurveyQuestions_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 429 (class 1259 OID 1601951)
@@ -4314,7 +4313,7 @@ CREATE TABLE "SurveyQuestions" (
 );
 
 
-ALTER TABLE "SurveyQuestions" OWNER TO indabauser;
+ALTER TABLE "SurveyQuestions" OWNER TO indaba;
 
 --
 -- TOC entry 436 (class 1259 OID 1602021)
@@ -4332,7 +4331,7 @@ CREATE TABLE "Surveys" (
 );
 
 
-ALTER TABLE "Surveys" OWNER TO indabauser;
+ALTER TABLE "Surveys" OWNER TO indaba;
 
 --
 -- TOC entry 389 (class 1259 OID 1601650)
@@ -4347,7 +4346,7 @@ CREATE SEQUENCE "Tasks_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Tasks_id_seq" OWNER TO indabauser;
+ALTER TABLE "Tasks_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 437 (class 1259 OID 1602033)
@@ -4371,7 +4370,7 @@ CREATE TABLE "Tasks" (
 );
 
 
-ALTER TABLE "Tasks" OWNER TO indabauser;
+ALTER TABLE "Tasks" OWNER TO indaba;
 
 --
 -- TOC entry 428 (class 1259 OID 1601943)
@@ -4387,7 +4386,7 @@ CREATE TABLE "Translations" (
 );
 
 
-ALTER TABLE "Translations" OWNER TO indabauser;
+ALTER TABLE "Translations" OWNER TO indaba;
 
 --
 -- TOC entry 390 (class 1259 OID 1601652)
@@ -4402,7 +4401,7 @@ CREATE SEQUENCE "UnitOfAnalysis_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "UnitOfAnalysis_id_seq" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysis_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 427 (class 1259 OID 1601927)
@@ -4436,7 +4435,7 @@ CREATE TABLE "UnitOfAnalysis" (
 );
 
 
-ALTER TABLE "UnitOfAnalysis" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysis" OWNER TO indaba;
 
 --
 -- TOC entry 3812 (class 0 OID 0)
@@ -4613,7 +4612,7 @@ CREATE SEQUENCE "UnitOfAnalysisClassType_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "UnitOfAnalysisClassType_id_seq" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysisClassType_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 430 (class 1259 OID 1601966)
@@ -4628,7 +4627,7 @@ CREATE TABLE "UnitOfAnalysisClassType" (
 );
 
 
-ALTER TABLE "UnitOfAnalysisClassType" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysisClassType" OWNER TO indaba;
 
 --
 -- TOC entry 3830 (class 0 OID 0)
@@ -4661,7 +4660,7 @@ CREATE SEQUENCE "UnitOfAnalysisTag_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "UnitOfAnalysisTag_id_seq" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysisTag_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 425 (class 1259 OID 1601911)
@@ -4677,7 +4676,7 @@ CREATE TABLE "UnitOfAnalysisTag" (
 );
 
 
-ALTER TABLE "UnitOfAnalysisTag" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysisTag" OWNER TO indaba;
 
 --
 -- TOC entry 392 (class 1259 OID 1601656)
@@ -4692,7 +4691,7 @@ CREATE SEQUENCE "UnitOfAnalysisTagLink_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "UnitOfAnalysisTagLink_id_seq" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysisTagLink_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 432 (class 1259 OID 1601989)
@@ -4706,7 +4705,7 @@ CREATE TABLE "UnitOfAnalysisTagLink" (
 );
 
 
-ALTER TABLE "UnitOfAnalysisTagLink" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysisTagLink" OWNER TO indaba;
 
 --
 -- TOC entry 393 (class 1259 OID 1601658)
@@ -4721,7 +4720,7 @@ CREATE SEQUENCE "UnitOfAnalysisType_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "UnitOfAnalysisType_id_seq" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysisType_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 426 (class 1259 OID 1601919)
@@ -4736,7 +4735,7 @@ CREATE TABLE "UnitOfAnalysisType" (
 );
 
 
-ALTER TABLE "UnitOfAnalysisType" OWNER TO indabauser;
+ALTER TABLE "UnitOfAnalysisType" OWNER TO indaba;
 
 --
 -- TOC entry 438 (class 1259 OID 1602044)
@@ -4749,7 +4748,7 @@ CREATE TABLE "UserGroups" (
 );
 
 
-ALTER TABLE "UserGroups" OWNER TO indabauser;
+ALTER TABLE "UserGroups" OWNER TO indaba;
 
 --
 -- TOC entry 434 (class 1259 OID 1602011)
@@ -4763,7 +4762,7 @@ CREATE TABLE "UserRights" (
 );
 
 
-ALTER TABLE "UserRights" OWNER TO indabauser;
+ALTER TABLE "UserRights" OWNER TO indaba;
 
 --
 -- TOC entry 435 (class 1259 OID 1602016)
@@ -4776,7 +4775,7 @@ CREATE TABLE "UserUOA" (
 );
 
 
-ALTER TABLE "UserUOA" OWNER TO indabauser;
+ALTER TABLE "UserUOA" OWNER TO indaba;
 
 --
 -- TOC entry 394 (class 1259 OID 1601660)
@@ -4791,7 +4790,7 @@ CREATE SEQUENCE user_id_seq
     CACHE 1;
 
 
-ALTER TABLE user_id_seq OWNER TO indabauser;
+ALTER TABLE user_id_seq OWNER TO indaba;
 
 --
 -- TOC entry 431 (class 1259 OID 1601974)
@@ -4829,7 +4828,7 @@ CREATE TABLE "Users" (
 );
 
 
-ALTER TABLE "Users" OWNER TO indabauser;
+ALTER TABLE "Users" OWNER TO indaba;
 
 --
 -- TOC entry 395 (class 1259 OID 1601662)
@@ -4844,7 +4843,7 @@ CREATE SEQUENCE "Visualizations_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Visualizations_id_seq" OWNER TO indabauser;
+ALTER TABLE "Visualizations_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 439 (class 1259 OID 1602049)
@@ -4864,7 +4863,7 @@ CREATE TABLE "Visualizations" (
 );
 
 
-ALTER TABLE "Visualizations" OWNER TO indabauser;
+ALTER TABLE "Visualizations" OWNER TO indaba;
 
 --
 -- TOC entry 443 (class 1259 OID 1602091)
@@ -4877,7 +4876,7 @@ CREATE TABLE "WorkflowStepGroups" (
 );
 
 
-ALTER TABLE "WorkflowStepGroups" OWNER TO indabauser;
+ALTER TABLE "WorkflowStepGroups" OWNER TO indaba;
 
 --
 -- TOC entry 396 (class 1259 OID 1601664)
@@ -4892,7 +4891,7 @@ CREATE SEQUENCE "WorkflowSteps_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "WorkflowSteps_id_seq" OWNER TO indabauser;
+ALTER TABLE "WorkflowSteps_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 441 (class 1259 OID 1602072)
@@ -4918,7 +4917,7 @@ CREATE TABLE "WorkflowSteps" (
 );
 
 
-ALTER TABLE "WorkflowSteps" OWNER TO indabauser;
+ALTER TABLE "WorkflowSteps" OWNER TO indaba;
 
 --
 -- TOC entry 397 (class 1259 OID 1601666)
@@ -4933,7 +4932,7 @@ CREATE SEQUENCE "Workflows_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Workflows_id_seq" OWNER TO indabauser;
+ALTER TABLE "Workflows_id_seq" OWNER TO indaba;
 
 --
 -- TOC entry 440 (class 1259 OID 1602059)
@@ -4949,7 +4948,7 @@ CREATE TABLE "Workflows" (
 );
 
 
-ALTER TABLE "Workflows" OWNER TO indabauser;
+ALTER TABLE "Workflows" OWNER TO indaba;
 
 --
 -- TOC entry 398 (class 1259 OID 1601668)
@@ -4964,7 +4963,7 @@ CREATE SEQUENCE brand_id_seq
     CACHE 1;
 
 
-ALTER TABLE brand_id_seq OWNER TO indabauser;
+ALTER TABLE brand_id_seq OWNER TO indaba;
 
 --
 -- TOC entry 399 (class 1259 OID 1601670)
@@ -4979,7 +4978,7 @@ CREATE SEQUENCE country_id_seq
     CACHE 1;
 
 
-ALTER TABLE country_id_seq OWNER TO indabauser;
+ALTER TABLE country_id_seq OWNER TO indaba;
 
 --
 -- TOC entry 400 (class 1259 OID 1601672)
@@ -4994,7 +4993,7 @@ CREATE SEQUENCE order_id_seq
     CACHE 1;
 
 
-ALTER TABLE order_id_seq OWNER TO indabauser;
+ALTER TABLE order_id_seq OWNER TO indaba;
 
 --
 -- TOC entry 401 (class 1259 OID 1601674)
@@ -5009,7 +5008,7 @@ CREATE SEQUENCE transport_id_seq
     CACHE 1;
 
 
-ALTER TABLE transport_id_seq OWNER TO indabauser;
+ALTER TABLE transport_id_seq OWNER TO indaba;
 
 --
 -- TOC entry 402 (class 1259 OID 1601676)
@@ -5024,7 +5023,7 @@ CREATE SEQUENCE transportmodel_id_seq
     CACHE 1;
 
 
-ALTER TABLE transportmodel_id_seq OWNER TO indabauser;
+ALTER TABLE transportmodel_id_seq OWNER TO indaba;
 
 SET search_path = public, pg_catalog;
 
@@ -7925,6 +7924,8 @@ ALTER TABLE ONLY "SurveyQuestionOptions"
 --
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM sean;
+GRANT ALL ON SCHEMA public TO sean;
 GRANT ALL ON SCHEMA public TO indabauser;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
