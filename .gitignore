@@ -9,4 +9,3 @@ backend/db_setup/local/
 npm-debug.log
 *.DS_Store
 .vscode
-*.yaml

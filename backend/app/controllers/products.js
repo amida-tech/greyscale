@@ -1492,6 +1492,8 @@ function* updateCurrentStepId(req) {
     var product = yield * common.getEntity(req, req.params.id, Product, 'id');
     var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
 
+    console.log(product.status);
+
     // start-restart project -> set isComplete flag to false for all subjects
     if (product.status !== 2) { // not suspended
         yield thunkQuery(
