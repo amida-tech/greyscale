@@ -70,7 +70,7 @@ module.exports = {
             );
 
             if (!_.first(tasks)) {
-                throw new HttpError(403, 'No tasks found');
+                throw new HttpError(403, 'Not found');
             }
 
             /*
