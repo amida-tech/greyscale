@@ -8,6 +8,7 @@ var
     Workflow = require('../models/workflows'),
     EssenceRole = require('../models/essence_roles'),
     WorkflowStep = require('../models/workflow_steps'),
+    Discussions = require('../models/discussions'),
     UOA = require('../models/uoas'),
     Task = require('../models/tasks'),
     Survey = require('../models/surveys'),
@@ -36,6 +37,65 @@ module.exports = {
                     //.on(Product.id.equals(Workflow.productId))
                 )
             );
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    /**
+     * Retrieves and returns a task from the task table with its associated discussions
+     * @param {Object} req - Request object
+     * @param {Object} res - Response object
+     * @param {Function} next - Express next middleware function
+     * @return {Object} Task object with corresponding discussions
+     */
+    selectOneWithDiscussions: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            var tasks = yield thunkQuery(
+                Task
+                .select(
+                    Task.star(),
+                    'row_to_json("Discussions" .*) as flaggeddiscussion'
+                )
+                .from(
+                    Task
+                    .leftJoin(Discussions)
+                    .on(Discussions.taskId.equals(req.params.id))
+                )
+                .where(Task.id.equals(req.params.id))
+                .and(Discussions.isResolve.equals(false))
+                .and(Discussions.activated.equals(true)
+                    .or(Discussions.isReturn.equals(true))
+                )
+                .group(Discussions.id, Task.id)
+            );
+
+            if (!_.first(tasks)) {
+                throw new HttpError(403, 'Not found');
+            }
+
+            /*
+             Aggregating the discussions from the returned tasks list into one list and adding that list as a
+             key to the first task in the tasks list.
+            */
+            var flaggedDiscussions = [];
+            for (var i = 0; i < tasks.length; i++) {
+                if (tasks[i].flaggeddiscussion) {
+                    flaggedDiscussions.push(tasks[i].flaggeddiscussion);
+                }
+            }
+
+            // Renaming flaggeddiscussion to flaggedDiscussions since its now a list of flagged discussions
+            tasks[0]['flaggeddiscussion'] = flaggedDiscussions;
+            tasks[0]['flaggedDiscussions'] = tasks[0]['flaggeddiscussion'];
+            delete tasks[0]['flaggeddiscussion'];
+
+            // return only the first task since it has all the discussions associated with the taskId passed in
+            return _.first(tasks);
+
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -117,6 +177,8 @@ module.exports = {
                     .on(
                         ProductUOA.currentStepId.equals(WorkflowStep.as(curStepAlias).id)
                     )
+                    .leftJoin(Discussions)
+                    .on(Discussions.taskId.equals(req.params.id))
                 )
                 .where(Task.id.equals(req.params.id))
             );

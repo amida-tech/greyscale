@@ -205,6 +205,9 @@ router.route('/:realm/v0.2/tasks/:id')
     .put(authenticate('token').always, jsonParser, tasks.updateOne)
     .delete(authenticate('token').always, tasks.delete);
 
+router.route('/:realm/v0.2/tasks-with-discussions/:id')
+    .get(authenticate('token').always, tasks.selectOneWithDiscussions);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    TRANSLATIONS
 //----------------------------------------------------------------------------------------------------------------------
