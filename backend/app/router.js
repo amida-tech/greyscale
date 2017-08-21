@@ -207,7 +207,7 @@ router.route('/:realm/v0.2/tasks/:id')
     .delete(authenticate('jwt').always, tasks.delete);
 
 router.route('/:realm/v0.2/tasks-with-discussions/:id')
-    .get(authenticate('token').always, tasks.selectOneWithDiscussions);
+    .get(authenticate('jwt').always, tasks.selectOneWithDiscussions);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    TRANSLATIONS
