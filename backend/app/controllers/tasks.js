@@ -45,56 +45,58 @@ module.exports = {
     },
 
     /**
-     * Retrieves and returns a task from the task table with its associated discussions
+     * Retrieves and returns a list of tasks and their associated discussions using a given project ID
      * @param {Object} req - Request object
      * @param {Object} res - Response object
      * @param {Function} next - Express next middleware function
-     * @return {Object} Task object with corresponding discussions
+     * @return {List} List of tasks with corresponding discussions
      */
-    selectOneWithDiscussions: function (req, res, next) {
+    getTasksByProjectId: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var tasks = yield thunkQuery(
                 Task
                 .select(
-                    Task.star(),
-                    'row_to_json("Discussions" .*) as flaggeddiscussion'
+                    Task.star()
                 )
                 .from(
                     Task
-                    .leftJoin(Discussions)
-                    .on(Discussions.taskId.equals(req.params.id))
+                    .leftJoin(Product)
+                    .on(Product.id.equals(Task.productId))
+                    .leftJoin(Project)
+                    .on(Project.id.equals(Product.projectId))
                 )
-                .where(Task.id.equals(req.params.id))
-                .and(Discussions.isResolve.equals(false))
-                .and(Discussions.activated.equals(true)
-                    .or(Discussions.isReturn.equals(true))
-                )
-                .group(Discussions.id, Task.id)
+                .where(Project.id.equals(req.params.id))
             );
 
             if (!_.first(tasks)) {
-                throw new HttpError(403, 'Not found');
+                throw new HttpError(403, 'No tasks found');
             }
 
             /*
-             Aggregating the discussions from the returned tasks list into one list and adding that list as a
-             key to the first task in the tasks list.
+             Retrieve the discussion(s) for each task and if it exist add it as a new key to
+             the corresponding task object as a
             */
-            var flaggedDiscussions = [];
             for (var i = 0; i < tasks.length; i++) {
-                if (tasks[i].flaggeddiscussion) {
-                    flaggedDiscussions.push(tasks[i].flaggeddiscussion);
+                var flaggedDiscussions = yield thunkQuery(
+                    Discussions
+                        .select(
+                            Discussions.star()
+                        )
+                        .from(Discussions)
+                        .where(Discussions.taskId.equals(tasks[i].id))
+                        .and(Discussions.isResolve.equals(false))
+                        .and(Discussions.activated.equals(true)
+                            .or(Discussions.isReturn.equals(true))
+                        )
+                );
+
+                if (_.first(flaggedDiscussions)) {
+                    tasks[i].flaggedDiscussions = flaggedDiscussions;
                 }
             }
 
-            // Renaming flaggeddiscussion to flaggedDiscussions since its now a list of flagged discussions
-            tasks[0]['flaggeddiscussion'] = flaggedDiscussions;
-            tasks[0]['flaggedDiscussions'] = tasks[0]['flaggeddiscussion'];
-            delete tasks[0]['flaggeddiscussion'];
-
-            // return only the first task since it has all the discussions associated with the taskId passed in
-            return _.first(tasks);
+            return tasks;
 
         }).then(function (data) {
             res.json(data);
