@@ -1,3 +1,5 @@
+'use strict';
+
 var
     _ = require('underscore'),
     auth = require('../auth'),
@@ -144,6 +146,29 @@ module.exports = {
 
             var selectQuery = selectFields + selectFrom + selectWhere + selectOrder;
             return yield thunkQuery(selectQuery);
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    getByTaskID: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            var discussions = yield thunkQuery(
+                Discussion
+                .select(
+                    Discussion.star()
+                )
+                .from(Discussion).where(Discussion.taskId.equals(req.params.id))
+            );
+
+            if (!_.first(discussions)) {
+                throw new HttpError(403, 'Not found');
+            }
+
+            return discussions;
         }).then(function (data) {
             res.json(data);
         }, function (err) {
