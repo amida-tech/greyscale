@@ -92,7 +92,9 @@ module.exports = {
                 );
 
                 if (_.first(flaggedDiscussions)) {
-                    tasks[i].flaggedDiscussions = flaggedDiscussions;
+                    tasks[i].isFlagged = true;
+                } else {
+                    tasks[i].isFlagged = false;
                 }
             }
 
