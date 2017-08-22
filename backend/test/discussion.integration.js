@@ -160,6 +160,21 @@ describe('discussion integration', function surveyIntegration() {
         workflowIndex: 0,
         stepIndex: 1,
     }));
+
+    it('create discussion 0 from admin to task 0 step 1', tests.createDiscussionFn({
+        questionIndex: 1,
+        taskIndex: 0,
+        workflowIndex: 0,
+        stepIndex: 1,
+    }));
+
+    it('create discussion 0 from admin to task 0 step 1', tests.createDiscussionFn({
+        questionIndex: 2,
+        taskIndex: 0,
+        workflowIndex: 0,
+        stepIndex: 1,
+    }));
+
     it('get discussion 0 entry scope', tests.getDiscussionEntryScopeFn(0, { canUpdate: false }));
     it('update discussion 0', tests.updateDiscussionFn(0))
     it('get discussion 0 entry scope', tests.getDiscussionEntryScopeFn(0, { canUpdate: false }));
