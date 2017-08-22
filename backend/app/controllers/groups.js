@@ -51,19 +51,16 @@ module.exports = {
             if (!req.body.title) {
                 throw new HttpError(400, 'Title is required');
             }
-            if (!req.body.users || req.body.users.length === 0) {
-                throw new HttpError(400, 'Requires an array of userIds');
-            }
             var objToInsert = {
                 organizationId: req.params.organizationId,
                 title: req.body.title
             };
             var groupResult = yield thunkQuery(Group.insert(objToInsert).returning(Group.id));
-
-            var groupId = _.first(groupResult).id;
-            var insertArr = _.map(req.body.users, (userId) => ({userId, groupId}));
-            yield thunkQuery(UserGroup.insert(insertArr));
-
+            if (req.body.users){
+                var groupId = _.first(groupResult).id;
+                var insertArr = _.map(req.body.users, (userId) => ({userId, groupId}));
+                yield thunkQuery(UserGroup.insert(insertArr));
+            }
             return groupResult;
         }).then(function (data) {
             bologger.log({
