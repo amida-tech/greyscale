@@ -8,6 +8,7 @@ var
     Workflow = require('../models/workflows'),
     EssenceRole = require('../models/essence_roles'),
     WorkflowStep = require('../models/workflow_steps'),
+    Discussions = require('../models/discussions'),
     UOA = require('../models/uoas'),
     Task = require('../models/tasks'),
     Survey = require('../models/surveys'),
@@ -36,6 +37,69 @@ module.exports = {
                     //.on(Product.id.equals(Workflow.productId))
                 )
             );
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    /**
+     * Retrieves and returns a list of tasks and their associated discussions using a given project ID
+     * @param {Object} req - Request object
+     * @param {Object} res - Response object
+     * @param {Function} next - Express next middleware function
+     * @return {List} List of tasks with corresponding discussions
+     */
+    getTasksByProjectId: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            var tasks = yield thunkQuery(
+                Task
+                .select(
+                    Task.star()
+                )
+                .from(
+                    Task
+                    .leftJoin(Product)
+                    .on(Product.id.equals(Task.productId))
+                    .leftJoin(Project)
+                    .on(Project.id.equals(Product.projectId))
+                )
+                .where(Project.id.equals(req.params.id))
+            );
+
+            if (!_.first(tasks)) {
+                throw new HttpError(403, 'Not found');
+            }
+
+            /*
+             Retrieve the discussion(s) for each task and if it exist add it as a new key to
+             the corresponding task object as a
+            */
+            for (var i = 0; i < tasks.length; i++) {
+                var flaggedDiscussions = yield thunkQuery(
+                    Discussions
+                        .select(
+                            Discussions.star()
+                        )
+                        .from(Discussions)
+                        .where(Discussions.taskId.equals(tasks[i].id))
+                        .and(Discussions.isResolve.equals(false))
+                        .and(Discussions.activated.equals(true)
+                            .or(Discussions.isReturn.equals(true))
+                        )
+                );
+
+                if (_.first(flaggedDiscussions)) {
+                    tasks[i].isFlagged = true;
+                } else {
+                    tasks[i].isFlagged = false;
+                }
+            }
+
+            return tasks;
+
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -117,6 +181,8 @@ module.exports = {
                     .on(
                         ProductUOA.currentStepId.equals(WorkflowStep.as(curStepAlias).id)
                     )
+                    .leftJoin(Discussions)
+                    .on(Discussions.taskId.equals(req.params.id))
                 )
                 .where(Task.id.equals(req.params.id))
             );

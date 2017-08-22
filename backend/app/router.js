@@ -206,6 +206,9 @@ router.route('/:realm/v0.2/tasks/:id')
     .put(authenticate('jwt').always, jsonParser, tasks.updateOne)
     .delete(authenticate('jwt').always, tasks.delete);
 
+router.route('/:realm/v0.2/tasks-by-proj-id/:id')
+    .get(authenticate('jwt').always, tasks.getTasksByProjectId);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    TRANSLATIONS
 //----------------------------------------------------------------------------------------------------------------------
