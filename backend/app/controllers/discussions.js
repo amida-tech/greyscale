@@ -156,18 +156,19 @@ module.exports = {
     getByTaskID: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+            var taskId = req.params.id;
             var discussions = yield thunkQuery(
-                Discussion
-                .select(
-                    Discussion.star()
-                )
-                .from(Discussion).where(Discussion.taskId.equals(req.params.id))
+                '( ' +
+                'SELECT ' +
+                '"Discussions".* ' +
+                'FROM "Discussions" ' +
+                'WHERE "Discussions"."taskId" = ' + taskId +
+                'ORDER BY "Discussions"."order", "Discussions"."created" ' +
+                ') '
             );
-
             if (!_.first(discussions)) {
                 throw new HttpError(403, 'Not found');
             }
-
             return discussions;
         }).then(function (data) {
             res.json(data);
