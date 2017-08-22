@@ -2781,6 +2781,7 @@ CREATE TABLE "Tasks" (
     "endDate" timestamp with time zone,
     "userId" integer,
     "langId" integer,
+    "isComplete" boolean DEFAULT false NOT NULL,
     "userIds" integer[],
     "groupIds" integer[]
 );
@@ -4366,6 +4367,7 @@ CREATE TABLE "Tasks" (
     "endDate" timestamp with time zone,
     "userId" integer,
     "langId" integer,
+    "isComplete" boolean DEFAULT false NOT NULL,
     "userIds" integer[],
     "groupIds" integer[]
 );
