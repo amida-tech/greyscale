@@ -292,6 +292,7 @@ const comparator = {
         expected.id = server.id;
         this.addNull(expected, server);
         expected.created = this.timestamp(server, 'created');
+        expected.isComplete = server.isComplete;
         if (!listView) {
             expected.flagged = expected.flagged || false;
             expected.flaggedcount = expected.flaggedcount || "0";
