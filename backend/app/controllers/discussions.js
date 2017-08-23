@@ -169,7 +169,26 @@ module.exports = {
             if (!_.first(discussions)) {
                 throw new HttpError(403, 'Not found');
             }
-            return discussions;
+
+            var questionsAndDiscussionsList = [];
+            var questionsAndDiscussionsDict = {};
+
+            for (var i = 0; i < discussions.length; i++) {
+                if (!(discussions[i].questionId in questionsAndDiscussionsDict)) {
+                    questionsAndDiscussionsDict[discussions[i].questionId] = [discussions[i]];
+                } else {
+                    questionsAndDiscussionsDict[discussions[i].questionId].push(discussions[i]);
+                }
+            }
+
+            for (var questionId in questionsAndDiscussionsDict) {
+                if (questionsAndDiscussionsDict.hasOwnProperty(questionId)) {
+                    questionsAndDiscussionsList.push({[questionId]: questionsAndDiscussionsDict[questionId]});
+                }
+            }
+
+            return questionsAndDiscussionsList;
+
         }).then(function (data) {
             res.json(data);
         }, function (err) {
