@@ -183,7 +183,10 @@ module.exports = {
 
             for (var questionId in questionsAndDiscussionsDict) {
                 if (questionsAndDiscussionsDict.hasOwnProperty(questionId)) {
-                    questionsAndDiscussionsList.push({[questionId]: questionsAndDiscussionsDict[questionId]});
+                    questionsAndDiscussionsList.push({
+                        questionId,
+                        'comments': questionsAndDiscussionsDict[questionId]
+                    });
                 }
             }
 
@@ -850,8 +853,8 @@ function* getCurrentStep(req, taskId) {
 function* updateReturnTask(req, discussionId) {
     var thunkQuery = req.thunkQuery;
     var res = yield thunkQuery(Discussion.update({
-            isResolve: true
-        })
+        isResolve: true
+    })
         .where(Discussion.id.equals(discussionId))
         .returning(Discussion.id)
     );
