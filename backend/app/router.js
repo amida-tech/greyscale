@@ -422,6 +422,8 @@ var discussions = require('./controllers/discussions');
 router.route('/:realm/v0.2/discussions')
     .get(authenticate('jwt').always, discussions.select)
     .post(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ discussions.insertOne);
+router.route('/:realm/v0.2/discussions/getByTaskId/:id')
+    .get(authenticate('jwt').always, discussions.getByTaskID);
 router.route('/:realm/v0.2/discussions/users/:taskId')
     .get(authenticate('jwt').always, discussions.getUsers);
 router.route('/:realm/v0.2/discussions/entryscope')

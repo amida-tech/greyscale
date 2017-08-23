@@ -1,3 +1,5 @@
+'use strict';
+
 var
     _ = require('underscore'),
     auth = require('../auth'),
@@ -144,6 +146,52 @@ module.exports = {
 
             var selectQuery = selectFields + selectFrom + selectWhere + selectOrder;
             return yield thunkQuery(selectQuery);
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    getByTaskID: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            var taskId = req.params.id;
+            var discussions = yield thunkQuery(
+                '( ' +
+                'SELECT ' +
+                '"Discussions".* ' +
+                'FROM "Discussions" ' +
+                'WHERE "Discussions"."taskId" = ' + taskId +
+                'ORDER BY "Discussions"."order", "Discussions"."created" ' +
+                ') '
+            );
+            if (!_.first(discussions)) {
+                throw new HttpError(403, 'Not found');
+            }
+
+            var questionsAndDiscussionsList = [];
+            var questionsAndDiscussionsDict = {};
+
+            for (var i = 0; i < discussions.length; i++) {
+                if (!(discussions[i].questionId in questionsAndDiscussionsDict)) {
+                    questionsAndDiscussionsDict[discussions[i].questionId] = [discussions[i]];
+                } else {
+                    questionsAndDiscussionsDict[discussions[i].questionId].push(discussions[i]);
+                }
+            }
+
+            for (var questionId in questionsAndDiscussionsDict) {
+                if (questionsAndDiscussionsDict.hasOwnProperty(questionId)) {
+                    questionsAndDiscussionsList.push({
+                        questionId,
+                        'comments': questionsAndDiscussionsDict[questionId]
+                    });
+                }
+            }
+
+            return questionsAndDiscussionsList;
+
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -805,8 +853,8 @@ function* getCurrentStep(req, taskId) {
 function* updateReturnTask(req, discussionId) {
     var thunkQuery = req.thunkQuery;
     var res = yield thunkQuery(Discussion.update({
-            isResolve: true
-        })
+        isResolve: true
+    })
         .where(Discussion.id.equals(discussionId))
         .returning(Discussion.id)
     );
