@@ -160,6 +160,7 @@ describe('discussion integration', function surveyIntegration() {
         workflowIndex: 0,
         stepIndex: 1,
     }));
+
     it('get discussion 0 entry scope', tests.getDiscussionEntryScopeFn(0, { canUpdate: false }));
     it('update discussion 0', tests.updateDiscussionFn(0))
     it('get discussion 0 entry scope', tests.getDiscussionEntryScopeFn(0, { canUpdate: false }));
