@@ -55,7 +55,13 @@ module.exports = {
                 organizationId: req.params.organizationId,
                 title: req.body.title
             };
-            return yield thunkQuery(Group.insert(objToInsert).returning(Group.id));
+            var groupResult = yield thunkQuery(Group.insert(objToInsert).returning(Group.id));
+            if (req.body.users){
+                var groupId = _.first(groupResult).id;
+                var insertArr = _.map(req.body.users, (userId) => ({userId, groupId}));
+                yield thunkQuery(UserGroup.insert(insertArr));
+            }
+            return groupResult;
         }).then(function (data) {
             bologger.log({
                 req: req,
