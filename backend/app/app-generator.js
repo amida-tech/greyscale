@@ -28,7 +28,7 @@ const initExpress = function (app) {
         // Start server
         var server = app.listen(process.env.PORT || config.port || 3000, function () {
             logger.debug('Listening on port ' + server.address().port);
-            console.log('starting server..'); // need for background test server
+            console.log('ok, server is running!'); // need for background test server
         });
 
         require('./socket/socket-controller.server').init(server);
