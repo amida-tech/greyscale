@@ -68,6 +68,7 @@ module.exports = {
                                     .on(User.organizationId.equals(projects[i].organizationId))
                             )
                             .where(User.roleID.notEquals(1))
+                            .and(Project.id.equals(projects[i].id))
                     );
 
                     var stages = yield thunkQuery(
@@ -94,6 +95,9 @@ module.exports = {
                         if (stages[index].workflowId && !(workflowIDs.indexOf(stages[index].workflowId) >= 0)) {
                             workflowIDs.push(stages[index].workflowId);
                         }
+                        if (!stages[index].usergroups[0]) {
+                            stages[index].usergroups = [];
+                        }
                     }
 
                     var productId = yield thunkQuery(
@@ -118,9 +122,7 @@ module.exports = {
                     );
 
                     userGroups.map((userGroupObject) =>  {
-                        var users = userGroupObject.users.map((user) => {
-                            return user.id;
-                        });
+                        var users = userGroupObject.users.map((user) => user.id);
                         userGroupObject.users = users;
                         return userGroupObject;
                     });
