@@ -208,10 +208,10 @@ module.exports = {
                     });
                 }
                 var insertGroupObjs = [];
-                for (var groupIndex in req.body[i].usergroupId) {
+                for (var groupIndex in req.body[i].userGroups) {
                     insertGroupObjs.push({
                         stepId: req.body[i].id,
-                        groupId: req.body[i].usergroupId[groupIndex]
+                        groupId: req.body[i].userGroups[groupIndex]
                     });
                 }
                 debug(insertGroupObjs);
@@ -228,10 +228,38 @@ module.exports = {
                     });
                 }
             }
+            // var result = yield * setCurrentStepToNull(req, productId); - not required, as User could require to adjust certain Step's permissions for running Project
 
-            var deleteIds = _.difference(relIds, passedIds);
+            return {
+                updated: updatedIds,
+                inserted: insertIds
+            };
 
-            for (i in deleteIds) {
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    stepsDelete: function (req, res, next) { //James - I don't know if this works yet. Only stripped it out.
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            if (!Array.isArray(req.body)) {
+                throw new HttpError(403, 'You should pass an array of workflow steps objects in request body');
+            }
+
+            var workflow = yield thunkQuery(Workflow.select().where(Workflow.id.equals(req.params.id)));
+            if (!_.first(workflow)) {
+                throw new HttpError(403, 'Workflow with id = ' + req.params.id + ' does not exist');
+            }
+
+            var rels = yield thunkQuery(WorkflowStep.select().where(WorkflowStep.workflowId.equals(req.params.id)));
+            var deleteIds = rels.map(function (value) {
+                return value.id;
+            });
+
+            for (var i in deleteIds) {
                 yield thunkQuery(WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(deleteIds[i])));
                 bologger.log({
                     req: req,
@@ -254,12 +282,8 @@ module.exports = {
                 });
             }
 
-            // var result = yield * setCurrentStepToNull(req, productId); - not required, as User could require to adjust certain Step's permissions for running Project
-
             return {
                 deleted: deleteIds,
-                updated: updatedIds,
-                inserted: insertIds
             };
 
         }).then(function (data) {
@@ -267,10 +291,8 @@ module.exports = {
         }, function (err) {
             next(err);
         });
-
-    }
-
-};
+    },
+}
 
 function* checkData(req) {
     var thunkQuery = req.thunkQuery;

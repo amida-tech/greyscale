@@ -46,7 +46,6 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         var projectList = [];
         var aggregateObject = {};
-        var workflowIDs = [];
 
         co(function* () {
             var projects = yield thunkQuery(Project.select().from(Project), req.query);
@@ -75,7 +74,7 @@ module.exports = {
                         WorkflowSteps
                             .select(
                                 WorkflowSteps.star(),
-                                'array_agg(row_to_json("WorkflowStepGroups" .*)) as userGroups'
+                                'array_agg(row_to_json("WorkflowStepGroups" .*)) as "userGroups"'
                             )
                             .from(
                                 WorkflowSteps
@@ -92,16 +91,19 @@ module.exports = {
 
                     // Add unique workflowID's to a new list
                     for (var index = 0; index < stages.length; index++) {
-                        if (stages[index].workflowId && !(workflowIDs.indexOf(stages[index].workflowId) >= 0)) {
-                            workflowIDs.push(stages[index].workflowId);
-                        }
-                        if (!stages[index].usergroups[0]) {
-                            stages[index].usergroups = [];
+                        if (!stages[index].userGroups[0]) {
+                            stages[index].userGroups = [];
+                        } else {
+                            stages[index].userGroups = _.map(stages[index].userGroups, 'groupId');
                         }
                     }
 
-                    var productId = yield thunkQuery(
+                    var productId = _.first(_.map((yield thunkQuery(
                         Product.select(Product.id).from(Product).where(Product.projectId.equals(projects[i].id))
+                    )), 'id'));
+
+                    var workflowId = yield thunkQuery(
+                        Workflow.select(Workflow.id).from(Workflow).where(Workflow.productId.equals(productId))
                     );
 
                     var userGroups = yield thunkQuery(
@@ -150,8 +152,8 @@ module.exports = {
                     aggregateObject.stages = stages;
                     aggregateObject.userGroups = userGroups;
                     aggregateObject.subjects = _.map(subjects, 'name');
-                    aggregateObject.workflowIDs = workflowIDs;
-                    aggregateObject.productId = _.first(_.map(productId, 'id'));
+                    aggregateObject.productId = productId;
+                    aggregateObject.workflowId = _.first(_.map(workflowId, 'id'));
                 }
                 projectList.push(aggregateObject);
             }
