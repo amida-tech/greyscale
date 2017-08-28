@@ -209,6 +209,9 @@ router.route('/:realm/v0.2/tasks/:id')
 router.route('/:realm/v0.2/tasks-by-proj-id/:id')
     .get(authenticate('jwt').always, tasks.getTasksByProjectId);
 
+router.route('/:realm/v0.2/tasks-by-user-id/:id')
+    .get(authenticate('jwt').always, tasks.getTasksByUserId);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    TRANSLATIONS
 //----------------------------------------------------------------------------------------------------------------------
