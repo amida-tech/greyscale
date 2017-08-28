@@ -172,7 +172,7 @@ module.exports = {
                 var subjects = yield thunkQuery(
                     UnitOfAnalysis
                         .select(
-                            UnitOfAnalysis.name
+                            UnitOfAnalysis.name, UnitOfAnalysis.id
                         )
                         .from(
                             UnitOfAnalysis
@@ -191,7 +191,7 @@ module.exports = {
                 aggregateObject.users = _.map(userList, 'id');
                 aggregateObject.stages = stages;
                 aggregateObject.userGroups = userGroups;
-                aggregateObject.subjects = _.map(subjects, 'name');
+                aggregateObject.subjects = subjects;
                 aggregateObject.productId = productId;
                 aggregateObject.workflowId = _.first(_.map(workflowId, 'id'));
             }
