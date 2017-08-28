@@ -68,6 +68,10 @@ module.exports = {
                         status: projects[i].status,
                         productId,
                         workflowId: _.first(_.map(workflowId, 'id')),
+                        users: [],
+                        stages: [],
+                        userGroups: [],
+                        subjects: [],
                     });
                 }
             }
@@ -92,8 +96,7 @@ module.exports = {
                 throw new HttpError(500, 'Multiple projects found');
             } else {
                 project = project[0];
-                    // List of users that belong to the organization of a particular project
-                var userList = yield thunkQuery(
+                var userList = yield thunkQuery( // List of users that belong to the organization of a particular project
                     User
                         .select(
                             User.id
