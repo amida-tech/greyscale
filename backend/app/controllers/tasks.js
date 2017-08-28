@@ -51,6 +51,9 @@ module.exports = {
     getTasksByProjectId: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+
+            //TODO: Check if projects with given id exists first
+
             var tasks = yield thunkQuery(
                 Task
                 .select(
@@ -115,20 +118,19 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
 
-            // var userExist = yield thunkQuery(
-            //     '(' +
-            //     'SELECT ' +
-            //     '"Users"."id" ' +
-            //     'FROM "Users" ' +
-            //     'WHERE "Users"."id" = ' + req.params.id +
-            //     ') '
-            // );
-            //
-            // console.log('USER EXIST ' + userExist);
-            //
-            // if (!userExist) {
-            //     throw new HttpError(403, 'User Not found');
-            // }
+            // Check if user exist
+            var user = yield thunkQuery(
+                '(' +
+                'SELECT ' +
+                '"Users"."id" ' +
+                'FROM "Users" ' +
+                'WHERE "Users"."id" = ' + req.params.id +
+                ') '
+            );
+
+            if (!_.first(user)) {
+                throw new HttpError(403, 'User Not found');
+            }
 
             var tasks = yield thunkQuery(
                 Task
