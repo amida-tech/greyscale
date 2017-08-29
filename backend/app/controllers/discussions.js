@@ -291,6 +291,55 @@ module.exports = {
         });
     },
 
+    /**
+     * Checks if a discussion exists and marks it as resolved
+     * @param {Object} req - Request object
+     * @param {Object} res - Response object
+     * @param {Function} next - Express next middleware function
+     * @return {Object} A json object with either a success or error message
+     */
+    markAsResolved: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+
+            // Check if there is a record matching the passed in discussion ID
+            var discussionExist = yield thunkQuery(
+                '( ' +
+                'SELECT count(1) ' +
+                'FROM "Discussions" ' +
+                'WHERE "Discussions"."id" = ' + req.params.id +
+                ') '
+            );
+
+            if (parseInt(discussionExist['0'].count) === 1) {
+                return yield thunkQuery(
+                    Discussion.update({
+                        isResolve: true
+                    }).where(
+                        Discussion.id.equals(req.params.id)
+                    )
+                );
+            } else {
+                throw new HttpError(403, 'Discussion not found');
+            }
+        }).then(function (data) {
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'update',
+                object: 'discussions',
+                entity: req.params.id,
+                info: 'Resolve Discussion'
+            });
+            res.status(202).json({
+                'data': data,
+                'message': 'Discussion marked as resolved'
+            });
+        }, function (err) {
+            next(err);
+        });
+    },
+
     updateOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
