@@ -69,7 +69,7 @@ router.route('/:realm/v0.2/essences/:id')
 var projects = require('./controllers/projects');
 
 router.route('/:realm/v0.2/projects')
-    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ projects.aggregate)
+    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ projects.listAll)
     .post(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ projects.insertOne);
 
 router.route('/:realm/v0.2/projects/:id')
@@ -402,7 +402,7 @@ router.route('/:realm/v0.2/workflows/:id')
 
 router.route('/:realm/v0.2/workflows/:id/steps')
     .get(authenticate('jwt').always, workflows.steps)
-    //.delete(authenticate('token').always, workflows.stepsDelete)
+    .delete(authenticate('token').always, workflows.stepsDelete)
     .put(authenticate('jwt').always, jsonParser, workflows.stepsUpdate);
 
 //router.route('/:realm/v0.2/workflow_steps')
