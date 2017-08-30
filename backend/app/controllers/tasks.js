@@ -135,8 +135,7 @@ module.exports = {
             var tasks = yield thunkQuery(
                 Task
                 .select(
-                    Task.star(),
-                    'array_agg(row_to_json("Projects" .id)) as project_ids'
+                    Task.star()
                 )
                 .from(
                     Task
@@ -145,8 +144,8 @@ module.exports = {
                     .leftJoin(Project)
                     .on(Project.id.equals(Product.projectId))
                 )
-                .where(Task.userId.equals(req.params.id))
-                .group(Project.id)
+                .where(Task.userIds.contains(req.params.id))
+                //.group(Project.id)
             );
 
             if (!_.first(tasks)) {

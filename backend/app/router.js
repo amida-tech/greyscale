@@ -312,7 +312,7 @@ router.route('/:realm/v0.2/users/self/tasks')
 //----------------------------------------------------------------------------------------------------------------------
 
 router.route('/:realm/v0.2/users')
-    .get(authenticate('jwt').always, checkRight('rights_view_all'), users.select)
+    .get(authenticate('jwt').always, users.select)
     .post(authenticate('jwt').ifPossible, jsonParser, users.insertOne);
 
 router.route('/:realm/v0.2/users/token')
