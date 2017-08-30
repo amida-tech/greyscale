@@ -197,10 +197,11 @@ module.exports = {
             res.status(201).json({
                 id: data.id,
                 firstName: req.body.firstName,
-                lastName: req.body.lastName,
                 email: req.body.email,
-                notifications: "OFF",
-                status: "INACTIVE",
+                lastName: req.body.lastName,
+                roleID: 3,
+                organizationId: req.body.organizationId,
+                isActive: false,
             });
         }, function (err) {
             next(err);
