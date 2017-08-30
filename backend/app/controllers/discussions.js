@@ -292,7 +292,7 @@ module.exports = {
     },
 
     /**
-     * Checks if a discussion exists and marks it as resolved
+     * Checks Mark all discussions with a given question ID as resolvedt
      * @param {Object} req - Request object
      * @param {Object} res - Response object
      * @param {Function} next - Express next middleware function
@@ -307,20 +307,20 @@ module.exports = {
                 '( ' +
                 'SELECT count(1) ' +
                 'FROM "Discussions" ' +
-                'WHERE "Discussions"."id" = ' + req.params.id +
+                'WHERE "Discussions"."questionId" = ' + req.params.id +
                 ') '
             );
 
-            if (parseInt(discussionExist['0'].count) === 1) {
+            if (parseInt(discussionExist['0'].count) > 0) {
                 return yield thunkQuery(
                     Discussion.update({
                         isResolve: true
                     }).where(
-                        Discussion.id.equals(req.params.id)
+                        Discussion.questionId.equals(req.params.id)
                     )
                 );
             } else {
-                throw new HttpError(403, 'Discussion not found');
+                throw new HttpError(403, 'No discussion matching that question ID');
             }
         }).then(function (data) {
             bologger.log({
