@@ -228,7 +228,6 @@ module.exports = {
                     });
                 }
             }
-            // var result = yield * setCurrentStepToNull(req, productId); - not required, as User could require to adjust certain Step's permissions for running Project
 
             return {
                 updated: updatedIds,
@@ -283,7 +282,7 @@ module.exports = {
             }
 
             return {
-                deleted: deleteIds,
+                deleted: deleteIds
             };
 
         }).then(function (data) {

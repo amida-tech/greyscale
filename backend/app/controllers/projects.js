@@ -49,7 +49,7 @@ module.exports = {
         co(function* () {
             var projects = yield thunkQuery(Project.select().from(Project), req.query);
 
-            if (!projects) {
+            if (!_.first(projects)) {
                 throw new HttpError(404, 'No projects found');
             } else {
                 for (var i = 0; i < projects.length; i++) {
@@ -71,7 +71,7 @@ module.exports = {
                         users: [],
                         stages: [],
                         userGroups: [],
-                        subjects: [],
+                        subjects: []
                     });
                 }
             }
@@ -90,11 +90,9 @@ module.exports = {
         co(function* () {
             var project = yield thunkQuery(Project.select().from(Project).where(Project.id.equals(req.params.id)), req.query);
 
-            if (!project) {
+            if (!_.first(project)) {
                 throw new HttpError(404, 'No project found');
-            } else if (project.length > 1) {
-                throw new HttpError(500, 'Multiple projects found');
-            } else {
+            }  else {
                 project = project[0];
                 var userList = yield thunkQuery( // List of users that belong to the organization of a particular project
                     User
@@ -203,23 +201,6 @@ module.exports = {
             next(err);
         });
     },
-
-    // selectOne: function (req, res, next) {
-    //     var thunkQuery = req.thunkQuery;
-    //
-    //     co(function* () {
-    //         var project = yield thunkQuery(Project.select().from(Project).where(Project.id.equals(req.params.id)));
-    //         if (!_.first(project)) {
-    //             throw new HttpError(404, 'Not found');
-    //         } else {
-    //             return _.first(project);
-    //         }
-    //     }).then(function (data) {
-    //         res.json(data);
-    //     }, function (err) {
-    //         next(err);
-    //     });
-    // },
 
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
