@@ -212,6 +212,9 @@ router.route('/:realm/v0.2/tasks-by-proj-id/:id')
 router.route('/:realm/v0.2/tasks-by-user-id/:id')
     .get(authenticate('jwt').always, tasks.getTasksByUserId);
 
+router.route('/:realm/v0.2/tasks-self')
+    .get(authenticate('jwt').always, tasks.getSelfTasks);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    TRANSLATIONS
 //----------------------------------------------------------------------------------------------------------------------
@@ -303,9 +306,6 @@ router.route('/:realm/v0.2/users/self/organization')
 
 router.route('/:realm/v0.2/users/self/organization/invite')
     .post(authenticate('jwt').always, jsonParser, users.selfOrganizationInvite);
-
-router.route('/:realm/v0.2/users/self/tasks')
-    .get(authenticate('jwt').always, users.tasks);
 
 //----------------------------------------------------------------------------------------------------------------------
 // USERS
