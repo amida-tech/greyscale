@@ -134,7 +134,7 @@ module.exports = {
 
             var tasks = yield thunkQuery(
                 '( '+
-                'SELECT * ' +
+                'SELECT "Tasks".*, "Products"."projectId", "Products"."surveyId" ' +
                 'FROM "Tasks" ' +
                 'LEFT JOIN "Products" ' +
                 'ON "Products"."id" = "Tasks"."productId" ' +
@@ -143,23 +143,6 @@ module.exports = {
                 'WHERE ' + req.params.id + ' = ANY("Tasks"."userIds") ' +
                 ') '
             );
-
-            // var tasks = yield thunkQuery(
-            //     Task
-            //     .select(
-            //         Task.star(),
-            //         'array_agg(row_to_json("Projects" .id)) as project_ids'
-            //     )
-            //     .from(
-            //         Task
-            //         .leftJoin(Product)
-            //         .on(Product.id.equals(Task.productId))
-            //         .leftJoin(Project)
-            //         .on(Project.id.equals(Product.projectId))
-            //     )
-            //     .where(req.params.id).in(Task.userIds.equals)
-            //     .group(Project.id)
-            // );
 
             if (!_.first(tasks)) {
                 throw new HttpError(403, 'Not found');
