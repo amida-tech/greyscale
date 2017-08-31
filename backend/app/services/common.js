@@ -391,24 +391,14 @@ exports.prepUsersForTask = prepUsersForTask;
 var getFlagsForTask = function* (req, tasks) {
     var thunkQuery = req.thunkQuery;
     for (var i = 0; i < tasks.length; i++) {
-        var flaggedDiscussions = yield thunkQuery(
-            Discussion
-                .select(
-                    Discussion.star()
-                )
-                .from(Discussion)
-                .where(Discussion.taskId.equals(tasks[i].id))
-                .and(Discussion.isResolve.equals(false))
-                .and(Discussion.activated.equals(true)
-                    .or(Discussion.isReturn.equals(true))
-                )
+        var flaggedChat = yield thunkQuery(
+            'SELECT COUNT(dc."questionId") FROM (SELECT DISTINCT ' +
+            '"Discussions"."questionId" FROM "Discussions" WHERE ' +
+            '"Discussions"."taskId" = ' + tasks[i].id + ' AND ' +
+            '"Discussions"."isResolve" = false GROUP BY ' +
+            '"Discussions"."questionId") as dc;'
         );
-
-        if (_.first(flaggedDiscussions)) {
-            tasks[i].isFlagged = true;
-        } else {
-            tasks[i].isFlagged = false;
-        }
+        tasks[i].flagCount = parseInt(flaggedChat[0].count);
     }
     return tasks;
 }

@@ -69,12 +69,12 @@ module.exports = {
                 .where(Project.id.equals(req.params.id))
             );
 
+            // Should this really throw an error if there are no tasks? It's not a big deal.
             if (!_.first(tasks)) {
                 throw new HttpError(403, 'Not found');
             }
 
             return yield * common.getFlagsForTask(req, tasks);
-
         }).then(function (data) {
             res.json(data);
         }, function (err) {
