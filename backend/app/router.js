@@ -207,7 +207,10 @@ router.route('/:realm/v0.2/tasks/:id')
     .delete(authenticate('jwt').always, tasks.delete);
 
 router.route('/:realm/v0.2/tasks-by-proj-id/:id')
-    .get(authenticate('jwt').always, tasks.getTasksByProjectId);
+    .get(authenticate('jwt').always, checkRight('rights_view_all'), tasks.getTasksByProjectId);
+
+router.route('/:realm/v0.2/tasks-by-user-id/:id')
+    .get(authenticate('jwt').always, tasks.getTasksByUserId);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    TRANSLATIONS
@@ -309,7 +312,7 @@ router.route('/:realm/v0.2/users/self/tasks')
 //----------------------------------------------------------------------------------------------------------------------
 
 router.route('/:realm/v0.2/users')
-    .get(authenticate('jwt').always, checkRight('rights_view_all'), users.select)
+    .get(authenticate('jwt').always, users.select)
     .post(authenticate('jwt').ifPossible, jsonParser, users.insertOne);
 
 router.route('/:realm/v0.2/users/token')

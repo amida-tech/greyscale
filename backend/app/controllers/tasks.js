@@ -5,13 +5,10 @@ var
     common = require('../services/common'),
     Product = require('../models/products'),
     Project = require('../models/projects'),
-    Workflow = require('../models/workflows'),
-    EssenceRole = require('../models/essence_roles'),
     WorkflowStep = require('../models/workflow_steps'),
     Discussions = require('../models/discussions'),
-    UOA = require('../models/uoas'),
     Task = require('../models/tasks'),
-    Survey = require('../models/surveys'),
+    User = require('../models/users'),
     co = require('co'),
     Query = require('../util').Query,
     query = new Query(),
@@ -54,6 +51,9 @@ module.exports = {
     getTasksByProjectId: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+
+            //TODO: Check if projects with given id exists first
+
             var tasks = yield thunkQuery(
                 Task
                 .select(
@@ -96,6 +96,56 @@ module.exports = {
                 } else {
                     tasks[i].isFlagged = false;
                 }
+            }
+
+            return tasks;
+
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    /**
+     * Retrieves and returns a list of tasks and their associated project id's using a given user ID
+     * @param {Object} req - Request object
+     * @param {Object} res - Response object
+     * @param {Function} next - Express next middleware function
+     * @return {List} List of tasks with corresponding project ID's
+     */
+    getTasksByUserId: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+
+            // Check if user exist
+            var user = yield thunkQuery(
+                '(' +
+                'SELECT ' +
+                '"Users"."id" ' +
+                'FROM "Users" ' +
+                'WHERE "Users"."id" = ' + req.params.id +
+                ') '
+            );
+
+            if (!_.first(user)) {
+                throw new HttpError(403, 'User Not found');
+            }
+
+            var tasks = yield thunkQuery(
+                '( '+
+                'SELECT "Tasks".*, "Products"."projectId", "Products"."surveyId" ' +
+                'FROM "Tasks" ' +
+                'LEFT JOIN "Products" ' +
+                'ON "Products"."id" = "Tasks"."productId" ' +
+                'LEFT JOIN "Projects" ' +
+                'ON "Projects"."id" = "Products"."id" ' +
+                'WHERE ' + req.params.id + ' = ANY("Tasks"."userIds") ' +
+                ') '
+            );
+
+            if (!_.first(tasks)) {
+                throw new HttpError(403, 'Not found');
             }
 
             return tasks;

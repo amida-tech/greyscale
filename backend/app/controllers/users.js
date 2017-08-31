@@ -1116,101 +1116,14 @@ module.exports = {
     tasks: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            var curStepAlias = 'curStep';
-            var res = yield thunkQuery(
-                Task
-                .select(
-                    Task.id,
-                    Task.title,
-                    Task.description,
-                    Task.created,
-                    Task.startDate,
-                    Task.endDate,
-                    'row_to_json("UnitOfAnalysis".*) as uoa',
-                    'row_to_json("Products".*) as product',
-                    'row_to_json("Projects".*) as project',
-                    'row_to_json("Surveys".*) as survey',
-                    'row_to_json("WorkflowSteps") as step',
-                    'CASE ' +
-                    'WHEN ' +
-                    '(' +
-                    'SELECT ' +
-                    '"Discussions"."id" ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    'LIMIT 1' +
-                    ') IS NULL ' +
-                    'THEN FALSE ' +
-                    'ELSE TRUE ' +
-                    'END as flagged',
-                    '( ' +
-                    'SELECT count("Discussions"."id") ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    ') as flaggedCount',
-                    '(' +
-                    'SELECT ' +
-                    '"Discussions"."taskId" ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    'LIMIT 1' +
-                    ') as flaggedFrom',
-                    'CASE ' +
-                    'WHEN ' +
-                    '("' + curStepAlias + '"."position" > "WorkflowSteps"."position") ' +
-                    'OR ("ProductUOA"."isComplete" = TRUE) ' +
-                    'THEN \'completed\' ' +
-                    'WHEN (' +
-                    '"' + curStepAlias + '"."position" IS NULL ' +
-                    'AND ("WorkflowSteps"."position" = 0) ' +
-                    'AND ("Products"."status" = 1)' +
-                    ')' +
-                    'OR (' +
-                    '"' + curStepAlias + '"."position" = "WorkflowSteps"."position" ' +
-                    'AND ("Products"."status" = 1)' +
-                    ')' +
-                    'THEN \'current\' ' +
-                    'ELSE \'waiting\'' +
-                    'END as status '
-                )
-                .from(
-                    Task
-                    .leftJoin(UOA)
-                    .on(Task.uoaId.equals(UOA.id))
-                    .leftJoin(Product)
-                    .on(Task.productId.equals(Product.id))
-                    .leftJoin(Project)
-                    .on(Product.projectId.equals(Project.id))
-                    .leftJoin(Survey)
-                    .on(Product.surveyId.equals(Survey.id))
-                    .leftJoin(WorkflowStep)
-                    .on(Task.stepId.equals(WorkflowStep.id))
-                    .leftJoin(ProductUOA)
-                    .on(
-                        ProductUOA.productId.equals(Task.productId)
-                        .and(ProductUOA.UOAid.equals(Task.uoaId))
-                    )
-                    .leftJoin(WorkflowStep.as(curStepAlias))
-                    .on(
-                        ProductUOA.currentStepId.equals(WorkflowStep.as(curStepAlias).id)
-                    )
-                )
-                .where(
-                    Task.userIds.contains('{' + req.user.id + '}')
-                    //.and(Project.status.equals(1))
-                    .and(Product.status.equals(1))
-                ), req.query
+            var tasks = yield thunkQuery(
+                'SELECT "Tasks".*, "Products"."projectId", "Products"."surveyId" ' +
+                'FROM "Tasks" LEFT JOIN "Products" ON "Products".id = ' +
+                '"Tasks"."productId" LEFT JOIN "Projects" ON "Projects".id ' +
+                '= "Products".id WHERE ' + req.user.id + ' = ANY("Tasks"."userIds")'
             );
-            return res;
+
+            return tasks;
         }).then(function (data) {
             res.json(data);
         }, function (err) {
