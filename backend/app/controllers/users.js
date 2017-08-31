@@ -1117,19 +1117,11 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var tasks = yield thunkQuery(
-                Task
-                .select(
-                    Task.star()
-                )
-                .from(
-                    Task
-                    .leftJoin(Product)
-                    .on(Product.id.equals(Task.productId))
-                    .leftJoin(Project)
-                    .on(Project.id.equals(Product.projectId))
-                )
-                .where(Task.userIds.contains(req.user.id))
+                'SELECT * FROM "Tasks" LEFT JOIN "Products" ON "Products".id ' +
+                ' = "Tasks"."productId" LEFT JOIN "Projects" ON "Projects".id ' +
+                '= "Products".id WHERE ' + req.user.id + ' = ANY("Tasks"."userIds")'
             );
+
             return tasks;
         }).then(function (data) {
             res.json(data);
