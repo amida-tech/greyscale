@@ -133,6 +133,7 @@ module.exports = {
             }
 
             var tasks = yield thunkQuery(
+<<<<<<< HEAD
                 Task
                 .select(
                     Task.star()
@@ -146,6 +147,17 @@ module.exports = {
                 )
                 .where(Task.userIds.contains(req.params.id))
                 //.group(Project.id)
+=======
+                '( '+
+                'SELECT "Tasks".*, "Products"."projectId", "Products"."surveyId" ' +
+                'FROM "Tasks" ' +
+                'LEFT JOIN "Products" ' +
+                'ON "Products"."id" = "Tasks"."productId" ' +
+                'LEFT JOIN "Projects" ' +
+                'ON "Projects"."id" = "Products"."id" ' +
+                'WHERE ' + req.params.id + ' = ANY("Tasks"."userIds") ' +
+                ') '
+>>>>>>> bcb86fdfb61ab450b33d9863145053854e0f5ba3
             );
 
             if (!_.first(tasks)) {
