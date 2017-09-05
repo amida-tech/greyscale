@@ -73,33 +73,7 @@ module.exports = {
                 throw new HttpError(403, 'Not found');
             }
 
-            /*
-             Retrieve the discussion(s) for each task and if it exist add it as a new key to
-             the corresponding task object as a
-            */
-            for (var i = 0; i < tasks.length; i++) {
-                var flaggedDiscussions = yield thunkQuery(
-                    Discussions
-                        .select(
-                            Discussions.star()
-                        )
-                        .from(Discussions)
-                        .where(Discussions.taskId.equals(tasks[i].id))
-                        .and(Discussions.isResolve.equals(false))
-                        .and(Discussions.activated.equals(true)
-                            .or(Discussions.isReturn.equals(true))
-                        )
-                );
-
-                if (_.first(flaggedDiscussions)) {
-                    tasks[i].isFlagged = true;
-                } else {
-                    tasks[i].isFlagged = false;
-                }
-            }
-
-            return tasks;
-
+            return yield * common.getFlagsForTask(req, tasks);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -150,6 +124,31 @@ module.exports = {
 
             return tasks;
 
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    /**
+     * Retrieves and returns a list of tasks and their associated project id's
+     * using a the current user ID
+     * @param {Object} req - Request object
+     * @param {Object} res - Response object
+     * @param {Function} next - Express next middleware function
+     * @return {List} List of tasks with corresponding user's ID
+     */
+    getSelfTasks: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            var tasks = yield thunkQuery(
+                'SELECT "Tasks".*, "Products"."projectId", "Products"."surveyId" ' +
+                'FROM "Tasks" LEFT JOIN "Products" ON "Products".id = ' +
+                '"Tasks"."productId" LEFT JOIN "Projects" ON "Projects".id ' +
+                '= "Products".id WHERE ' + req.user.id + ' = ANY("Tasks"."userIds")'
+            );
+            return yield * common.getFlagsForTask(req, tasks);
         }).then(function (data) {
             res.json(data);
         }, function (err) {

@@ -61,6 +61,21 @@ module.exports = {
                         Workflow.select(Workflow.id).from(Workflow).where(Workflow.productId.equals(productId))
                     );
 
+                    var subjects = yield thunkQuery(
+                        UnitOfAnalysis
+                            .select(
+                                UnitOfAnalysis.name, UnitOfAnalysis.id
+                            )
+                            .from(
+                                UnitOfAnalysis
+                                    .leftJoin(ProductUOA)
+                                    .on(UnitOfAnalysis.id.equals(ProductUOA.UOAid))
+                                    .leftJoin(Product)
+                                    .on(ProductUOA.productId.equals(Product.id))
+                            )
+                            .where(Product.projectId.equals(projects[i].id))
+                    );
+
                     projectList.push({
                         id: projects[i].id,
                         name: projects[i].codeName,
@@ -71,7 +86,7 @@ module.exports = {
                         users: [],
                         stages: [],
                         userGroups: [],
-                        subjects: []
+                        subjects,
                     });
                 }
             }

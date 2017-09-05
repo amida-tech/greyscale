@@ -387,3 +387,20 @@ var prepUsersForTask = function* (req, task) {
     return task;
 };
 exports.prepUsersForTask = prepUsersForTask;
+
+var getFlagsForTask = function* (req, tasks) {
+    var thunkQuery = req.thunkQuery;
+    for (var i = 0; i < tasks.length; i++) {
+        var flaggedChat = yield thunkQuery(
+            'SELECT COUNT(dc."questionId") FROM (SELECT DISTINCT ' +
+            '"Discussions"."questionId" FROM "Discussions" WHERE ' +
+            '"Discussions"."taskId" = ' + tasks[i].id + ' AND ' +
+            '"Discussions"."isResolve" = false GROUP BY ' +
+            '"Discussions"."questionId") as dc;'
+        );
+        tasks[i].flagCount = parseInt(flaggedChat[0].count);
+    }
+    return tasks;
+}
+
+exports.getFlagsForTask = getFlagsForTask;
