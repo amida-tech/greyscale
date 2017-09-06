@@ -437,6 +437,9 @@ router.route('/:realm/v0.2/discussions/:id')
     .put(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ discussions.updateOne)
     .delete(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ discussions.deleteOne);
 
+router.route('/:realm/v0.2/discussions/resolve/:id')
+    .put(authenticate('jwt').always, discussions.markAsResolved);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    NOTIFICATIONS
 //----------------------------------------------------------------------------------------------------------------------

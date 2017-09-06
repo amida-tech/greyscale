@@ -291,6 +291,55 @@ module.exports = {
         });
     },
 
+    /**
+     * Checks Mark all discussions with a given question ID as resolvedt
+     * @param {Object} req - Request object
+     * @param {Object} res - Response object
+     * @param {Function} next - Express next middleware function
+     * @return {Object} A json object with either a success or error message
+     */
+    markAsResolved: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+
+            // Check if there is a record matching the passed in discussion ID
+            var discussionExist = yield thunkQuery(
+                '( ' +
+                'SELECT count(1) ' +
+                'FROM "Discussions" ' +
+                'WHERE "Discussions"."questionId" = ' + req.params.id +
+                ') '
+            );
+
+            if (parseInt(discussionExist['0'].count) > 0) {
+                return yield thunkQuery(
+                    Discussion.update({
+                        isResolve: true
+                    }).where(
+                        Discussion.questionId.equals(req.params.id)
+                    )
+                );
+            } else {
+                throw new HttpError(403, 'No discussion matching that question ID');
+            }
+        }).then(function (data) {
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'update',
+                object: 'discussions',
+                entity: req.params.id,
+                info: 'Resolve Discussion'
+            });
+            res.status(202).json({
+                'data': data,
+                'message': 'Discussion marked as resolved'
+            });
+        }, function (err) {
+            next(err);
+        });
+    },
+
     updateOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
