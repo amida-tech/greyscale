@@ -174,6 +174,7 @@ passport.use(new BasicStrategy({
 // JWT strategy for Token auth
 passport.use(new JwtStrategy(jwtOptions,
     function (req, decodedJWTPayload, done) {
+        console.log("I GOT IN THE STRATEGY!");
         co(function* () {
 
             var user;
@@ -185,6 +186,8 @@ passport.use(new JwtStrategy(jwtOptions,
             } catch (err) {
                 throw new HttpError(500, 'Database error ' + err);
             }
+
+            console.log("I AM HERE and USER IS!!" + user.email);
 
             // add realmUserId to user
             user.realmUserId = user.id;
@@ -208,6 +211,8 @@ passport.use(new JwtStrategy(jwtOptions,
             debug(util.format('Authentication OK for token: %s', tokenBody));
 
             var clientThunkQuery = thunkify(new Query(req.params.realm));
+
+            console.log("I AM HERE 2!!");
 
             yield clientThunkQuery(
                 User.update({
