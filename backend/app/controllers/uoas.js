@@ -11,6 +11,7 @@ var client = require('../db_bootstrap'),
     Translation = require('../models/translations'),
     Language = require('../models/languages'),
     Essence = require('../models/essences'),
+    ProductUOA = require('../models/product_uoa'),
     co = require('co'),
     Query = require('../util').Query,
     getTranslateQuery = require('../util').getTranslateQuery,
@@ -68,7 +69,7 @@ module.exports = {
 
     insert: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
-        var uoas = req.body.name.split(/[ ,]+/);
+        var uoas = req.body.name.split(/\s*,\s*/);
         var sqlString = "'"+uoas.toString().replace(/'/g, "''").replace(/,/g, "','")+"'";
 
         co(function* () {
@@ -78,20 +79,29 @@ module.exports = {
                 '."unitOfAnalysisType" = ' + req.body.unitOfAnalysisType
             );
 
-            console.log(added);
-
             var insert = _.difference(uoas, added.map((exist) => exist.name));
-            console.log(insert);
-            for (var name in insert) {
-                console.log(name);
-                var id = yield thunkQuery(UnitOfAnalysis.insert({
-                    name,
+            for (var i = 0; i < insert.length; i++) {
+                var result = yield thunkQuery(UnitOfAnalysis.insert({
+                    name: insert[i],
                     creatorId: req.user.realmUserId,
                     ownerId: req.user.realmUserId,
+                    unitOfAnalysisType: req.body.unitOfAnalysisType,
                     created: new Date(),
-                }).returning(UnitOfAnalysis.id))[0];
-                added.push({name, id})
+                }).returning(UnitOfAnalysis.id));
+                added.push({name: insert[i], id: _.first(result).id});
             }
+
+            if (req.body.productId) {
+                for (var j = 0; j < added.length; j++) {
+                    yield thunkQuery(ProductUOA.insert({
+                        productId: req.body.productId,
+                        UOAid: added[j].id,
+                        currentStepId: null,
+                        isComplete: false,
+                    }));
+                }
+            }
+
             return added;
         }).then(function (data) {
             bologger.log({
