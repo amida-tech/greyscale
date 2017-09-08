@@ -20,7 +20,8 @@ var ExtractJwt = passportJWT.ExtractJwt,
     JwtStrategy = passportJWT.Strategy;
 
 var jwtOptions = {};
-jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
+// jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeader();
+jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 jwtOptions.secretOrKey = config.jwtSecret;
 jwtOptions.passReqToCallback = true;
 
@@ -173,11 +174,11 @@ passport.use(new BasicStrategy({
 // JWT strategy for Token auth
 passport.use(new JwtStrategy(jwtOptions,
     function (req, decodedJWTPayload, done) {
-
         co(function* () {
 
             var user;
             var tokenBody = req.headers.authorization.split(' ')[1];
+            console.log("TOKEN IS: " + tokenBody);
             // we are looking for all tokens only in public schema
             try {
                 user = yield * findToken(req, tokenBody);
