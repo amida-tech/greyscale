@@ -6963,10 +6963,6 @@ ALTER TABLE ONLY "Tasks"
     ADD CONSTRAINT "Tasks_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"(id);
 
 
--- TODO: Delete this if we end up not needing it. Doesn't seem like we should have this constraint
---ALTER TABLE ONLY "Tasks"
---    ADD CONSTRAINT "Tasks_userId_fkey" FOREIGN KEY ("userId") REFERENCES "ProjectUsers"(userId);
-
 --
 -- TOC entry 3555 (class 2606 OID 1601044)
 -- Name: Translations_essence_id_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser

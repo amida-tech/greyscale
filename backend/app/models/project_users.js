@@ -2,7 +2,7 @@ var sql = require('sql');
 
 var ProjectUser = sql.define({
     name: 'ProjectUser',
-    columns: ['ProjectId', 'UserId']
+    columns: ['projectId', 'userId']
 });
 
 module.exports = ProjectUser;
