@@ -476,7 +476,7 @@ var UnitOfAnalysis = require('./controllers/uoas');
 
 router.route('/:realm/v0.2/uoas')
     .get(authenticate('jwt').always, UnitOfAnalysis.select)
-    .post(authenticate('jwt').always, jsonParser, checkRight('unitofanalysis_insert_one'), UnitOfAnalysis.insertOne);
+    .post(authenticate('jwt').always, jsonParser, checkRight('unitofanalysis_insert_one'), UnitOfAnalysis.insert);
 
 router.route('/:realm/v0.2/uoas/:id')
     .get(authenticate('jwt').always, UnitOfAnalysis.selectOne)
