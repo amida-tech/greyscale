@@ -191,7 +191,11 @@ module.exports = {
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            return yield * insertOne(req, res, next);
+            var user = yield * insertOne(req, res, next);
+            if (req.body.projectId) {
+                yield * common.insertProjectUsers(req, user.id, req.body.projectId);
+            }
+            return user;
         }).then(function (data) {
             res.status(201).json({
                 id: data.id,
@@ -202,6 +206,7 @@ module.exports = {
                 organizationId: data.organizationId,
                 isActive: data.isActive,
             });
+            // Insert into ProjectUsers
         }, function (err) {
             next(err);
         });

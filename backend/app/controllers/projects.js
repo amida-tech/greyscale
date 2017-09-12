@@ -3,6 +3,7 @@
 var client = require('../db_bootstrap'),
     _ = require('underscore'),
     config = require('../../config'),
+    common = require('../services/common'),
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),
     crypto = require('crypto'),
@@ -346,6 +347,21 @@ module.exports = {
         }, function (err) {
             next(err);
         });
+    },
+
+    userAssignment: function (req, res, next) {
+        co(function* () {
+            yield * common.insertProjectUsers(req, req.body.userId, req.body.projectId);
+        }).then(function () {
+            res.status(202)
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    userRemoval: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        // Go to remove from ProjectUsers, Tasks and UserGroups.
     }
 };
 

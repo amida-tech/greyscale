@@ -19,6 +19,7 @@ var
     Notification = require('../models/notifications'),
     Organization = require('../models/organizations'),
     User = require('../models/users'),
+    ProjectUsers = require('../models/project_users'),
     co = require('co'),
     sql = require('sql'),
     Query = require('../util').Query,
@@ -404,3 +405,20 @@ var getFlagsForTask = function* (req, tasks) {
 }
 
 exports.getFlagsForTask = getFlagsForTask;
+
+var insertProjectUsers = function* (req, userId, projectId) {
+    var thunkQuery = req.thunkQuery;
+    var data = yield thunkQuery(ProjectUsers.select().where({
+        projectId,
+        userId,
+    }));
+
+    if (!data) {
+        yield thunkQuery(ProjectUsers.insert({
+            projectId,
+            userId,
+        }));
+    }
+}
+
+exports.insertProjectUsers = insertProjectUsers;
