@@ -177,18 +177,38 @@ passport.use(new JwtStrategy(jwtOptions,
         console.log("I GOT IN THE STRATEGY!");
         co(function* () {
 
-            var user;
             var tokenBody = req.headers.authorization.split(' ')[1];
             console.log("TOKEN IS: " + tokenBody);
+            console.log("USER IS: " + decodedJWTPayload.username);
+
+            //TODO: Delete this becase we don't need to do this any more with JWt
             // we are looking for all tokens only in public schema
-            try {
-                user = yield * findToken(req, tokenBody);
-            } catch (err) {
-                throw new HttpError(500, 'Database error ' + err);
+            // try {
+            //     user = yield * findToken(req, tokenBody);
+            // } catch (err) {
+            //     throw new HttpError(500, 'Database error ' + err);
+            // }
+
+            // var groupQuery = 'array(' +
+            //     'SELECT "UserGroups"."groupId" FROM "UserGroups" WHERE "UserGroups"."userId" = "Users"."id"' +
+            //     ') as "usergroupId"';
+
+            var user = yield thunkQuery(
+                User
+                    .select(
+                        User.star()
+                        // req.params.realm === config.pgConnect.adminSchema ? 'null' : groupQuery
+                    )
+                    .where(User.id.equals(2))
+            );
+
+            // console.log('USER FOUND IS: ' + !_.first(user).firstName);
+
+            if (!_.first(user)) {
+                throw new HttpError(404, 'No user found');
             }
 
-            console.log("I AM HERE and USER IS!!" + user.email);
-
+            user = user[0];
             // add realmUserId to user
             user.realmUserId = user.id;
 
@@ -231,20 +251,20 @@ passport.use(new JwtStrategy(jwtOptions,
 
         function* findToken(req, tokenBody) {
 
-            var admThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
-
-            var existToken = yield admThunkQuery( // select from public
-                Token
-                .select()
-                .where(
-                    Token.body.equals(tokenBody)
-                    //.and(Token.realm.equals(req.params.realm))
-                )
-            );
-
-            if (!existToken[0]) {
-                return false;
-            }
+            // var admThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
+            //
+            // var existToken = yield admThunkQuery( // select from public
+            //     Token
+            //     .select()
+            //     .where(
+            //         Token.body.equals(tokenBody)
+            //         //.and(Token.realm.equals(req.params.realm))
+            //     )
+            // );
+            //
+            // if (!existToken[0]) {
+            //     return false;
+            // }
 
             //debug('Token realm = ' + existToken[0].realm);
             //debug('Admin schema = ' + config.pgConnect.adminSchema);
