@@ -361,6 +361,7 @@ module.exports = {
 
     userRemoval: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
+        //req.params.id & req.params.userId
         // Go to remove from ProjectUsers, Tasks and UserGroups.
     }
 };

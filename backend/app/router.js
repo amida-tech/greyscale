@@ -72,7 +72,7 @@ router.route('/:realm/v0.2/projects')
     .get(authenticate('jwt').always, projects.listAll)
     .post(authenticate('jwt').always, jsonParser, projects.insertOne);
 
-router.route('/:realm/v0.2/projects/users')
+router.route('/:realm/v0.2/projects/:id/users/:userId')
     .post(authenticate('jwt').always, projects.userAssignment)
     .delete(authenticate('jwt').always, projects.userRemoval);
 
