@@ -206,7 +206,6 @@ module.exports = {
                 organizationId: data.organizationId,
                 isActive: data.isActive,
             });
-            // Insert into ProjectUsers
         }, function (err) {
             next(err);
         });
@@ -1175,7 +1174,7 @@ function* insertOne(req, res, next) {
         }
     }
 
-    var user = yield thunkQuery(User.insert(_.extend(req.body, {
+    var user = yield thunkQuery(User.insert(_.extend(_.omit(req.body, 'projectId'), {
         salt: salt
     })).returning('*'));
     bologger.log({

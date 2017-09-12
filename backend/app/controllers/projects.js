@@ -379,8 +379,9 @@ module.exports = {
     userAssignment: function (req, res, next) {
         co(function* () {
             yield * common.insertProjectUsers(req, req.body.userId, req.body.projectId);
-        }).then(function () {
-            res.status(202)
+            return true;
+        }).then(function (data) {
+            res.status(202).json(data)
         }, function (err) {
             next(err);
         });

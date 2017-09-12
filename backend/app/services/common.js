@@ -413,7 +413,7 @@ var insertProjectUsers = function* (req, userId, projectId) {
         userId,
     }));
 
-    if (!data) {
+    if (data.length === 0) {
         yield thunkQuery(ProjectUsers.insert({
             projectId,
             userId,
