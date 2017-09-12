@@ -328,11 +328,30 @@ module.exports = {
             req.body = _.extend(req.body, {
                 userAdminId: req.user.realmUserId
             }); // add from realmUserId instead of user id
-            var result = yield thunkQuery(
+            var result = _.first(yield thunkQuery(
                 Project
                 .insert(_.pick(req.body, Project.table._initialConfig.columns))
                 .returning(Project.id)
-            );
+            ));
+
+            // Having it automatically insert into products and workflows for now.
+            result.productId = _.first(yield thunkQuery(
+                Product.insert({
+                    title: req.body.codeName,
+                    description: req.body.description,
+                    projectId: result.id,
+                    status: 0,
+                }).returning(Product.id)
+            )).id;
+
+            result.workflowIds = _.first(yield thunkQuery(
+                Workflow.insert({
+                    name: req.body.codeName,
+                    description: req.body.description,
+                    productId: result.productId,
+                }).returning(Workflow.id)
+            )).id;
+            
             return result;
         }).then(function (data) {
             bologger.log({
@@ -340,10 +359,10 @@ module.exports = {
                 user: req.user,
                 action: 'insert',
                 object: 'projects',
-                entity: _.first(data).id,
+                entity: data.id,
                 info: 'Add new project'
             });
-            res.status(201).json(_.first(data));
+            res.status(201).json(data);
         }, function (err) {
             next(err);
         });
