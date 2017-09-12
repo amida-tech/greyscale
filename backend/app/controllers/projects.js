@@ -334,24 +334,32 @@ module.exports = {
                 .returning(Project.id)
             ));
 
+            result.name = req.body.codeName;
+            result.status = 0;
+
             // Having it automatically insert into products and workflows for now.
             result.productId = _.first(yield thunkQuery(
                 Product.insert({
-                    title: req.body.codeName,
+                    title: result.name,
                     description: req.body.description,
                     projectId: result.id,
                     status: 0,
                 }).returning(Product.id)
             )).id;
 
-            result.workflowIds = _.first(yield thunkQuery(
+            result.users = [];
+            result.stages = [];
+            result.userGroups = [];
+            result.subjects = [];
+
+            result.workflowIds = [_.first(yield thunkQuery(
                 Workflow.insert({
-                    name: req.body.codeName,
+                    name: result.name,
                     description: req.body.description,
                     productId: result.productId,
                 }).returning(Workflow.id)
-            )).id;
-            
+            )).id];
+
             return result;
         }).then(function (data) {
             bologger.log({
