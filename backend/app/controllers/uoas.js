@@ -146,8 +146,20 @@ module.exports = {
             if (_.first(result)) {
                 throw new HttpError(403, 'Subject used in Subject to Tag link. Could not delete Subject');
             }
-            return yield thunkQuery(UnitOfAnalysis.delete().where(UnitOfAnalysis.id.equals(req.params.id)));
-        }).then(function () {
+
+            yield thunkQuery(
+                'DELETE FROM "ProductUOA" WHERE "ProductUOA"."productId" = ' +
+                req.body.productId + ' AND "ProductUOA"."UOAid" = ' + req.params.id
+            );
+
+            yield thunkQuery(
+                'DELETE FROM "Tasks" WHERE "Tasks"."productId" = ' +
+                req.body.productId + ' AND "Tasks"."uoaId" = ' + req.params.id
+            );
+
+            yield thunkQuery(UnitOfAnalysis.delete().where(UnitOfAnalysis.id.equals(req.params.id)));
+            return true;
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -156,7 +168,7 @@ module.exports = {
                 entity: req.params.id,
                 info: 'Delete uoa'
             });
-            res.status(204).end();
+            res.status(202).json(data);
         }, function (err) {
             next(err);
         });

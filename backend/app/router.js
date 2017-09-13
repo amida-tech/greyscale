@@ -483,7 +483,7 @@ router.route('/:realm/v0.2/uoas')
 router.route('/:realm/v0.2/uoas/:id')
     .get(authenticate('jwt').always, UnitOfAnalysis.selectOne)
     .put(authenticate('jwt').always, jsonParser, checkRight('unitofanalysis_update_one'), UnitOfAnalysis.updateOne)
-    .delete(authenticate('jwt').always, checkRight('unitofanalysis_delete_one'), UnitOfAnalysis.deleteOne);
+    .delete(authenticate('jwt').always, jsonParser, checkRight('unitofanalysis_delete_one'), UnitOfAnalysis.deleteOne);
 
 router.route('/:realm/v0.2/import_uoas_csv')
     .post(authenticate('jwt').ifPossible, jsonParser, UnitOfAnalysis.csvImport);
