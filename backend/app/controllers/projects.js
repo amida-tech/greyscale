@@ -347,18 +347,18 @@ module.exports = {
                 }).returning(Product.id)
             )).id;
 
-            result.users = [];
-            result.stages = [];
-            result.userGroups = [];
-            result.subjects = [];
-
-            result.workflowIds = [_.first(yield thunkQuery(
+            result.workflowId = _.first(yield thunkQuery(
                 Workflow.insert({
                     name: result.name,
                     description: req.body.description,
                     productId: result.productId,
                 }).returning(Workflow.id)
-            )).id];
+            )).id;
+
+            result.users = [];
+            result.stages = [];
+            result.userGroups = [];
+            result.subjects = [];
 
             return result;
         }).then(function (data) {
