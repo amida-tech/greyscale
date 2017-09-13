@@ -34,6 +34,12 @@ CREATE SCHEMA test;
 
 ALTER SCHEMA test OWNER TO indabauser;
 
+
+CREATE SCHEMA testorg;
+
+
+ALTER SCHEMA testorg OWNER TO indabauser;
+
 SET search_path = public, pg_catalog;
 
 --
