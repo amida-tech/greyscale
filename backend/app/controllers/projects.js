@@ -389,6 +389,33 @@ module.exports = {
 
     userRemoval: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
+        co(function* () {
+            yield thunkQuery(
+                'DELETE FROM "ProjectUsers" WHERE "ProjectUsers"."projectId" = ' +
+                req.params.id + ' AND "ProjectUsers"."userId" = ' + req.params.userId
+            );
+
+            var productId = _.first(_.map((yield thunkQuery(
+                Product.select(Product.id).from(Product).where(Product.projectId.equals(req.params.id))
+            )), 'id'));
+
+            console.log("JAMES");
+            console.log(productId);
+
+            yield thunkQuery(
+                'DELETE FROM "Tasks" WHERE "Tasks"."productId" = ' + productId +
+                ' AND ' + req.params.userId + ' = ANY("Tasks"."userIds")'
+            )
+
+            // Get Listing of groupIds from ProjectUserGroups
+            // Delete from UserGroups where groupIds = prior search and userId = req.params.userId
+
+            return true;
+        }).then(function (data) {
+            res.status(202).json(data)
+        }, function (err) {
+            next(err);
+        });
         //req.params.id & req.params.userId
         // Go to remove from ProjectUsers, Tasks and UserGroups.
     }
