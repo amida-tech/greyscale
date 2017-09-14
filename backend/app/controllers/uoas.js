@@ -69,7 +69,7 @@ module.exports = {
 
     insert: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
-        var uoas = req.body.name.split(/\s*,\s*/);
+        var uoas = req.body.subjects.map((subject) => subject.name);
         var sqlString = "'"+uoas.toString().replace(/'/g, "''").replace(/,/g, "','")+"'";
 
         co(function* () {
