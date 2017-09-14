@@ -372,7 +372,7 @@ module.exports = {
 
     userAssignment: function (req, res, next) {
         co(function* () {
-            yield * common.insertProjectUsers(req, req.body.userId, req.body.projectId);
+            yield * common.insertProjectUser(req, req.body.userId, req.body.projectId);
             return true;
         }).then(function (data) {
             res.status(202).json(data)
@@ -392,9 +392,6 @@ module.exports = {
             var productId = _.first(_.map((yield thunkQuery(
                 Product.select(Product.id).from(Product).where(Product.projectId.equals(req.params.id))
             )), 'id'));
-
-            console.log("JAMES");
-            console.log(productId);
 
             yield thunkQuery(
                 'DELETE FROM "Tasks" WHERE "Tasks"."productId" = ' + productId +

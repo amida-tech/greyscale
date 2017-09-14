@@ -193,7 +193,7 @@ module.exports = {
         co(function* () {
             var user = yield * insertOne(req, res, next);
             if (req.body.projectId) {
-                yield * common.insertProjectUsers(req, user.id, req.body.projectId);
+                yield * common.insertProjectUser(req, user.id, req.body.projectId);
             }
             return user;
         }).then(function (data) {
