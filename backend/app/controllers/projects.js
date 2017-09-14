@@ -20,6 +20,7 @@ var client = require('../db_bootstrap'),
     User = require('../models/users'),
     UnitOfAnalysis = require('../models/uoas'),
     ProductUOA = require('../models/product_uoa'),
+    ProjectUser = require('../models/project_users'),
     co = require('co'),
     Query = require('../util').Query,
     vl = require('validator'),
@@ -110,17 +111,10 @@ module.exports = {
             }  else {
                 project = project[0];
                 var userList = yield thunkQuery( // List of users that belong to the organization of a particular project
-                    User
-                        .select(
-                            User.id
-                        )
-                        .from(
-                            User
-                                .leftJoin(Project)
-                                .on(User.organizationId.equals(project.organizationId))
-                        )
-                        .where(User.roleID.notEquals(1))
-                        .and(Project.id.equals(project.id))
+                    ProjectUser
+                        .select(ProjectUser.userId)
+                        .from(ProjectUser)
+                        .where(ProjectUser.projectId.equals(project.id))
                 );
 
                 var stages = yield thunkQuery(
@@ -201,7 +195,7 @@ module.exports = {
                 aggregateObject.name = project.codeName;
                 aggregateObject.lastUpdated = null; // need to figure out wha this is
                 aggregateObject.status = project.status;
-                aggregateObject.users = _.map(userList, 'id');
+                aggregateObject.users = _.map(userList, 'userId');
                 aggregateObject.stages = stages;
                 aggregateObject.userGroups = userGroups;
                 aggregateObject.subjects = subjects;
