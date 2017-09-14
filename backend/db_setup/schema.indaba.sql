@@ -2867,6 +2867,15 @@ CREATE TABLE "ProjectUsers" (
 
 ALTER TABLE "ProjectUsers" OWNER TO indabauser;
 
+
+CREATE TABLE "ProjectUserGroups" (
+    "projectId" integer NOT NULL,
+    "groupId" integer NOT NULL
+);
+
+
+ALTER TABLE "ProjectUserGroups" OWNER TO indabauser;
+
 --
 -- TOC entry 3789 (class 0 OID 0)
 -- Dependencies: 258
@@ -4805,6 +4814,15 @@ CREATE TABLE "ProjectUsers" (
 
 
 ALTER TABLE "ProjectUsers" OWNER TO indabauser;
+
+
+CREATE TABLE "ProjectUserGroups" (
+    "projectId" integer NOT NULL,
+    "groupId" integer NOT NULL
+);
+
+
+ALTER TABLE "ProjectUserGroups" OWNER TO indabauser;
 
 --
 -- TOC entry 394 (class 1259 OID 1601660)
@@ -7950,6 +7968,9 @@ ALTER TABLE ONLY "ProjectUsers"
     ADD CONSTRAINT "ProjectUsers_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Projects"(id);
 
 
+
+ALTER TABLE ONLY "ProjectUserGroups"
+    ADD CONSTRAINT "ProjectUserGroups_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Projects"(id);
 --
 -- TOC entry 3777 (class 0 OID 0)
 -- Dependencies: 9
