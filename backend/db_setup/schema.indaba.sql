@@ -35,11 +35,6 @@ CREATE SCHEMA test;
 ALTER SCHEMA test OWNER TO indabauser;
 
 
-CREATE SCHEMA testorg;
-
-
-ALTER SCHEMA testorg OWNER TO indabauser;
-
 SET search_path = public, pg_catalog;
 
 --
@@ -4801,7 +4796,7 @@ ALTER TABLE "UserUOA" OWNER TO indabauser;
 
 --
 -- TOC entry 436 (class 1259 OID 1602016)
--- Name: ProjectUsers; Type: TABLE; Schema: testorg; Owner: indabatestuser
+-- Name: ProjectUsers; Type: TABLE; Schema: test; Owner: indabatestuser
 --
 
 CREATE TABLE "ProjectUsers" (
