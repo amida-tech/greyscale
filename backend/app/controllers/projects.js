@@ -3,6 +3,7 @@
 var client = require('../db_bootstrap'),
     _ = require('underscore'),
     config = require('../../config'),
+    common = require('../services/common'),
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),
     crypto = require('crypto'),
@@ -321,11 +322,38 @@ module.exports = {
             req.body = _.extend(req.body, {
                 userAdminId: req.user.realmUserId
             }); // add from realmUserId instead of user id
-            var result = yield thunkQuery(
+            var result = _.first(yield thunkQuery(
                 Project
                 .insert(_.pick(req.body, Project.table._initialConfig.columns))
                 .returning(Project.id)
-            );
+            ));
+
+            result.name = req.body.codeName;
+            result.status = 0;
+
+            // Having it automatically insert into products and workflows for now.
+            result.productId = _.first(yield thunkQuery(
+                Product.insert({
+                    title: result.name,
+                    description: req.body.description,
+                    projectId: result.id,
+                    status: 0,
+                }).returning(Product.id)
+            )).id;
+
+            result.workflowId = _.first(yield thunkQuery(
+                Workflow.insert({
+                    name: result.name,
+                    description: req.body.description,
+                    productId: result.productId,
+                }).returning(Workflow.id)
+            )).id;
+
+            result.users = [];
+            result.stages = [];
+            result.userGroups = [];
+            result.subjects = [];
+
             return result;
         }).then(function (data) {
             bologger.log({
@@ -333,10 +361,46 @@ module.exports = {
                 user: req.user,
                 action: 'insert',
                 object: 'projects',
-                entity: _.first(data).id,
+                entity: data.id,
                 info: 'Add new project'
             });
-            res.status(201).json(_.first(data));
+            res.status(201).json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    userAssignment: function (req, res, next) {
+        co(function* () {
+            yield * common.insertProjectUser(req, req.body.userId, req.body.projectId);
+            return true;
+        }).then(function (data) {
+            res.status(202).json(data)
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    userRemoval: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            yield thunkQuery(
+                'DELETE FROM "ProjectUsers" WHERE "ProjectUsers"."projectId" = ' +
+                req.params.id + ' AND "ProjectUsers"."userId" = ' + req.params.userId
+            );
+
+            var productId = _.first(_.map((yield thunkQuery(
+                Product.select(Product.id).from(Product).where(Product.projectId.equals(req.params.id))
+            )), 'id'));
+
+            yield thunkQuery(
+                'DELETE FROM "Tasks" WHERE "Tasks"."productId" = ' + productId +
+                ' AND ' + req.params.userId + ' = ANY("Tasks"."userIds")'
+            )
+
+            return true;
+        }).then(function (data) {
+            res.status(202).json(data)
         }, function (err) {
             next(err);
         });
