@@ -398,17 +398,12 @@ module.exports = {
                 ' AND ' + req.params.userId + ' = ANY("Tasks"."userIds")'
             )
 
-            // Get Listing of groupIds from ProjectUserGroups
-            // Delete from UserGroups where groupIds = prior search and userId = req.params.userId
-
             return true;
         }).then(function (data) {
             res.status(202).json(data)
         }, function (err) {
             next(err);
         });
-        //req.params.id & req.params.userId
-        // Go to remove from ProjectUsers, Tasks and UserGroups.
     }
 };
 
