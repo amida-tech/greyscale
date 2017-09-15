@@ -72,6 +72,12 @@ router.route('/:realm/v0.2/projects')
     .get(authenticate('jwt').always, projects.listAll)
     .post(authenticate('jwt').always, jsonParser, projects.insertOne);
 
+router.route('/:realm/v0.2/projects/:id/users')
+    .post(authenticate('jwt').always, jsonParser, projects.userAssignment);
+
+router.route('/:realm/v0.2/projects/:id/users/:userId')
+    .delete(authenticate('jwt').always, projects.userRemoval);
+
 router.route('/:realm/v0.2/projects/:id')
     .get(authenticate('jwt').always, projects.selectOne)
     .delete(authenticate('jwt').always, projects.delete)
@@ -472,12 +478,12 @@ var UnitOfAnalysis = require('./controllers/uoas');
 
 router.route('/:realm/v0.2/uoas')
     .get(authenticate('jwt').always, UnitOfAnalysis.select)
-    .post(authenticate('jwt').always, jsonParser, checkRight('unitofanalysis_insert_one'), UnitOfAnalysis.insertOne);
+    .post(authenticate('jwt').always, jsonParser, checkRight('unitofanalysis_insert_one'), UnitOfAnalysis.insert);
 
 router.route('/:realm/v0.2/uoas/:id')
     .get(authenticate('jwt').always, UnitOfAnalysis.selectOne)
     .put(authenticate('jwt').always, jsonParser, checkRight('unitofanalysis_update_one'), UnitOfAnalysis.updateOne)
-    .delete(authenticate('jwt').always, checkRight('unitofanalysis_delete_one'), UnitOfAnalysis.deleteOne);
+    .delete(authenticate('jwt').always, jsonParser, checkRight('unitofanalysis_delete_one'), UnitOfAnalysis.deleteOne);
 
 router.route('/:realm/v0.2/import_uoas_csv')
     .post(authenticate('jwt').ifPossible, jsonParser, UnitOfAnalysis.csvImport);

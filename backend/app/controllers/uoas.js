@@ -11,6 +11,7 @@ var client = require('../db_bootstrap'),
     Translation = require('../models/translations'),
     Language = require('../models/languages'),
     Essence = require('../models/essences'),
+    ProductUOA = require('../models/product_uoa'),
     co = require('co'),
     Query = require('../util').Query,
     getTranslateQuery = require('../util').getTranslateQuery,
@@ -66,23 +67,52 @@ module.exports = {
         });
     },
 
-    insertOne: function (req, res, next) {
+    insert: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
+        var uoas = req.body.subjects.map((subject) => subject.name);
+        var sqlString = "'"+uoas.toString().replace(/'/g, "''").replace(/,/g, "','")+"'";
+
         co(function* () {
-            req.body.creatorId = req.user.realmUserId; // add from realmUserId instead of user id
-            req.body.ownerId = req.user.realmUserId; // add from realmUserId instead of user id
-            req.body.created = new Date();
-            return yield thunkQuery(UnitOfAnalysis.insert(req.body).returning(UnitOfAnalysis.id));
+            var added = yield thunkQuery(
+                'SELECT name, id FROM "UnitOfAnalysis" WHERE LOWER("UnitOfAnalysis"' +
+                '."name") IN (' + sqlString.toLowerCase() + ') AND "UnitOfAnalysis"' +
+                '."unitOfAnalysisType" = ' + req.body.unitOfAnalysisType
+            );
+
+            var insert = _.difference(uoas, added.map((exist) => exist.name));
+            for (var i = 0; i < insert.length; i++) {
+                var result = yield thunkQuery(UnitOfAnalysis.insert({
+                    name: insert[i],
+                    creatorId: req.user.realmUserId,
+                    ownerId: req.user.realmUserId,
+                    unitOfAnalysisType: req.body.unitOfAnalysisType,
+                    created: new Date(),
+                }).returning(UnitOfAnalysis.id));
+                added.push({name: insert[i], id: _.first(result).id});
+            }
+
+            if (req.body.productId) {
+                for (var j = 0; j < added.length; j++) {
+                    yield thunkQuery(ProductUOA.insert({
+                        productId: req.body.productId,
+                        UOAid: added[j].id,
+                        currentStepId: null,
+                        isComplete: false,
+                    }));
+                }
+            }
+
+            return added;
         }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
                 action: 'insert',
                 object: 'UnitOfAnalysis',
-                entity: _.first(data).id,
+                entity: data,
                 info: 'Add new uoa'
             });
-            res.status(201).json(_.first(data));
+            res.status(201).json(data);
         }, function (err) {
             next(err);
         });
@@ -116,8 +146,20 @@ module.exports = {
             if (_.first(result)) {
                 throw new HttpError(403, 'Subject used in Subject to Tag link. Could not delete Subject');
             }
-            return yield thunkQuery(UnitOfAnalysis.delete().where(UnitOfAnalysis.id.equals(req.params.id)));
-        }).then(function () {
+
+            yield thunkQuery(
+                'DELETE FROM "ProductUOA" WHERE "ProductUOA"."productId" = ' +
+                req.body.productId + ' AND "ProductUOA"."UOAid" = ' + req.params.id
+            );
+
+            yield thunkQuery(
+                'DELETE FROM "Tasks" WHERE "Tasks"."productId" = ' +
+                req.body.productId + ' AND "Tasks"."uoaId" = ' + req.params.id
+            );
+
+            yield thunkQuery(UnitOfAnalysis.delete().where(UnitOfAnalysis.id.equals(req.params.id)));
+            return true;
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -126,7 +168,7 @@ module.exports = {
                 entity: req.params.id,
                 info: 'Delete uoa'
             });
-            res.status(204).end();
+            res.status(202).json(data);
         }, function (err) {
             next(err);
         });
@@ -309,17 +351,17 @@ module.exports = {
                             }
                             // ISO
                             if (newUoa.ISO !== '' && (!vl.isAlpha(newUoa.ISO) || !vl.isLength(newUoa.ISO, {
-                                    min: 3,
-                                    max: 3
-                                }))) {
+                                min: 3,
+                                max: 3
+                            }))) {
                                 newUoa.messages.push('`ISO` must not be 3 alpha symbols');
                                 valid = false;
                             }
                             // ISO2
                             if (newUoa.ISO2 !== '' && (!vl.isAlpha(newUoa.ISO2) || !vl.isLength(newUoa.ISO2, {
-                                    min: 2,
-                                    max: 2
-                                }))) {
+                                min: 2,
+                                max: 2
+                            }))) {
                                 newUoa.messages.push('`ISO2` must not be 2 alpha symbols');
                                 valid = false;
                             }

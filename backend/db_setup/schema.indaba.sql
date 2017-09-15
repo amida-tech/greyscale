@@ -34,6 +34,7 @@ CREATE SCHEMA test;
 
 ALTER SCHEMA test OWNER TO indabauser;
 
+
 SET search_path = public, pg_catalog;
 
 --
@@ -2855,6 +2856,19 @@ CREATE TABLE "UnitOfAnalysis" (
 ALTER TABLE "UnitOfAnalysis" OWNER TO indabauser;
 
 --
+-- TOC entry 259 (class 1259 OID 1599882)
+-- Name: ProjectUsers; Type: TABLE; Schema: sceleton; Owner: indabatestuser
+--
+
+CREATE TABLE "ProjectUsers" (
+    "projectId" integer NOT NULL,
+    "userId" integer NOT NULL
+);
+
+
+ALTER TABLE "ProjectUsers" OWNER TO indabauser;
+
+--
 -- TOC entry 3789 (class 0 OID 0)
 -- Dependencies: 258
 -- Name: COLUMN "UnitOfAnalysis"."gadmId0"; Type: COMMENT; Schema: sceleton; Owner: indabauser
@@ -4779,6 +4793,19 @@ CREATE TABLE "UserUOA" (
 
 
 ALTER TABLE "UserUOA" OWNER TO indabauser;
+
+--
+-- TOC entry 436 (class 1259 OID 1602016)
+-- Name: ProjectUsers; Type: TABLE; Schema: test; Owner: indabatestuser
+--
+
+CREATE TABLE "ProjectUsers" (
+    "projectId" integer NOT NULL,
+    "userId" integer NOT NULL
+);
+
+
+ALTER TABLE "ProjectUsers" OWNER TO indabauser;
 
 --
 -- TOC entry 394 (class 1259 OID 1601660)
@@ -7918,6 +7945,10 @@ ALTER TABLE ONLY "RolesRights"
 
 ALTER TABLE ONLY "SurveyQuestionOptions"
     ADD CONSTRAINT "surveyQuestionOptions_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
+
+
+ALTER TABLE ONLY "ProjectUsers"
+    ADD CONSTRAINT "ProjectUsers_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Projects"(id);
 
 
 --
