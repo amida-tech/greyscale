@@ -1,7 +1,7 @@
 var sql = require('sql');
 
 var ProjectUserGroup = sql.define({
-    name: 'ProjectUserGroup',
+    name: 'ProjectUserGroups',
     columns: ['projectId', 'groupId']
 });
 
