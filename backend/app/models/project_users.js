@@ -1,7 +1,7 @@
 var sql = require('sql');
 
 var ProjectUser = sql.define({
-    name: 'ProjectUser',
+    name: 'ProjectUsers',
     columns: ['projectId', 'userId']
 });
 
