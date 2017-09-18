@@ -104,11 +104,7 @@ module.exports = {
     selectOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         var aggregateObject = {};
-
-        //Then, when we go to projects to selectOne, we need that array of userGroups the
-        // same way it does now, but just for that project.
-
-
+        
         co(function* () {
             var project = yield thunkQuery(Project.select().from(Project).where(Project.id.equals(req.params.id)), req.query);
 
