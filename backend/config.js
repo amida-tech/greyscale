@@ -160,8 +160,8 @@ var environments = {
                 firstName: 'SuperAdmin',
                 lastName: 'Test',
                 roleID: 1,
-                password: 'testuser',
-                token: ''
+                password: 'testuser12345',
+                scopes: ['admin']
             },
             admin: {
                 email: 'test-adm@mail.net',

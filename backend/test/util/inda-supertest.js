@@ -12,6 +12,7 @@ module.exports = class IndaSupertest {
     constructor() {
         this.server = null;
         this.baseAdminUrl = `/${config.pgConnect.adminSchema}/v0.2`;
+        this.authServiceUrl = "http://localhost:4000";
         this.token = null;
         this.realm = null;
     }
@@ -22,23 +23,25 @@ module.exports = class IndaSupertest {
         this.token = null;
     }
 
-    authCommon(endpoint, user, status, userId) {
+    authCommon(user, status, userId) {
         return this.server
-            .get(endpoint)
-            .auth(user.email, user.password)
+            .post('http://localhost:4000/api/auth/login')
+            .send(user)
+            // .auth(user.email, user.password)
             .expect(status)
             .then((res) => {
                 const token = res.body.token;
                 expect(!!token).to.equal(true);
-                this.token = 'JWT '+ token;
+                this.token = 'Bearer '+ token;
                 this.userId = userId;
             });
     }
 
 
     authAdminBasic(user, status = 200) {
-        const endpoint = `${this.baseAdminUrl}/users/token`;
-        return this.authCommon(endpoint, user, status);
+        // const endpoint = `${this.baseAdminUrl}/users/token`;
+        // const endpoint = `${this.authServiceUrl}/login`;
+        return this.authCommon(user, status);
     }
 
     setRealm(realm) {
