@@ -900,10 +900,9 @@ module.exports = {
             } else {
                 updateObj = _.pick(req.body, User.editCols);
             }
-
-            return yield thunkQuery(User.update(updateObj).where(User.id.equals(req.user.id)));
-
-        }).then(function () {
+            yield thunkQuery(User.update(updateObj).where(User.id.equals(req.user.id)));
+            return { 'message': 'Successfully inserted data' };
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -912,7 +911,7 @@ module.exports = {
                 entity: req.user.id,
                 info: 'Update user (self)'
             });
-            res.status(202).end();
+            res.status(202).json(data);
         }, function (err) {
             next(err);
         });
