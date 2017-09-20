@@ -402,23 +402,41 @@ var getFlagsForTask = function* (req, tasks) {
         tasks[i].flagCount = parseInt(flaggedChat[0].count);
     }
     return tasks;
-}
+};
 
 exports.getFlagsForTask = getFlagsForTask;
 
 var insertProjectUser = function* (req, userId, projectId) {
     var thunkQuery = req.thunkQuery;
-    var data = yield thunkQuery(ProjectUser.select().where({
-        projectId,
-        userId,
-    }));
+    var data = yield thunkQuery(ProjectUser.select().where({ projectId, userId }));
 
     if (data.length === 0) {
-        yield thunkQuery(ProjectUser.insert({
-            projectId,
-            userId,
-        }));
+        var insertedData = yield thunkQuery(ProjectUser.insert({ projectId, userId }));
+        return insertedData;
+    } else {
+        throw new HttpError(403, 'User is already assigned to project');
     }
-}
+};
 
 exports.insertProjectUser = insertProjectUser;
+
+var checkRecordExistById = function* (req, database, column, requestId) {
+    var thunkQuery = req.thunkQuery;
+
+    var record = yield thunkQuery(
+        '( ' +
+        'SELECT count(1) ' +
+        'FROM "' + database + '" ' +
+        'WHERE "' + database + '"."' + column + '" = ' + requestId +
+        ') '
+    );
+
+    // If record exist it will return a count > 0
+    if (parseInt(record['0'].count) > 0) {
+        return true
+    } else {
+        return false
+    }
+};
+
+exports.checkRecordExistById = checkRecordExistById;
