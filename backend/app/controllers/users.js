@@ -191,16 +191,20 @@ module.exports = {
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            return yield * insertOne(req, res, next);
+            var user = yield * insertOne(req, res, next);
+            if (req.body.projectId) {
+                yield * common.insertProjectUser(req, user.id, req.body.projectId);
+            }
+            return user;
         }).then(function (data) {
             res.status(201).json({
                 id: data.id,
-                firstName: req.body.firstName,
-                email: req.body.email,
-                lastName: req.body.lastName,
-                roleID: 3,
-                organizationId: req.body.organizationId,
-                isActive: false,
+                firstName: data.firstName,
+                email: data.email,
+                lastName: data.lastName,
+                roleID: data.roleID,
+                organizationId: data.organizationId,
+                isActive: data.isActive,
             });
         }, function (err) {
             next(err);
@@ -916,16 +920,18 @@ module.exports = {
                 };
             }
 
-        }).then(function (data) {
+            return yield thunkQuery(User.update(updateObj).where(User.id.equals(req.user.id)));
+
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
                 action: 'update',
                 object: 'users',
-                entity: data,
+                entity: req.user.id,
                 info: 'Update user (self)'
             });
-            res.status(202).json(data);
+            res.status(202).end();
         }, function (err) {
             next(err);
         });
@@ -1163,10 +1169,13 @@ function* insertOne(req, res, next) {
     }
 
     var isExistsAdmin = yield * common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
-    var isExistUser = yield * common.isExistsUserInRealm(req, req.params.realm, req.body.email);
+    if (isExistsAdmin) {
+        throw new HttpError(403, 'User is an admin');
+    }
 
-    if ((isExistUser && isExistUser.isActive) || isExistsAdmin) {
-        throw new HttpError(403, 'User with this email has already registered');
+    var isExistUser = yield * common.isExistsUserInRealm(req, req.params.realm, req.body.email);
+    if (isExistUser) {
+        return (isExistUser);
     }
 
     // hash user password
@@ -1180,9 +1189,9 @@ function* insertOne(req, res, next) {
         }
     }
 
-    var user = yield thunkQuery(User.insert(_.extend(req.body, {
+    var user = yield thunkQuery(User.insert(_.extend(_.omit(req.body, 'projectId'), {
         salt: salt
-    })).returning(User.id));
+    })).returning('*'));
     bologger.log({
         req: req,
         user: req.user,
