@@ -904,19 +904,24 @@ module.exports = {
             } else {
                 updateObj = _.pick(req.body, User.editCols);
             }
+            var updatedData = _.first(yield thunkQuery(User.update(updateObj).where(User.id.equals(req.user.id)).returning('*')));
+            if (updatedData) {
+                return {
+                    'message': 'Successfully inserted data.',
+                    'data': updatedData
+                };
+            }
 
-            return yield thunkQuery(User.update(updateObj).where(User.id.equals(req.user.id)));
-
-        }).then(function () {
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
                 action: 'update',
                 object: 'users',
-                entity: req.user.id,
+                entity: data,
                 info: 'Update user (self)'
             });
-            res.status(202).end();
+            res.status(202).json(data);
         }, function (err) {
             next(err);
         });
