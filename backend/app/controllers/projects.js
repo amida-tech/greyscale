@@ -22,6 +22,7 @@ var client = require('../db_bootstrap'),
     UnitOfAnalysis = require('../models/uoas'),
     ProductUOA = require('../models/product_uoa'),
     ProjectUser = require('../models/project_users'),
+    ProjectUserGroup = require('../models/project_user_groups'),
     co = require('co'),
     Query = require('../util').Query,
     vl = require('validator'),
@@ -103,7 +104,7 @@ module.exports = {
     selectOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         var aggregateObject = {};
-
+        
         co(function* () {
             var project = yield thunkQuery(Project.select().from(Project).where(Project.id.equals(req.params.id)), req.query);
 
@@ -166,8 +167,10 @@ module.exports = {
                                 .on(UserGroup.groupId.equals(Group.id))
                                 .leftJoin(User)
                                 .on(User.id.equals(UserGroup.userId))
+                                .leftJoin(ProjectUserGroup)
+                                .on(ProjectUserGroup.groupId.equals(Group.id))
                         )
-                        .where(User.organizationId.equals(project.organizationId))
+                        .where(ProjectUserGroup.projectId.equals(project.id))
                         .group(Group.id)
                 );
 
