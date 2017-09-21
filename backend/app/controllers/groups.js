@@ -1,6 +1,7 @@
 var _ = require('underscore'),
     Group = require('../models/groups'),
     UserGroup = require('../models/user_groups'),
+    ProjectUserGroup = require('../models/project_user_groups'),
     vl = require('validator'),
     HttpError = require('../error').HttpError,
     util = require('util'),
@@ -11,6 +12,7 @@ var _ = require('underscore'),
     query = new Query(),
     co = require('co'),
     thunkify = require('thunkify'),
+
     thunkQuery = thunkify(query);
 
 module.exports = {
@@ -56,11 +58,12 @@ module.exports = {
                 title: req.body.title
             };
             var groupResult = yield thunkQuery(Group.insert(objToInsert).returning(Group.id));
+            var groupId = _.first(groupResult).id;
             if (req.body.users){
-                var groupId = _.first(groupResult).id;
                 var insertArr = _.map(req.body.users, (userId) => ({userId, groupId}));
                 yield thunkQuery(UserGroup.insert(insertArr));
             }
+            yield thunkQuery(ProjectUserGroup.insert({projectId: req.body.projectId, groupId}));
             return groupResult;
         }).then(function (data) {
             bologger.log({
