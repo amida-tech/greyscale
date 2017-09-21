@@ -904,6 +904,21 @@ module.exports = {
             } else {
                 updateObj = _.pick(req.body, User.editCols);
             }
+            var updatedData = _.first(yield thunkQuery(User.update(updateObj).where(User.id.equals(req.user.id)).returning(
+                User.id,
+                User.firstName,
+                User.lastName,
+                User.email,
+                User.notifyLevel,
+                User.isActive,
+                User.bio
+            )));
+            if (updatedData) {
+                return {
+                    'message': 'Successfully inserted data.',
+                    'data': updatedData
+                };
+            }
 
             return yield thunkQuery(User.update(updateObj).where(User.id.equals(req.user.id)));
 

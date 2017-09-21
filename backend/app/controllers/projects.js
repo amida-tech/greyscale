@@ -22,6 +22,7 @@ var client = require('../db_bootstrap'),
     UnitOfAnalysis = require('../models/uoas'),
     ProductUOA = require('../models/product_uoa'),
     ProjectUser = require('../models/project_users'),
+    ProjectUserGroup = require('../models/project_user_groups'),
     co = require('co'),
     Query = require('../util').Query,
     vl = require('validator'),
@@ -103,7 +104,7 @@ module.exports = {
     selectOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         var aggregateObject = {};
-
+        
         co(function* () {
             var project = yield thunkQuery(Project.select().from(Project).where(Project.id.equals(req.params.id)), req.query);
 
@@ -166,8 +167,10 @@ module.exports = {
                                 .on(UserGroup.groupId.equals(Group.id))
                                 .leftJoin(User)
                                 .on(User.id.equals(UserGroup.userId))
+                                .leftJoin(ProjectUserGroup)
+                                .on(ProjectUserGroup.groupId.equals(Group.id))
                         )
-                        .where(User.organizationId.equals(project.organizationId))
+                        .where(ProjectUserGroup.projectId.equals(project.id))
                         .group(Group.id)
                 );
 
@@ -371,11 +374,24 @@ module.exports = {
     },
 
     userAssignment: function (req, res, next) {
-        co(function* () {
-            yield * common.insertProjectUser(req, req.body.userId, req.body.projectId);
-            return true;
+        co(function*() {
+            var projectExist = yield * common.checkRecordExistById(req, 'Projects', 'id', req.params.projectId);
+            var userExist = yield * common.checkRecordExistById(req, 'Users', 'id',  req.body.userId);
+
+            if (projectExist === true && userExist === true) {
+                var insertedData =  yield * common.insertProjectUser(req, req.body.userId, req.params.projectId);
+
+                if (insertedData) {
+                    return {
+                        'message': 'Successfully Inserted data',
+                        'data': insertedData
+                    };
+                }
+            } else {
+                throw new HttpError(404, 'Project or User not found');
+            }
         }).then(function (data) {
-            res.status(202).json(data)
+            res.status(202).json(data);
         }, function (err) {
             next(err);
         });
@@ -384,21 +400,33 @@ module.exports = {
     userRemoval: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            yield thunkQuery(
-                'DELETE FROM "ProjectUsers" WHERE "ProjectUsers"."projectId" = ' +
-                req.params.id + ' AND "ProjectUsers"."userId" = ' + req.params.userId
-            );
+            var projectExist = yield * common.checkRecordExistById(req, 'ProjectUsers', 'projectId', req.params.projectId);
+            var userExist = yield * common.checkRecordExistById(req, 'ProjectUsers', 'userId', req.params.userId);
 
-            var productId = _.first(_.map((yield thunkQuery(
-                Product.select(Product.id).from(Product).where(Product.projectId.equals(req.params.id))
-            )), 'id'));
+            if (projectExist === true && userExist === true) {
 
-            yield thunkQuery(
-                'DELETE FROM "Tasks" WHERE "Tasks"."productId" = ' + productId +
-                ' AND ' + req.params.userId + ' = ANY("Tasks"."userIds")'
-            )
+                yield thunkQuery(
+                    'DELETE FROM "ProjectUsers" WHERE "ProjectUsers"."projectId" = ' +
+                    req.params.projectId + ' AND "ProjectUsers"."userId" = ' + req.params.userId
+                );
 
-            return true;
+                var productId = _.first(_.map((yield thunkQuery(
+                    Product.select(Product.id).from(Product).where(Product.projectId.equals(req.params.id))
+                )), 'id'));
+
+                if (productId) {
+                    return yield thunkQuery(
+                        'UPDATE "Tasks" ' +
+                        'SET "Tasks"."isDeleted" = '+ Date.now() +
+                        'WHERE "Tasks"."productId" = ' + productId +
+                        ' AND ' + req.params.userId + ' = ANY("Tasks"."userIds")'
+                    );
+                } else {
+                    throw new HttpError(404, ' Product ID not found. Unable to delete task');
+                }
+            } else {
+                throw new HttpError(404, ' Project or User not found');
+            }
         }).then(function (data) {
             res.status(202).json(data)
         }, function (err) {

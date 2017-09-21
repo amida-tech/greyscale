@@ -72,10 +72,10 @@ router.route('/:realm/v0.2/projects')
     .get(authenticate('jwt').always, projects.listAll)
     .post(authenticate('jwt').always, jsonParser, projects.insertOne);
 
-router.route('/:realm/v0.2/projects/:id/users')
+router.route('/:realm/v0.2/projects/:projectId/users')
     .post(authenticate('jwt').always, jsonParser, projects.userAssignment);
 
-router.route('/:realm/v0.2/projects/:id/users/:userId')
+router.route('/:realm/v0.2/projects/:projectId/users/:userId')
     .delete(authenticate('jwt').always, projects.userRemoval);
 
 router.route('/:realm/v0.2/projects/:id')
@@ -443,7 +443,7 @@ router.route('/:realm/v0.2/discussions/:id')
     .put(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ discussions.updateOne)
     .delete(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ discussions.deleteOne);
 
-router.route('/:realm/v0.2/discussions/resolve/:id')
+router.route('/:realm/v0.2/discussions/resolve/:questionId')
     .put(authenticate('jwt').always, discussions.markAsResolved);
 
 //----------------------------------------------------------------------------------------------------------------------

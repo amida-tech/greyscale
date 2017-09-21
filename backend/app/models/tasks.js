@@ -15,7 +15,8 @@ var Task = sql.define({
         //'userId',
         'userIds',
         'groupIds',
-        'langId'
+        'langId',
+        'isDeleted'
     ]
 });
 
