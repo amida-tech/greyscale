@@ -205,6 +205,7 @@ module.exports = {
                 roleID: data.roleID,
                 organizationId: data.organizationId,
                 isActive: data.isActive,
+                registered: data.registered,
             });
         }, function (err) {
             next(err);
@@ -1104,6 +1105,7 @@ module.exports = {
             }
 
             //new salt for old user if password changed
+            // user.registered to check if user already in system. If so, best not to use below.
             var salt = (!_.first(user).salt) ? crypto.randomBytes(16).toString('hex') : _.first(user).salt;
             var data = {
                 'salt': salt,
@@ -1175,6 +1177,7 @@ function* insertOne(req, res, next) {
 
     var isExistUser = yield * common.isExistsUserInRealm(req, req.params.realm, req.body.email);
     if (isExistUser) {
+        isExistUser.registered = true;
         return (isExistUser);
     }
 
