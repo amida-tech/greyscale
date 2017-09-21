@@ -2784,7 +2784,8 @@ CREATE TABLE "Tasks" (
     "langId" integer,
     "isComplete" boolean DEFAULT false NOT NULL,
     "userIds" integer[],
-    "groupIds" integer[]
+    "groupIds" integer[],
+    "isDeleted" timestamp(6) without time zone
 );
 
 
@@ -4392,7 +4393,8 @@ CREATE TABLE "Tasks" (
     "langId" integer,
     "isComplete" boolean DEFAULT false NOT NULL,
     "userIds" integer[],
-    "groupIds" integer[]
+    "groupIds" integer[],
+    "isDeleted" timestamp(6) without time zone
 );
 
 

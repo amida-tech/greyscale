@@ -303,20 +303,14 @@ module.exports = {
         co(function* () {
 
             // Check if there is a record matching the passed in discussion ID
-            var discussionExist = yield thunkQuery(
-                '( ' +
-                'SELECT count(1) ' +
-                'FROM "Discussions" ' +
-                'WHERE "Discussions"."questionId" = ' + req.params.id +
-                ') '
-            );
+            var discussionExist = yield * common.checkRecordExistById(req, 'Discussions', 'questionId', req.params.questionId);
 
-            if (parseInt(discussionExist['0'].count) > 0) {
+            if (discussionExist === true) {
                 return yield thunkQuery(
                     Discussion.update({
                         isResolve: true
                     }).where(
-                        Discussion.questionId.equals(req.params.id)
+                        Discussion.questionId.equals(req.params.questionId)
                     )
                 );
             } else {
@@ -328,7 +322,7 @@ module.exports = {
                 user: req.user,
                 action: 'update',
                 object: 'discussions',
-                entity: req.params.id,
+                entity: req.params.questionId,
                 info: 'Resolve Discussion'
             });
             res.status(202).json({
