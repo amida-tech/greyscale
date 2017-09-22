@@ -11,8 +11,8 @@ var expect = chai.expect;
 module.exports = class IndaSupertest {
     constructor() {
         this.server = null;
-        this.baseAdminUrl = `/${config.pgConnect.adminSchema}/v0.2`;
-        this.authServiceUrl = "http://localhost:4000";
+        // this.baseAdminUrl = `/${config.pgConnect.adminSchema}/v0.2`;
+        // this.authServiceUrl = `/${config.pgConnect.authServiceApi}/auth`;
         this.token = null;
         this.realm = null;
     }
@@ -23,11 +23,10 @@ module.exports = class IndaSupertest {
         this.token = null;
     }
 
-    authCommon(user, status, userId) {
+    authCommon(user, status = 200) {
         return this.server
-            .post('http://localhost:4000/api/auth/login')
+            .post('/api/auth/login')
             .send(user)
-            // .auth(user.email, user.password)
             .expect(status)
             .then((res) => {
                 const token = res.body.token;
@@ -38,20 +37,20 @@ module.exports = class IndaSupertest {
     }
 
 
-    authAdminBasic(user, status = 200) {
-        // const endpoint = `${this.baseAdminUrl}/users/token`;
-        // const endpoint = `${this.authServiceUrl}/login`;
-        return this.authCommon(user, status);
-    }
+    // authAdminBasic(user, status = 200) {
+    //     // const endpoint = `${this.baseAdminUrl}/users/token`;
+    //     const endpoint = `${this.authServiceUrl}/login`;
+    //     return this.authCommon(endpoint, user, status);
+    // }
 
     setRealm(realm) {
         this.realm = realm;
     }
 
-    authBasic(user, status = 200, userId = null) {
-        const endpoint = `/${this.realm}/v0.2/users/token`;
-        return this.authCommon(endpoint, user, status, userId);
-    }
+    // authBasic(user, status = 200, userId = null) {
+    //     const endpoint = `/${this.realm}/v0.2/users/token`;
+    //     return this.authCommon(endpoint, user, status, userId);
+    // }
 
     resetAuth() {
         this.server = session(this.app);

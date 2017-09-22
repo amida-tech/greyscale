@@ -34,7 +34,7 @@ describe('user integration', function userIntegration() {
 
     before(shared.setupFn({ dbname }));
 
-    it('login as super user', shared.loginAdminFn(superAdmin));
+    it('login as super user', shared.loginFn(superAdmin));
 
     it('create organization', orgTests.createOrganizationFn(organization));
 

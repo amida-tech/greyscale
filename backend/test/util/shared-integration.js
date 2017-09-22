@@ -51,17 +51,17 @@ class SharedIntegration {
         };
     }
 
-    loginAdminFn(user) {
-        const indaSuperTest = this.indaSuperTest;
-        return function login() {
-            return indaSuperTest.authAdminBasic(user);
-        };
-    }
+    // loginAdminFn(user) {
+    //     const indaSuperTest = this.indaSuperTest;
+    //     return function login() {
+    //         return indaSuperTest.authAdminBasic(user);
+    //     };
+    // }
 
     loginFn(user) {
         const indaSuperTest = this.indaSuperTest;
         return function login() {
-            return indaSuperTest.authBasic(user);
+            return indaSuperTest.authCommon(user);
         };
     }
 

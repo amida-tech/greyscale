@@ -31,6 +31,7 @@ var environments = {
             host: process.env.RDS_HOSTNAME || process.env.INDABA_PG_HOSTNAME || 'localhost',
             port: 5432,
             adminSchema: 'public',
+            authServiceApi: 'api',
             sceletonSchema: 'sceleton'
         },
         mc: { // memcache
@@ -120,6 +121,7 @@ var environments = {
             host: process.env.RDS_HOSTNAME || process.env.INDABA_PG_HOSTNAME || 'localhost',
             port: 5432,
             adminSchema: 'public',
+            authServiceApi: 'api',
             sceletonSchema: 'sceleton'
         },
         mc: { // memcache
