@@ -178,13 +178,12 @@ passport.use(new JwtStrategy(jwtOptions,
             var tokenBody = req.headers.authorization.split(' ')[1];
 
             // Get the authenticated user from the DB
-            //TODO: Change payload to email when auth service has that
             var user = yield thunkQuery(
                 '( ' +
                 'SELECT ' +
                 '"Users".* ' +
                 'FROM ' + req.params.realm + '."Users"' +
-                'WHERE "Users"."email" = \'' + decodedJWTPayload.username  +'\'' +
+                'WHERE "Users"."email" = \'' + decodedJWTPayload.email  +'\'' +
                 ') '
             );
 
