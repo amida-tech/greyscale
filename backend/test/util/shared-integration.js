@@ -10,7 +10,7 @@ const appGenerator = require('../../app/app-generator');
 
 const pgUtil = require('./pg-util');
 const config = require('../../config');
-const memcacheMock = require('./memcache-mock')
+const memcacheMock = require('./memcache-mock');
 
 class SharedIntegration {
     constructor(indaSuperTest, hxUser) {
@@ -50,13 +50,6 @@ class SharedIntegration {
             });
         };
     }
-
-    // loginAdminFn(user) {
-    //     const indaSuperTest = this.indaSuperTest;
-    //     return function login() {
-    //         return indaSuperTest.authAdminBasic(user);
-    //     };
-    // }
 
     loginFn(user) {
         const indaSuperTest = this.indaSuperTest;
