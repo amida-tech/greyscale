@@ -45,60 +45,6 @@ var Query = require('../util').Query,
     thunkrandomBytes = thunkify(crypto.randomBytes);
 
 module.exports = {
-    token: function (req, res, next) {
-        var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
-        co(function* () {
-            var needNewToken = true; // before false. Always new token
-            var data = yield thunkQuery(Token.select().where({
-                userID: req.user.id,
-                realm: req.params.realm
-            }));
-            if (!data.length) {
-                needNewToken = true;
-            }
-            //if (!needNewToken && new Date(data[0].issuedAt).getTime() + config.authToken.expiresAfterSeconds < Date.now()) {
-            //    needNewToken = true;
-            //}
-            if (needNewToken) {
-                var payload = {
-                    id: req.user.id,
-                    email: req.user.email,
-                    roleID: req.user.roleID,
-                };
-                var token = jwt.sign(payload, jwtOptions.secretOrKey);
-                res.cookie('inba-jwt-token', token);
-                var record = yield thunkQuery(Token.insert({
-                    userID: req.user.id,
-                    body: token,
-                    realm: req.params.realm
-                }).returning(Token.body));
-                bologger.log({
-                    //req: req, Does not use req if you want to use public namespace TODO realm?
-                    user: req.user,
-                    action: 'insert',
-                    object: 'token',
-                    entities: {
-                        userID: req.user.id,
-                        body: token,
-                        realm: req.params.realm
-                    },
-                    quantity: 1,
-                    info: 'Add new token'
-                });
-                return record;
-            } else {
-                return data;
-            }
-        }).then(function (data) {
-            res.json({
-                token: data[0].body,
-                realm: req.params.realm
-            });
-        }, function (err) {
-            next(err);
-        });
-    },
-
     checkToken: function (req, res, next) {
         var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
 

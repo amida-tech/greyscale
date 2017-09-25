@@ -168,7 +168,7 @@ var environments = {
                 firstName: 'Admin',
                 lastName: 'Test',
                 roleID: 2,
-                password: 'testadmin',
+                password: 'testadmin12345',
                 token: ''
             },
             users: [
