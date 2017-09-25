@@ -321,9 +321,6 @@ router.route('/:realm/v0.2/users')
     .get(authenticate('jwt').always, users.select)
     .post(authenticate('jwt').ifPossible, jsonParser, users.insertOne);
 
-router.route('/:realm/v0.2/users/token')
-    .get(authenticate('basic').always, /*checkRight('users_token'),*/ users.token);
-
 router.route('/:realm/v0.2/users/checkToken/:token')
     .get(users.checkToken);
 
