@@ -13,7 +13,7 @@ const config = require('../../config');
 const memcacheMock = require('./memcache-mock')
 
 class SharedIntegration {
-    constructor(indaSuperTest, hxUser) {
+    constructor(indaSuperTest, hxUser, server) {
         this.indaSuperTest = indaSuperTest;
         this.hxUser = hxUser;
     }

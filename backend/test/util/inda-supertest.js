@@ -3,14 +3,15 @@
 const chai = require('chai');
 const session = require('supertest-session');
 const _ = require('lodash');
+const sinon = require('sinon');
 
 const config = require('../../config');
+var jQuery = require('jquery');
 
 var expect = chai.expect;
 
 module.exports = class IndaSupertest {
     constructor() {
-        this.server = null;
         this.baseAdminUrl = `/${config.pgConnect.adminSchema}/v0.2`;
         this.token = null;
         this.realm = null;
