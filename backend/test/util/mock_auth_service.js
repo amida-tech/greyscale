@@ -1,15 +1,10 @@
 'use strict';
 
-const _ = require('lodash');
-const passportJWT = require("passport-jwt");
-const config = require('../config');
+const config = require('../../config');
+const jwt = require('jsonwebtoken');
 
 const jwtOptions = {};
-jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 jwtOptions.secretOrKey = config.jwtSecret;
-jwtOptions.passReqToCallback = true;
-
-
 
 class AuthService {
     constructor() {
@@ -17,13 +12,17 @@ class AuthService {
     }
 
     addUser(user) {
-        this.usernameToJWT[user.username] = createJWT(user)
+        const payload = {
+            username: user.email,
+            email: user.email,
+            scopes: user.scopes,
+        };
+        this.usernameToJWT[user.username] = jwt.sign(payload, jwtOptions.secretOrKey);
     }
 
     getJWT(user) {
         return this.usernameToJWT[user.username];
     }
-
  }
 
 module.exports = AuthService;

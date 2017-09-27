@@ -159,9 +159,8 @@ var environments = {
                 email: 'su@mail.net',
                 firstName: 'SuperAdmin',
                 lastName: 'Test',
-                roleID: 1,
+                scopes: 'admin',
                 password: 'testuser',
-                token: ''
             },
             admin: {
                 email: 'test-adm@mail.net',
@@ -169,7 +168,6 @@ var environments = {
                 lastName: 'Test',
                 roleID: 2,
                 password: 'testadmin12345',
-                token: ''
             },
             users: [
                 {

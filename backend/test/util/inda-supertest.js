@@ -6,14 +6,15 @@ const _ = require('lodash');
 const sinon = require('sinon');
 
 const config = require('../../config');
-var jQuery = require('jquery');
+const AuthService = require('../util/mock_auth_service');
+
+const authService = new AuthService();
 
 var expect = chai.expect;
 
 module.exports = class IndaSupertest {
     constructor() {
         this.baseAdminUrl = `/${config.pgConnect.adminSchema}/v0.2`;
-        this.token = null;
         this.realm = null;
     }
 
@@ -23,23 +24,26 @@ module.exports = class IndaSupertest {
         this.token = null;
     }
 
-    authCommon(endpoint, user, status, userId) {
-        return this.server
-            .get(endpoint)
-            .auth(user.email, user.password)
-            .expect(status)
-            .then((res) => {
-                const token = res.body.token;
-                expect(!!token).to.equal(true);
-                this.token = 'JWT '+ token;
-                this.userId = userId;
-            });
+    authCommon(user, status, userId) {
+        authService.addUser(user);
+
+        this.token = 'Bearer ' + authService.getJWT(user);
+        this.userId = userId;
+
+        // return this.server
+        //     .auth(user.email, user.password)
+        //     .expect(status)
+        //     .then((res) => {
+        //         const token = authService.getJWT(user);
+        //         expect(!!token).to.equal(true);
+        //         this.token = 'JWT '+ token;
+        //         this.userId = userId;
+        //     });
     }
 
 
     authAdminBasic(user, status = 200) {
-        const endpoint = `${this.baseAdminUrl}/users/token`;
-        return this.authCommon(endpoint, user, status);
+        return this.authCommon(user, status);
     }
 
     setRealm(realm) {
