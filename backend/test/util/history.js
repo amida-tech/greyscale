@@ -59,6 +59,7 @@ class History {
     }
 
     id(index) {
+        console.log('3. ID is '+ this.history[index].id);
         return this.history[index].id;
     }
 

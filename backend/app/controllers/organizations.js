@@ -29,6 +29,7 @@ debug.log = console.log.bind(console);
 module.exports = {
 
     selectOne: function (req, res, next) { //TODO superadmin request
+        console.log('I AM IN THE FN');
         var thunkQuery = req.thunkQuery;
 
         co(function* () {
@@ -67,7 +68,6 @@ module.exports = {
     },
 
     select: function (req, res, next) {
-
         co(function* () {
             var thunkQuery, data;
             if (req.user.roleID === 1 && req.params.realm === config.pgConnect.adminSchema) {

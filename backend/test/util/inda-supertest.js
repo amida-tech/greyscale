@@ -13,9 +13,10 @@ const authService = new AuthService();
 var expect = chai.expect;
 
 module.exports = class IndaSupertest {
-    constructor() {
+    constructor(authService) {
         this.baseAdminUrl = `/${config.pgConnect.adminSchema}/v0.2`;
         this.realm = null;
+        this.authService = authService;
     }
 
     initialize(app) {
@@ -24,26 +25,14 @@ module.exports = class IndaSupertest {
         this.token = null;
     }
 
-    authCommon(user, status, userId) {
-        authService.addUser(user);
-
-        this.token = 'Bearer ' + authService.getJWT(user);
+    authCommon(user, userId) {
+        this.token = 'Bearer ' + this.authService.getJWT(user);
         this.userId = userId;
-
-        // return this.server
-        //     .auth(user.email, user.password)
-        //     .expect(status)
-        //     .then((res) => {
-        //         const token = authService.getJWT(user);
-        //         expect(!!token).to.equal(true);
-        //         this.token = 'JWT '+ token;
-        //         this.userId = userId;
-        //     });
     }
 
 
-    authAdminBasic(user, status = 200) {
-        return this.authCommon(user, status);
+    authAdminBasic(user) {
+        return this.authCommon(user);
     }
 
     setRealm(realm) {

@@ -18,7 +18,9 @@ const AuthService = require('./util/mock_auth_service');
 
 describe('user integration', function userIntegration() {
     const dbname = 'indabatestuser';
-    const superTest = new IndaSuperTest();
+
+    const authService = new AuthService();
+    const superTest = new IndaSuperTest(authService);
     const shared = new SharedIntegration(superTest);
     const orgTests = new organizationCommon.IntegrationTests(superTest);
 
@@ -28,8 +30,6 @@ describe('user integration', function userIntegration() {
     const groupOptions = { hxOrganization: orgTests.hxOrganization, hxGroup };
     const groupTests = new groupCommon.IntegrationTests(superTest, groupOptions);
 
-    const authService = new AuthService();
-
     const superAdmin = config.testEntities.superAdmin;
     const organization = config.testEntities.organization;
     const admin = config.testEntities.admin;
@@ -38,7 +38,9 @@ describe('user integration', function userIntegration() {
 
     before(shared.setupFn({ dbname }));
 
-    it('Mock Auth Service and Sign JWT',  authService.addUser(superAdmin));
+    it('add super admin user and sign JWT',  function() { authService.addUser(superAdmin) });
+
+    it('create organization without JWT', orgTests.createOrganizationWithNoJWTFn(organization));
 
     it('login as super user', shared.loginAdminFn(superAdmin));
 
@@ -48,7 +50,9 @@ describe('user integration', function userIntegration() {
 
     it('get organization', orgTests.getOrganizationFn(0));
 
-    // it('invite organization admin', userTests.inviteUserFn(admin));
+    it('add admin user and sign JWT',  function() { authService.addUser(admin) });
+
+    it('invite organization admin', userTests.inviteUserFn(admin));
     //
     // it('logout as super user', shared.logoutFn());
     //
