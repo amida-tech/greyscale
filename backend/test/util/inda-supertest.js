@@ -3,7 +3,6 @@
 const chai = require('chai');
 const session = require('supertest-session');
 const _ = require('lodash');
-const sinon = require('sinon');
 
 const config = require('../../config');
 const AuthService = require('../util/mock_auth_service');
