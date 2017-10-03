@@ -189,7 +189,7 @@ passport.use(new JwtStrategy(jwtOptions,
                 'WHERE "Users"."email" = \'' + decodedJWTPayload.email  +'\'' +
                 ') '
             );
-            
+
             //TODO: Rather than checking the public schema, decide on how scopes from the
             //TODO: auth service will work with indaba and modify this
             if (!_.first(user)) { // user doesn't exist in the given realm

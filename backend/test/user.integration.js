@@ -42,7 +42,7 @@ describe('user integration', function userIntegration() {
 
     it('create organization without JWT', orgTests.createOrganizationWithNoJWTFn(organization));
 
-    it('login as super user', shared.loginAdminFn(superAdmin));
+    it('login as super user', shared.loginFn(superAdmin));
 
     it('create organization', orgTests.createOrganizationFn(organization));
 

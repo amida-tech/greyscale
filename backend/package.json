@@ -20,7 +20,6 @@
     "ejs-locals": "1.0.2",
     "express": "4.10.2",
     "express-csv": "0.6.0",
-    "jquery": "^3.2.1",
     "jsonwebtoken": "^7.4.1",
     "memcache": "0.3.0",
     "mocha": "1.20.1",

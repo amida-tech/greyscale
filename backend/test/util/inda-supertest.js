@@ -25,23 +25,16 @@ module.exports = class IndaSupertest {
         this.token = null;
     }
 
-    authCommon(user, userId) {
+    authCommon(user) {
         this.token = 'Bearer ' + this.authService.getJWT(user);
-        this.userId = userId;
-    }
-
-
-    authAdminBasic(user) {
-        return this.authCommon(user);
     }
 
     setRealm(realm) {
         this.realm = realm;
     }
 
-    authBasic(user, status = 200, userId = null) {
-        const endpoint = `/${this.realm}/v0.2/users/token`;
-        return this.authCommon(endpoint, user, status, userId);
+    authBasic(user) {
+        return this.authCommon(user);
     }
 
     resetAuth() {
