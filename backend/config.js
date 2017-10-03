@@ -160,7 +160,7 @@ var environments = {
                 firstName: 'SuperAdmin',
                 lastName: 'Test',
                 scopes: 'admin',
-                password: 'testuser',
+                password: 'testuser12345',
             },
             admin: {
                 email: 'test-adm@mail.net',

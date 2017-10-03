@@ -29,7 +29,6 @@ debug.log = console.log.bind(console);
 module.exports = {
 
     selectOne: function (req, res, next) { //TODO superadmin request
-        console.log('I AM IN THE FN');
         var thunkQuery = req.thunkQuery;
 
         co(function* () {
@@ -155,7 +154,6 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
-
         if (req.user.roleID !== 1) {
             throw new HttpError(403, 'Only super admin can create organizations');
         }

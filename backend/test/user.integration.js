@@ -50,45 +50,45 @@ describe('user integration', function userIntegration() {
 
     it('get organization', orgTests.getOrganizationFn(0));
 
+    it('invite organization admin', userTests.inviteUserFn(admin));
+
+    it('logout as super user', shared.logoutFn());
+
     it('add admin user and sign JWT',  function() { authService.addUser(admin) });
 
-    it('invite organization admin', userTests.inviteUserFn(admin));
-    //
-    // it('logout as super user', shared.logoutFn());
-    //
-    // it('organization admin checks activation token', userTests.checkActivitabilityFn(0));
-    //
-    // it('organization admin activates', userTests.selfActivateFn(0));
-    //
-    // it('login as admin', shared.loginFn(admin));
-    //
-    // users.forEach((user, index) => {
-    //     it(`invite user ${index}`, userTests.inviteUserFn(user));
-    // });
-    //
-    // it('logout as admin', shared.logoutFn());
-    //
-    // users.forEach((user, index) => {
-    //     it(`user ${index} activates`, userTests.selfActivateFn(index + 1));
-    //
-    //     it(`login as user ${index}`, shared.loginFn(user));
-    //
-    //     it(`logout as user ${index}`, shared.logoutFn());
-    // });
-    //
-    // it('login as admin', shared.loginFn(admin));
-    //
-    // _.range(4).forEach((index) => {
-    //     it(`create group ${index}`, groupTests.createGroupFn());
-    // });
-    //
-    // it('assign user 1 groups 0, 2', userTests.updateUserGroupsFn(1, [0, 2]));
-    // it('assign user 2 groups 1, 2', userTests.updateUserGroupsFn(2, [1, 2]));
-    //
-    // it('verify user 1', userTests.getUserFn(1));
-    // it('verify user 2', userTests.getUserFn(2));
-    //
-    // it('logout as admin', shared.logoutFn());
+    it('organization admin checks activation token', userTests.checkActivitabilityFn(0));
+
+    it('organization admin activates', userTests.selfActivateFn(0));
+
+    it('login as admin', shared.loginFn(admin));
+
+    users.forEach((user, index) => {
+        it(`invite user ${index}`, userTests.inviteUserFn(user));
+    });
+
+    it('logout as admin', shared.logoutFn());
+
+    users.forEach((user, index) => {
+        it(`user ${index} activates`, userTests.selfActivateFn(index + 1));
+
+        it(`login as user ${index}`, shared.loginFn(user));
+
+        it(`logout as user ${index}`, shared.logoutFn());
+    });
+
+    it('login as admin', shared.loginFn(admin));
+
+    _.range(4).forEach((index) => {
+        it(`create group ${index}`, groupTests.createGroupFn());
+    });
+
+    it('assign user 1 groups 0, 2', userTests.updateUserGroupsFn(1, [0, 2]));
+    it('assign user 2 groups 1, 2', userTests.updateUserGroupsFn(2, [1, 2]));
+
+    it('verify user 1', userTests.getUserFn(1));
+    it('verify user 2', userTests.getUserFn(2));
+
+    it('logout as admin', shared.logoutFn());
 
     after(shared.unsetupFn());
 });

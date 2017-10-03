@@ -63,7 +63,10 @@ module.exports = {
                 var insertArr = _.map(req.body.users, (userId) => ({userId, groupId}));
                 yield thunkQuery(UserGroup.insert(insertArr));
             }
-            yield thunkQuery(ProjectUserGroup.insert({projectId: req.body.projectId, groupId}));
+
+            if (req.body.projectId) {
+                yield thunkQuery(ProjectUserGroup.insert({projectId: req.body.projectId, groupId}));
+            }
             return groupResult;
         }).then(function (data) {
             bologger.log({

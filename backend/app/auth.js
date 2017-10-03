@@ -177,6 +177,10 @@ passport.use(new JwtStrategy(jwtOptions,
 
             var tokenBody = req.headers.authorization.split(' ')[1];
 
+            var clientThunkQuery, adminUser;
+            var admThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
+
+            // check if a user with the decoded payload exist in the given realm
             var user = yield thunkQuery(
                 '( ' +
                 'SELECT ' +
@@ -185,12 +189,55 @@ passport.use(new JwtStrategy(jwtOptions,
                 'WHERE "Users"."email" = \'' + decodedJWTPayload.email  +'\'' +
                 ') '
             );
-
-            if (!_.first(user)) {
-                throw new HttpError(404, 'No user found');
+            
+            //TODO: Rather than checking the public schema, decide on how scopes from the
+            //TODO: auth service will work with indaba and modify this
+            if (!_.first(user)) { // user doesn't exist in the given realm
+                if (req.params.realm !== config.pgConnect.adminSchema) { //look in the Public realm if the user is a superAdmin
+                    adminUser = yield admThunkQuery(
+                        User
+                            .select(
+                                User.star(),
+                                Role.name.as('role')
+                            )
+                            .from(
+                                User
+                                    .leftJoin(Role)
+                                    .on(User.roleID.equals(Role.id))
+                            )
+                            .where(
+                                User.email.equals(decodedJWTPayload.email)
+                            )
+                    );
+                    if (adminUser[0]) { // user is ok
+                        // add projectId from realm
+                        if (req.params.realm !== config.pgConnect.adminSchema) { // only if realm is not public
+                            clientThunkQuery = thunkify(new Query(req.params.realm));
+                            var project = yield clientThunkQuery(
+                                Project
+                                    .select(
+                                        Project.id.as('projectId')
+                                    )
+                                    .from(
+                                        Project
+                                            .leftJoin(Organization).on(Project.organizationId.equals(Organization.id))
+                                    )
+                            );
+                            if (project[0]) {
+                                adminUser[0].projectId = project[0].projectId;
+                            }
+                        }
+                    }
+                } else {
+                    throw new HttpError(404, 'No user found');
+                }
             }
 
-            user = user[0];
+            if (user[0]) {
+                user = user[0];
+            } else {
+                user = adminUser[0];
+            }
 
             // add realmUserId to user
             user.realmUserId = user.id;
