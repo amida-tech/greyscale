@@ -176,7 +176,6 @@ var environments = {
                     email: 'user1@mail.net',
                     roleID: 3,
                     password: 'testuser1',
-                    token: ''
                 },
                 {
                     firstName: 'User2',
@@ -184,7 +183,6 @@ var environments = {
                     email: 'user2@mail.net',
                     roleID: 3,
                     password: 'testuser2',
-                    token: ''
                 },
                 {
                     firstName: 'User3',
@@ -192,7 +190,6 @@ var environments = {
                     email: 'user3@mail.net',
                     roleID: 3,
                     password: 'testuser3',
-                    token: ''
                 }
             ],
             organization : {

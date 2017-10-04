@@ -7,10 +7,6 @@ const _ = require('lodash');
 const config = require('../../config');
 const AuthService = require('../util/mock_auth_service');
 
-const authService = new AuthService();
-
-var expect = chai.expect;
-
 module.exports = class IndaSupertest {
     constructor(authService) {
         this.baseAdminUrl = `/${config.pgConnect.adminSchema}/v0.2`;
@@ -25,15 +21,16 @@ module.exports = class IndaSupertest {
     }
 
     authCommon(user) {
-        this.token = 'Bearer ' + this.authService.getJWT(user);
+        const token = this.authService.getJWT(user);
+        if (token) {
+            this.token = 'Bearer ' + token;
+        } else {
+            throw new Error('Login failed');
+        }
     }
 
     setRealm(realm) {
         this.realm = realm;
-    }
-
-    authBasic(user) {
-        return this.authCommon(user);
     }
 
     resetAuth() {
