@@ -14,10 +14,13 @@ const organizationCommon = require('./util/organization-common');
 const userCommon = require('./util/user-common');
 const groupCommon = require('./util/group-common');
 const History = require('./util/History');
+const AuthService = require('./util/mock_auth_service');
 
 describe('user integration', function userIntegration() {
-    const dbname = 'indabatestuser'
-    const superTest = new IndaSuperTest();
+    const dbname = 'indabatestuser';
+
+    const authService = new AuthService();
+    const superTest = new IndaSuperTest(authService);
     const shared = new SharedIntegration(superTest);
     const orgTests = new organizationCommon.IntegrationTests(superTest);
 
@@ -32,9 +35,14 @@ describe('user integration', function userIntegration() {
     const admin = config.testEntities.admin;
     const users = config.testEntities.users;
 
+
     before(shared.setupFn({ dbname }));
 
-    it('login as super user', shared.loginAdminFn(superAdmin));
+    it('add super admin user and sign JWT',  function() { authService.addUser(superAdmin) });
+
+    it('create organization without JWT', orgTests.createOrganizationWithNoJWTFn(organization));
+
+    it('login as super user', shared.loginFn(superAdmin));
 
     it('create organization', orgTests.createOrganizationFn(organization));
 
@@ -46,11 +54,13 @@ describe('user integration', function userIntegration() {
 
     it('logout as super user', shared.logoutFn());
 
+    it('add admin user and sign JWT',  function() { authService.addUser(admin) });
+
+    it('login as super user', shared.loginFn(admin));
+
     it('organization admin checks activation token', userTests.checkActivitabilityFn(0));
 
     it('organization admin activates', userTests.selfActivateFn(0));
-
-    it('login as admin', shared.loginFn(admin));
 
     users.forEach((user, index) => {
         it(`invite user ${index}`, userTests.inviteUserFn(user));
@@ -61,10 +71,14 @@ describe('user integration', function userIntegration() {
     users.forEach((user, index) => {
         it(`user ${index} activates`, userTests.selfActivateFn(index + 1));
 
+        it(`add user and sign JWT ${index}`, function() { authService.addUser(user) });
+
         it(`login as user ${index}`, shared.loginFn(user));
 
         it(`logout as user ${index}`, shared.logoutFn());
     });
+
+    it('create group without JWT', groupTests.createGroupWithOutJWTFn());
 
     it('login as admin', shared.loginFn(admin));
 

@@ -51,17 +51,10 @@ class SharedIntegration {
         };
     }
 
-    loginAdminFn(user) {
-        const indaSuperTest = this.indaSuperTest;
-        return function login() {
-            return indaSuperTest.authAdminBasic(user);
-        };
-    }
-
     loginFn(user) {
         const indaSuperTest = this.indaSuperTest;
         return function login() {
-            return indaSuperTest.authBasic(user);
+            return indaSuperTest.authCommon(user);
         };
     }
 
@@ -70,7 +63,7 @@ class SharedIntegration {
         return function loginIndex() {
             const user = that.hxUser.client(userIndex);
             const id = that.hxUser.id(userIndex);
-            return that.indaSuperTest.authBasic(user, 200, id);
+            return that.indaSuperTest.authCommon(user);
         };
     }
 

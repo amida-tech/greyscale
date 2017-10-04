@@ -67,7 +67,6 @@ module.exports = {
     },
 
     select: function (req, res, next) {
-
         co(function* () {
             var thunkQuery, data;
             if (req.user.roleID === 1 && req.params.realm === config.pgConnect.adminSchema) {
@@ -155,7 +154,6 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
-
         if (req.user.roleID !== 1) {
             throw new HttpError(403, 'Only super admin can create organizations');
         }

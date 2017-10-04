@@ -159,9 +159,8 @@ var environments = {
                 email: 'su@mail.net',
                 firstName: 'SuperAdmin',
                 lastName: 'Test',
-                roleID: 1,
-                password: 'testuser',
-                token: ''
+                scopes: 'admin',
+                password: 'testuser12345',
             },
             admin: {
                 email: 'test-adm@mail.net',
@@ -169,7 +168,6 @@ var environments = {
                 lastName: 'Test',
                 roleID: 2,
                 password: 'testadmin12345',
-                token: ''
             },
             users: [
                 {
@@ -178,7 +176,6 @@ var environments = {
                     email: 'user1@mail.net',
                     roleID: 3,
                     password: 'testuser1',
-                    token: ''
                 },
                 {
                     firstName: 'User2',
@@ -186,7 +183,6 @@ var environments = {
                     email: 'user2@mail.net',
                     roleID: 3,
                     password: 'testuser2',
-                    token: ''
                 },
                 {
                     firstName: 'User3',
@@ -194,7 +190,6 @@ var environments = {
                     email: 'user3@mail.net',
                     roleID: 3,
                     password: 'testuser3',
-                    token: ''
                 }
             ],
             organization : {

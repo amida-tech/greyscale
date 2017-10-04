@@ -5,15 +5,13 @@ const session = require('supertest-session');
 const _ = require('lodash');
 
 const config = require('../../config');
-
-var expect = chai.expect;
+const AuthService = require('../util/mock_auth_service');
 
 module.exports = class IndaSupertest {
-    constructor() {
-        this.server = null;
+    constructor(authService) {
         this.baseAdminUrl = `/${config.pgConnect.adminSchema}/v0.2`;
-        this.token = null;
         this.realm = null;
+        this.authService = authService;
     }
 
     initialize(app) {
@@ -22,32 +20,17 @@ module.exports = class IndaSupertest {
         this.token = null;
     }
 
-    authCommon(endpoint, user, status, userId) {
-        return this.server
-            .get(endpoint)
-            .auth(user.email, user.password)
-            .expect(status)
-            .then((res) => {
-                const token = res.body.token;
-                expect(!!token).to.equal(true);
-                this.token = 'JWT '+ token;
-                this.userId = userId;
-            });
-    }
-
-
-    authAdminBasic(user, status = 200) {
-        const endpoint = `${this.baseAdminUrl}/users/token`;
-        return this.authCommon(endpoint, user, status);
+    authCommon(user) {
+        const token = this.authService.getJWT(user);
+        if (token) {
+            this.token = 'Bearer ' + token;
+        } else {
+            throw new Error('Login failed');
+        }
     }
 
     setRealm(realm) {
         this.realm = realm;
-    }
-
-    authBasic(user, status = 200, userId = null) {
-        const endpoint = `/${this.realm}/v0.2/users/token`;
-        return this.authCommon(endpoint, user, status, userId);
     }
 
     resetAuth() {
