@@ -104,7 +104,7 @@ module.exports = {
     selectOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         var aggregateObject = {};
-        
+
         co(function* () {
             var project = yield thunkQuery(Project.select().from(Project).where(Project.id.equals(req.params.id)), req.query);
 
@@ -414,6 +414,7 @@ module.exports = {
                     Product.select(Product.id).from(Product).where(Product.projectId.equals(req.params.id))
                 )), 'id'));
 
+                //soft delete from tasks
                 if (productId) {
                     return yield thunkQuery(
                         'UPDATE "Tasks" ' +
