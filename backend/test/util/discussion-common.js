@@ -51,7 +51,6 @@ const IntegrationTests = class IntegrationTests {
             });
             return that.supertest.post('discussions', discussion, 201)
                 .then((res) => {
-                    console.log('USER FROM ID: ' + Object.keys(res.body));
                     expect(!!res.body.id).to.equal(true);
                     const server = _.cloneDeep(discussion);
                     server.id = res.body.id;
