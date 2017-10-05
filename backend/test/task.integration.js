@@ -20,14 +20,17 @@ const uoaCommon = require('./util/uoa-common');
 const uoatypeCommon = require('./util/uoatype-common');
 const taskCommon = require('./util/task-common');
 const History = require('./util/History');
+const AuthService = require('./util/mock_auth_service');
 
 const examples = require('./fixtures/example/surveys');
 
 const legacy = _.cloneDeep(examples.legacy);
 
 describe('task integration', function surveyIntegration() {
-    const dbname = 'indabatesttask'
-    const superTest = new IndaSuperTest();
+    const dbname = 'indabatesttask';
+
+    const authService = new AuthService();
+    const superTest = new IndaSuperTest(authService);
     const shared = new SharedIntegration(superTest);
     const orgTests = new organizationCommon.IntegrationTests(superTest);
 
@@ -72,7 +75,9 @@ describe('task integration', function surveyIntegration() {
 
     before(shared.setupFn({ dbname }));
 
-    it('login as super user', shared.loginAdminFn(superAdmin));
+    it('add super admin user and sign JWT',  function() { authService.addUser(superAdmin) });
+
+    it('login as super admin user', shared.loginFn(superAdmin));
 
     it('create organization', orgTests.createOrganizationFn(organization));
 
@@ -83,6 +88,8 @@ describe('task integration', function surveyIntegration() {
     it('logout as super user', shared.logoutFn());
 
     it('organization admin activates', userTests.selfActivateFn(0));
+
+    it('add admin user and sign JWT',  function() { authService.addUser(admin) });
 
     it('login as admin', shared.loginFn(admin));
 
