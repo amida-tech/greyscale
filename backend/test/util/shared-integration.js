@@ -58,15 +58,6 @@ class SharedIntegration {
         };
     }
 
-    loginIndexFn(userIndex) {
-        const that = this;
-        return function loginIndex() {
-            const user = that.hxUser.client(userIndex);
-            const id = that.hxUser.id(userIndex);
-            return that.indaSuperTest.authCommon(user);
-        };
-    }
-
     logoutFn() {
         const indaSuperTest = this.indaSuperTest;
         return function logout() {
