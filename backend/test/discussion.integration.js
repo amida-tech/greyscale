@@ -21,15 +21,18 @@ const uoatypeCommon = require('./util/uoatype-common');
 const taskCommon = require('./util/task-common');
 const discussionCommon = require('./util/discussion-common');
 const History = require('./util/History');
+const AuthService = require('./util/mock_auth_service');
 
 const examples = require('./fixtures/example/surveys');
 
 const legacy = _.cloneDeep(examples.legacy);
 
 describe('discussion integration', function surveyIntegration() {
-    const dbname = 'indabatestdiscussion'
+    const dbname = 'indabatestdiscussion';
+
+    const authService = new AuthService();
     const hxUser = new History();
-    const superTest = new IndaSuperTest();
+    const superTest = new IndaSuperTest(authService);
     const shared = new SharedIntegration(superTest, hxUser);
     const orgTests = new organizationCommon.IntegrationTests(superTest);
 
@@ -87,7 +90,9 @@ describe('discussion integration', function surveyIntegration() {
 
     before(shared.setupFn({ dbname }));
 
-    it('login as super user', shared.loginAdminFn(superAdmin));
+    it('add super admin user and sign JWT',  function() { authService.addUser(superAdmin) });
+
+    it('login as super user', shared.loginFn(superAdmin));
 
     it('create organization', orgTests.createOrganizationFn(organization));
 
@@ -99,7 +104,9 @@ describe('discussion integration', function surveyIntegration() {
 
     it('organization admin activates', userTests.selfActivateFn(0));
 
-    it('login as admin', shared.loginIndexFn(0));
+    it('add admin user and sign JWT',  function() { authService.addUser(admin) });
+
+    it('login as admin', shared.loginFn(admin));
 
     _.range(2).forEach((index) => {
         it(`create group ${index}`, groupTests.createGroupFn());
@@ -153,7 +160,10 @@ describe('discussion integration', function surveyIntegration() {
 
     // actual test
 
-    it('login as admin', shared.loginIndexFn(0));
+    it('add admin user and sign JWT',  function() { authService.addUser(admin) });
+
+    it('login as admin', shared.loginFn(admin));
+
     it('create discussion 0 from admin to task 0 step 1', tests.createDiscussionFn({
         questionIndex: 0,
         taskIndex: 0,
