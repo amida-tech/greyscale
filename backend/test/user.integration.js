@@ -56,11 +56,11 @@ describe('user integration', function userIntegration() {
 
     it('add admin user and sign JWT',  function() { authService.addUser(admin) });
 
+    it('login as super user', shared.loginFn(admin));
+
     it('organization admin checks activation token', userTests.checkActivitabilityFn(0));
 
     it('organization admin activates', userTests.selfActivateFn(0));
-
-    it('login as admin', shared.loginFn(admin));
 
     users.forEach((user, index) => {
         it(`invite user ${index}`, userTests.inviteUserFn(user));
@@ -71,10 +71,14 @@ describe('user integration', function userIntegration() {
     users.forEach((user, index) => {
         it(`user ${index} activates`, userTests.selfActivateFn(index + 1));
 
+        it(`add user and sign JWT ${index}`, function() { authService.addUser(user) });
+
         it(`login as user ${index}`, shared.loginFn(user));
 
         it(`logout as user ${index}`, shared.logoutFn());
     });
+
+    it('create group without JWT', groupTests.createGroupWithOutJWTFn());
 
     it('login as admin', shared.loginFn(admin));
 

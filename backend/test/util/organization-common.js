@@ -39,7 +39,7 @@ const IntegrationTests = class IntegrationTests {
             const orgId = hxOrganization.id(index);
             return supertest.get(`organizations/${orgId}`, 200)
                 .then((res) => {
-                    const organization = hxOrganization.client(index);             
+                    const organization = hxOrganization.client(index);
                     const expected = Object.assign({ id: orgId }, organization);
                     const actual = _.pick(res.body, ['id', 'realm', 'name']);
                     expect(actual).to.deep.equal(expected);

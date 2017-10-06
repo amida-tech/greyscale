@@ -1,9 +1,6 @@
 var passport = require('passport'),
     BasicStrategy = require('passport-http').BasicStrategy,
-    TokenStrategy = require('../lib/passport_token'),
-    jwt = require("jsonwebtoken"),
     passportJWT = require("passport-jwt"),
-    client = require('./db_bootstrap'),
     User = require('./models/users'),
     Role = require('./models/roles'),
     Token = require('./models/token'),
@@ -33,8 +30,7 @@ var Query = require('./util').Query,
 var thunkQuery = thunkify(query);
 
 var Right = require('./models/rights'),
-    RoleRights = require('./models/role_rights'),
-    UserRights = false;
+    RoleRights = require('./models/role_rights');
 
 var requestRights = 'ARRAY(' +
     ' SELECT "Rights"."action" FROM "RolesRights" ' +
@@ -177,8 +173,7 @@ passport.use(new JwtStrategy(jwtOptions,
 
             var tokenBody = req.headers.authorization.split(' ')[1];
 
-            var clientThunkQuery, adminUser;
-            var admThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
+            var adminUser;
 
             // check if a user with the decoded payload exist in the given realm
             var user = yield thunkQuery(
@@ -194,6 +189,7 @@ passport.use(new JwtStrategy(jwtOptions,
             //TODO: auth service will work with indaba and modify this
             if (!_.first(user)) { // user doesn't exist in the given realm
                 if (req.params.realm !== config.pgConnect.adminSchema) { //look in the Public realm if the user is a superAdmin
+                    const admThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
                     adminUser = yield admThunkQuery(
                         User
                             .select(
@@ -212,7 +208,7 @@ passport.use(new JwtStrategy(jwtOptions,
                     if (adminUser[0]) { // user is ok
                         // add projectId from realm
                         if (req.params.realm !== config.pgConnect.adminSchema) { // only if realm is not public
-                            clientThunkQuery = thunkify(new Query(req.params.realm));
+                            const clientThunkQuery = thunkify(new Query(req.params.realm));
                             var project = yield clientThunkQuery(
                                 Project
                                     .select(

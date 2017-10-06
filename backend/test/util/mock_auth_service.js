@@ -17,11 +17,15 @@ class AuthService {
             email: user.email,
             scopes: user.scopes,
         };
-        this.usernameToJWT[user.username] = jwt.sign(payload, jwtOptions.secretOrKey);
+        this.usernameToJWT[user.email] = jwt.sign(payload, jwtOptions.secretOrKey);
     }
 
     getJWT(user) {
-        return this.usernameToJWT[user.username];
+        if (typeof this.usernameToJWT[user.email] !== 'undefined') {
+            return this.usernameToJWT[user.email];
+        } else {
+            return null;
+        }
     }
  }
 

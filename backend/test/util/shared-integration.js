@@ -13,7 +13,7 @@ const config = require('../../config');
 const memcacheMock = require('./memcache-mock')
 
 class SharedIntegration {
-    constructor(indaSuperTest, hxUser, server) {
+    constructor(indaSuperTest, hxUser) {
         this.indaSuperTest = indaSuperTest;
         this.hxUser = hxUser;
     }
@@ -54,16 +54,7 @@ class SharedIntegration {
     loginFn(user) {
         const indaSuperTest = this.indaSuperTest;
         return function login() {
-            return indaSuperTest.authBasic(user);
-        };
-    }
-
-    loginIndexFn(userIndex) {
-        const that = this;
-        return function loginIndex() {
-            const user = that.hxUser.client(userIndex);
-            const id = that.hxUser.id(userIndex);
-            return that.indaSuperTest.authBasic(user, 200, id);
+            return indaSuperTest.authCommon(user);
         };
     }
 

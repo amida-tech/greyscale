@@ -364,7 +364,6 @@ var getReturnStep = function* (req, taskId) {
 exports.getReturnStep = getReturnStep;
 
 var prepUsersForTask = function* (req, task) {
-
     if (typeof task.userId === 'undefined' && typeof task.userIds === 'undefined' && typeof task.groupIds === 'undefined') {
         throw new HttpError(403, 'userId or userIds or groupIds fields are required');
     } else if (typeof task.groupIds === 'undefined' && (typeof task.userIds === 'undefined' || !Array.isArray(task.userIds))) {
