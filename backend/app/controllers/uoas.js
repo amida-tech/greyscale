@@ -70,8 +70,9 @@ module.exports = {
     insert: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        // Verify that the body contains
+        // Verify that the body contains the subjects
         if (req.body.subjects) {
+            //convert the input to an array because we want to be able to pass in just one subject
             if (!Array.isArray(req.body.subjects)) {
                 req.body.subjects = [{name: req.body.subjects}];
             }
@@ -87,7 +88,6 @@ module.exports = {
                 '."name") IN (' + sqlString.toLowerCase() + ') AND "UnitOfAnalysis"' +
                 '."unitOfAnalysisType" = ' + req.body.unitOfAnalysisType
             );
-
             var insert = _.difference(uoas, added.map((exist) => exist.name));
             for (var i = 0; i < insert.length; i++) {
                 var result = yield thunkQuery(UnitOfAnalysis.insert({
@@ -99,7 +99,6 @@ module.exports = {
                 }).returning(UnitOfAnalysis.id));
                 added.push({name: insert[i], id: _.first(result).id});
             }
-
             if (req.body.productId) {
                 for (var j = 0; j < added.length; j++) {
                     yield thunkQuery(ProductUOA.insert({
