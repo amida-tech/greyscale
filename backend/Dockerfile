@@ -1,5 +1,11 @@
-FROM node:5.10.1-onbuild
+FROM node:5.10.1
 
-EXPOSE 3005
+COPY ./ /indaba
 
-COPY config_etalon.js /usr/src/app/config.js
+WORKDIR /indaba
+
+RUN ["npm",  "i"]
+
+EXPOSE 3005:3005
+
+CMD ["npm", "start"]

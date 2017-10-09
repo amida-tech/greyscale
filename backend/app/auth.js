@@ -256,9 +256,9 @@ passport.use(new JwtStrategy(jwtOptions,
 
             debug(util.format('Authentication OK for token: %s', tokenBody));
 
-            var clientThunkQuery = thunkify(new Query(req.params.realm));
+            var clientThunkQuery2 = thunkify(new Query(req.params.realm));
 
-            yield clientThunkQuery(
+            yield clientThunkQuery2(
                 User.update({
                     lastActive: new Date()
                 })
