@@ -49,7 +49,3 @@ Indaba uses [`debug`](https://github.com/visionmedia/debug) package. To turn deb
 - vi. `-e JWT_SECRET=<JWT_SECRET/>` sets the JWT secret
 - vii. `-e MEMCACHED_HOST=indaba_memcached` sets the environment variable for the app to specify the name of the memcached instance to the name we linked it as in ii
 		
-		
-	
-From the base directory of the project run `docker build --tag indaba-backend .`
-To run the image `docker run -p 3000:3000 indaba-client`
