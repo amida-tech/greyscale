@@ -40,7 +40,7 @@ Indaba uses [`debug`](https://github.com/visionmedia/debug) package. To turn deb
 3. Create the backend image
 	a. `cd ../` (should now be in the backend directory)
 	b. `docker build --tag inadba_backend`
-	c. `docker run --link indaba_pg:indaba_pg --link indaba_memcached:indaba_memcached -e INDABA_PG_PASSWORD=<pg password/> -e INDABA_PG_HOSTNAME=indaba_pg -e AUTH_SALT=<salt/> -e JWT_SECRET=<JWT_SECRET/> -e MEMCACHED_HOST=indaba_memcached -p 3005:3005 indaba_backend`
+	c. `docker run --link indaba_pg:indaba_pg --link indaba_memcached:indaba_memcached -e INDABA_PG_PASSWORD=<pg password/> -e INDABA_PG_HOSTNAME=indaba_pg -e AUTH_SALT=<salt/> -e JWT_SECRET=<JWT_SECRET/> -e MEMCACHED_HOST=indaba_memcached -p 3005:3005 --name indaba_be indaba_backend`
 		i. `--link indaba_pg:indaba_pg` links to the pg instance we created and calls in indaba_pg
 		ii. `--link indaba_memcached:indaba_memcached` links the memcached instance we created and calls it indaba_memcached
 		iii. `-e INDABA_PG_PASSWORD=<pg password/>` sets the environment variable to the password we specified when creating the PG instance
