@@ -398,29 +398,30 @@ module.exports = {
     },
 
     userRemoval: function (req, res, next) {
+        console.log('I GOT IN USER-REMOVAL');
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var projectExist = yield * common.checkRecordExistById(req, 'ProjectUsers', 'projectId', req.params.projectId);
             var userExist = yield * common.checkRecordExistById(req, 'ProjectUsers', 'userId', req.params.userId);
 
             if (projectExist === true && userExist === true) {
-
                 yield thunkQuery(
                     'DELETE FROM "ProjectUsers" WHERE "ProjectUsers"."projectId" = ' +
                     req.params.projectId + ' AND "ProjectUsers"."userId" = ' + req.params.userId
                 );
 
                 var productId = _.first(_.map((yield thunkQuery(
-                    Product.select(Product.id).from(Product).where(Product.projectId.equals(req.params.id))
+                    Product.select(Product.id).from(Product).where(Product.projectId.equals(req.params.projectId))
                 )), 'id'));
 
                 //soft delete from tasks
                 if (productId) {
+                    console.log('SOFT DELETING TASKS WITH PRODUCT ID: ' + productId);
                     return yield thunkQuery(
                         'UPDATE "Tasks" ' +
-                        'SET "Tasks"."isDeleted" = '+ Date.now() +
+                        'SET "isDeleted" = '+ Date.now() +
                         'WHERE "Tasks"."productId" = ' + productId +
-                        ' AND ' + req.params.userId + ' = ANY("Tasks"."userIds")'
+                        'AND ' + req.params.userId + ' = ANY("Tasks"."userIds")'
                     );
                 } else {
                     throw new HttpError(404, ' Product ID not found. Unable to delete task');
