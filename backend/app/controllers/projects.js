@@ -28,8 +28,6 @@ var client = require('../db_bootstrap'),
     query = new Query(),
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
-    thunkQuery = thunkify(query),
-    moment = require('moment');
 
 module.exports = {
 
