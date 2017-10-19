@@ -6755,9 +6755,6 @@ ALTER TABLE ONLY "Products"
 -- Name: Products_surveyId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
-ALTER TABLE ONLY "Products"
-    ADD CONSTRAINT "Products_surveyId_fkey" FOREIGN KEY ("surveyId") REFERENCES "Surveys"(id);
-
 
 --
 -- TOC entry 3530 (class 2606 OID 1600919)
