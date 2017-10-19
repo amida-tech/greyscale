@@ -44,11 +44,14 @@ const IntegrationTests = class IntegrationTests {
             const task = that.hxTask.client(taskIndex);
             const product = that.hxProduct.client(0);
             const steps = that.hxWorkflowStep.get(workflowIndex);
+            console.log('STEPS : ' + steps.id(stepIndex))
+            console.log('THING : ' + that.hxQuestion.id(questionIndex))
             const discussion = Object.assign(that.generator.generate(), {
                 questionId: that.hxQuestion.id(questionIndex),
                 taskId,
                 stepId: steps.id(stepIndex),
             });
+            console.log('I AM ENDING HERE!')
             return that.supertest.post('discussions', discussion, 201)
                 .then((res) => {
                     expect(!!res.body.id).to.equal(true);

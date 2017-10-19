@@ -101,7 +101,7 @@ describe('task integration', function surveyIntegration() {
         it(`invite user ${index}`, userTests.inviteUserFn(user));
         it(`user ${index} activates`, userTests.selfActivateFn(index + 1));
     });
-    
+
     _.range(2).forEach((index) => {
         it(`create product ${index}`, productTests.createProductFn(0));
         it(`create workflow ${index}`, workflowTests.createWorkflowFn(index));
