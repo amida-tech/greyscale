@@ -299,16 +299,17 @@ module.exports = {
                     'WHEN ("' + pgEscape.string(curStepAlias) + '"."position" > "WorkflowSteps"."position") OR ("ProductUOA"."isComplete" = TRUE) THEN \'completed\' ' +
                     'WHEN "' + pgEscape.string(curStepAlias) + '"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
                     'WHEN "' + pgEscape.string(curStepAlias) + '"."position" < "WorkflowSteps"."position" THEN \'waiting\' ' +
-                    'END as status ',
-                    WorkflowStep.position,
-                    '(' +
-                    'SELECT max("SurveyAnswers"."created") ' +
-                    'FROM "SurveyAnswers" ' +
-                    'WHERE ' +
-                    '"SurveyAnswers"."productId" = "Tasks"."productId" ' +
-                    'AND "SurveyAnswers"."UOAid" = "Tasks"."uoaId" ' +
-                    'AND "SurveyAnswers"."wfStepId" = "Tasks"."stepId" ' +
-                    ') as "lastVersionDate"'
+                    'END as status '
+                    //TODO: Delete after we ensure this isn't causing any issues
+                    // WorkflowStep.position,
+                    // '(' +
+                    // 'SELECT max("SurveyAnswers"."created") ' +
+                    // 'FROM "SurveyAnswers" ' +
+                    // 'WHERE ' +
+                    // '"SurveyAnswers"."productId" = "Tasks"."productId" ' +
+                    // 'AND "SurveyAnswers"."UOAid" = "Tasks"."uoaId" ' +
+                    // 'AND "SurveyAnswers"."wfStepId" = "Tasks"."stepId" ' +
+                    // ') as "lastVersionDate"'
                 )
                 .from(
                     Task
@@ -1207,10 +1208,11 @@ module.exports = {
             yield * checkProductData(req);
             if (parseInt(req.body.status) === 1) { // if status changed to 'STARTED'
                 var product = yield * common.getEntity(req, req.params.id, Product, 'id');
-                var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-                if (survey.isDraft) {
-                    throw new HttpError(403, 'You can not start the project. Survey have status `in Draft`');
-                }
+                //TODO: Pull survey here from survey service and check
+                // var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+                // if (survey.isDraft) {
+                //     throw new HttpError(403, 'You can not start the project. Survey have status `in Draft`');
+                // }
                 var result = yield * updateCurrentStepId(req);
                 if (typeof result === 'object') {
                     bologger.log({
@@ -1469,12 +1471,13 @@ function* checkProductData(req) {
         }
     }
 
-    if (req.body.surveyId) {
-        var isExistSurvey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.body.surveyId)));
-        if (!_.first(isExistSurvey)) {
-            throw new HttpError(403, 'Survey with id = ' + req.body.surveyId + ' does not exist');
-        }
-    }
+    //TODO: Add check here to point to survey service
+    // if (req.body.surveyId) {
+    //     var isExistSurvey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.body.surveyId)));
+    //     if (!_.first(isExistSurvey)) {
+    //         throw new HttpError(403, 'Survey with id = ' + req.body.surveyId + ' does not exist');
+    //     }
+    // }
 
     if (req.body.projectId) {
         var isExistProject = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
@@ -1490,7 +1493,8 @@ function* updateCurrentStepId(req) {
 
     var essenceId = yield * common.getEssenceId(req, 'Tasks');
     var product = yield * common.getEntity(req, req.params.id, Product, 'id');
-    var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+    //TODO: Get survey from survery service if needed
+    // var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
 
     // start-restart project -> set isComplete flag to false for all subjects
     if (product.status !== 2) { // not suspended

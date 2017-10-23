@@ -102,8 +102,6 @@ describe('task integration', function surveyIntegration() {
         it(`user ${index} activates`, userTests.selfActivateFn(index + 1));
     });
 
-    it('create survey', surveyTests.createSurveyFn(legacy));
-
     _.range(2).forEach((index) => {
         it(`create product ${index}`, productTests.createProductFn(0));
         it(`create workflow ${index}`, workflowTests.createWorkflowFn(index));
