@@ -66,8 +66,7 @@ module.exports = {
                     .leftJoin(Project)
                     .on(Project.id.equals(Product.projectId))
                 )
-                .where(Project.id.equals(req.params.id)
-                    .and(Task.isDeleted.isNull()))
+                .where(Project.id.equals(req.params.id))
             );
 
             if (!_.first(tasks)) {
@@ -94,7 +93,6 @@ module.exports = {
         co(function* () {
 
             // Check if user exist
-            //TODO: Use the function in backend/app/services/common.js to do this
             var user = yield thunkQuery(
                 '(' +
                 'SELECT ' +
@@ -117,7 +115,6 @@ module.exports = {
                 'LEFT JOIN "Projects" ' +
                 'ON "Projects"."id" = "Products"."id" ' +
                 'WHERE ' + req.params.id + ' = ANY("Tasks"."userIds") ' +
-                'AND "Tasks"."isDeleted" IS NULL' +
                 ') '
             );
 
@@ -149,8 +146,7 @@ module.exports = {
                 'SELECT "Tasks".*, "Products"."projectId", "Products"."surveyId" ' +
                 'FROM "Tasks" LEFT JOIN "Products" ON "Products".id = ' +
                 '"Tasks"."productId" LEFT JOIN "Projects" ON "Projects".id ' +
-                '= "Products".id WHERE ' + req.user.id + ' = ANY("Tasks"."userIds")' +
-                'AND "Tasks"."isDeleted" IS NULL'
+                '= "Products".id WHERE ' + req.user.id + ' = ANY("Tasks"."userIds")'
             );
             return yield * common.getFlagsForTask(req, tasks);
         }).then(function (data) {
@@ -237,8 +233,7 @@ module.exports = {
                     .leftJoin(Discussions)
                     .on(Discussions.taskId.equals(req.params.id))
                 )
-                .where(Task.id.equals(req.params.id)
-                    .and(Task.isDeleted.isNull()))
+                .where(Task.id.equals(req.params.id))
             );
             if (!_.first(task)) {
                 throw new HttpError(403, 'Not found');
@@ -255,24 +250,9 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
 
         co(function* () {
-
-            //TODO: Make this a function in common so you can call it from multiple places
-            const deletedTask =  yield thunkQuery(
-                'UPDATE "Tasks" ' +
-                'SET "isDeleted" = NOW() '  +
-                'WHERE "Tasks"."id" = ' + req.params.id
+            return yield thunkQuery(
+                Task.delete().where(Task.id.equals(req.params.id))
             );
-
-            if (deletedTask) {
-                return {
-                    'status': 204,
-                    'message': 'Successfully Deleted Task Record',
-                    'Task data': deletedTask
-                };
-            } else {
-                throw new HttpError(404, ' Unable to delete Task Record');
-            }
-
         }).then(function (data) {
             bologger.log({
                 req: req,
@@ -282,7 +262,7 @@ module.exports = {
                 entity: req.params.id,
                 info: 'Delete task'
             });
-            res.status(204).json(data);
+            res.status(204).end();
         }, function (err) {
             next(err);
         });
