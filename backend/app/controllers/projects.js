@@ -6,6 +6,7 @@ var client = require('../db_bootstrap'),
     common = require('../services/common'),
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),
+    crypto = require('crypto'),
     Project = require('../models/projects'),
     Product = require('../models/products'),
     Workflow = require('../models/workflows'),
@@ -18,16 +19,17 @@ var client = require('../db_bootstrap'),
     Group = require('../models/groups'),
     UserGroup = require('../models/user_groups'),
     User = require('../models/users'),
-    Task = require('../models/tasks'),
     UnitOfAnalysis = require('../models/uoas'),
     ProductUOA = require('../models/product_uoa'),
     ProjectUser = require('../models/project_users'),
     ProjectUserGroup = require('../models/project_user_groups'),
     co = require('co'),
     Query = require('../util').Query,
+    vl = require('validator'),
     query = new Query(),
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
+    thunkQuery = thunkify(query);
 
 module.exports = {
 
@@ -399,42 +401,29 @@ module.exports = {
     },
 
     userRemoval: function (req, res, next) {
-        console.log('I GOT IN USER-REMOVAL');
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            const projectExist = yield * common.checkRecordExistById(req, 'ProjectUsers', 'projectId', req.params.projectId);
-            const userExist = yield * common.checkRecordExistById(req, 'ProjectUsers', 'userId', req.params.userId);
+            var projectExist = yield * common.checkRecordExistById(req, 'ProjectUsers', 'projectId', req.params.projectId);
+            var userExist = yield * common.checkRecordExistById(req, 'ProjectUsers', 'userId', req.params.userId);
 
             if (projectExist === true && userExist === true) {
-                const deletedProjectUserRecord =  yield thunkQuery(
+
+                yield thunkQuery(
                     'DELETE FROM "ProjectUsers" WHERE "ProjectUsers"."projectId" = ' +
                     req.params.projectId + ' AND "ProjectUsers"."userId" = ' + req.params.userId
                 );
 
                 var productId = _.first(_.map((yield thunkQuery(
-                    Product.select(Product.id).from(Product).where(Product.projectId.equals(req.params.projectId))
+                    Product.select(Product.id).from(Product).where(Product.projectId.equals(req.params.id))
                 )), 'id'));
 
-                //soft delete from tasks
                 if (productId) {
-                    const deletedTask =  yield thunkQuery(
+                    return yield thunkQuery(
                         'UPDATE "Tasks" ' +
-                        'SET "isDeleted" = NOW() '  +
+                        'SET "Tasks"."isDeleted" = '+ Date.now() +
                         'WHERE "Tasks"."productId" = ' + productId +
-                        'AND ' + req.params.userId + ' = ANY("Tasks"."userIds")'
+                        ' AND ' + req.params.userId + ' = ANY("Tasks"."userIds")'
                     );
-
-                    if (deletedTask && deletedProjectUserRecord) { // If records from both tables were successfully deleted
-                        return {
-                            'message': 'Successfully Deleted Project User & Task Record',
-                            'Project User Data': deletedProjectUserRecord,
-                            'Task data': deletedTask
-                        };
-                    } else if (deletedTask || deletedProjectUserRecord) { // If only records from one table was deleted
-                        throw new HttpError(404, ' Unable to delete Proj. User OR Task Record');
-                    } else {
-                        throw new HttpError(404, ' Unable to delete Proj. User AND Task Record');
-                    }
                 } else {
                     throw new HttpError(404, ' Product ID not found. Unable to delete task');
                 }
@@ -442,7 +431,7 @@ module.exports = {
                 throw new HttpError(404, ' Project or User not found');
             }
         }).then(function (data) {
-            res.status(202).json(data);
+            res.status(202).json(data)
         }, function (err) {
             next(err);
         });
