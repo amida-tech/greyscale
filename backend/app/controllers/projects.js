@@ -56,9 +56,11 @@ module.exports = {
                 throw new HttpError(404, 'No projects found');
             } else {
                 for (var i = 0; i < projects.length; i++) {
-                    var productId = _.first(_.map((yield thunkQuery(
-                        Product.select(Product.id).from(Product).where(Product.projectId.equals(projects[i].id))
-                    )), 'id'));
+                    var product = yield thunkQuery(
+                        Product.select(Product.id, Product.surveyId).from(Product).where(Product.projectId.equals(projects[i].id))
+                    );
+
+                    var productId = _.first(_.map(product, 'id'));
 
                     var workflowId = yield thunkQuery(
                         Workflow.select(Workflow.id).from(Workflow).where(Workflow.productId.equals(productId))
@@ -85,6 +87,7 @@ module.exports = {
                         lastUpdated: null,
                         status: projects[i].status,
                         productId,
+                        surveyId: (_.first(_.map(product, 'surveyId')) || null),
                         workflowId: _.first(_.map(workflowId, 'id')),
                         users: [],
                         stages: [],
@@ -104,7 +107,7 @@ module.exports = {
     selectOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         var aggregateObject = {};
-        
+
         co(function* () {
             var project = yield thunkQuery(Project.select().from(Project).where(Project.id.equals(req.params.id)), req.query);
 
