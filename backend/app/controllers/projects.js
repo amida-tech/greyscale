@@ -27,7 +27,7 @@ var client = require('../db_bootstrap'),
     Query = require('../util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
-    HttpError = require('../error').HttpError,
+    HttpError = require('../error').HttpError;
 
 module.exports = {
 
