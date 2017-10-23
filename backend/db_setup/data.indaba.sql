@@ -34,10 +34,6 @@ SELECT pg_catalog.setval('"Entities_id_seq"', 57, true);
 
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 23	WorflowSteps	WorflowSteps	worflowSteps	title
-16	Surveys	Surveys	surveys	title
-17	SurveyQuestions	Survey Questions	survey_questions	label
-18	SurveyQuestionOptions	Survey Question Options	survey_question_options	label
-19	SurveyAnswers	Survey Answers	survey_answers	value
 20	Groups	Groups	groups	title
 21	Organizations	Organizations	organizations	name
 22	Tasks	Tasks	tasks	title
@@ -440,15 +436,6 @@ COPY "Projects" (id, "organizationId", "codeName", description, created, "matrix
 \.
 
 
---
--- TOC entry 3849 (class 0 OID 1599954)
--- Dependencies: 253
--- Data for Name: Surveys; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "Surveys" (id, title, description, created, "projectId", "isDraft", "langId") FROM stdin;
-\.
-
 
 --
 -- TOC entry 3831 (class 0 OID 1599863)
@@ -457,16 +444,6 @@ COPY "Surveys" (id, title, description, created, "projectId", "isDraft", "langId
 --
 
 COPY "Products" (id, title, description, "originalLangId", "projectId", "surveyId", status, "langId") FROM stdin;
-\.
-
-
---
--- TOC entry 3848 (class 0 OID 1599942)
--- Dependencies: 252
--- Data for Name: SurveyQuestions; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "SurveyQuestions" (id, "surveyId", type, label, "isRequired", "position", description, skip, size, "minLength", "maxLength", "isWordmml", "incOtherOpt", units, "intOnly", value, qid, links, attachment, "optionNumbering", "langId", "withLinks", "hasComments") FROM stdin;
 \.
 
 
@@ -487,16 +464,6 @@ COPY "Workflows" (id, name, description, created, "productId") FROM stdin;
 --
 
 COPY "WorkflowSteps" ("workflowId", id, "startDate", "endDate", title, "provideResponses", "discussionParticipation", "blindReview", "seeOthersResponses", "allowTranslate", "position", "writeToAnswers", "allowEdit", role, "langId") FROM stdin;
-\.
-
-
---
--- TOC entry 3844 (class 0 OID 1599921)
--- Dependencies: 248
--- Data for Name: SurveyAnswers; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "SurveyAnswers" (id, "questionId", "userId", value, created, "productId", "UOAid", "wfStepId", version, "surveyId", "optionId", "langId", "isResponse", "isAgree", comments, attachments, links, updated) FROM stdin;
 \.
 
 
@@ -537,10 +504,6 @@ COPY "AttachmentAttempts" (key, filename, mimetype, size, created) FROM stdin;
 
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 23	WorflowSteps	WorflowSteps	worflowSteps	title
-16	Surveys	Surveys	surveys	title
-17	SurveyQuestions	Survey Questions	survey_questions	label
-18	SurveyQuestionOptions	Survey Question Options	survey_question_options	label
-19	SurveyAnswers	Survey Answers	survey_answers	value
 20	Groups	Groups	groups	title
 21	Organizations	Organizations	organizations	name
 22	Tasks	Tasks	tasks	title
@@ -936,43 +899,6 @@ SELECT pg_catalog.setval('"Subindex_id_seq"', 1, true);
 
 
 --
--- TOC entry 4001 (class 0 OID 0)
--- Dependencies: 246
--- Name: SurveyAnswerVersions_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"SurveyAnswerVersions_id_seq"', 4, true);
-
-
---
--- TOC entry 4002 (class 0 OID 0)
--- Dependencies: 247
--- Name: SurveyAnswers_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"SurveyAnswers_id_seq"', 1, true);
-
-
---
--- TOC entry 3846 (class 0 OID 1599932)
--- Dependencies: 250
--- Data for Name: SurveyQuestionOptions; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "SurveyQuestionOptions" (id, "questionId", value, label, skip, "isSelected", "langId") FROM stdin;
-\.
-
-
---
--- TOC entry 4003 (class 0 OID 0)
--- Dependencies: 251
--- Name: SurveyQuestions_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"SurveyQuestions_id_seq"', 1, true);
-
-
---
 -- TOC entry 4004 (class 0 OID 0)
 -- Dependencies: 254
 -- Name: Tasks_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
@@ -1180,15 +1106,6 @@ SELECT pg_catalog.setval('role_id_seq', 3, true);
 
 
 --
--- TOC entry 4017 (class 0 OID 0)
--- Dependencies: 249
--- Name: surveyQuestionOptions_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"surveyQuestionOptions_id_seq"', 1, true);
-
-
---
 -- TOC entry 4018 (class 0 OID 0)
 -- Dependencies: 282
 -- Name: transport_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
@@ -1320,17 +1237,6 @@ COPY "Projects" (id, "organizationId", "codeName", description, created, "matrix
 
 
 --
--- TOC entry 3951 (class 0 OID 1602021)
--- Dependencies: 436
--- Data for Name: Surveys; Type: TABLE DATA; Schema: test; Owner: indaba
---
-
-COPY "Surveys" (id, title, description, created, "projectId", "isDraft", "langId") FROM stdin;
-2	Test Survey - Just One Question	This is a test survey for development purposes.	2017-04-11 12:01:42.316167-04	2	f	\N
-\.
-
-
---
 -- TOC entry 3933 (class 0 OID 1601843)
 -- Dependencies: 418
 -- Data for Name: Products; Type: TABLE DATA; Schema: test; Owner: indaba
@@ -1338,18 +1244,6 @@ COPY "Surveys" (id, title, description, created, "projectId", "isDraft", "langId
 
 COPY "Products" (id, title, description, "originalLangId", "projectId", "surveyId", status, "langId") FROM stdin;
 2	Arnold S' Survey	Arnold's Survey	\N	2	2	1	\N
-\.
-
-
---
--- TOC entry 3944 (class 0 OID 1601951)
--- Dependencies: 429
--- Data for Name: SurveyQuestions; Type: TABLE DATA; Schema: test; Owner: indaba
---
-
-COPY "SurveyQuestions" (id, "surveyId", type, label, "isRequired", "position", description, skip, size, "minLength", "maxLength", "isWordmml", "incOtherOpt", units, "intOnly", value, qid, links, attachment, "optionNumbering", "langId", "withLinks", "hasComments") FROM stdin;
-2	2	0	Who is your daddy and what does he do?	t	1		0	0	\N	\N	f	f	\N	f	\N		\N	\N	\N	\N	f	\N
-3	2	3	Untitled	t	2		0	0	\N	\N	f	t	\N	f	C		\N	\N	none	\N	f	\N
 \.
 
 
@@ -1375,16 +1269,6 @@ COPY "WorkflowSteps" ("workflowId", id, "startDate", "endDate", title, "provideR
 2	3	2017-04-11 00:00:00-04	2017-04-12 00:00:00-04	Review Test	f	\N	\N	\N	f	1	t	f	Reviewer	\N
 \.
 
-
---
--- TOC entry 3960 (class 0 OID 1602104)
--- Dependencies: 445
--- Data for Name: SurveyAnswers; Type: TABLE DATA; Schema: test; Owner: indaba
---
-
-COPY "SurveyAnswers" (id, "questionId", "userId", value, created, "productId", "UOAid", "wfStepId", version, "surveyId", "optionId", "langId", "isResponse", "isAgree", comments, attachments, links, updated) FROM stdin;
-2	3	3	\N	2017-04-11 13:19:43.960042-04	2	2	2	\N	2	{}	1	f	\N	\N	\N	\N	2017-04-11 13:22:41.209-04
-\.
 
 
 --
@@ -1424,10 +1308,6 @@ COPY "AttachmentAttempts" (key, filename, mimetype, size, created) FROM stdin;
 
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 23	WorflowSteps	WorflowSteps	worflowSteps	title
-16	Surveys	Surveys	surveys	title
-17	SurveyQuestions	Survey Questions	survey_questions	label
-18	SurveyQuestionOptions	Survey Question Options	survey_question_options	label
-19	SurveyAnswers	Survey Answers	survey_answers	value
 20	Groups	Groups	groups	title
 21	Organizations	Organizations	organizations	name
 22	Tasks	Tasks	tasks	title
@@ -1835,45 +1715,6 @@ SELECT pg_catalog.setval('"Subindex_id_seq"', 1, true);
 
 
 --
--- TOC entry 4039 (class 0 OID 0)
--- Dependencies: 384
--- Name: SurveyAnswerVersions_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indaba
---
-
-SELECT pg_catalog.setval('"SurveyAnswerVersions_id_seq"', 4, true);
-
-
---
--- TOC entry 4040 (class 0 OID 0)
--- Dependencies: 385
--- Name: SurveyAnswers_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indaba
---
-
-SELECT pg_catalog.setval('"SurveyAnswers_id_seq"', 2, true);
-
-
---
--- TOC entry 3948 (class 0 OID 1602000)
--- Dependencies: 433
--- Data for Name: SurveyQuestionOptions; Type: TABLE DATA; Schema: test; Owner: indaba
---
-
-COPY "SurveyQuestionOptions" (id, "questionId", value, label, skip, "isSelected", "langId") FROM stdin;
-2	3	A	This is option A	\N	f	\N
-3	3	B	This is option B	\N	f	\N
-\.
-
-
---
--- TOC entry 4041 (class 0 OID 0)
--- Dependencies: 388
--- Name: SurveyQuestions_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indaba
---
-
-SELECT pg_catalog.setval('"SurveyQuestions_id_seq"', 3, true);
-
-
---
 -- TOC entry 4042 (class 0 OID 0)
 -- Dependencies: 389
 -- Name: Tasks_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indaba
@@ -2082,15 +1923,6 @@ SELECT pg_catalog.setval('order_id_seq', 320, true);
 --
 
 SELECT pg_catalog.setval('role_id_seq', 3, true);
-
-
---
--- TOC entry 4055 (class 0 OID 0)
--- Dependencies: 387
--- Name: surveyQuestionOptions_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indaba
---
-
-SELECT pg_catalog.setval('"surveyQuestionOptions_id_seq"', 3, true);
 
 
 --
