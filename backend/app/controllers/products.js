@@ -300,16 +300,6 @@ module.exports = {
                     'WHEN "' + pgEscape.string(curStepAlias) + '"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
                     'WHEN "' + pgEscape.string(curStepAlias) + '"."position" < "WorkflowSteps"."position" THEN \'waiting\' ' +
                     'END as status '
-                    //TODO: Delete after we ensure this isn't causing any issues
-                    // WorkflowStep.position,
-                    // '(' +
-                    // 'SELECT max("SurveyAnswers"."created") ' +
-                    // 'FROM "SurveyAnswers" ' +
-                    // 'WHERE ' +
-                    // '"SurveyAnswers"."productId" = "Tasks"."productId" ' +
-                    // 'AND "SurveyAnswers"."UOAid" = "Tasks"."uoaId" ' +
-                    // 'AND "SurveyAnswers"."wfStepId" = "Tasks"."stepId" ' +
-                    // ') as "lastVersionDate"'
                 )
                 .from(
                     Task
