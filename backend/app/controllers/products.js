@@ -1242,7 +1242,7 @@ module.exports = {
                 entity: req.params.id,
                 info: 'Update product'
             });
-            res.status(202).json();
+            res.status(202).json(true);
         }, function (err) {
             next(err);
         });
