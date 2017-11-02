@@ -1242,7 +1242,7 @@ module.exports = {
                 entity: req.params.id,
                 info: 'Update product'
             });
-            res.status(202).end();
+            res.status(202).json();
         }, function (err) {
             next(err);
         });
@@ -1485,7 +1485,6 @@ function* checkProductData(req) {
             }
         }
     );
-
     if (req.body.projectId) {
         var isExistProject = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
         if (!_.first(isExistProject)) {
@@ -1500,6 +1499,7 @@ function* updateCurrentStepId(req) {
 
     var essenceId = yield * common.getEssenceId(req, 'Tasks');
     var product = yield * common.getEntity(req, req.params.id, Product, 'id');
+
     //TODO: Get survey from survery service if needed
     // var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
 
