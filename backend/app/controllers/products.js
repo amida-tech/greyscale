@@ -1190,30 +1190,26 @@ module.exports = {
             yield * checkProductData(req);
             if (parseInt(req.body.status) === 1) { // if status changed to 'STARTED'
                 var product = yield * common.getEntity(req, req.params.id, Product, 'id');
-                //TODO: Pull survey here from survey service and check
-                const path = 'surveys/product.surveyId';
+
+                //Check survey service is the survey exist in there
+                const path = 'surveys/';
 
                 const requestOptions = {
-                    url: config.surveyService + path,
+                    url: config.surveyService + path + req.body.surveyId,
                     method: 'GET',
-                    json:{}
+                    headers: {
+                        'authorization': req.headers.authorization
+                    }
                 };
-
                 request(
                     requestOptions,
                     function(err, response, body) {
                         if (response.statusCode == 200) {
-                            console.log(`BODY IS: ${body}`);
-                        } else {
-                            console.log(`I DIDN'T GET NOTHING: ${err}`);
-                        }
+                            if (body.status == 'draft')
+                                throw new HttpError(403, 'You can not start the project. Survey have status `in Draft`');                        }
                     }
                 );
 
-                // var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-                // if (survey.isDraft) {
-                //     throw new HttpError(403, 'You can not start the project. Survey have status `in Draft`');
-                // }
                 var result = yield * updateCurrentStepId(req);
                 if (typeof result === 'object') {
                     bologger.log({
@@ -1471,33 +1467,24 @@ function* checkProductData(req) {
             );
         }
     }
-
-    //TODO: Add check here to point to survey service
-    const path = 'surveys/product.surveyId';
+    //Check survey service is the survey exist in there
+    const path = 'surveys/';
 
     const requestOptions = {
-        url: config.surveyService + path,
+        url: config.surveyService + path + req.body.surveyId,
         method: 'GET',
-        json:{}
+        headers: {
+            'authorization': req.headers.authorization
+        }
     };
-
     request(
         requestOptions,
         function(err, response, body) {
-            if (response.statusCode == 200) {
-                console.log(`BODY IS: ${body}`);
-            } else {
-                console.log(`I DIDN'T GET NOTHING: ${err}`);
+            if (response.statusCode != 200) {
+                throw new HttpError(response.statusCode, 'Survey with id = ' + req.body.surveyId + ' does not exist');
             }
         }
     );
-
-    // if (req.body.surveyId) {
-    //     var isExistSurvey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.body.surveyId)));
-    //     if (!_.first(isExistSurvey)) {
-    //         throw new HttpError(403, 'Survey with id = ' + req.body.surveyId + ' does not exist');
-    //     }
-    // }
 
     if (req.body.projectId) {
         var isExistProject = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
