@@ -263,7 +263,7 @@ module.exports = {
                 entity: req.params.id,
                 info: 'Update project'
             });
-            res.status(202).end();
+            res.status(202).json(true);
         }, function (err) {
             next(err);
         });
