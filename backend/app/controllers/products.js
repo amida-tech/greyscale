@@ -1467,7 +1467,16 @@ function* checkProductData(req) {
             );
         }
     }
-    //Check survey service is the survey exist in there
+
+    //TODO: Uncomment
+    // const urlPath = config.surveyService + 'surveys/' + req.body.surveyId
+    // const surveyExist = yield common.makeRequestToService(req, 'survey', urlPath, 'GET');
+    //
+    // if (surveyExist.response != 200) {
+    //     throw new HttpError(response.statusCode, 'Survey with id = ' + req.body.surveyId + ' does not exist');
+    // }
+
+    // Check survey service is the survey exist in there
     const path = 'surveys/';
 
     const requestOptions = {

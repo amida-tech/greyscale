@@ -3,10 +3,7 @@ var
     config = require('../../config'),
     Product = require('../models/products'),
     ProductUOA = require('../models/product_uoa'),
-    Project = require('../models/projects'),
-    Workflow = require('../models/workflows'),
     Essence = require('../models/essences'),
-    EssenceRole = require('../models/essence_roles'),
     WorkflowStep = require('../models/workflow_steps'),
     WorkflowStepGroup = require('../models/workflow_step_groups'),
     Group = require('../models/groups'),
@@ -14,19 +11,19 @@ var
     UOA = require('../models/uoas'),
     Task = require('../models/tasks'),
     Survey = require('../models/surveys'),
-    SurveyQuestion = require('../models/survey_questions'),
     Discussion = require('../models/discussions'),
     Notification = require('../models/notifications'),
     Organization = require('../models/organizations'),
     User = require('../models/users'),
     ProjectUser = require('../models/project_users'),
-    co = require('co'),
     sql = require('sql'),
     Query = require('../util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
-    thunkQuery = thunkify(query);
+    config = require('../../config'),
+    request = require('request');
+
 
 var getEntityById = function* (req, id, model, key) {
     var thunkQuery = req.thunkQuery;
@@ -439,3 +436,29 @@ var checkRecordExistById = function* (req, database, column, requestId) {
 };
 
 exports.checkRecordExistById = checkRecordExistById;
+
+//TODO: Uncomment
+// var makeRequestToService = function (req, urlPath, method) {
+//     console.log(`MAKING REQUEST TO ${urlPath}`);
+//     const requestOptions = {
+//         url: urlPath,
+//         method: method,
+//         headers: {
+//             'authorization': req.headers.authorization
+//         }
+//     };
+//     request(
+//         requestOptions,
+//         function(err, response, body) {
+//             console.log(`RESPONSE CODE IS: ${response.statusCode}`);
+//             console.log(`RESPONSE BODY IS: ${body}`);
+//             return {
+//                 statusCode: response.statusCode,
+//                 message: body.message,
+//                 body: body
+//             }
+//         }
+//     )
+// };
+//
+// exports.makeRequestToService = makeRequestToService;
