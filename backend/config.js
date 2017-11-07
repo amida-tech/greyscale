@@ -13,6 +13,7 @@ const base = {
         region: 'us-east-1'
     },
     awsBucket : "your-aws-bucket",
+    authService: process.env.AUTH_SERVICE_URL || 'http://localhost:4000/api/v0',
 };
 
 var environments = {
