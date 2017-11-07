@@ -414,14 +414,14 @@ module.exports = {
                 );
 
                 var productId = _.first(_.map((yield thunkQuery(
-                    Product.select(Product.id).from(Product).where(Product.projectId.equals(req.params.id))
+                    Product.select(Product.id).from(Product).where(Product.projectId.equals(req.params.projectId))
                 )), 'id'));
 
                 if (productId) {
                     return yield thunkQuery(
-                        'UPDATE "Tasks" ' +
-                        'SET "Tasks"."isDeleted" = '+ Date.now() +
-                        'WHERE "Tasks"."productId" = ' + productId +
+                        'UPDATE "Tasks"' +
+                        ' SET "isDeleted" = (to_timestamp('+ Date.now() +
+                        '/ 1000.0)) WHERE "productId" = ' + productId +
                         ' AND ' + req.params.userId + ' = ANY("Tasks"."userIds")'
                     );
                 } else {
