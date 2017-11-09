@@ -13,6 +13,7 @@ const base = {
         region: 'us-east-1'
     },
     awsBucket : "your-aws-bucket",
+    surveyService: process.env.SURVEY_SERVICE_URL || 'http://localhost:9005/api/v1.0/',
 };
 
 var environments = {
