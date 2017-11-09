@@ -124,9 +124,11 @@ module.exports = {
         co(function* () {
             var user = yield * insertOne(req, res, next);
 
-            if (user) {
-                // Create user on Auth service
-                _createUserOnAuthService(req.body.email, req.body.password, user.roleID);
+            if (process.env.NODE_ENV !== 'test') { // Do this on production or staging
+                if (user) {
+                    // Create user on Auth service
+                    _createUserOnAuthService(req.body.email, req.body.password, user.roleID);
+                }
             }
 
             if (req.body.projectId) {
@@ -195,9 +197,11 @@ module.exports = {
 
             var user = yield thunkQuery(User.insert(newClient).returning(User.id));
 
-            // Create user on the auth service
-            if (user) {
-                _createUserOnAuthService(req.body.email, req.body.password, user.roleID);
+            if (process.env.NODE_ENV !== 'test') { // Do this only on production or staging
+                // Create user on the auth service
+                if (user) {
+                    _createUserOnAuthService(req.body.email, req.body.password, user.roleID);
+                }
             }
 
             bologger.log({
@@ -409,9 +413,11 @@ module.exports = {
 
                 var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
 
-                // Create user on the auth service
-                if (userId) {
-                    _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID);
+                if (process.env.NODE_ENV !== 'test') { // Do this on production or staging only
+                    // Create user on the auth service
+                    if (userId) {
+                        _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID);
+                    }
                 }
 
                 newUserId = userId[0].id;
