@@ -3,10 +3,7 @@ var
     config = require('../../config'),
     Product = require('../models/products'),
     ProductUOA = require('../models/product_uoa'),
-    Project = require('../models/projects'),
-    Workflow = require('../models/workflows'),
     Essence = require('../models/essences'),
-    EssenceRole = require('../models/essence_roles'),
     WorkflowStep = require('../models/workflow_steps'),
     WorkflowStepGroup = require('../models/workflow_step_groups'),
     Group = require('../models/groups'),
@@ -14,19 +11,19 @@ var
     UOA = require('../models/uoas'),
     Task = require('../models/tasks'),
     Survey = require('../models/surveys'),
-    SurveyQuestion = require('../models/survey_questions'),
     Discussion = require('../models/discussions'),
     Notification = require('../models/notifications'),
     Organization = require('../models/organizations'),
     User = require('../models/users'),
     ProjectUser = require('../models/project_users'),
-    co = require('co'),
     sql = require('sql'),
     Query = require('../util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
-    thunkQuery = thunkify(query);
+    config = require('../../config'),
+    request = require('request');
+
 
 var getEntityById = function* (req, id, model, key) {
     var thunkQuery = req.thunkQuery;

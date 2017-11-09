@@ -10,17 +10,11 @@ var
     csv = require('express-csv'),
     Product = require('../models/products'),
     Project = require('../models/projects'),
-    Organization = require('../models/organizations'),
     Workflow = require('../models/workflows'),
     WorkflowStep = require('../models/workflow_steps'),
-    Survey = require('../models/surveys'),
     SurveyQuestion = require('../models/survey_questions'),
     SurveyQuestionOption = require('../models/survey_question_options'),
-    SurveyAnswer = require('../models/survey_answers'),
     AnswerAttachment = require('../models/answer_attachments'),
-    User = require('../models/users'),
-    EssenceRole = require('../models/essence_roles'),
-    AccessMatrix = require('../models/access_matrices'),
     ProductUOA = require('../models/product_uoa'),
     Task = require('../models/tasks'),
     UOA = require('../models/uoas'),
@@ -31,15 +25,13 @@ var
     IndexSubindexWeight = require('../models/index_subindex_weights.js'),
     SubindexWeight = require('../models/subindex_weights.js'),
     co = require('co'),
-    Query = require('../util').Query,
-    getTranslateQuery = require('../util').getTranslateQuery,
-    query = new Query(),
     sql = require('sql'),
     mc = require('../mc_helper'),
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
-    thunkQuery = thunkify(query),
-    pgEscape = require('pg-escape');
+    pgEscape = require('pg-escape'),
+    config = require('../../config'),
+    request = require('request');
 
 var debug = require('debug')('debug_products');
 var error = require('debug')('error');
@@ -300,16 +292,6 @@ module.exports = {
                     'WHEN "' + pgEscape.string(curStepAlias) + '"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
                     'WHEN "' + pgEscape.string(curStepAlias) + '"."position" < "WorkflowSteps"."position" THEN \'waiting\' ' +
                     'END as status '
-                    //TODO: Delete after we ensure this isn't causing any issues
-                    // WorkflowStep.position,
-                    // '(' +
-                    // 'SELECT max("SurveyAnswers"."created") ' +
-                    // 'FROM "SurveyAnswers" ' +
-                    // 'WHERE ' +
-                    // '"SurveyAnswers"."productId" = "Tasks"."productId" ' +
-                    // 'AND "SurveyAnswers"."UOAid" = "Tasks"."uoaId" ' +
-                    // 'AND "SurveyAnswers"."wfStepId" = "Tasks"."stepId" ' +
-                    // ') as "lastVersionDate"'
                 )
                 .from(
                     Task
@@ -1208,11 +1190,16 @@ module.exports = {
             yield * checkProductData(req);
             if (parseInt(req.body.status) === 1) { // if status changed to 'STARTED'
                 var product = yield * common.getEntity(req, req.params.id, Product, 'id');
-                //TODO: Pull survey here from survey service and check
-                // var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-                // if (survey.isDraft) {
-                //     throw new HttpError(403, 'You can not start the project. Survey have status `in Draft`');
-                // }
+
+                //Check that the survey exist in the survey service
+                _getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization, function (err, response, body) {
+                    if (response.statusCode == 200) {
+                        if (body.status == 'draft') {
+                            throw new HttpError(response.statusCode, 'You can not start the project. Survey have status `in Draft`');
+                        }
+                    }
+                });
+
                 var result = yield * updateCurrentStepId(req);
                 if (typeof result === 'object') {
                     bologger.log({
@@ -1471,13 +1458,12 @@ function* checkProductData(req) {
         }
     }
 
-    //TODO: Add check here to point to survey service
-    // if (req.body.surveyId) {
-    //     var isExistSurvey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.body.surveyId)));
-    //     if (!_.first(isExistSurvey)) {
-    //         throw new HttpError(403, 'Survey with id = ' + req.body.surveyId + ' does not exist');
-    //     }
-    // }
+    // Pull survey from survey service
+   _getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization, function (err, response, body) {
+       if (response.statusCode !== 200) {
+           throw new HttpError(response.statusCode, `${response.statusMessage}`);
+       }
+   });
 
     if (req.body.projectId) {
         var isExistProject = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
@@ -1493,6 +1479,7 @@ function* updateCurrentStepId(req) {
 
     var essenceId = yield * common.getEssenceId(req, 'Tasks');
     var product = yield * common.getEntity(req, req.params.id, Product, 'id');
+
     //TODO: Get survey from survery service if needed
     // var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
 
@@ -2327,4 +2314,17 @@ function* doAutoResolve(req, taskId) {
         }
     }
     return true;
+}
+
+function _getSurveyFromSurveyService(surveyId, jwt, callback) {
+    const path = 'surveys/';
+
+    const requestOptions = {
+        url: config.surveyService + path + surveyId,
+        method: 'GET',
+        headers: {
+            'authorization': jwt
+        }
+    };
+    request(requestOptions, callback);
 }

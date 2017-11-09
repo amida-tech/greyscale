@@ -150,9 +150,12 @@ module.exports = {
                     }
                 }
 
-                var productId = _.first(_.map((yield thunkQuery(
-                    Product.select(Product.id).from(Product).where(Product.projectId.equals(project.id))
-                )), 'id'));
+                var product = yield thunkQuery(
+                    Product.select(Product.id, Product.surveyId).from(Product).where(Product.projectId.equals(project.id))
+                );
+                
+                var productId = _.first(_.map(product, 'id'));
+                var surveyId = _.first(_.map(product, 'surveyId'));
 
                 var workflowId = yield thunkQuery(
                     Workflow.select(Workflow.id).from(Workflow).where(Workflow.productId.equals(productId))
@@ -207,6 +210,7 @@ module.exports = {
                 aggregateObject.userGroups = userGroups;
                 aggregateObject.subjects = subjects;
                 aggregateObject.productId = productId;
+                aggregateObject.surveyId = surveyId;
                 aggregateObject.workflowId = _.first(_.map(workflowId, 'id'));
             }
 
@@ -263,7 +267,7 @@ module.exports = {
                 entity: req.params.id,
                 info: 'Update project'
             });
-            res.status(202).end();
+            res.status(202).json(true);
         }, function (err) {
             next(err);
         });
@@ -414,14 +418,14 @@ module.exports = {
                 );
 
                 var productId = _.first(_.map((yield thunkQuery(
-                    Product.select(Product.id).from(Product).where(Product.projectId.equals(req.params.id))
+                    Product.select(Product.id).from(Product).where(Product.projectId.equals(req.params.projectId))
                 )), 'id'));
 
                 if (productId) {
                     return yield thunkQuery(
-                        'UPDATE "Tasks" ' +
-                        'SET "Tasks"."isDeleted" = '+ Date.now() +
-                        'WHERE "Tasks"."productId" = ' + productId +
+                        'UPDATE "Tasks"' +
+                        ' SET "isDeleted" = (to_timestamp('+ Date.now() +
+                        '/ 1000.0)) WHERE "productId" = ' + productId +
                         ' AND ' + req.params.userId + ' = ANY("Tasks"."userIds")'
                     );
                 } else {

@@ -14,6 +14,7 @@ const base = {
     },
     awsBucket : "your-aws-bucket",
     authService: process.env.AUTH_SERVICE_URL || 'http://localhost:4000/api/v0',
+    surveyService: process.env.SURVEY_SERVICE_URL || 'http://localhost:9005/api/v1.0/',
 };
 
 var environments = {
