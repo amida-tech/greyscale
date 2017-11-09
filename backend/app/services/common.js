@@ -436,29 +436,3 @@ var checkRecordExistById = function* (req, database, column, requestId) {
 };
 
 exports.checkRecordExistById = checkRecordExistById;
-
-//TODO: Uncomment
-// var makeRequestToService = function (req, urlPath, method) {
-//     console.log(`MAKING REQUEST TO ${urlPath}`);
-//     const requestOptions = {
-//         url: urlPath,
-//         method: method,
-//         headers: {
-//             'authorization': req.headers.authorization
-//         }
-//     };
-//     request(
-//         requestOptions,
-//         function(err, response, body) {
-//             console.log(`RESPONSE CODE IS: ${response.statusCode}`);
-//             console.log(`RESPONSE BODY IS: ${body}`);
-//             return {
-//                 statusCode: response.statusCode,
-//                 message: body.message,
-//                 body: body
-//             }
-//         }
-//     )
-// };
-//
-// exports.makeRequestToService = makeRequestToService;

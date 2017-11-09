@@ -1191,24 +1191,14 @@ module.exports = {
             if (parseInt(req.body.status) === 1) { // if status changed to 'STARTED'
                 var product = yield * common.getEntity(req, req.params.id, Product, 'id');
 
-                //Check survey service is the survey exist in there
-                const path = 'surveys/';
-
-                const requestOptions = {
-                    url: config.surveyService + path + req.body.surveyId,
-                    method: 'GET',
-                    headers: {
-                        'authorization': req.headers.authorization
+                //Check that the survey exist in the survey service
+                _getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization, function (err, response, body) {
+                    if (response.statusCode == 200) {
+                        if (body.status == 'draft') {
+                            throw new HttpError(response.statusCode, 'You can not start the project. Survey have status `in Draft`');
+                        }
                     }
-                };
-                request(
-                    requestOptions,
-                    function(err, response, body) {
-                        if (response.statusCode == 200) {
-                            if (body.status == 'draft')
-                                throw new HttpError(403, 'You can not start the project. Survey have status `in Draft`');                        }
-                    }
-                );
+                });
 
                 var result = yield * updateCurrentStepId(req);
                 if (typeof result === 'object') {
@@ -1468,32 +1458,13 @@ function* checkProductData(req) {
         }
     }
 
-    //TODO: Uncomment
-    // const urlPath = config.surveyService + 'surveys/' + req.body.surveyId
-    // const surveyExist = yield common.makeRequestToService(req, 'survey', urlPath, 'GET');
-    //
-    // if (surveyExist.response != 200) {
-    //     throw new HttpError(response.statusCode, 'Survey with id = ' + req.body.surveyId + ' does not exist');
-    // }
+    // Pull survey from survey service
+   _getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization, function (err, response, body) {
+       if (response.statusCode !== 200) {
+           throw new HttpError(response.statusCode, `${response.statusMessage}`);
+       }
+   });
 
-    // Check survey service is the survey exist in there
-    const path = 'surveys/';
-
-    const requestOptions = {
-        url: config.surveyService + path + req.body.surveyId,
-        method: 'GET',
-        headers: {
-            'authorization': req.headers.authorization
-        }
-    };
-    request(
-        requestOptions,
-        function(err, response, body) {
-            if (response.statusCode != 200) {
-                throw new HttpError(response.statusCode, 'Survey with id = ' + req.body.surveyId + ' does not exist');
-            }
-        }
-    );
     if (req.body.projectId) {
         var isExistProject = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
         if (!_.first(isExistProject)) {
@@ -2343,4 +2314,17 @@ function* doAutoResolve(req, taskId) {
         }
     }
     return true;
+}
+
+function _getSurveyFromSurveyService(surveyId, jwt, callback) {
+    const path = 'surveys/';
+
+    const requestOptions = {
+        url: config.surveyService + path + surveyId,
+        method: 'GET',
+        headers: {
+            'authorization': jwt
+        }
+    };
+    request(requestOptions, callback);
 }
