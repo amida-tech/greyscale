@@ -231,7 +231,7 @@ module.exports = {
                     .on(Discussions.taskId.equals(req.params.id))
                 )
                 .where(Task.id.equals(req.params.id)
-                    .and(Task.isDeleted.equals(null)))
+                    .and(Task.isDeleted.isNull()))
             );
             if (!_.first(task)) {
                 throw new HttpError(403, 'Not found');
@@ -248,7 +248,6 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
 
         co(function* () {
-            console.log(`TRYING TO DELETE TASK`)
             return yield thunkQuery(
                 'UPDATE "Tasks"' +
                 ' SET "isDeleted" = (to_timestamp('+ Date.now() +
