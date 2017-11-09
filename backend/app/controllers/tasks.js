@@ -26,12 +26,9 @@ module.exports = {
                 Task
                 .select(
                     Task.star()
-                    //'row_to_json("Workflows".*) as workflow'
                 )
                 .from(
                     Task
-                    //.leftJoin(Workflow)
-                    //.on(Product.id.equals(Workflow.productId))
                 )
             );
         }).then(function (data) {
@@ -233,7 +230,8 @@ module.exports = {
                     .leftJoin(Discussions)
                     .on(Discussions.taskId.equals(req.params.id))
                 )
-                .where(Task.id.equals(req.params.id))
+                .where(Task.id.equals(req.params.id)
+                    .and(Task.isDeleted.equals(null)))
             );
             if (!_.first(task)) {
                 throw new HttpError(403, 'Not found');
@@ -250,8 +248,11 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
 
         co(function* () {
+            console.log(`TRYING TO DELETE TASK`)
             return yield thunkQuery(
-                Task.delete().where(Task.id.equals(req.params.id))
+                'UPDATE "Tasks"' +
+                ' SET "isDeleted" = (to_timestamp('+ Date.now() +
+                '/ 1000.0)) WHERE "id" = ' + req.params.id
             );
         }).then(function (data) {
             bologger.log({
@@ -262,7 +263,7 @@ module.exports = {
                 entity: req.params.id,
                 info: 'Delete task'
             });
-            res.status(204).end();
+            res.status(204).json(true);
         }, function (err) {
             next(err);
         });
