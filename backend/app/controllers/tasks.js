@@ -54,26 +54,34 @@ module.exports = {
 
             //TODO: Check if projects with given id exists first
 
-            var tasks = yield thunkQuery(
-                Task
-                .select(
-                    Task.star()
-                )
-                .from(
+            const projectExist = yield * common.checkRecordExistById(req, 'Projects', 'id', req.params.id)
+
+            if (projectExist === true) {
+
+                var tasks = yield thunkQuery(
                     Task
-                    .leftJoin(Product)
-                    .on(Product.id.equals(Task.productId))
-                    .leftJoin(Project)
-                    .on(Project.id.equals(Product.projectId))
-                )
-                .where(Project.id.equals(req.params.id))
-            );
+                        .select(
+                            Task.star()
+                        )
+                        .from(
+                            Task
+                                .leftJoin(Product)
+                                .on(Product.id.equals(Task.productId))
+                                .leftJoin(Project)
+                                .on(Project.id.equals(Product.projectId))
+                        )
+                        .where(Project.id.equals(req.params.id))
+                );
 
-            if (!_.first(tasks)) {
-                throw new HttpError(403, 'Not found');
+                if (!_.first(tasks)) {
+                    throw new HttpError(403, 'Not found');
+                }
+
+                return yield * common.getFlagsForTask(req, tasks);
+
+            } else {
+                throw new HttpError(403, 'No project matching that project ID');
             }
-
-            return yield * common.getFlagsForTask(req, tasks);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
