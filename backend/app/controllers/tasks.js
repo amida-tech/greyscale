@@ -52,12 +52,9 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
 
-            //TODO: Check if projects with given id exists first
-
             const projectExist = yield * common.checkRecordExistById(req, 'Projects', 'id', req.params.id)
 
             if (projectExist === true) {
-
                 var tasks = yield thunkQuery(
                     Task
                         .select(
