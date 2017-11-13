@@ -127,7 +127,11 @@ module.exports = {
             if (process.env.NODE_ENV !== 'test') { // Do this on production or staging
                 if (user) {
                     // Create user on Auth service
-                    _createUserOnAuthService(req.body.email, req.body.password, user.roleID);
+                    _createUserOnAuthService(req.body.email, req.body.password, user.roleID, function (err, response, body) {
+                        if (response.statusCode !== 200) {
+                            throw new HttpError(response.statusCode, 'User Could not be created on the auth service');
+                        }
+                    });
                 }
             }
 
@@ -200,7 +204,11 @@ module.exports = {
             if (process.env.NODE_ENV !== 'test') { // Do this only on production or staging
                 // Create user on the auth service
                 if (user) {
-                    _createUserOnAuthService(req.body.email, req.body.password, user.roleID);
+                    _createUserOnAuthService(req.body.email, req.body.password, user.roleID, function (err, response, body) {
+                        if (response.statusCode !== 200) {
+                            throw new HttpError(response.statusCode, 'User Could not be created on the auth service');
+                        }
+                    });
                 }
             }
 
@@ -416,7 +424,11 @@ module.exports = {
                 if (process.env.NODE_ENV !== 'test') { // Do this on production or staging only
                     // Create user on the auth service
                     if (userId) {
-                        _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID);
+                        _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID, function (err, response, body) {
+                            if (response.statusCode !== 200) {
+                                throw new HttpError(response.statusCode, 'User Could not be created on the auth service');
+                            }
+                        });
                     }
                 }
 
@@ -1179,7 +1191,7 @@ function* insertOne(req, res, next) {
     return user;
 }
 
-function _createUserOnAuthService(email, password, roleId) {
+function _createUserOnAuthService(email, password, roleId, callback) {
 
     let scopes = [];
     // Check if user being created is admin
@@ -1199,12 +1211,5 @@ function _createUserOnAuthService(email, password, roleId) {
             scopes: scopes,
         }
     };
-    request(
-        requestOptions,
-        function (err, response, body) {
-            if (response.statusCode !== 200) {
-                throw new HttpError(response.statusCode, 'User Could not be created on the auth service');
-            }
-        }
-    );
+    request(requestOptions, callback);
 }
