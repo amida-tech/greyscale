@@ -63,7 +63,8 @@ module.exports = {
                     .leftJoin(Project)
                     .on(Project.id.equals(Product.projectId))
                 )
-                .where(Project.id.equals(req.params.id))
+                .where(Project.id.equals(req.params.id)
+                    .and(Task.isDeleted.isNull()))
             );
 
             if (!_.first(tasks)) {
@@ -112,6 +113,7 @@ module.exports = {
                 'LEFT JOIN "Projects" ' +
                 'ON "Projects"."id" = "Products"."id" ' +
                 'WHERE ' + req.params.id + ' = ANY("Tasks"."userIds") ' +
+                'AND "Tasks"."isDeleted" is NULL ' +
                 ') '
             );
 
