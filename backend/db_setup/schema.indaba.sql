@@ -2624,6 +2624,7 @@ CREATE TABLE "Tasks" (
     "endDate" timestamp with time zone,
     "userId" integer,
     "langId" integer,
+    "assessmentId" integer,
     "isComplete" boolean DEFAULT false NOT NULL,
     "userIds" integer[],
     "groupIds" integer[],
@@ -4074,6 +4075,7 @@ CREATE TABLE "Tasks" (
     "endDate" timestamp with time zone,
     "userId" integer,
     "langId" integer,
+    "assessmentId" integer,
     "isComplete" boolean DEFAULT false NOT NULL,
     "userIds" integer[],
     "groupIds" integer[],
@@ -7299,4 +7301,3 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 --
 -- PostgreSQL database dump complete
 --
-

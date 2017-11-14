@@ -16,6 +16,7 @@ var Task = sql.define({
         'userIds',
         'groupIds',
         'langId',
+        'assessmentId',
         'isDeleted'
     ]
 });
@@ -27,7 +28,8 @@ Task.editCols = [
     'endDate',
     //'userId',
     'userIds',
-    'groupIds'
+    'groupIds',
+    'assessmentId',
 ];
 
 Task.translate = [
