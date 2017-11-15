@@ -421,16 +421,18 @@ module.exports = {
 
                 var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
 
-                if (process.env.NODE_ENV !== 'test') { // Do this on production or staging only
+                // if (process.env.NODE_ENV !== 'test') { // Do this on production or staging only
                     // Create user on the auth service
-                    if (userId) {
-                        _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID, function (err, response, body) {
-                            if (response.statusCode !== 200) {
-                                throw new HttpError(response.statusCode, 'User Could not be created on the auth service');
-                            }
-                        });
-                    }
+                if (userId) {
+                    _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID, function (err, response, body) {
+                        console.log(`BODY IS: ${body.message}`)
+                        console.log(`STATUS CODE IS: ${response.statusCode}`)
+                        if (response.statusCode !== 200) {
+                            throw new HttpError(response.statusCode, 'User Could not be created on the auth service');
+                        }
+                    });
                 }
+                // }
 
                 newUserId = userId[0].id;
                 bologger.log({
