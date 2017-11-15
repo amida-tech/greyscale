@@ -22,7 +22,7 @@ var
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
     config = require('../../config'),
-    request = require('request');
+    request = require('request-promise');
 
 
 var getEntityById = function* (req, id, model, key) {
@@ -437,7 +437,6 @@ var checkRecordExistById = function* (req, database, column, requestId) {
 
 exports.checkRecordExistById = checkRecordExistById;
 
-
 var getSurveyFromSurveyService = function* (surveyId, jwt) {
     const path = 'surveys/';
 
@@ -448,26 +447,16 @@ var getSurveyFromSurveyService = function* (surveyId, jwt) {
             'authorization': jwt
         }
     };
-    yield request(requestOptions, function (err, response, body) {
-        console.log(body);
-        console.log(response);
-        console.log(err);
-        console.log("IT WORKS HALLELUJAH?!?");
-            // if (err) {
-            //     yield err;
-            //     return;
-            // }
-            // if (response.statusCode !== 200) {
-            //     yield `${response.statusMessage}`;
-            //     return;
-            // }}
-    }).then(function (result) {
-        console.log('WE have RESULTS!!!');
-        console.log(result);
-    }, function (err) {
-        console.log("EEEK errors!");
-        console.log(err);
+    const response = yield request(requestOptions).then(function(res) {
+        if (res.statusCode !== 200) {
+            return Promise.reject(new Error('Error 2'));
+        }
+        return res.body;
+    }, function(err) {
+        return Promise.reject(err);
     });
+
+    return response;
 }
 
 exports.getSurveyFromSurveyService = getSurveyFromSurveyService;

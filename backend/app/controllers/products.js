@@ -1458,10 +1458,10 @@ function* checkProductData(req) {
         }
     }
 
-
-    console.log('line 1462');
-    common.getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization);
-
+    var surveyCheck = yield * common.getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization);
+    if (surveyCheck.statusCode !== 200) {
+        throw new HttpError( surveyCheck.statusCode, surveyCheck.error);
+    }
     if (req.body.projectId) {
         var isExistProject = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
         if (!_.first(isExistProject)) {
