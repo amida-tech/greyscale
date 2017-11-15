@@ -436,3 +436,38 @@ var checkRecordExistById = function* (req, database, column, requestId) {
 };
 
 exports.checkRecordExistById = checkRecordExistById;
+
+
+var getSurveyFromSurveyService = function* (surveyId, jwt) {
+    const path = 'surveys/';
+
+    const requestOptions = {
+        url: config.surveyService + path + surveyId,
+        method: 'GET',
+        headers: {
+            'authorization': jwt
+        }
+    };
+    yield request(requestOptions, function (err, response, body) {
+        console.log(body);
+        console.log(response);
+        console.log(err);
+        console.log("IT WORKS HALLELUJAH?!?");
+            // if (err) {
+            //     yield err;
+            //     return;
+            // }
+            // if (response.statusCode !== 200) {
+            //     yield `${response.statusMessage}`;
+            //     return;
+            // }}
+    }).then(function (result) {
+        console.log('WE have RESULTS!!!');
+        console.log(result);
+    }, function (err) {
+        console.log("EEEK errors!");
+        console.log(err);
+    });
+}
+
+exports.getSurveyFromSurveyService = getSurveyFromSurveyService;
