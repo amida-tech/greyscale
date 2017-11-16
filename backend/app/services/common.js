@@ -437,14 +437,15 @@ var checkRecordExistById = function* (req, database, column, requestId) {
 
 exports.checkRecordExistById = checkRecordExistById;
 
-var getSurveyFromSurveyService = function(surveyId, jwt) {
+var getSurveyFromSurveyService = function (surveyId, jwt) {
     const path = 'surveys/';
 
     const requestOptions = {
         url: config.surveyService + path + surveyId,
         method: 'GET',
         headers: {
-            'authorization': jwt
+            'authorization': jwt,
+            'origin': config.domain
         },
         json: true,
         resolveWithFullResponse: true,
@@ -453,20 +454,21 @@ var getSurveyFromSurveyService = function(surveyId, jwt) {
     console.log(`BUILT REQUEST OPTIONS`)
     return request(requestOptions)
         .then((res) => {
+            console.log(`BODY KEYS: ${Object.keys(res.body)}`)
             console.log(`I AM IN THE THEN. STATUS CODE IS: ${res.statusCode} `)
             if (res.statusCode > 299 || res.statusCode < 200) {
                 const httpErr = new HttpError(res.statusCode, res.statusMessage);
                 return Promise.reject(httpErr);
             }
 
-            console.log(`RETURNING BODY: ${res.body}`)
-            return res.body;
+            console.log(`RETURNING BODY: ${res}`)
+            return res
         })
         .catch((err) => {
             console.log(`I FAILED IN THE CATCH: ${err.message}`)
             const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
-            Promise.reject(httpErr);
+            return Promise.reject(httpErr);
         });
-}
+};
 
 exports.getSurveyFromSurveyService = getSurveyFromSurveyService;
