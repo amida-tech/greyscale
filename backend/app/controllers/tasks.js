@@ -142,10 +142,18 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var tasks = yield thunkQuery(
+                '( ' +
                 'SELECT "Tasks".*, "Products"."projectId", "Products"."surveyId" ' +
-                'FROM "Tasks" LEFT JOIN "Products" ON "Products".id = ' +
-                '"Tasks"."productId" LEFT JOIN "Projects" ON "Projects".id ' +
-                '= "Products".id WHERE ' + req.user.id + ' = ANY("Tasks"."userIds")'
+                'FROM "Tasks" ' +
+                'LEFT JOIN "Products" ' +
+                'ON "Products".id = ' +
+                '"Tasks"."productId" ' +
+                'LEFT JOIN "Projects" ' +
+                'ON "Projects".id ' +
+                '= "Products".id ' +
+                'WHERE ' + req.user.id + ' = ANY("Tasks"."userIds")' +
+                'AND "Tasks"."isDeleted" is NULL ' +
+                ') '
             );
             return yield * common.getFlagsForTask(req, tasks);
         }).then(function (data) {
