@@ -437,7 +437,7 @@ var checkRecordExistById = function* (req, database, column, requestId) {
 
 exports.checkRecordExistById = checkRecordExistById;
 
-var getSurveyFromSurveyService = function* (surveyId, jwt) {
+var getSurveyFromSurveyService = function(surveyId, jwt) {
     const path = 'surveys/';
 
     const requestOptions = {
@@ -445,18 +445,22 @@ var getSurveyFromSurveyService = function* (surveyId, jwt) {
         method: 'GET',
         headers: {
             'authorization': jwt
-        }
+        },
+        json: true,
+        resolveWithFullResponse: true,
     };
-    const response = yield request(requestOptions).then(function(res) {
-        if (res.statusCode !== 200) {
-            return Promise.reject(new Error('Error 2'));
-        }
-        return res.body;
-    }, function(err) {
-        return Promise.reject(err);
-    });
-
-    return response;
+    return request(requestOptions)
+        .then((res) => {
+            if (res.statusCode > 299 || res.statusCode < 200) {
+                const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                return Promise.reject(httpErr);
+            }
+            return res.body;
+        })
+        .catch((err) => {
+            const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
+            Promise.reject(httpErr);
+        });
 }
 
 exports.getSurveyFromSurveyService = getSurveyFromSurveyService;

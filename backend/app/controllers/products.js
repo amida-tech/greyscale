@@ -1192,13 +1192,10 @@ module.exports = {
                 var product = yield * common.getEntity(req, req.params.id, Product, 'id');
 
                 //Check that the survey exist in the survey service
-                common.getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization, function (err, response, body) {
-                    if (response.statusCode == 200) {
-                        if (body.status == 'draft') {
-                            throw new HttpError(response.statusCode, 'You can not start the project. Survey have status `in Draft`');
-                        }
-                    }
-                });
+                const survey = yield common.getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization);
+                if (survey.status == 'draft') {
+                    throw new HttpError(400, 'You can not start the project. Survey have status `in Draft`');
+                }
 
                 var result = yield * updateCurrentStepId(req);
                 if (typeof result === 'object') {
