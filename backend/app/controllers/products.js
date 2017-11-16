@@ -1192,6 +1192,8 @@ module.exports = {
                 var product = yield * common.getEntity(req, req.params.id, Product, 'id');
 
                 //Check that the survey exist in the survey service
+
+                console.log(`DOING SURVEY CHECK FROM UPDATEONE`)
                 const survey = yield common.getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization);
                 if (survey.status == 'draft') {
                     throw new HttpError(400, 'You can not start the project. Survey have status `in Draft`');
@@ -1455,7 +1457,10 @@ function* checkProductData(req) {
         }
     }
 
+    console.log(`DOING A SURVEY CHECK`)
     var surveyCheck = yield * common.getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization);
+    console.log(`SURVEY CHECK IS: ${surveyCheck}`)
+
     if (surveyCheck.statusCode !== 200) {
         throw new HttpError( surveyCheck.statusCode, surveyCheck.error);
     }

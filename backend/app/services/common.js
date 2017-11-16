@@ -449,15 +449,21 @@ var getSurveyFromSurveyService = function(surveyId, jwt) {
         json: true,
         resolveWithFullResponse: true,
     };
+
+    console.log(`BUILT REQUEST OPTIONS`)
     return request(requestOptions)
         .then((res) => {
+            console.log(`I AM IN THE THEN. STATUS CODE IS: ${res.statusCode} `)
             if (res.statusCode > 299 || res.statusCode < 200) {
                 const httpErr = new HttpError(res.statusCode, res.statusMessage);
                 return Promise.reject(httpErr);
             }
+
+            console.log(`RETURNING BODY: ${res.body}`)
             return res.body;
         })
         .catch((err) => {
+            console.log(`I FAILED IN THE CATCH: ${err.message}`)
             const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
             Promise.reject(httpErr);
         });
