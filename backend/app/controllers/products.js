@@ -1188,14 +1188,11 @@ module.exports = {
 
         co(function* () {
             yield * checkProductData(req);
-            console.log(`CHECKED PRODUCT DATA`)
             if (parseInt(req.body.status) === 1) { // if status changed to 'STARTED'
-                console.log(`GOT IN HERE WITH STATUS PASSED IN`)
                 var product = yield * common.getEntity(req, req.params.id, Product, 'id');
 
                 //Check that the survey exist in the survey service
 
-                console.log(`DOING SURVEY CHECK FROM UPDATEONE`)
                 const survey = yield common.getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization);
                 if (survey.body.status == 'draft') {
                     throw new HttpError(400, 'You can not start the project. Survey have status `in Draft`');
@@ -1235,7 +1232,6 @@ module.exports = {
             });
             res.status(202).json(true);
         }, function (err) {
-            console.log(`FAILING HERE SINCE NO STATUS PASSED`)
             next(err);
         });
     },
@@ -1460,17 +1456,12 @@ function* checkProductData(req) {
         }
     }
 
-    console.log(`DOING A SURVEY CHECK`)
     var surveyCheck = yield common.getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization);
-    console.log(`SURVEY CHECK IS: ${Object.keys(surveyCheck)}`)
 
-    console.log(`CHECKING SURVEY CHECK'S STATUS ${surveyCheck.statusCode}`);
     if (surveyCheck.statusCode !== 200) {
-        console.log(`I GOT IN HERE AND FAILED`)
         throw new HttpError( surveyCheck.statusCode, surveyCheck.error);
     }
     if (req.body.projectId) {
-        console.log(`CHECKING IF PROJECT EXISTS`)
         var isExistProject = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
         if (!_.first(isExistProject)) {
             throw new HttpError(403, 'Project with this id does not exist');
