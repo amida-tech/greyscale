@@ -125,15 +125,9 @@ module.exports = {
         co(function* () {
             var user = yield * insertOne(req, res, next);
 
-            if (process.env.NODE_ENV !== 'test') { // Do this on production or staging
-                if (user) {
-                    // Create user on Auth service
-                    _createUserOnAuthService(req.body.email, req.body.password, user.roleID, function (err, response, body) {
-                        if (response.statusCode !== 200) {
-                            throw new HttpError(response.statusCode, 'User Could not be created on the auth service');
-                        }
-                    });
-                }
+            // Create user on Auth service
+            if (user) {
+                yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID)
             }
 
             if (req.body.projectId) {
