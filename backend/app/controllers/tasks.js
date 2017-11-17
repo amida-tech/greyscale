@@ -26,12 +26,9 @@ module.exports = {
                 Task
                 .select(
                     Task.star()
-                    //'row_to_json("Workflows".*) as workflow'
                 )
                 .from(
                     Task
-                    //.leftJoin(Workflow)
-                    //.on(Product.id.equals(Workflow.productId))
                 )
             );
         }).then(function (data) {
@@ -52,28 +49,34 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
 
-            //TODO: Check if projects with given id exists first
+            const projectExist = yield * common.checkRecordExistById(req, 'Projects', 'id', req.params.id)
 
-            var tasks = yield thunkQuery(
-                Task
-                .select(
-                    Task.star()
-                )
-                .from(
+            if (projectExist === true) {
+                var tasks = yield thunkQuery(
                     Task
-                    .leftJoin(Product)
-                    .on(Product.id.equals(Task.productId))
-                    .leftJoin(Project)
-                    .on(Project.id.equals(Product.projectId))
-                )
-                .where(Project.id.equals(req.params.id))
-            );
+                        .select(
+                            Task.star()
+                        )
+                        .from(
+                            Task
+                                .leftJoin(Product)
+                                .on(Product.id.equals(Task.productId))
+                                .leftJoin(Project)
+                                .on(Project.id.equals(Product.projectId))
+                        )
+                        .where(Project.id.equals(req.params.id)
+                            .and(Task.isDeleted.isNull()))
+                );
 
-            if (!_.first(tasks)) {
-                throw new HttpError(403, 'Not found');
+                if (!_.first(tasks)) {
+                    throw new HttpError(204, 'No Tasks Found');
+                }
+
+                return yield * common.getFlagsForTask(req, tasks);
+
+            } else {
+                throw new HttpError(400, 'No project matching that project ID');
             }
-
-            return yield * common.getFlagsForTask(req, tasks);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -115,6 +118,7 @@ module.exports = {
                 'LEFT JOIN "Projects" ' +
                 'ON "Projects"."id" = "Products"."id" ' +
                 'WHERE ' + req.params.id + ' = ANY("Tasks"."userIds") ' +
+                'AND "Tasks"."isDeleted" is NULL ' +
                 ') '
             );
 
@@ -143,10 +147,18 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var tasks = yield thunkQuery(
+                '( ' +
                 'SELECT "Tasks".*, "Products"."projectId", "Products"."surveyId" ' +
-                'FROM "Tasks" LEFT JOIN "Products" ON "Products".id = ' +
-                '"Tasks"."productId" LEFT JOIN "Projects" ON "Projects".id ' +
-                '= "Products".id WHERE ' + req.user.id + ' = ANY("Tasks"."userIds")'
+                'FROM "Tasks" ' +
+                'LEFT JOIN "Products" ' +
+                'ON "Products".id = ' +
+                '"Tasks"."productId" ' +
+                'LEFT JOIN "Projects" ' +
+                'ON "Projects".id ' +
+                '= "Products".id ' +
+                'WHERE ' + req.user.id + ' = ANY("Tasks"."userIds")' +
+                'AND "Tasks"."isDeleted" is NULL ' +
+                ') '
             );
             return yield * common.getFlagsForTask(req, tasks);
         }).then(function (data) {
@@ -233,7 +245,8 @@ module.exports = {
                     .leftJoin(Discussions)
                     .on(Discussions.taskId.equals(req.params.id))
                 )
-                .where(Task.id.equals(req.params.id))
+                .where(Task.id.equals(req.params.id)
+                    .and(Task.isDeleted.isNull()))
             );
             if (!_.first(task)) {
                 throw new HttpError(403, 'Not found');
@@ -251,7 +264,9 @@ module.exports = {
 
         co(function* () {
             return yield thunkQuery(
-                Task.delete().where(Task.id.equals(req.params.id))
+                'UPDATE "Tasks"' +
+                ' SET "isDeleted" = (to_timestamp('+ Date.now() +
+                '/ 1000.0)) WHERE "id" = ' + req.params.id
             );
         }).then(function (data) {
             bologger.log({
@@ -262,7 +277,7 @@ module.exports = {
                 entity: req.params.id,
                 info: 'Delete task'
             });
-            res.status(204).end();
+            res.status(204).json(true);
         }, function (err) {
             next(err);
         });
