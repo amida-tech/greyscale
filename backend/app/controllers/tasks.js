@@ -69,13 +69,13 @@ module.exports = {
                 );
 
                 if (!_.first(tasks)) {
-                    throw new HttpError(403, 'Not found');
+                    throw new HttpError(204, 'No Tasks Found');
                 }
 
                 return yield * common.getFlagsForTask(req, tasks);
 
             } else {
-                throw new HttpError(403, 'No project matching that project ID');
+                throw new HttpError(400, 'No project matching that project ID');
             }
         }).then(function (data) {
             res.json(data);
