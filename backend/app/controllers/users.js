@@ -1203,6 +1203,9 @@ function _createUserOnAuthService(email, password, roleId) {
             return res
         })
         .catch((err) => {
+            if (err.statusCode === 400) { // User already exists but it's cool, it's cool.
+                return err;
+            }
             const httpErr = new HttpError(500, `Unable to use auth service: ${err.message}`);
             return Promise.reject(httpErr);
         });
