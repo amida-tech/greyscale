@@ -1458,12 +1458,14 @@ function* checkProductData(req) {
         }
     }
 
-    // Pull survey from survey service
-   _getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization, function (err, response, body) {
-       if (response.statusCode !== 200) {
-           throw new HttpError(response.statusCode, `${response.statusMessage}`);
-       }
-   });
+    if (process.env.NODE_ENV !== 'test') { // Do this only in production or staging environment
+        // Pull survey from survey service
+        _getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization, function (err, response, body) {
+            if (response.statusCode !== 200) {
+                throw new HttpError(response.statusCode, `${response.statusMessage}`);
+            }
+        });
+    }
 
     if (req.body.projectId) {
         var isExistProject = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
