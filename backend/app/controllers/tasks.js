@@ -49,29 +49,34 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
 
-            //TODO: Check if projects with given id exists first
+            const projectExist = yield * common.checkRecordExistById(req, 'Projects', 'id', req.params.id)
 
-            var tasks = yield thunkQuery(
-                Task
-                .select(
-                    Task.star()
-                )
-                .from(
+            if (projectExist === true) {
+                var tasks = yield thunkQuery(
                     Task
-                    .leftJoin(Product)
-                    .on(Product.id.equals(Task.productId))
-                    .leftJoin(Project)
-                    .on(Project.id.equals(Product.projectId))
-                )
-                .where(Project.id.equals(req.params.id)
-                    .and(Task.isDeleted.isNull()))
-            );
+                        .select(
+                            Task.star()
+                        )
+                        .from(
+                            Task
+                                .leftJoin(Product)
+                                .on(Product.id.equals(Task.productId))
+                                .leftJoin(Project)
+                                .on(Project.id.equals(Product.projectId))
+                        )
+                        .where(Project.id.equals(req.params.id)
+                            .and(Task.isDeleted.isNull()))
+                );
 
-            if (!_.first(tasks)) {
-                throw new HttpError(403, 'Not found');
+                if (!_.first(tasks)) {
+                    throw new HttpError(204, 'No Tasks Found');
+                }
+
+                return yield * common.getFlagsForTask(req, tasks);
+
+            } else {
+                throw new HttpError(400, 'No project matching that project ID');
             }
-
-            return yield * common.getFlagsForTask(req, tasks);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
