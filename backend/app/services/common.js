@@ -22,7 +22,7 @@ var
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
     config = require('../../config'),
-    request = require('request');
+    request = require('request-promise');
 
 
 var getEntityById = function* (req, id, model, key) {
@@ -436,3 +436,34 @@ var checkRecordExistById = function* (req, database, column, requestId) {
 };
 
 exports.checkRecordExistById = checkRecordExistById;
+
+var getSurveyFromSurveyService = function (surveyId, jwt) {
+    const path = 'surveys/';
+
+    const requestOptions = {
+        url: config.surveyService + path + surveyId,
+        method: 'GET',
+        headers: {
+            'authorization': jwt,
+            'origin': config.domain
+        },
+        json: true,
+        resolveWithFullResponse: true,
+    };
+
+    return request(requestOptions)
+        .then((res) => {
+            if (res.statusCode > 299 || res.statusCode < 200) {
+                const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                return Promise.reject(httpErr);
+            }
+
+            return res
+        })
+        .catch((err) => {
+            const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
+            return Promise.reject(httpErr);
+        });
+};
+
+exports.getSurveyFromSurveyService = getSurveyFromSurveyService;

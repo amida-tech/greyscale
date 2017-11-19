@@ -20,7 +20,7 @@ var environments = {
     development: {
         port: 3005,
         encoding: 'utf8',
-        domain: 'your_site_domain.com',
+        domain: process.env.DOMAIN || 'http://localhost:3005',
         authToken: {
             expiresAfterSeconds: 360000 * 24 // 24 hour
         },
@@ -108,7 +108,7 @@ var environments = {
     test: {
         port: 3005,
         encoding: 'utf8',
-        domain: 'your_site_domain.com',
+        domain: process.env.DOMAIN || 'http://localhost:3005',
         authToken: {
             expiresAfterSeconds: 360000 * 24 // 24 hour
         },

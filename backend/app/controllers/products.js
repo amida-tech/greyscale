@@ -1192,13 +1192,11 @@ module.exports = {
                 var product = yield * common.getEntity(req, req.params.id, Product, 'id');
 
                 //Check that the survey exist in the survey service
-                _getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization, function (err, response, body) {
-                    if (response.statusCode == 200) {
-                        if (body.status == 'draft') {
-                            throw new HttpError(response.statusCode, 'You can not start the project. Survey have status `in Draft`');
-                        }
-                    }
-                });
+
+                const survey = yield common.getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization);
+                if (survey.body.status == 'draft') {
+                    throw new HttpError(400, 'You can not start the project. Survey have status `in Draft`');
+                }
 
                 var result = yield * updateCurrentStepId(req);
                 if (typeof result === 'object') {
@@ -1458,15 +1456,11 @@ function* checkProductData(req) {
         }
     }
 
-    if (process.env.NODE_ENV !== 'test') { // Do this only in production or staging environment
-        // Pull survey from survey service
-        _getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization, function (err, response, body) {
-            if (response.statusCode !== 200) {
-                throw new HttpError(response.statusCode, `${response.statusMessage}`);
-            }
-        });
-    }
+    var surveyCheck = yield common.getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization);
 
+    if (surveyCheck.statusCode !== 200) {
+        throw new HttpError( surveyCheck.statusCode, surveyCheck.error);
+    }
     if (req.body.projectId) {
         var isExistProject = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
         if (!_.first(isExistProject)) {
@@ -2316,17 +2310,4 @@ function* doAutoResolve(req, taskId) {
         }
     }
     return true;
-}
-
-function _getSurveyFromSurveyService(surveyId, jwt, callback) {
-    const path = 'surveys/';
-
-    const requestOptions = {
-        url: config.surveyService + path + surveyId,
-        method: 'GET',
-        headers: {
-            'authorization': jwt
-        }
-    };
-    request(requestOptions, callback);
 }
