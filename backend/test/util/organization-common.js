@@ -24,6 +24,14 @@ const IntegrationTests = class IntegrationTests {
         }
     }
 
+    createOrganizationWithNoJWTFn(organization) {
+        const supertest = this.supertest;
+        const hxOrganization = this.hxOrganization;
+        return function createOrganization() {
+            return supertest.postAdmin('organizations', organization, 401)
+        }
+    }
+
     getOrganizationFn(index) {
         const supertest = this.supertest;
         const hxOrganization = this.hxOrganization;

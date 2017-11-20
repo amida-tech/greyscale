@@ -34,6 +34,19 @@ const IntegrationTests = class IntegrationTests {
         this.hxOrganization = options.hxOrganization;
     }
 
+    createGroupWithOutJWTFn() {
+        const supertest = this.supertest;
+        const hxGroup = this.hxGroup;
+        const generator = this.generator;
+        const hxOrganization = this.hxOrganization;
+        return function createGroup() {
+            const orgId = hxOrganization.id(0);
+            const group = generator.generate();
+            return supertest.post(`organizations/${orgId}/groups`, group, 401)
+
+        }
+    }
+
     createGroupFn() {
         const supertest = this.supertest;
         const hxGroup = this.hxGroup;

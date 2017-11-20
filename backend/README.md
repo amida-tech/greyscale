@@ -30,3 +30,22 @@ node --harmony app.js (since 4.0.0 version --harmony is not necessary)
 # Logging
 
 Indaba uses [`debug`](https://github.com/visionmedia/debug) package. To turn debug messages on set environment variable `DEBUG` to `*`.
+
+## Building Dockerfile in Linux
+1. First create a postgres server to connect to
+- `cd backend/db_setup`
+- `docker build --tag indaba_pg_backend .`
+-  now to run an instance `docker run -e POSTGRES_USER=indabauser -e POSTGRES_PASSWORD=<password/> -e POSTGRES_DB=indaba --name indaba_pg indaba_pg_backend`
+2. Now create a memcached instance `docker run --name indaba_memcached memcached`
+3. Create the backend image
+- `cd ../` (should now be in the backend directory)
+- `docker build --tag inadba_backend`
+- `docker run --link indaba_pg:indaba_pg --link indaba_memcached:indaba_memcached -e INDABA_PG_PASSWORD=<pg password/> -e INDABA_PG_HOSTNAME=indaba_pg -e AUTH_SALT=<salt/> -e JWT_SECRET=<JWT_SECRET/> -e MEMCACHED_HOST=indaba_memcached -p 3005:3005 --name indaba_be indaba_backend`
+- i. `--link indaba_pg:indaba_pg` links to the pg instance we created and calls in indaba_pg
+- ii. `--link indaba_memcached:indaba_memcached` links the memcached instance we created and calls it indaba_memcached
+- iii. `-e INDABA_PG_PASSWORD=<pg password/>` sets the environment variable to the password we specified when creating the PG instance
+- iv. `-e INDABA_PG_HOSTNAME=indaba_pg` sets the environment variable for the app to specify the name of the pg instance to the name we linked it as in i
+- v. `-e AUTH_SALT=<salt/>` sets the salt
+- vi. `-e JWT_SECRET=<JWT_SECRET/>` sets the JWT secret
+- vii. `-e MEMCACHED_HOST=indaba_memcached` sets the environment variable for the app to specify the name of the memcached instance to the name we linked it as in ii
+		

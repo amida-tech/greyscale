@@ -68,26 +68,26 @@ module.exports = {
     },
 
     insert: function (req, res, next) {
-        //TODO: Fix test to pass for this
-        console.log('I GOT IN HERE');
         var thunkQuery = req.thunkQuery;
-        console.log('I EVEN GOT HERE and body is: ' + req.body.subjects)
-        var uoas = req.body.subjects.map((subject) => subject.name);
-        console.log('I DIDN"T EVEN GET HERE')
-        var sqlString = "'"+uoas.toString().replace(/'/g, "''").replace(/,/g, "','")+"'";
+
+        // Verify that the body contains the subjects
+        if (req.body.subjects) {
+            //convert the input to an array because we want to be able to pass in just one subject
+            if (!Array.isArray(req.body.subjects)) {
+                req.body.subjects = [{name: req.body.subjects}];
+            }
+            var uoas = req.body.subjects.map((subject) => subject.name);
+            var sqlString = "'" + uoas.toString().replace(/'/g, "''").replace(/,/g, "','") + "'";
+        } else {
+            throw new HttpError(400, 'Missing Subjects');
+        }
 
         co(function* () {
-            console.log('I ENTERED SUCCESSFULLY');
-            console.log('UOA TYPE IS: ' + req.body.unitOfAnalysisType);
-
             var added = yield thunkQuery(
                 'SELECT name, id FROM "UnitOfAnalysis" WHERE LOWER("UnitOfAnalysis"' +
                 '."name") IN (' + sqlString.toLowerCase() + ') AND "UnitOfAnalysis"' +
                 '."unitOfAnalysisType" = ' + req.body.unitOfAnalysisType
             );
-
-            console.log('I ADDED SUCCESSFULLY');
-
             var insert = _.difference(uoas, added.map((exist) => exist.name));
             for (var i = 0; i < insert.length; i++) {
                 var result = yield thunkQuery(UnitOfAnalysis.insert({
@@ -99,7 +99,6 @@ module.exports = {
                 }).returning(UnitOfAnalysis.id));
                 added.push({name: insert[i], id: _.first(result).id});
             }
-
             if (req.body.productId) {
                 for (var j = 0; j < added.length; j++) {
                     yield thunkQuery(ProductUOA.insert({
@@ -110,7 +109,6 @@ module.exports = {
                     }));
                 }
             }
-
             return added;
         }).then(function (data) {
             bologger.log({

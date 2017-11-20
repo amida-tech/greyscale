@@ -15,7 +15,7 @@ const Generator = class {
 
     generate(unitOfAnalysisType) {
         return {
-            name: `uoa_${this.index}`,
+            subjects: `uoa_${this.index}`,
             unitOfAnalysisType,
         }
     }
@@ -47,11 +47,11 @@ const IntegrationTests = class IntegrationTests {
             const uoa = generator.generate(unitOfAnalysisType);
             return supertest.post('uoas', uoa, 201)
                 .then((res) => {
-                    expect(!!res.body.id).to.equal(true);
+                    expect(!!res.body[0].id).to.equal(true);
                     const userId = hxUser.id(userIndex);
                     uoa.ownerId = userId;
                     uoa.creatorId = userId;
-                    hxUOA.push(uoa, res.body);
+                    hxUOA.push(uoa, res.body[0]);
                 });
         }
     }

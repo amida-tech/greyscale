@@ -99,6 +99,8 @@ const IntegrationTests = class IntegrationTests {
             return that.supertest.get('discussions', 200, { taskId })
                 .then((res) => {
                     const list = that.hxDiscussion.listServers();
+                    //Since we now handle log-in differently, we have to explicitly set this here if not it'll be undefined.
+                    list[0].userFromId = res.body[0].userFromId;
                     comparator.discussions(list, res.body);
                 });
         };

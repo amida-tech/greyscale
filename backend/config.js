@@ -13,13 +13,15 @@ const base = {
         region: 'us-east-1'
     },
     awsBucket : "your-aws-bucket",
+    authService: process.env.AUTH_SERVICE_URL || 'http://localhost:4000/api/v0',
+    surveyService: process.env.SURVEY_SERVICE_URL || 'http://localhost:9005/api/v1.0/',
 };
 
 var environments = {
     development: {
         port: 3005,
         encoding: 'utf8',
-        domain: 'your_site_domain.com',
+        domain: process.env.DOMAIN || 'http://localhost:3005',
         authToken: {
             expiresAfterSeconds: 360000 * 24 // 24 hour
         },
@@ -107,7 +109,7 @@ var environments = {
     test: {
         port: 3005,
         encoding: 'utf8',
-        domain: 'your_site_domain.com',
+        domain: process.env.DOMAIN || 'http://localhost:3005',
         authToken: {
             expiresAfterSeconds: 360000 * 24 // 24 hour
         },
@@ -159,17 +161,15 @@ var environments = {
                 email: 'su@mail.net',
                 firstName: 'SuperAdmin',
                 lastName: 'Test',
-                roleID: 1,
-                password: 'testuser',
-                token: ''
+                scopes: 'admin',
+                password: 'testuser12345',
             },
             admin: {
                 email: 'test-adm@mail.net',
                 firstName: 'Admin',
                 lastName: 'Test',
                 roleID: 2,
-                password: 'testadmin',
-                token: ''
+                password: 'testadmin12345',
             },
             users: [
                 {
@@ -178,7 +178,6 @@ var environments = {
                     email: 'user1@mail.net',
                     roleID: 3,
                     password: 'testuser1',
-                    token: ''
                 },
                 {
                     firstName: 'User2',
@@ -186,7 +185,6 @@ var environments = {
                     email: 'user2@mail.net',
                     roleID: 3,
                     password: 'testuser2',
-                    token: ''
                 },
                 {
                     firstName: 'User3',
@@ -194,7 +192,6 @@ var environments = {
                     email: 'user3@mail.net',
                     roleID: 3,
                     password: 'testuser3',
-                    token: ''
                 }
             ],
             organization : {
