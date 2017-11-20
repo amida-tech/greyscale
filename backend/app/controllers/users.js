@@ -8,33 +8,19 @@ var client = require('../db_bootstrap'),
     User = require('../models/users'),
     Organization = require('../models/organizations'),
     Rights = require('../models/rights'),
-    RoleRights = require('../models/role_rights'),
-    WorkflowStep = require('../models/workflow_steps'),
     Token = require('../models/token'),
-    Task = require('../models/tasks'),
-    Product = require('../models/products'),
-    ProductUOA = require('../models/product_uoa'),
-    Project = require('../models/projects'),
-    Survey = require('../models/surveys'),
-    VError = require('verror'),
     vl = require('validator'),
     HttpError = require('../error').HttpError,
     util = require('util'),
     async = require('async'),
-    Emailer = require('../../lib/mailer'),
     UserUOA = require('../models/user_uoa'),
     UserGroup = require('../models/user_groups'),
     UOA = require('../models/uoas'),
-    Notification = require('../models/notifications'),
-    Essence = require('../models/essences'),
-    mc = require('../mc_helper'),
     sql = require('sql'),
     notifications = require('../controllers/notifications'),
-    jwt = require('jsonwebtoken');
-
-var jwtOptions = {
-    secretOrKey: config.jwtSecret,
-};
+    request = require('request'),
+    request = require('request-promise'),
+    config = require('../../config');
 
 var Role = require('../models/roles');
 var Query = require('../util').Query,
@@ -138,6 +124,12 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var user = yield * insertOne(req, res, next);
+
+            // Create user on Auth service
+            if (user) {
+                yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID)
+            }
+
             if (req.body.projectId) {
                 yield * common.insertProjectUser(req, user.id, req.body.projectId);
             }
@@ -203,6 +195,11 @@ module.exports = {
             };
 
             var user = yield thunkQuery(User.insert(newClient).returning(User.id));
+
+            // Create user on the auth service
+            if (user) {
+                yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID)
+            }
 
             bologger.log({
                 //req: req, Does not use req if you want to use public namespace TODO realm?
@@ -350,7 +347,6 @@ module.exports = {
     },
 
     selfOrganizationInvite: function (req, res, next) {
-
         if (req.params.realm === config.pgConnect.adminSchema) {
             throw new HttpError(400, 'Incorrect realm');
         }
@@ -412,6 +408,10 @@ module.exports = {
                 };
 
                 var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
+
+                if (userId) {
+                    yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID)
+                }
 
                 newUserId = userId[0].id;
                 bologger.log({
@@ -1170,4 +1170,43 @@ function* insertOne(req, res, next) {
         );
     }
     return user;
+}
+
+function _createUserOnAuthService(email, password, roleId) {
+
+    let scopes = [];
+    // Check if user being created is admin
+    if (roleId == 1 || roleId == 2) {
+        scopes = ['admin'];
+    }
+
+    const path = '/user';
+
+    const requestOptions = {
+        url: config.authService + path,
+        method: 'POST',
+        json: {
+            username: email,
+            email: email,
+            password: password,
+            scopes: scopes,
+        },
+        resolveWithFullResponse: true,
+    };
+
+    return request(requestOptions)
+        .then((res) => {
+            if (res.statusCode > 299 || res.statusCode < 200) {
+                const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                return Promise.reject(httpErr);
+            }
+            return res
+        })
+        .catch((err) => {
+            if (err.statusCode === 400) { // User already exists but it's cool, it's cool.
+                return err;
+            }
+            const httpErr = new HttpError(500, `Unable to use auth service: ${err.message}`);
+            return Promise.reject(httpErr);
+        });
 }
