@@ -425,7 +425,6 @@ module.exports = {
                 )), 'id'));
 
                 if (productId) {
-                    //TODO: Test this to make sure it works correctly in the DB
                     return yield thunkQuery(
                         'UPDATE "Tasks"' +
                         ' SET "isDeleted" = (to_timestamp('+ Date.now() +
