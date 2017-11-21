@@ -7,11 +7,9 @@ var client = require('../db_bootstrap'),
     UnitOfAnalysis = require('../models/uoas'),
     UnitOfAnalysisType = require('../models/uoatypes'),
     UnitOfAnalysisTagLink = require('../models/uoataglinks'),
-    AccessMatrix = require('../models/access_matrices'),
-    Translation = require('../models/translations'),
     Language = require('../models/languages'),
-    Essence = require('../models/essences'),
     ProductUOA = require('../models/product_uoa'),
+    Task = require('../models/tasks'),
     co = require('co'),
     Query = require('../util').Query,
     getTranslateQuery = require('../util').getTranslateQuery,
@@ -31,7 +29,7 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var _counter = thunkQuery(UnitOfAnalysis.select(UnitOfAnalysis.count('counter')));
-            var uoa = thunkQuery(UnitOfAnalysis.select(), _.omit(req.query, 'offset', 'limit', 'order'));
+            var uoa = thunkQuery(UnitOfAnalysis.select().where(UnitOfAnalysis.isDeleted.isNull()), _.omit(req.query, 'offset', 'limit', 'order'));
             return yield [_counter, uoa];
         }).then(function (data) {
             res.set('X-Total-Count', _.first(data[0]).counter);
@@ -46,7 +44,7 @@ module.exports = {
         co(function* () {
             var _counter = thunkQuery(UnitOfAnalysis.select(UnitOfAnalysis.count('counter')));
             var langId = yield * detectLanguage(req);
-            var uoa = thunkQuery(getTranslateQuery(langId, UnitOfAnalysis), _.omit(req.query, 'offset', 'limit', 'order'));
+            var uoa = thunkQuery(getTranslateQuery(langId, UnitOfAnalysis, UnitOfAnalysis.isDeleted.isNull()), _.omit(req.query, 'offset', 'limit', 'order'));
             return yield [_counter, uoa];
         }).then(function (data) {
             res.set('X-Total-Count', _.first(data[0]).counter);
@@ -59,9 +57,17 @@ module.exports = {
     selectOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            return yield thunkQuery(getTranslateQuery(req.query.langId, UnitOfAnalysis, UnitOfAnalysis.id.equals(req.params.id)));
+            var langId = yield * detectLanguage(req);
+            return yield thunkQuery(getTranslateQuery(langId, UnitOfAnalysis, UnitOfAnalysis.id.equals(req.params.id).and(UnitOfAnalysis.isDeleted.isNull())));
         }).then(function (data) {
-            res.json(_.first(data));
+            if (_.first(data)) {
+                res.json(_.first(data));
+            } else {
+                res.json({
+                    'message': 'No UOA Found',
+                    'Data': data
+                });
+            }
         }, function (err) {
             next(err);
         });
@@ -84,9 +90,10 @@ module.exports = {
 
         co(function* () {
             var added = yield thunkQuery(
-                'SELECT name, id FROM "UnitOfAnalysis" WHERE LOWER("UnitOfAnalysis"' +
-                '."name") IN (' + sqlString.toLowerCase() + ') AND "UnitOfAnalysis"' +
-                '."unitOfAnalysisType" = ' + req.body.unitOfAnalysisType
+                'SELECT name, id FROM "UnitOfAnalysis" ' +
+                'WHERE LOWER("UnitOfAnalysis"."name") IN (' + sqlString.toLowerCase() + ') ' +
+                'AND "UnitOfAnalysis"."unitOfAnalysisType" = ' + req.body.unitOfAnalysisType
+
             );
             var insert = _.difference(uoas, added.map((exist) => exist.name));
             for (var i = 0; i < insert.length; i++) {
@@ -130,7 +137,7 @@ module.exports = {
         co(function* () {
             delete req.body.created;
             req.body.updated = new Date();
-            return yield thunkQuery(UnitOfAnalysis.update(req.body).where(UnitOfAnalysis.id.equals(req.params.id)));
+            return yield thunkQuery(UnitOfAnalysis.update(req.body).where(UnitOfAnalysis.id.equals(req.params.id).and(UnitOfAnalysis.isDeleted.isNull())));
         }).then(function () {
             bologger.log({
                 req: req,
@@ -154,17 +161,41 @@ module.exports = {
                 throw new HttpError(403, 'Subject used in Subject to Tag link. Could not delete Subject');
             }
 
-            yield thunkQuery(
-                'DELETE FROM "ProductUOA" WHERE "ProductUOA"."productId" = ' +
-                req.body.productId + ' AND "ProductUOA"."UOAid" = ' + req.params.id
+            var task = yield thunkQuery(
+                'SELECT "Tasks".* ' +
+                'FROM "Tasks" ' +
+                'WHERE "Tasks"."uoaId" = ' + req.params.id +
+                'AND "Tasks"."productId" = ' + req.body.productId +
+                'AND "Tasks"."isComplete" is True '
             );
 
-            yield thunkQuery(
-                'DELETE FROM "Tasks" WHERE "Tasks"."productId" = ' +
-                req.body.productId + ' AND "Tasks"."uoaId" = ' + req.params.id
-            );
+            if (!_.first(task)) {
 
-            yield thunkQuery(UnitOfAnalysis.delete().where(UnitOfAnalysis.id.equals(req.params.id)));
+                // Soft delete the UOA from the Product UAO Table
+                yield thunkQuery(
+                    'UPDATE "ProductUOA"' +
+                    'SET "isDeleted" = (to_timestamp('+ Date.now() +
+                    '/ 1000.0)) WHERE "UOAid" = ' + req.params.id +
+                    'AND "productId" = ' + req.body.productId
+                );
+
+                // Soft delete the task with that UAO ID
+                yield thunkQuery(
+                    'UPDATE "Tasks"' +
+                    'SET "isDeleted" = (to_timestamp('+ Date.now() +
+                    '/ 1000.0)) WHERE "productId" = ' + req.body.productId +
+                    'AND "uoaId" = ' + req.params.id
+                );
+
+                // Soft delete from the UOA table
+                yield thunkQuery(
+                    'UPDATE "UnitOfAnalysis"' +
+                    'SET "isDeleted" = (to_timestamp('+ Date.now() +
+                    '/ 1000.0)) WHERE "id" = ' + req.params.id
+                );
+            } else {
+                throw new HttpError(403, 'Cannot delete UOA of already completed task');
+            }
             return true;
         }).then(function (data) {
             bologger.log({

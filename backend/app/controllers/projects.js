@@ -62,9 +62,11 @@ module.exports = {
 
                     var productId = _.first(_.map(product, 'id'));
 
-                    var workflowId = yield thunkQuery(
-                        Workflow.select(Workflow.id).from(Workflow).where(Workflow.productId.equals(productId))
-                    );
+                    if (productId) {
+                        var workflowId = yield thunkQuery(
+                            Workflow.select(Workflow.id).from(Workflow).where(Workflow.productId.equals(productId))
+                        );
+                    }
 
                     var subjects = yield thunkQuery(
                         UnitOfAnalysis
@@ -78,7 +80,8 @@ module.exports = {
                                     .leftJoin(Product)
                                     .on(ProductUOA.productId.equals(Product.id))
                             )
-                            .where(Product.projectId.equals(projects[i].id))
+                            .where(Product.projectId.equals(projects[i].id)
+                            .and(ProductUOA.isDeleted.isNull()))
                     );
 
                     projectList.push({
@@ -153,7 +156,7 @@ module.exports = {
                 var product = yield thunkQuery(
                     Product.select(Product.id, Product.surveyId).from(Product).where(Product.projectId.equals(project.id))
                 );
-                
+
                 var productId = _.first(_.map(product, 'id'));
                 var surveyId = _.first(_.map(product, 'surveyId'));
 

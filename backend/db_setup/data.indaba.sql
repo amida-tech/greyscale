@@ -586,7 +586,7 @@ COPY "UnitOfAnalysisType" (id, name, description, "langId") FROM stdin;
 -- Data for Name: UnitOfAnalysis; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
 --
 
-COPY "UnitOfAnalysis" (id, "gadmId0", "gadmId1", "gadmId2", "gadmId3", "gadmObjectId", "ISO", "ISO2", "nameISO", name, description, "shortName", "HASC", "unitOfAnalysisType", "parentId", "creatorId", "ownerId", visibility, status, created, deleted, "langId", updated) FROM stdin;
+COPY "UnitOfAnalysis" (id, "gadmId0", "gadmId1", "gadmId2", "gadmId3", "gadmObjectId", "ISO", "ISO2", "nameISO", name, description, "shortName", "HASC", "unitOfAnalysisType", "parentId", "creatorId", "ownerId", visibility, status, created, "isDeleted", "langId", updated) FROM stdin;
 \.
 
 
@@ -1390,7 +1390,7 @@ COPY "UnitOfAnalysisType" (id, name, description, "langId") FROM stdin;
 -- Data for Name: UnitOfAnalysis; Type: TABLE DATA; Schema: test; Owner: indaba
 --
 
-COPY "UnitOfAnalysis" (id, "gadmId0", "gadmId1", "gadmId2", "gadmId3", "gadmObjectId", "ISO", "ISO2", "nameISO", name, description, "shortName", "HASC", "unitOfAnalysisType", "parentId", "creatorId", "ownerId", visibility, status, created, deleted, "langId", updated) FROM stdin;
+COPY "UnitOfAnalysis" (id, "gadmId0", "gadmId1", "gadmId2", "gadmId3", "gadmObjectId", "ISO", "ISO2", "nameISO", name, description, "shortName", "HASC", "unitOfAnalysisType", "parentId", "creatorId", "ownerId", visibility, status, created, "isDeleted", "langId", updated) FROM stdin;
 2	\N	\N	\N	\N	\N	\N	\N	\N	Subject McSubjectface	This is a subject. Whatever TF that means.	McSubject	\N	1	\N	2	2	1	1	2017-04-11 12:16:05.782	\N	1	\N
 \.
 
