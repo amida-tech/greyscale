@@ -156,45 +156,69 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            var result = yield thunkQuery(UnitOfAnalysisTagLink.select().where(UnitOfAnalysisTagLink.uoaId.equals(req.params.id)));
-            if (_.first(result)) {
-                throw new HttpError(403, 'Subject used in Subject to Tag link. Could not delete Subject');
-            }
 
-            var task = yield thunkQuery(
-                'SELECT "Tasks".* ' +
-                'FROM "Tasks" ' +
-                'WHERE "Tasks"."uoaId" = ' + req.params.id +
-                'AND "Tasks"."productId" = ' + req.body.productId +
-                'AND "Tasks"."isComplete" is True '
-            );
+            if (req.body.productId) {
+                var result = yield thunkQuery(UnitOfAnalysisTagLink.select().where(UnitOfAnalysisTagLink.uoaId.equals(req.params.id)));
+                if (_.first(result)) {
+                    throw new HttpError(403, 'Subject used in Subject to Tag link. Could not delete Subject');
+                }
 
-            if (!_.first(task)) {
+                var task = yield thunkQuery(
+                    'SELECT "Tasks".* ' +
+                    'FROM "Tasks" ' +
+                    'WHERE "Tasks"."uoaId" = ' + req.params.id +
+                    'AND "Tasks"."productId" = ' + req.body.productId +
+                    'AND "Tasks"."isComplete" is True '
+                );
 
+                if (!_.first(task)) {
+
+                    // Soft delete the UOA from the Product UAO Table
+                    yield thunkQuery(
+                        'UPDATE "ProductUOA"' +
+                        'SET "isDeleted" = (to_timestamp(' + Date.now() +
+                        '/ 1000.0)) WHERE "UOAid" = ' + req.params.id +
+                        'AND "productId" = ' + req.body.productId
+                    );
+
+                    // Soft delete the task with that UAO ID
+                    yield thunkQuery(
+                        'UPDATE "Tasks"' +
+                        'SET "isDeleted" = (to_timestamp(' + Date.now() +
+                        '/ 1000.0)) WHERE "productId" = ' + req.body.productId +
+                        'AND "uoaId" = ' + req.params.id
+                    );
+
+                    // Soft delete from the UOA table
+                    yield thunkQuery(
+                        'UPDATE "UnitOfAnalysis"' +
+                        'SET "isDeleted" = (to_timestamp(' + Date.now() +
+                        '/ 1000.0)) WHERE "id" = ' + req.params.id
+                    );
+                } else {
+                    throw new HttpError(403, 'Cannot delete UOA of already completed task');
+                }
+            } else {
                 // Soft delete the UOA from the Product UAO Table
                 yield thunkQuery(
                     'UPDATE "ProductUOA"' +
-                    'SET "isDeleted" = (to_timestamp('+ Date.now() +
-                    '/ 1000.0)) WHERE "UOAid" = ' + req.params.id +
-                    'AND "productId" = ' + req.body.productId
+                    'SET "isDeleted" = (to_timestamp(' + Date.now() +
+                    '/ 1000.0)) WHERE "UOAid" = ' + req.params.id
                 );
 
                 // Soft delete the task with that UAO ID
                 yield thunkQuery(
                     'UPDATE "Tasks"' +
-                    'SET "isDeleted" = (to_timestamp('+ Date.now() +
-                    '/ 1000.0)) WHERE "productId" = ' + req.body.productId +
-                    'AND "uoaId" = ' + req.params.id
+                    'SET "isDeleted" = (to_timestamp(' + Date.now() +
+                    '/ 1000.0)) WHERE "uoaId" = ' + req.params.id
                 );
 
                 // Soft delete from the UOA table
                 yield thunkQuery(
                     'UPDATE "UnitOfAnalysis"' +
-                    'SET "isDeleted" = (to_timestamp('+ Date.now() +
+                    'SET "isDeleted" = (to_timestamp(' + Date.now() +
                     '/ 1000.0)) WHERE "id" = ' + req.params.id
                 );
-            } else {
-                throw new HttpError(403, 'Cannot delete UOA of already completed task');
             }
             return true;
         }).then(function (data) {
