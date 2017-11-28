@@ -201,7 +201,8 @@ module.exports = {
                                 .leftJoin(Product)
                                 .on(ProductUOA.productId.equals(Product.id))
                         )
-                        .where(Product.projectId.equals(project.id))
+                        .where(Product.projectId.equals(project.id)
+                        .and(ProductUOA.isDeleted.isNull()))
                 );
 
                 aggregateObject.id = project.id;

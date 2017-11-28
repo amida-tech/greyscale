@@ -188,13 +188,6 @@ module.exports = {
                         '/ 1000.0)) WHERE "productId" = ' + req.body.productId +
                         'AND "uoaId" = ' + req.params.id
                     );
-
-                    // Soft delete from the UOA table
-                    yield thunkQuery(
-                        'UPDATE "UnitOfAnalysis"' +
-                        'SET "isDeleted" = (to_timestamp(' + Date.now() +
-                        '/ 1000.0)) WHERE "id" = ' + req.params.id
-                    );
                 } else {
                     throw new HttpError(403, 'Cannot delete UOA of already completed task');
                 }
