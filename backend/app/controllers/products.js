@@ -311,7 +311,8 @@ module.exports = {
                         ProductUOA.currentStepId.equals(WorkflowStep.as(curStepAlias).id)
                     )
                 )
-                .where(Task.productId.equals(req.params.id))
+                .where(Task.productId.equals(req.params.id)
+                .and(Task.isDeleted.isNull()))
             );
         }).then(function (data) {
             res.json(data);
