@@ -1174,7 +1174,7 @@ function* insertOne(req, res, next) {
 
 function _createUserOnAuthService(email, password, roleId) {
 
-    let scopes = [];
+    var scopes = [];
     // Check if user being created is admin
     if (roleId == 1 || roleId == 2) {
         scopes = ['admin'];
