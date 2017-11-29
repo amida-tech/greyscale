@@ -2396,7 +2396,8 @@ CREATE TABLE "ProductUOA" (
     "productId" integer NOT NULL,
     "UOAid" integer NOT NULL,
     "currentStepId" integer,
-    "isComplete" boolean DEFAULT false NOT NULL
+    "isComplete" boolean DEFAULT false NOT NULL,
+    "isDeleted" timestamp(6) without time zone
 );
 
 
@@ -2691,7 +2692,7 @@ CREATE TABLE "UnitOfAnalysis" (
     visibility smallint DEFAULT 1 NOT NULL,
     status smallint DEFAULT 1 NOT NULL,
     created timestamp(6) without time zone DEFAULT now() NOT NULL,
-    deleted timestamp(6) without time zone,
+    "isDeleted" timestamp(6) without time zone,
     "langId" smallint DEFAULT 1 NOT NULL,
     updated timestamp(6) without time zone
 );
@@ -3848,7 +3849,8 @@ CREATE TABLE "ProductUOA" (
     "productId" integer NOT NULL,
     "UOAid" integer NOT NULL,
     "currentStepId" integer,
-    "isComplete" boolean DEFAULT false NOT NULL
+    "isComplete" boolean DEFAULT false NOT NULL,
+    "isDeleted" timestamp(6) without time zone
 );
 
 
@@ -4142,7 +4144,7 @@ CREATE TABLE "UnitOfAnalysis" (
     visibility smallint DEFAULT 1 NOT NULL,
     status smallint DEFAULT 1 NOT NULL,
     created timestamp(6) without time zone DEFAULT now() NOT NULL,
-    deleted timestamp(6) without time zone,
+    "isDeleted" timestamp(6) without time zone,
     "langId" smallint DEFAULT 1 NOT NULL,
     updated timestamp(6) without time zone
 );

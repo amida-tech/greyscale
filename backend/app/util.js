@@ -275,7 +275,6 @@ exports.detectLanguage = function* (req) {
 };
 
 exports.getTranslateQuery = function (langId, model, condition) {
-
     var Language = require('./models/languages'),
         Essence = require('./models/essences'),
         Translation = require('./models/translations');
