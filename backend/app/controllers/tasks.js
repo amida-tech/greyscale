@@ -123,7 +123,7 @@ module.exports = {
             );
 
             if (!_.first(tasks)) {
-                throw new HttpError(403, 'Not found');
+                throw new HttpError(204, 'User has no tasks');
             }
 
             return tasks;
