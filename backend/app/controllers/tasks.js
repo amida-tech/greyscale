@@ -123,7 +123,7 @@ module.exports = {
             );
 
             if (!_.first(tasks)) {
-                throw new HttpError(403, 'Not found');
+                res.status(204).end();
             }
 
             return tasks;
