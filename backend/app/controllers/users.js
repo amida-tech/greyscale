@@ -746,7 +746,9 @@ module.exports = {
             }
 
             return yield thunkQuery(
-                User.delete().where(User.id.equals(req.params.id))
+                'UPDATE "Users"' +
+                ' SET "isDeleted" = (to_timestamp('+ Date.now() +
+                '/ 1000.0)) WHERE "id" = ' + req.params.id
             );
         }).then(function (data) {
             bologger.log({

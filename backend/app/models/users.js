@@ -38,7 +38,8 @@ var columns = [
     'lastActive',
     'affiliation',
     'isAnonymous',
-    'langId'
+    'langId',
+    'isDeleted',
 ];
 
 var viewFields = [
@@ -69,7 +70,8 @@ var viewFields = [
     'notifyLevel',
     'lastActive',
     'affiliation',
-    'isAnonymous'
+    'isAnonymous',
+    'isDeleted',
 ];
 
 var User = sql.define({
@@ -97,7 +99,7 @@ User.validPassword = function (pas, salt, checkpas) {
 User.editCols = [
     'firstName', 'lastName', 'phone', 'birthday', 'password',
     'updated', 'timezone', 'location', 'cell', 'address',
-    'lang', 'bio', 'notifyLevel', 'affiliation', 'isAnonymous'
+    'lang', 'bio', 'notifyLevel', 'affiliation', 'isAnonymous', 'isDeleted',
 ];
 
 User.translate = [
