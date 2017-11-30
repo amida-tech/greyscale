@@ -207,9 +207,6 @@ var isExistsUserInRealm = function* (req, realm, email) {
         .where(
             sql.functions.UPPER(User.email).equals(email.toUpperCase())
         )
-        .and(
-            User.isDeleted.isNull()
-        )
     );
 
     return result[0] ? result[0] : false;
@@ -419,16 +416,28 @@ var insertProjectUser = function* (req, userId, projectId) {
 
 exports.insertProjectUser = insertProjectUser;
 
-var checkRecordExistById = function* (req, database, column, requestId) {
+var checkRecordExistById = function* (req, database, column, requestId, isDeletedCondition) {
     var thunkQuery = req.thunkQuery;
 
-    var record = yield thunkQuery(
-        '( ' +
-        'SELECT count(1) ' +
-        'FROM "' + database + '" ' +
-        'WHERE "' + database + '"."' + column + '" = ' + requestId +
-        ') '
-    );
+    if (typeof isDeletedCondition === 'undefined') {
+        var record = yield thunkQuery(
+            '( ' +
+            'SELECT count(1) ' +
+            'FROM "' + database + '" ' +
+            'WHERE "' + database + '"."' + column + '" = ' + requestId +
+            ') '
+        );
+    } else {
+        var record = yield thunkQuery(
+            '( ' +
+            'SELECT count(1) ' +
+            'FROM "' + database + '" ' +
+            'WHERE "' + database + '"."' + column + '" = ' + requestId +
+            'AND "' + database + '"."' + isDeletedCondition + '" is NULL ' +
+            ') '
+        );
+
+    }
 
     // If record exist it will return a count > 0
     if (parseInt(record['0'].count) > 0) {

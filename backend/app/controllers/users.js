@@ -15,10 +15,10 @@ var client = require('../db_bootstrap'),
     async = require('async'),
     UserUOA = require('../models/user_uoa'),
     UserGroup = require('../models/user_groups'),
+    ProjectUser = require('../models/project_users'),
     UOA = require('../models/uoas'),
     sql = require('sql'),
     notifications = require('../controllers/notifications'),
-    request = require('request'),
     request = require('request-promise'),
     config = require('../../config');
 
@@ -368,11 +368,28 @@ module.exports = {
             var isExistsAdmin = yield * common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
             var isExistUser = yield * common.isExistsUserInRealm(req, req.params.realm, req.body.email);
 
-            if ((isExistUser && isExistUser.isActive) || isExistsAdmin) {
-                throw new HttpError(400, 'User with this email has already registered');
-            }
-
             var thunkQuery = thunkify(new Query(req.params.realm));
+
+            // If user if found in table we check to see if it's been marked as deleted and un-mark it
+            if ((isExistUser && isExistUser.isActive)) {
+                if (isExistUser.isDeleted === null || isExistsAdmin) {
+                    throw new HttpError(400, 'User with this email has already registered');
+                } else if (isExistUser.isDeleted !== null) {
+
+                    const updateObj = {
+                        isDeleted: null
+                    };
+
+                    const user = yield thunkQuery(
+                        User.update(updateObj).where(User.email.equals(req.body.email))
+                    );
+
+                    return {
+                        message: 'User re-invited successfully',
+                        data: user
+                    };
+                }
+            }
 
             var org = yield thunkQuery(
                 Organization.select().where(Organization.realm.equals(req.params.realm))
@@ -765,6 +782,11 @@ module.exports = {
                 UserGroup.delete().where(UserGroup.userId.equals(req.params.id))
             );
 
+            // Remove user from ProjectUsers
+            yield thunkQuery(
+                ProjectUser.delete().where(ProjectUser.userId.equals(req.params.id))
+            );
+
             // Soft delete the user from the Users table
             return yield thunkQuery(
                 'UPDATE "Users"' +
@@ -1131,7 +1153,7 @@ module.exports = {
                 'SELECT "Tasks".*, "Products"."projectId", "Products"."surveyId" ' +
                 'FROM "Tasks" LEFT JOIN "Products" ON "Products".id = ' +
                 '"Tasks"."productId" LEFT JOIN "Projects" ON "Projects".id ' +
-                '= "Products".id WHERE ' + req.user.id + ' = ANY("Tasks"."userIds")' +
+                '= "Products".id WHERE ' + req.user.id + ' = ANY("Tasks"."userIds")'
             );
 
             return tasks;

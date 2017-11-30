@@ -387,7 +387,7 @@ module.exports = {
     userAssignment: function (req, res, next) {
         co(function*() {
             var projectExist = yield * common.checkRecordExistById(req, 'Projects', 'id', req.params.projectId);
-            var userExist = yield * common.checkRecordExistById(req, 'Users', 'id',  req.body.userId);
+            var userExist = yield * common.checkRecordExistById(req, 'Users', 'id',  req.body.userId, 'isDeleted');
 
             if (projectExist === true && userExist === true) {
                 var insertedData =  yield * common.insertProjectUser(req, req.body.userId, req.params.projectId);
