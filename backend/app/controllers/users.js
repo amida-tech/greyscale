@@ -370,7 +370,7 @@ module.exports = {
 
             var thunkQuery = thunkify(new Query(req.params.realm));
 
-            // If user if found in table we check to see if it's been marked as deleted and un-mark it
+            // If user is found in table we check to see if it's been marked as deleted and un-mark it
             if ((isExistUser && isExistUser.isActive)) {
                 if (isExistUser.isDeleted === null || isExistsAdmin) {
                     throw new HttpError(400, 'User with this email has already registered');
