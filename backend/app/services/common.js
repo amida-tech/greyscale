@@ -207,6 +207,9 @@ var isExistsUserInRealm = function* (req, realm, email) {
         .where(
             sql.functions.UPPER(User.email).equals(email.toUpperCase())
         )
+        .and(
+            User.isDeleted.isNull()
+        )
     );
 
     return result[0] ? result[0] : false;

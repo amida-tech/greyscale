@@ -108,7 +108,7 @@ module.exports = {
                 User.select(
                     User.star(),
                     req.params.realm === config.pgConnect.adminSchema ? 'null' : groupQuery
-                ),
+                ).where(User.isDeleted.isNull()),
                 _.omit(req.query, 'offset', 'limit', 'order')
             );
             return yield [_counter, user];
@@ -641,7 +641,8 @@ module.exports = {
                     User.star(),
                     req.params.realm === config.pgConnect.adminSchema ? 'null' : groupQuery
                 )
-                .where(User.id.equals(req.params.id))
+                .where(User.id.equals(req.params.id)
+                    .and(User.isDeleted.isNull()))
             );
             if (!_.first(user)) {
                 throw new HttpError(404, 'Not found');
@@ -658,7 +659,21 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var updateObj = _.pick(req.body, User.whereCol);
-            var user = yield thunkQuery(User.select(User.star()).from(User).where(User.id.equals(req.params.id)));
+            var user = yield thunkQuery(
+                User
+                    .select(User.star()
+                    )
+                    .from(
+                        User
+                    )
+                    .where(
+                        User.id.equals(req.params.id)
+                        .and(
+                            Task.isDeleted.isNull()
+                        )
+                    )
+            );
+
             if (!_.first(user)) {
                 throw new HttpError(404, 'Not found');
             }
@@ -745,11 +760,18 @@ module.exports = {
                 }
             }
 
+            // Remove User from User Group
+            yield thunkQuery(
+                UserGroup.delete().where(UserGroup.userId.equals(req.params.id))
+            );
+
+            // Soft delete the user from the Users table
             return yield thunkQuery(
                 'UPDATE "Users"' +
                 ' SET "isDeleted" = (to_timestamp('+ Date.now() +
                 '/ 1000.0)) WHERE "id" = ' + req.params.id
             );
+
         }).then(function (data) {
             bologger.log({
                 req: req,
@@ -778,7 +800,7 @@ module.exports = {
                 .from(
                     User
                 )
-                .where(User.id.equals(req.user.id));
+                .where(User.id.equals(req.user.id).and(User.isDeleted.isNull()));
         } else {
             thunkQuery = thunkify(new Query(req.params.realm));
 
@@ -817,7 +839,12 @@ module.exports = {
                     .leftJoin(Organization)
                     .on(User.organizationId.equals(Organization.id))
                 )
-                .where(User.id.equals(req.user.id));
+                .where(
+                    User.id.equals(req.user.id)
+                    .and(
+                        User.isDeleted.isNull()
+                    )
+                );
 
         }
 
@@ -835,7 +862,21 @@ module.exports = {
             thunkQuery = req.thunkQuery;
         }
         co(function* () {
-            var user = yield thunkQuery(User.select(User.star()).from(User).where(User.id.equals(req.user.id)));
+            var user = yield thunkQuery(
+                User
+                    .select(
+                        User.star()
+                    )
+                    .from(
+                        User
+                    )
+                    .where(
+                        User.id.equals(req.user.id)
+                            .and(
+                                User.isDeleted.isNull()
+                            )
+                    )
+            );
             if (!_.first(user)) {
                 throw new HttpError(404, 'Not found');
             }
@@ -1025,7 +1066,8 @@ module.exports = {
             var user = yield thunkQuery(
                 User.select().where(
                     User.resetPasswordToken.equals(req.params.token)
-                    .and(User.resetPasswordExpires.gt(Date.now()))
+                    .and(User.resetPasswordExpires.gt(Date.now())
+                    .and(User.isDeleted.isNull()))
                 )
             );
             if (!_.first(user)) {
@@ -1045,7 +1087,8 @@ module.exports = {
             var user = yield thunkQuery(
                 User.select().where(
                     User.resetPasswordToken.equals(req.body.token)
-                    .and(User.resetPasswordExpires.gt(Date.now()))
+                    .and(User.resetPasswordExpires.gt(Date.now())
+                    .and(User.isDeleted.isNull()))
                 )
             );
             if (!_.first(user)) {
@@ -1088,7 +1131,7 @@ module.exports = {
                 'SELECT "Tasks".*, "Products"."projectId", "Products"."surveyId" ' +
                 'FROM "Tasks" LEFT JOIN "Products" ON "Products".id = ' +
                 '"Tasks"."productId" LEFT JOIN "Projects" ON "Projects".id ' +
-                '= "Products".id WHERE ' + req.user.id + ' = ANY("Tasks"."userIds")'
+                '= "Products".id WHERE ' + req.user.id + ' = ANY("Tasks"."userIds")' +
             );
 
             return tasks;
