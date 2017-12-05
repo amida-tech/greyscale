@@ -9,7 +9,8 @@ var columns = [
     'matrixId',
     'startTime',
     'status',
-    'closeTime'
+    'closeTime',
+    'firstActivated'
 ];
 
 var Project = sql.define({
