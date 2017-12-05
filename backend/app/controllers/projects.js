@@ -329,10 +329,7 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkProjectData(req);
-            // patch for status
-            req.body = _.extend(req.body, {
-                status: 1
-            });
+
             req.body = _.extend(req.body, {
                 userAdminId: req.user.realmUserId
             }); // add from realmUserId instead of user id
@@ -477,7 +474,7 @@ function* checkProjectData(req) {
     }
 
     if (typeof req.body.status !== 'undefined') {
-        if (Project.statuses.indexOf(req.body.status) === -1) {
+        if (Project.statuses.indexOf(parseInt(req.body.status)) === -1) {
             throw new HttpError(403, 'Status can be only 1 (active) and 0 (inactive)');
         }
     }
