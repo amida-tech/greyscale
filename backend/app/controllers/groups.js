@@ -114,6 +114,13 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+
+            // First Remove users from group in UserGroup table in order not to violate the constraint
+            yield thunkQuery(
+                UserGroup.delete().where(UserGroup.groupId.equals(req.params.id))
+            );
+
+
             var result = yield thunkQuery(
                 Group.delete().where(Group.id.equals(req.params.id))
             );
