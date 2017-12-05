@@ -252,9 +252,14 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkProjectData(req);
-            var updateObj = _.pick(req.body, ['title', 'description', 'startTime', 'closeTime', 'status', 'codeName']);
+            var updateObj = _.pick(req.body, ['title', 'description', 'startTime', 'closeTime', 'status', 'codeName', 'firstActivated']);
             var result = false;
             if (Object.keys(updateObj).length) {
+
+                // Update firstActivated if the status was changed from 0 to 1
+                if (updateObj.status == 1) {
+                    updateObj.firstActivated = new Date();
+                }
                 result = yield thunkQuery(
                     Project
                     .update(updateObj)
