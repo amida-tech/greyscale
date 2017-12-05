@@ -686,7 +686,7 @@ module.exports = {
                     .where(
                         User.id.equals(req.params.id)
                         .and(
-                            Task.isDeleted.isNull()
+                            User.isDeleted.isNull()
                         )
                     )
             );
