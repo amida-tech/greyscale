@@ -1206,7 +1206,7 @@ function* insertOne(req, res, next) {
                 );
                 return {
                     message: 'User re-invited successfully',
-                    data: user
+                    data: isExistUser
                 };
             }
         }
