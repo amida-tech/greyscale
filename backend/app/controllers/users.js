@@ -1191,6 +1191,25 @@ function* insertOne(req, res, next) {
     var isExistUser = yield * common.isExistsUserInRealm(req, req.params.realm, req.body.email);
     if (isExistUser) {
         isExistUser.registered = true;
+
+        // If user is found in table we check to see if it's been marked as deleted and un-mark it
+        if ((isExistUser)) {
+            if (isExistUser.isDeleted === null || isExistsAdmin) {
+                throw new HttpError(400, 'User with this email has already registered');
+            } else if (isExistUser.isDeleted !== null) {
+                const updateObj = {
+                    isDeleted: null
+                };
+
+                const user = yield thunkQuery(
+                    User.update(updateObj).where(User.email.equals(req.body.email))
+                );
+                return {
+                    message: 'User re-invited successfully',
+                    data: user
+                };
+            }
+        }
         return (isExistUser);
     }
 
