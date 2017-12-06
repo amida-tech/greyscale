@@ -1204,10 +1204,8 @@ function* insertOne(req, res, next) {
                 const user = yield thunkQuery(
                     User.update(updateObj).where(User.email.equals(req.body.email))
                 );
-                return {
-                    message: 'User re-invited successfully',
-                    data: isExistUser
-                };
+                
+                return (isExistUser);
             }
         }
         return (isExistUser);
