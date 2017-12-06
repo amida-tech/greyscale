@@ -184,8 +184,9 @@ module.exports = {
                 );
 
                 userGroups.map((userGroupObject) =>  {
-                    var users = userGroupObject.users.map((user) => user.id);
-                    userGroupObject.users = users;
+                    if (userGroupObject.users[0] !== null) {
+                        userGroupObject.users = userGroupObject.users.map((user) => user.id);
+                    }
                     return userGroupObject;
                 });
 
