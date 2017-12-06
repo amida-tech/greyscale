@@ -15,10 +15,10 @@ var client = require('../db_bootstrap'),
     async = require('async'),
     UserUOA = require('../models/user_uoa'),
     UserGroup = require('../models/user_groups'),
+    ProjectUser = require('../models/project_users'),
     UOA = require('../models/uoas'),
     sql = require('sql'),
     notifications = require('../controllers/notifications'),
-    request = require('request'),
     request = require('request-promise'),
     config = require('../../config');
 
@@ -108,7 +108,7 @@ module.exports = {
                 User.select(
                     User.star(),
                     req.params.realm === config.pgConnect.adminSchema ? 'null' : groupQuery
-                ),
+                ).where(User.isDeleted.isNull()),
                 _.omit(req.query, 'offset', 'limit', 'order')
             );
             return yield [_counter, user];
@@ -368,11 +368,28 @@ module.exports = {
             var isExistsAdmin = yield * common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
             var isExistUser = yield * common.isExistsUserInRealm(req, req.params.realm, req.body.email);
 
-            if ((isExistUser && isExistUser.isActive) || isExistsAdmin) {
-                throw new HttpError(400, 'User with this email has already registered');
-            }
-
             var thunkQuery = thunkify(new Query(req.params.realm));
+
+            // If user is found in table we check to see if it's been marked as deleted and un-mark it
+            if ((isExistUser && isExistUser.isActive)) {
+                if (isExistUser.isDeleted === null || isExistsAdmin) {
+                    throw new HttpError(400, 'User with this email has already registered');
+                } else if (isExistUser.isDeleted !== null) {
+
+                    const updateObj = {
+                        isDeleted: null
+                    };
+
+                    const user = yield thunkQuery(
+                        User.update(updateObj).where(User.email.equals(req.body.email))
+                    );
+
+                    return {
+                        message: 'User re-invited successfully',
+                        data: user
+                    };
+                }
+            }
 
             var org = yield thunkQuery(
                 Organization.select().where(Organization.realm.equals(req.params.realm))
@@ -641,7 +658,8 @@ module.exports = {
                     User.star(),
                     req.params.realm === config.pgConnect.adminSchema ? 'null' : groupQuery
                 )
-                .where(User.id.equals(req.params.id))
+                .where(User.id.equals(req.params.id)
+                    .and(User.isDeleted.isNull()))
             );
             if (!_.first(user)) {
                 throw new HttpError(404, 'Not found');
@@ -658,7 +676,21 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var updateObj = _.pick(req.body, User.whereCol);
-            var user = yield thunkQuery(User.select(User.star()).from(User).where(User.id.equals(req.params.id)));
+            var user = yield thunkQuery(
+                User
+                    .select(User.star()
+                    )
+                    .from(
+                        User
+                    )
+                    .where(
+                        User.id.equals(req.params.id)
+                        .and(
+                            User.isDeleted.isNull()
+                        )
+                    )
+            );
+
             if (!_.first(user)) {
                 throw new HttpError(404, 'Not found');
             }
@@ -745,9 +777,23 @@ module.exports = {
                 }
             }
 
-            return yield thunkQuery(
-                User.delete().where(User.id.equals(req.params.id))
+            // Remove User from User Group
+            yield thunkQuery(
+                UserGroup.delete().where(UserGroup.userId.equals(req.params.id))
             );
+
+            // Remove user from ProjectUsers
+            yield thunkQuery(
+                ProjectUser.delete().where(ProjectUser.userId.equals(req.params.id))
+            );
+
+            // Soft delete the user from the Users table
+            return yield thunkQuery(
+                'UPDATE "Users"' +
+                ' SET "isDeleted" = (to_timestamp('+ Date.now() +
+                '/ 1000.0)) WHERE "id" = ' + req.params.id
+            );
+
         }).then(function (data) {
             bologger.log({
                 req: req,
@@ -776,7 +822,7 @@ module.exports = {
                 .from(
                     User
                 )
-                .where(User.id.equals(req.user.id));
+                .where(User.id.equals(req.user.id).and(User.isDeleted.isNull()));
         } else {
             thunkQuery = thunkify(new Query(req.params.realm));
 
@@ -815,7 +861,12 @@ module.exports = {
                     .leftJoin(Organization)
                     .on(User.organizationId.equals(Organization.id))
                 )
-                .where(User.id.equals(req.user.id));
+                .where(
+                    User.id.equals(req.user.id)
+                    .and(
+                        User.isDeleted.isNull()
+                    )
+                );
 
         }
 
@@ -833,7 +884,21 @@ module.exports = {
             thunkQuery = req.thunkQuery;
         }
         co(function* () {
-            var user = yield thunkQuery(User.select(User.star()).from(User).where(User.id.equals(req.user.id)));
+            var user = yield thunkQuery(
+                User
+                    .select(
+                        User.star()
+                    )
+                    .from(
+                        User
+                    )
+                    .where(
+                        User.id.equals(req.user.id)
+                            .and(
+                                User.isDeleted.isNull()
+                            )
+                    )
+            );
             if (!_.first(user)) {
                 throw new HttpError(404, 'Not found');
             }
@@ -1023,7 +1088,8 @@ module.exports = {
             var user = yield thunkQuery(
                 User.select().where(
                     User.resetPasswordToken.equals(req.params.token)
-                    .and(User.resetPasswordExpires.gt(Date.now()))
+                    .and(User.resetPasswordExpires.gt(Date.now())
+                    .and(User.isDeleted.isNull()))
                 )
             );
             if (!_.first(user)) {
@@ -1043,7 +1109,8 @@ module.exports = {
             var user = yield thunkQuery(
                 User.select().where(
                     User.resetPasswordToken.equals(req.body.token)
-                    .and(User.resetPasswordExpires.gt(Date.now()))
+                    .and(User.resetPasswordExpires.gt(Date.now())
+                    .and(User.isDeleted.isNull()))
                 )
             );
             if (!_.first(user)) {
@@ -1124,7 +1191,21 @@ function* insertOne(req, res, next) {
     var isExistUser = yield * common.isExistsUserInRealm(req, req.params.realm, req.body.email);
     if (isExistUser) {
         isExistUser.registered = true;
-        return (isExistUser);
+
+        // If user is found in table we check to see if it's been marked as deleted and un-mark it
+        if (isExistUser.isDeleted === null || isExistsAdmin) {
+            throw new HttpError(400, 'User with this email has already registered');
+        } else if (isExistUser.isDeleted !== null) {
+            const updateObj = {
+                isDeleted: null
+            };
+
+            yield thunkQuery(
+                User.update(updateObj).where(User.email.equals(req.body.email))
+            );
+
+            return (isExistUser);
+        }
     }
 
     // hash user password
