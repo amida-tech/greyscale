@@ -1767,7 +1767,8 @@ CREATE TABLE "Users" (
     affiliation character varying,
     "isAnonymous" boolean DEFAULT false NOT NULL,
     "langId" integer,
-    salt character varying
+    salt character varying,
+    "isDeleted" timestamp(6) without time zone
 );
 
 
@@ -2627,7 +2628,6 @@ CREATE TABLE "Tasks" (
     "userId" integer,
     "langId" integer,
     "assessmentId" integer,
-    "isComplete" boolean DEFAULT false NOT NULL,
     "userIds" integer[],
     "groupIds" integer[],
     "isDeleted" timestamp(6) without time zone
@@ -3110,7 +3110,8 @@ CREATE TABLE "Users" (
     affiliation character varying,
     "isAnonymous" boolean DEFAULT false NOT NULL,
     "langId" integer,
-    salt character varying
+    salt character varying,
+    "isDeleted" timestamp(6) without time zone
 );
 
 
@@ -4080,7 +4081,6 @@ CREATE TABLE "Tasks" (
     "userId" integer,
     "langId" integer,
     "assessmentId" integer,
-    "isComplete" boolean DEFAULT false NOT NULL,
     "userIds" integer[],
     "groupIds" integer[],
     "isDeleted" timestamp(6) without time zone
@@ -4563,7 +4563,8 @@ CREATE TABLE "Users" (
     affiliation character varying,
     "isAnonymous" boolean DEFAULT false NOT NULL,
     "langId" integer,
-    salt character varying
+    salt character varying,
+    "isDeleted" timestamp(6) without time zone
 );
 
 

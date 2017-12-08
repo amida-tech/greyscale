@@ -61,7 +61,19 @@ exports.getTaskByStep = getTaskByStep;
 
 var checkDuplicateTask = function* (req, stepId, uoaId, productId) {
     var thunkQuery = req.thunkQuery;
-    var result = yield thunkQuery(Task.select().where(Task.stepId.equals(stepId).and(Task.uoaId.equals(uoaId)).and(Task.productId.equals(productId))));
+    var result = yield thunkQuery(
+        Task.select().where(
+            Task.stepId.equals(
+                stepId
+            ).and(
+                Task.uoaId.equals(uoaId)
+            ).and(
+                Task.productId.equals(productId)
+            ).and(
+                Task.isDeleted.isNull()
+            )
+        )
+    );
     if (_.first(result)) {
         throw new HttpError(403, 'Couldn`t add task with the same uoaId, stepId and productId');
     }
@@ -416,16 +428,28 @@ var insertProjectUser = function* (req, userId, projectId) {
 
 exports.insertProjectUser = insertProjectUser;
 
-var checkRecordExistById = function* (req, database, column, requestId) {
+var checkRecordExistById = function* (req, database, column, requestId, isDeletedCondition) {
     var thunkQuery = req.thunkQuery;
 
-    var record = yield thunkQuery(
-        '( ' +
-        'SELECT count(1) ' +
-        'FROM "' + database + '" ' +
-        'WHERE "' + database + '"."' + column + '" = ' + requestId +
-        ') '
-    );
+    if (typeof isDeletedCondition === 'undefined') {
+        var record = yield thunkQuery(
+            '( ' +
+            'SELECT count(1) ' +
+            'FROM "' + database + '" ' +
+            'WHERE "' + database + '"."' + column + '" = ' + requestId +
+            ') '
+        );
+    } else {
+        var record = yield thunkQuery(
+            '( ' +
+            'SELECT count(1) ' +
+            'FROM "' + database + '" ' +
+            'WHERE "' + database + '"."' + column + '" = ' + requestId +
+            'AND "' + database + '"."' + isDeletedCondition + '" is NULL ' +
+            ') '
+        );
+
+    }
 
     // If record exist it will return a count > 0
     if (parseInt(record['0'].count) > 0) {
