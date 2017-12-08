@@ -61,7 +61,19 @@ exports.getTaskByStep = getTaskByStep;
 
 var checkDuplicateTask = function* (req, stepId, uoaId, productId) {
     var thunkQuery = req.thunkQuery;
-    var result = yield thunkQuery(Task.select().where(Task.stepId.equals(stepId).and(Task.uoaId.equals(uoaId)).and(Task.productId.equals(productId))));
+    var result = yield thunkQuery(
+        Task.select().where(
+            Task.stepId.equals(
+                stepId
+            ).and(
+                Task.uoaId.equals(uoaId)
+            ).and(
+                Task.productId.equals(productId)
+            ).and(
+                Task.isDeleted.isNull()
+            )
+        )
+    );
     if (_.first(result)) {
         throw new HttpError(403, 'Couldn`t add task with the same uoaId, stepId and productId');
     }
