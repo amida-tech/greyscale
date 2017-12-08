@@ -96,6 +96,7 @@ module.exports = {
                         stages: [],
                         userGroups: [],
                         subjects,
+                        firstActivated: projects[i].firstActivated,
                     });
                 }
             }
@@ -217,6 +218,7 @@ module.exports = {
                 aggregateObject.productId = productId;
                 aggregateObject.surveyId = surveyId;
                 aggregateObject.workflowId = _.first(_.map(workflowId, 'id'));
+                aggregateObject.firstActivated = project.firstActivated;
             }
 
             return aggregateObject;
