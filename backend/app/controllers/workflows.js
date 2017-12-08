@@ -9,6 +9,7 @@ var client = require('../db_bootstrap'),
     WorkflowStep = require('../models/workflow_steps'),
     WorkflowStepGroup = require('../models/workflow_step_groups'),
     Task = require('../models/tasks'),
+    ProductUOA = require('../models/product_uoa'),
     co = require('co'),
     Query = require('../util').Query,
     query = new Query(),
@@ -128,7 +129,10 @@ module.exports = {
                     ') as "usergroupId"'
                 )
                 .from(WorkflowStep)
-                .where(WorkflowStep.workflowId.equals(req.params.id));
+                .where(
+                    WorkflowStep.workflowId.equals(req.params.id)
+                    .and(WorkflowStep.isDeleted.isNull())
+                );
             if (!req.query.order) {
                 q = q.order(WorkflowStep.position);
             }
@@ -153,7 +157,12 @@ module.exports = {
             }
             var productId = workflow[0].productId;
 
-            var rels = yield thunkQuery(WorkflowStep.select().where(WorkflowStep.workflowId.equals(req.params.id)));
+            var rels = yield thunkQuery(
+                WorkflowStep.select().where(
+                    WorkflowStep.workflowId.equals(req.params.id)
+                    .and(WorkflowStep.isDeleted.isNull())
+                )
+            );
             var relIds = rels.map(function (value) {
                 return value.id;
             });
@@ -242,39 +251,31 @@ module.exports = {
         });
     },
 
-    stepsDelete: function (req, res, next) { //James - I don't know if this works yet. Only stripped it out.
-
-        console.log(`IN THE STEPS DELETE FUNCTION`);
-
+    stepsDelete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
 
-            console.log(`CHECKING IF WORKFLOW EXIST`);
             var workflow = yield thunkQuery(Workflow.select().where(Workflow.id.equals(req.params.id)));
             if (!_.first(workflow)) {
                 throw new HttpError(403, 'Workflow with id = ' + req.params.id + ' does not exist');
             }
 
-            console.log(`FOUND WORKFLOW, CHECKING FOR STAGES / STEPS`)
             var rels = yield thunkQuery(WorkflowStep.select().where(WorkflowStep.workflowId.equals(req.params.id)));
             var deleteIds = rels.map(function (value) {
                 return value.id;
             });
 
             for (var i in deleteIds) {
-
-                console.log(`\nCHECKING FOR COMPLETED TASKS WITH WORKFLOWSTEP ID: ${deleteIds[i]}\n`)
                 // Check if there are completed tasks before deleting
+
                 const completedTasks = yield thunkQuery(
-                    Task.select().where(
-                        Task.stepId.equals(deleteIds[i])
-                    ).and(
-                        Task.isComplete.isTrue()
-                    )
+                    'SELECT "ProductUOA".* ' +
+                    'FROM "ProductUOA" ' +
+                    'WHERE "ProductUOA"."currentStepId" = ' + deleteIds[i] +
+                    'AND "ProductUOA"."isComplete" = TRUE '
                 );
 
                 if (_.first(completedTasks)) {
-                    console.log(`FOUND COMEPLETED TASK: ${completedTasks.isDeleted}`)
                     throw new HttpError(403, 'Cannot delete Stage with completed Task');
                 } else {
                     yield thunkQuery(WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(deleteIds[i])));
@@ -288,10 +289,9 @@ module.exports = {
                         info: 'Delete workflow step group(s)'
                     });
 
-                    console.log(`DIDN'T FIND COMPLETED TASK. SOFT DELETING STAGE`)
                     // soft delete stage / workflowStep
                     yield thunkQuery(
-                        'UPDATE "WorkflowStep"' +
+                        'UPDATE "WorkflowSteps"' +
                         ' SET "isDeleted" = (to_timestamp('+ Date.now() +
                         '/ 1000.0)) WHERE "id" = ' + deleteIds[i]
                     );
