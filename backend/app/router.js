@@ -408,7 +408,7 @@ router.route('/:realm/v0.2/workflows/:id')
 
 router.route('/:realm/v0.2/workflows/:id/steps')
     .get(authenticate('jwt').always, workflows.steps)
-    .delete(authenticate('token').always, workflows.stepsDelete)
+    .delete(authenticate('jwt').always, workflows.stepsDelete)
     .put(authenticate('jwt').always, jsonParser, workflows.stepsUpdate);
 
 //router.route('/:realm/v0.2/workflow_steps')
