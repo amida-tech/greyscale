@@ -258,6 +258,9 @@ module.exports = {
                 return value.id;
             });
 
+            // Add check if there are completed tasks
+
+
             for (var i in deleteIds) {
                 yield thunkQuery(WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(deleteIds[i])));
                 bologger.log({

@@ -3199,7 +3199,8 @@ CREATE TABLE "WorkflowSteps" (
     "writeToAnswers" boolean,
     "allowEdit" boolean DEFAULT false NOT NULL,
     role character varying,
-    "langId" integer
+    "langId" integer,
+    "isDeleted" timestamp(6) without time zone
 );
 
 
@@ -4651,7 +4652,8 @@ CREATE TABLE "WorkflowSteps" (
     "writeToAnswers" boolean,
     "allowEdit" boolean DEFAULT false NOT NULL,
     role character varying,
-    "langId" integer
+    "langId" integer,
+    "isDeleted" timestamp(6) without time zone
 );
 
 
