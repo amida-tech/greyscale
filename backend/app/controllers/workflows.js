@@ -248,11 +248,6 @@ module.exports = {
 
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            console.log(`BODY IS: ${Object.keys(req.body)}`);
-            if (!Array.isArray(req.body)) {
-                throw new HttpError(403, 'You should pass an array of workflow steps objects in request body');
-            }
-
 
             console.log(`CHECKING IF WORKFLOW EXIST`);
             var workflow = yield thunkQuery(Workflow.select().where(Workflow.id.equals(req.params.id)));
@@ -268,7 +263,7 @@ module.exports = {
 
             for (var i in deleteIds) {
 
-                console.log(`\nCHECKING FOR COMPLETED TASKS WITH WORKFLOW ID: ${deleteIds[i]}\n`)
+                console.log(`\nCHECKING FOR COMPLETED TASKS WITH WORKFLOWSTEP ID: ${deleteIds[i]}\n`)
                 // Check if there are completed tasks before deleting
                 const completedTasks = yield thunkQuery(
                     Task.select().where(
