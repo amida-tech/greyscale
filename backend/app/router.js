@@ -406,7 +406,7 @@ router.route('/:realm/v0.2/workflows/:id')
     .put(authenticate('jwt').always, jsonParser, /*checkRight('countries_update_one'),*/ workflows.updateOne)
     .delete(authenticate('jwt').always, /*checkRight('countries_delete_one'),*/ workflows.deleteOne);
 
-router.route('/:realm/v0.2/workflows/:id/steps')
+router.route('/:realm/v0.2/workflows/:stepId/steps')
     .get(authenticate('jwt').always, workflows.steps)
     .delete(authenticate('jwt').always, workflows.stepsDelete)
     .put(authenticate('jwt').always, jsonParser, workflows.stepsUpdate);
