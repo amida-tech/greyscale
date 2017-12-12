@@ -259,8 +259,12 @@ module.exports = {
             var result = false;
             if (Object.keys(updateObj).length) {
 
+                var project = yield thunkQuery(
+                    Project.select().where(Project.id.equals(req.params.id))
+                );
+
                 // Update firstActivated if the status was changed from 0 to 1
-                if (updateObj.status == 1) {
+                if (updateObj.status == 1 && project.firstActivated === null) {
                     updateObj.firstActivated = new Date();
                 }
                 result = yield thunkQuery(
