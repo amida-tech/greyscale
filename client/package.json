@@ -51,5 +51,9 @@
   "scripts": {
     "start": "grunt serve",
     "test": "grunt test"
+  },
+  "dependencies": {
+    "es6-plato": "^1.0.14",
+    "gulp": "^3.9.1"
   }
 }
