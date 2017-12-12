@@ -10,12 +10,15 @@ var
     Task = require('../models/tasks'),
     User = require('../models/users'),
     co = require('co'),
+    sql = require('sql'),
     Query = require('../util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
     ProductUOA = require('../models/product_uoa'),
     thunkQuery = thunkify(query);
+
+var debug = require('debug')('debug_products');
 
 module.exports = {
 
@@ -312,13 +315,35 @@ module.exports = {
         co(function* () {
             yield * checkTaskData(req);
             req.body = yield * common.prepUsersForTask(req, req.body);
-            return yield thunkQuery(
+
+            var result = yield thunkQuery(
                 Task
                 .insert(
                     _.pick(req.body, Task.table._initialConfig.columns)
                 )
                 .returning(Task.id)
             );
+
+            var log = {
+                req: req,
+                user: req.user,
+                action: 'update',
+                object: 'ProductUOA',
+            }
+
+            var step = yield * updateCurrentStepId(req);
+            if (typeof currentStep === 'object') {
+                log.entities = step;
+                log.quantity = 1;
+                log.info = 'Update currentStep to `' + step.currentStepId + '` for product `' + step.productId + '` (for all subjects)';
+            } else {
+                log.entitites = null;
+                log.info = 'Error update currentStep for product `' + (req.body.productId || req.params.id) + '` (Not found step ID or min step position)';
+            }
+
+            bologger.log(log);
+            return result;
+
         }).then(function (data) {
             bologger.log({
                 req: req,
@@ -349,4 +374,110 @@ function* checkTaskData(req) {
         }
         yield * common.checkDuplicateTask(req, req.body.stepId, req.body.uoaId, req.body.productId);
     }
+}
+
+function* updateCurrentStepId(req) {
+    var thunkQuery = req.thunkQuery;
+
+    // var essenceId = yield * getEssenceId(req, 'Tasks');
+    var productId = req.body.productId;
+    var product = yield * common.getEntity(req, productId, Product, 'id');
+
+    //TODO: Get survey from survery service if needed
+    // var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+
+    // start-restart project -> set isComplete flag to false for all subjects
+    if (product.status !== 2) { // not suspended
+        yield thunkQuery(
+            ProductUOA.update({
+                isComplete: false
+            }).where(ProductUOA.productId.equals(productId))
+        );
+    }
+
+    var result;
+    // get min step position for each productId-uoaId
+    var minStepPositionQuery = WorkflowStep
+        .select(
+            sql.functions.MIN(WorkflowStep.position).as('minPosition'),
+            Task.uoaId
+        )
+        .from(WorkflowStep
+            .join(Task).on(Task.stepId.equals(WorkflowStep.id))
+        )
+        .where(Task.productId.equals(productId))
+        .and(Task.uoaId.equals(req.body.uoaId))
+        .group(Task.uoaId);
+
+    result = yield thunkQuery(minStepPositionQuery);
+    if (!_.first(result)) {
+        debug('Not found min step position for productId `' + productId + '`');
+        return null;
+    }
+    var minStepPositions = _.first(result);
+
+    // get step ID with min step position for specified productId and each uoaId
+    var nextStep = yield thunkQuery(
+        WorkflowStep
+        .select(
+            WorkflowStep.id,
+            Task.id.as('taskId')
+        )
+        .from(WorkflowStep
+            .join(Task).on(Task.stepId.equals(WorkflowStep.id))
+        )
+        .where(Task.productId.equals(productId)
+            .and(Task.uoaId.equals(minStepPositions.uoaId))
+            .and(WorkflowStep.position.equals(minStepPositions.minPosition))
+        )
+    );
+    if (_.first(nextStep)) {
+        minStepPositions.stepId = nextStep[0].id;
+        minStepPositions.taskId = nextStep[0].taskId;
+
+        // update all currentStepId with min position step ID for specified productId for each subject
+        //
+        if (product.status !== 2) { // not suspended
+            result = yield thunkQuery(ProductUOA
+                .update({
+                    currentStepId: minStepPositions.stepId
+                })
+                .where(ProductUOA.productId.equals(productId)
+                    .and(ProductUOA.UOAid.equals(minStepPositions.uoaId))
+                )
+            );
+        } else {
+            var result1 = yield thunkQuery(
+                ProductUOA
+                .select()
+                .where(ProductUOA.productId.equals(productId)
+                    .and(ProductUOA.UOAid.equals(minStepPositions.uoaId))
+                    .and(ProductUOA.currentStepId.isNull())
+                )
+            );
+            if (_.first(result1)) {
+                result = yield thunkQuery(ProductUOA
+                    .update({
+                        currentStepId: minStepPositions.stepId
+                    })
+                    .where(ProductUOA.productId.equals(productId)
+                        .and(ProductUOA.UOAid.equals(minStepPositions.uoaId))
+                    )
+                );
+            }
+        }
+        // notify
+        // TODO: Notify user, INBA-529.
+        // var task = yield * common.getTask(req, parseInt(minStepPositions[i].taskId));
+        // notify(req, {
+        //     body: 'Task activated (project started)',
+        //     action: 'Task activated (project started)'
+        // }, task.id, task.id, 'Tasks', 'activateTask');
+    }
+
+    return {
+        productId,
+        currentSteps: minStepPositions
+    };
+
 }
