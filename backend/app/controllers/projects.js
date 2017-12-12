@@ -264,7 +264,7 @@ module.exports = {
                 );
 
                 // Update firstActivated if the status was changed from 0 to 1
-                if (updateObj.status == 1 && project.firstActivated === null) {
+                if (parseInt(updateObj.status) === 1 && _.first(project).firstActivated === null) {
                     updateObj.firstActivated = new Date();
                 }
                 result = yield thunkQuery(
