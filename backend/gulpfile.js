@@ -1,8 +1,11 @@
 let gulp = require('gulp');
 let plato = require('es6-plato');
 
-let src = './app/**';
-let outputDir = './artifacts/plato';
+let appSrc = './app/**';
+let testSrc = './test/**';
+
+let appOutputDir = './artifacts/app';
+let testOutputDir = './artifacts/test';
 
 
 let lintRules = {
@@ -40,7 +43,12 @@ let platoArgs = {
 };
 
 function analysis() {
-  return plato.inspect(src, outputDir, platoArgs);
+  return plato.inspect(appSrc, appOutputDir, platoArgs);
 }
 
-gulp.task('analysis', analysis);
+function testAnalysis() {
+  return plato.inspect(testSrc, testOutputDir, platoArgs);
+}
+
+gulp.task('appAnalysis', analysis);
+gulp.task('testAnalysis', testAnalysis);
