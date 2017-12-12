@@ -48,4 +48,6 @@ Indaba uses [`debug`](https://github.com/visionmedia/debug) package. To turn deb
 - v. `-e AUTH_SALT=<salt/>` sets the salt
 - vi. `-e JWT_SECRET=<JWT_SECRET/>` sets the JWT secret
 - vii. `-e MEMCACHED_HOST=indaba_memcached` sets the environment variable for the app to specify the name of the memcached instance to the name we linked it as in ii
-		
+
+# Code analysis
+From `/backend` run `$ gulp analysis`
