@@ -167,8 +167,7 @@ module.exports = {
                     'SELECT "Tasks".* ' +
                     'FROM "Tasks" ' +
                     'WHERE "Tasks"."uoaId" = ' + req.params.id +
-                    'AND "Tasks"."productId" = ' + req.body.productId +
-                    'AND "Tasks"."isComplete" is True '
+                    'AND "Tasks"."productId" = ' + req.body.productId
                 );
 
                 if (!_.first(task)) {
