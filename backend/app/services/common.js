@@ -245,8 +245,6 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
             )
             .leftJoin(Product)
             .on(ProductUOA.productId.equals(Product.id))
-            .leftJoin(Survey)
-            .on(Product.surveyId.equals(Survey.id))
         )
         .where(
             ProductUOA.productId.equals(productId)
