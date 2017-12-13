@@ -96,6 +96,7 @@ module.exports = {
                         stages: [],
                         userGroups: [],
                         subjects,
+                        firstActivated: projects[i].firstActivated,
                     });
                 }
             }
@@ -217,6 +218,7 @@ module.exports = {
                 aggregateObject.productId = productId;
                 aggregateObject.surveyId = surveyId;
                 aggregateObject.workflowId = _.first(_.map(workflowId, 'id'));
+                aggregateObject.firstActivated = project.firstActivated;
             }
 
             return aggregateObject;
@@ -253,9 +255,18 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkProjectData(req);
-            var updateObj = _.pick(req.body, ['title', 'description', 'startTime', 'closeTime', 'status', 'codeName']);
+            var updateObj = _.pick(req.body, ['title', 'description', 'startTime', 'closeTime', 'status', 'codeName', 'firstActivated']);
             var result = false;
             if (Object.keys(updateObj).length) {
+
+                var project = yield thunkQuery(
+                    Project.select().where(Project.id.equals(req.params.id))
+                );
+
+                // Update firstActivated if the status was changed from 0 to 1
+                if (parseInt(updateObj.status) === 1 && _.first(project).firstActivated === null) {
+                    updateObj.firstActivated = new Date();
+                }
                 result = yield thunkQuery(
                     Project
                     .update(updateObj)
@@ -330,10 +341,7 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkProjectData(req);
-            // patch for status
-            req.body = _.extend(req.body, {
-                status: 1
-            });
+
             req.body = _.extend(req.body, {
                 userAdminId: req.user.realmUserId
             }); // add from realmUserId instead of user id
@@ -478,7 +486,7 @@ function* checkProjectData(req) {
     }
 
     if (typeof req.body.status !== 'undefined') {
-        if (Project.statuses.indexOf(req.body.status) === -1) {
+        if (Project.statuses.indexOf(parseInt(req.body.status)) === -1) {
             throw new HttpError(403, 'Status can be only 1 (active) and 0 (inactive)');
         }
     }

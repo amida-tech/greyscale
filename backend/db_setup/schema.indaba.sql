@@ -2469,6 +2469,7 @@ CREATE TABLE "Projects" (
     status smallint DEFAULT 0 NOT NULL,
     "adminUserId" integer,
     "closeTime" timestamp with time zone,
+    "firstActivated" timestamp(6) without time zone,
     "langId" integer
 );
 
@@ -3922,6 +3923,7 @@ CREATE TABLE "Projects" (
     status smallint DEFAULT 0 NOT NULL,
     "adminUserId" integer,
     "closeTime" timestamp with time zone,
+    "firstActivated" timestamp(6) without time zone,
     "langId" integer
 );
 
