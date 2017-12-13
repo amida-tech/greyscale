@@ -141,7 +141,7 @@ module.exports = {
                                 .leftJoin(WorkflowStepGroup)
                                 .on(WorkflowStepGroup.stepId.equals(WorkflowSteps.id))
                         )
-                        .where(Product.projectId.equals(project.id))
+                        .where(Product.projectId.equals(project.id).and(WorkflowSteps.isDeleted.isNull()))
                         .group(WorkflowSteps.id)
                 );
 

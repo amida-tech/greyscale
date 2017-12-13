@@ -3200,7 +3200,8 @@ CREATE TABLE "WorkflowSteps" (
     "writeToAnswers" boolean,
     "allowEdit" boolean DEFAULT false NOT NULL,
     role character varying,
-    "langId" integer
+    "langId" integer,
+    "isDeleted" timestamp(6) without time zone
 );
 
 
@@ -4653,7 +4654,8 @@ CREATE TABLE "WorkflowSteps" (
     "writeToAnswers" boolean,
     "allowEdit" boolean DEFAULT false NOT NULL,
     role character varying,
-    "langId" integer
+    "langId" integer,
+    "isDeleted" timestamp(6) without time zone
 );
 
 
@@ -6674,16 +6676,6 @@ ALTER TABLE ONLY "WorkflowStepGroups"
 ALTER TABLE ONLY "WorkflowSteps"
     ADD CONSTRAINT "WorkflowSteps_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
 
-
---
--- TOC entry 3577 (class 2606 OID 1601164)
--- Name: WorkflowSteps_worflowId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "WorkflowSteps"
-    ADD CONSTRAINT "WorkflowSteps_worflowId_fkey" FOREIGN KEY ("workflowId") REFERENCES "Workflows"(id);
-
-
 --
 -- TOC entry 3579 (class 2606 OID 1601169)
 -- Name: Workflows_productId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
@@ -7253,15 +7245,6 @@ ALTER TABLE ONLY "WorkflowStepGroups"
 
 ALTER TABLE ONLY "WorkflowSteps"
     ADD CONSTRAINT "WorkflowSteps_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
-
-
---
--- TOC entry 3648 (class 2606 OID 1602506)
--- Name: WorkflowSteps_worflowId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "WorkflowSteps"
-    ADD CONSTRAINT "WorkflowSteps_worflowId_fkey" FOREIGN KEY ("workflowId") REFERENCES "Workflows"(id);
 
 
 --

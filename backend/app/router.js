@@ -406,19 +406,10 @@ router.route('/:realm/v0.2/workflows/:id')
     .put(authenticate('jwt').always, jsonParser, /*checkRight('countries_update_one'),*/ workflows.updateOne)
     .delete(authenticate('jwt').always, /*checkRight('countries_delete_one'),*/ workflows.deleteOne);
 
-router.route('/:realm/v0.2/workflows/:id/steps')
+router.route('/:realm/v0.2/workflows/:stepId/steps')
     .get(authenticate('jwt').always, workflows.steps)
-    .delete(authenticate('token').always, workflows.stepsDelete)
+    .delete(authenticate('jwt').always, workflows.stepsDelete)
     .put(authenticate('jwt').always, jsonParser, workflows.stepsUpdate);
-
-//router.route('/:realm/v0.2/workflow_steps')
-//    .get(authenticate('token').always, workflows.stepListSelect)
-//    .post(authenticate('token').always, workflows.stepListAdd);
-//
-//router.route('/:realm/v0.2/workflow_steps/:id')
-//    .get(authenticate('token').always, workflows.stepListSelectOne)
-//    .put(authenticate('token').always, workflows.stepListUpdateOne)
-//    .delete(authenticate('token').always, workflows.stepListDelete);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    DISCUSSIONS
