@@ -128,8 +128,8 @@ module.exports = {
             }
 
             var selectQuery = selectFields + selectFrom + selectWhere + selectOrder;
-            var discussionData = _.map(_.groupBy(yield thunkQuery(selectQuery), 'questionId'), function(item, questionId) {
-                return { questionId, item }
+            var discussionData = _.map(_.groupBy(yield thunkQuery(selectQuery), 'questionId'), function(discussion, questionId) {
+                return { questionId, discussion }
             });
             return discussionData;
         }).then(function (data) {
