@@ -404,7 +404,7 @@ function* updateCurrentStepId(req, insertedTaskId) {
     result = yield thunkQuery(minStepPositionQuery);
 
     if (!_.first(result)) {
-        throw new HttpError(500, 'Could not find the min step position for productId: ' + req.body.productId );
+        throw new HttpError(403, 'Could not find the min step position for productId: ' + req.body.productId );
     }
 
     var addedStep = _.find(result, (step) => step.id === insertedTaskId);
