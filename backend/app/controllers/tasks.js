@@ -379,11 +379,7 @@ function* checkTaskData(req) {
 function* updateCurrentStepId(req, insertedTaskId) {
     var thunkQuery = req.thunkQuery;
 
-    // var essenceId = yield * getEssenceId(req, 'Tasks');
     var product = yield * common.getEntity(req, req.body.productId, Product, 'id');
-
-    //TODO: Get survey from survery service if needed
-    // var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
     if (product.status !== 2) { // not suspended
         yield thunkQuery(
             ProductUOA.update({
@@ -408,8 +404,7 @@ function* updateCurrentStepId(req, insertedTaskId) {
     result = yield thunkQuery(minStepPositionQuery);
 
     if (!_.first(result)) {
-        debug('Not found min step position for productId `' + req.body.productId + '`');
-        return null;
+        throw new HttpError(500, 'Could not find the min step position for productId: ' + req.body.productId );
     }
 
     var addedStep = _.find(result, (step) => step.id === insertedTaskId);
@@ -433,11 +428,6 @@ function* updateCurrentStepId(req, insertedTaskId) {
         );
     }
         // TODO: Notify user, INBA-529.
-        // var task = yield * common.getTask(req, parseInt(minStepPositions[i].taskId));
-        // notify(req, {
-        //     body: 'Task activated (project started)',
-        //     action: 'Task activated (project started)'
-        // }, task.id, task.id, 'Tasks', 'activateTask');
 
     return {
         productId: req.body.productId,
