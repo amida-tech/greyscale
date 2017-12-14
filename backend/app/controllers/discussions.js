@@ -209,7 +209,6 @@ module.exports = {
             //var currentStep = yield * common.getCurrentStepExt(req, task.productId, task.uoaId); // ??? could user commented ???
             var stepTo = yield * common.getEntity(req, req.body.stepId, WorkflowStep, 'id');
             var taskTo = yield * common.getTaskByStep(req, stepTo.id, task.uoaId);
-
             var retTask = task;
             if (returnObject) {
                 var returnTaskId = null;
@@ -241,38 +240,39 @@ module.exports = {
             }
             req.body = _.pick(req.body, Discussion.insertCols); // insert only columns that may be inserted
             var result = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
-            if (!isReturn && !isResolve) { // notify only ordinary entries
-                // prepare for notify
-                var userFrom = yield * common.getUser(req, req.user.id);
-                // static blindReview
-                var productId = task.productId;
-                var uoaId = task.uoaId;
-                var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
-                var from = {
-                    firstName: userFrom.firstName,
-                    lastName: userFrom.lastName
-                };
-                if (stepTo.blindReview) {
-                    userFromName = stepTo.role + ' (' + stepTo.title + ')';
-                    from = {
-                        firstName: stepTo.role,
-                        lastName: '(' + stepTo.title + ')'
-                    };
-                } else if (userFrom.isAnonymous) {
-                    userFromName = 'Anonymous -' + stepTo.role + ' (' + stepTo.title + ')';
-                    from = {
-                        firstName: 'Anonymous -' + stepTo.role,
-                        lastName: '(' + stepTo.title + ')'
-                    };
-                }
 
-                notify(req, {
-                    body: req.body.entry,
-                    action: 'Comment added',
-                    userFromName: userFromName,
-                    from: from
-                }, result[0].id, taskTo.id, 'Discussions', 'discussion');
-            }
+            // TODO: Notifications handling?
+            // if (!isReturn && !isResolve) { // notify only ordinary entries
+            //     // prepare for notify
+            //     var userFrom = yield * common.getUser(req, req.user.id);
+            //     // static blindReview
+            //     var productId = task.productId;
+            //     var uoaId = task.uoaId;
+            //     var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
+            //     var from = {
+            //         firstName: userFrom.firstName,
+            //         lastName: userFrom.lastName
+            //     };
+            //     if (stepTo.blindReview) {
+            //         userFromName = stepTo.role + ' (' + stepTo.title + ')';
+            //         from = {
+            //             firstName: stepTo.role,
+            //             lastName: '(' + stepTo.title + ')'
+            //         };
+            //     } else if (userFrom.isAnonymous) {
+            //         userFromName = 'Anonymous -' + stepTo.role + ' (' + stepTo.title + ')';
+            //         from = {
+            //             firstName: 'Anonymous -' + stepTo.role,
+            //             lastName: '(' + stepTo.title + ')'
+            //         };
+            //     }
+            //     notify(req, {
+            //         body: req.body.entry,
+            //         action: 'Comment added',
+            //         userFromName: userFromName,
+            //         from: from
+            //     }, result[0].id, taskTo.id, 'Discussions', 'discussion');
+            // }
 
             bologger.log({
                 req: req,
@@ -282,10 +282,10 @@ module.exports = {
                 entity: result[0].id,
                 info: 'Add discussion`s entry'
             });
-            return _.first(result);
+            return result;
 
         }).then(function (data) {
-            res.status(201).json(data);
+            res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
         });
@@ -476,28 +476,28 @@ module.exports = {
 };
 
 function* checkInsert(req) {
-    var questionId = yield * checkOneId(req, req.body.questionId, SurveyQuestion, 'id', 'questionId', 'Question');
-    var taskId = yield * checkOneId(req, req.body.taskId, Task, 'id', 'taskId', 'Task');
-    var stepId = yield * checkOneId(req, req.body.stepId, WorkflowStep, 'id', 'stepId', 'WorkflowStep');
+    //var questionId = yield * checkOneId(req, req.body.questionId, SurveyQuestion, 'id', 'questionId', 'Question');
+    // TODO: Perry, you may consider adding a check to Survey Services for an Questions ID here.
+    var task = _.first(yield * checkOneId(req, req.body.taskId, Task, 'id', 'taskId', 'Task'));
+    var step = _.first(yield * checkOneId(req, req.body.stepId, WorkflowStep, 'id', 'stepId', 'WorkflowStep'));
     var entry = yield * checkString(req.body.entry, 'Entry');
     if (req.body.isReturn || req.body.isResolve) { // check if return or resolve entry already exist for question
-        var duplicateEntry = yield * checkDuplicateEntry(req, taskId, questionId, req.body.isReturn, req.body.isResolve);
+        var duplicateEntry = yield * checkDuplicateEntry(req, task.id, req.body.questionId, req.body.isReturn, req.body.isResolve);
     }
     // get next order for entry
-    var nextOrder = yield * getNextOrder(req, taskId, questionId);
+    var nextOrder = yield * getNextOrder(req, task, req.body.questionId);
     req.body = _.extend(req.body, {
         order: nextOrder
     }); // add nextOrder (if order was presented in body replace it)
-
     // if discussion`s entry is entry with "returning" (isReturn flag is true)
     var returnObject = null;
     if (req.body.isReturn) {
-        returnObject = yield * checkForReturnAndResolve(req, req.user, taskId, req.body.stepId, 'return');
+        returnObject = yield * checkForReturnAndResolve(req, req.user, task.id, step.id, 'return');
         req.body = _.extend(req.body, {
             returnTaskId: returnObject.taskId
         }); // add returnTaskId
     } else if (req.body.isResolve) {
-        returnObject = yield * checkForReturnAndResolve(req, req.user, taskId, req.body.stepId, 'resolve');
+        returnObject = yield * checkForReturnAndResolve(req, req.user, task.id, step.id, 'resolve');
         req.body = _.omit(req.body, 'isReturn'); // remove isReturn flag from body
     }
     return returnObject;
@@ -812,10 +812,10 @@ function* checkNextEntry(req, id, checkOnly) {
     */
 }
 
-function* getNextOrder(req, taskId, questionId) {
+function* getNextOrder(req, task, questionId) {
 
     // 1st - get productId and uoaId for this task
-    var task = yield * common.getTask(req, taskId);
+    // var task = yield * common.getTask(req, taskId);
     var productId = task.productId;
     var uoaId = task.uoaId;
 
@@ -946,14 +946,13 @@ function* checkOneId(req, val, model, key, keyName, modelName) {
         throw new HttpError(403, keyName + ' must be integer (' + val + ')');
     } else if (_.isString(val) && parseInt(val).toString() !== val) {
         throw new HttpError(403, keyName + ' must be integer (' + val + ')');
-    } else {
-        var thunkQuery = req.thunkQuery;
-        var exist = yield thunkQuery(model.select().from(model).where(model[key].equals(parseInt(val))));
-        if (!_.first(exist)) {
-            throw new HttpError(403, modelName + ' with ' + keyName + '=`' + val + '` does not exist');
-        }
     }
-    return parseInt(val);
+    var thunkQuery = req.thunkQuery;
+    var exist = yield thunkQuery(model.select().from(model).where(model[key].equals(parseInt(val))));
+    if (!_.first(exist)) {
+        throw new HttpError(403, modelName + ' with ' + keyName + '=`' + val + '` does not exist');
+    }
+    return exist;
 }
 
 function* checkString(val, keyName) {

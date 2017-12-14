@@ -490,3 +490,15 @@ var getSurveyFromSurveyService = function (surveyId, jwt) {
 };
 
 exports.getSurveyFromSurveyService = getSurveyFromSurveyService;
+
+var getCompletedTaskByStepId = function* (req, workflowStepId) {
+
+    return yield req.thunkQuery(
+        'SELECT "ProductUOA".* ' +
+        'FROM "ProductUOA" ' +
+        'WHERE "ProductUOA"."currentStepId" = ' + workflowStepId +
+        'AND "ProductUOA"."isComplete" = TRUE '
+    );
+};
+
+exports.getCompletedTaskByStepId = getCompletedTaskByStepId;

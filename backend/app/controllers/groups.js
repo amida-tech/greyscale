@@ -89,22 +89,58 @@ module.exports = {
             if (req.user.roleID !== 1 && (req.user.organizationId !== req.body.organizationId)) {
                 throw new HttpError(400, 'You cannot update groups from other organizations');
             }
-            if (!req.body.title) {
-                throw new HttpError(400, 'Title is required');
+            if (req.body.title) {
+                var objToUpdate = {
+                    title: req.body.title
+                };
+                yield thunkQuery(Group.update(objToUpdate).where(Group.id.equals(req.params.id)));
+
+                bologger.log({
+                    req: req,
+                    user: req.user,
+                    action: 'update',
+                    object: 'groups',
+                    entity: req.params.id,
+                    info: 'Update group'
+                });
             }
-            var objToUpdate = {
-                title: req.body.title
-            };
-            return yield thunkQuery(Group.update(objToUpdate).where(Group.id.equals(req.params.id)));
+
+            if (req.body.userId) {
+                var userGroups4delete = yield thunkQuery(
+                    UserGroup.delete().where(UserGroup.groupId.equals(req.params.id)).returning('*')
+                );
+                bologger.log({
+                    req: req,
+                    user: req.user,
+                    action: 'delete',
+                    object: 'userGroups',
+                    entities: userGroups4delete,
+                    quantity: userGroups4delete.length,
+                    info: 'Delete group`s users'
+                });
+                var groupObjs = [];
+                for (var i in req.body.userId) {
+                    groupObjs.push({
+                        groupId: req.params.id,
+                        userId: req.body.userId[i],
+                    });
+                }
+                if (groupObjs.length) {
+                    yield thunkQuery(
+                    UserGroup.insert(groupObjs)
+                );
+                    bologger.log({
+                        req: req,
+                        user: req.user,
+                        action: 'insert',
+                        object: 'userGroups',
+                        entities: groupObjs,
+                        quantity: groupObjs.length,
+                        info: 'Add new users for group'
+                    });
+                }
+            }
         }).then(function () {
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'update',
-                object: 'groups',
-                entity: req.params.id,
-                info: 'Update group'
-            });
             res.status(202).end();
         }, function (err) {
             next(err);
