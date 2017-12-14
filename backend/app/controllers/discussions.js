@@ -88,37 +88,20 @@ module.exports = {
     select: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            var taskId = yield * checkOneId(req, req.query.taskId, Task, 'id', 'taskId', 'Task');
-            var task = yield * common.getTask(req, taskId);
-            var productId = task.productId;
+            var task = yield * common.getTask(req, req.query.taskId);
             var uoaId = task.uoaId;
             var selectFields =
                 'SELECT ' +
                 '"Discussions".*, ' +
-                '"Tasks"."uoaId", ' +
-                //'"Tasks"."stepId", '+
-                '"Tasks"."productId", ' +
-                '"SurveyQuestions"."surveyId"';
+                '"Tasks"."uoaId"';
 
             var selectFrom =
                 'FROM ' +
                 '"Discussions" ' +
-                'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" ' +
-                'INNER JOIN "SurveyQuestions" ON "Discussions"."questionId" = "SurveyQuestions"."id" ' +
-                'INNER JOIN "UnitOfAnalysis" ON "Tasks"."uoaId" = "UnitOfAnalysis"."id" ' +
-                'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" ' +
-                'INNER JOIN "Products" ON "Tasks"."productId" = "Products"."id" ' +
-                'INNER JOIN "Surveys" ON "SurveyQuestions"."surveyId" = "Surveys"."id"';
+                'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id"';
 
             var selectWhere = 'WHERE 1=1 ';
-            selectWhere = setWhereInt(selectWhere, req.query.questionId, 'Discussions', 'questionId');
-            //selectWhere = setWhereInt(selectWhere, req.query.userId, 'Discussions', 'userId');
-            selectWhere = setWhereInt(selectWhere, req.query.userFromId, 'Discussions', 'userFromId');
-            //selectWhere = setWhereInt(selectWhere, req.query.taskId, 'Discussions', 'taskId');
-            selectWhere = setWhereInt(selectWhere, uoaId, 'UnitOfAnalysis', 'id');
-            selectWhere = setWhereInt(selectWhere, productId, 'Products', 'id');
-            selectWhere = setWhereInt(selectWhere, req.query.stepId, 'WorkflowSteps', 'id');
-            selectWhere = setWhereInt(selectWhere, req.query.surveyId, 'Surveys', 'id');
+            selectWhere = setWhereInt(selectWhere, uoaId, 'Tasks', 'uoaId');
 
             if (req.query.filter === 'resolve') {
                 /*
@@ -145,7 +128,10 @@ module.exports = {
             }
 
             var selectQuery = selectFields + selectFrom + selectWhere + selectOrder;
-            return yield thunkQuery(selectQuery);
+            var discussionData = _.map(_.groupBy(yield thunkQuery(selectQuery), 'questionId'), function(item, questionId) {
+                return { questionId, item }
+            });
+            return discussionData;
         }).then(function (data) {
             res.json(data);
         }, function (err) {
