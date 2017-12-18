@@ -14,7 +14,8 @@ var columns = [
     'position',
     'title',
     'allowEdit',
-    'role'
+    'role',
+    'isDeleted',
 ];
 
 var WorkflowStep = sql.define({
@@ -34,7 +35,8 @@ WorkflowStep.editCols = [
     'discussionParticipation',
     'allowTranslate',
     'allowEdit',
-    'role'
+    'role',
+    'isDeleted',
 ];
 
 WorkflowStep.translate = [
