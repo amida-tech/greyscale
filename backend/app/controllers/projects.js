@@ -360,7 +360,7 @@ module.exports = {
                     title: result.name,
                     description: req.body.description,
                     projectId: result.id,
-                    status: 0,
+                    status: 1,
                 }).returning(Product.id)
             )).id;
 

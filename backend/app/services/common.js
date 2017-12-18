@@ -24,7 +24,6 @@ var
     config = require('../../config'),
     request = require('request-promise');
 
-
 var getEntityById = function* (req, id, model, key) {
     var thunkQuery = req.thunkQuery;
     return yield thunkQuery(model.select().from(model).where(model[key].equals(parseInt(id))));
