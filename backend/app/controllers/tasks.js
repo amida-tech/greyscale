@@ -400,6 +400,7 @@ function* updateCurrentStepId(req, insertedTaskId) {
         )
         .where(Task.productId.equals(req.body.productId))
         .and(Task.uoaId.equals(req.body.uoaId))
+        .and(WorkflowStep.isDeleted.isNull())
         .order(WorkflowStep.position);
     result = yield thunkQuery(minStepPositionQuery);
 
