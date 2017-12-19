@@ -230,8 +230,7 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
         ProductUOA
         .select(
             WorkflowStep.star(),
-            'row_to_json("Tasks".*) as task',
-            'row_to_json("Surveys".*) as survey'
+            'row_to_json("Tasks".*) as task'
         )
         .from(
             ProductUOA
@@ -244,8 +243,6 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
             )
             .leftJoin(Product)
             .on(ProductUOA.productId.equals(Product.id))
-            .leftJoin(Survey)
-            .on(Product.surveyId.equals(Survey.id))
         )
         .where(
             ProductUOA.productId.equals(productId)
@@ -263,9 +260,10 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
         throw new HttpError(403, 'Task is not defined for this Product and UOA');
     }
 
-    if (!curStep.survey) {
-        throw new HttpError(403, 'Survey is not defined for this Product');
-    }
+    //TODO: Maybe pull survey here and check
+    // if (!curStep.survey) {
+    //     throw new HttpError(403, 'Survey is not defined for this Product');
+    // }
 
     if (req.user.roleID === 3) { // simple user
         if (!_.contains(curStep.task.userIds, req.user.id)) { // ToDo: add groupIds (when frontend will support feature "Assign groups to task")
@@ -289,13 +287,13 @@ var getMinNextStepPositionWithTask = function* (req, curStep, productId, uoaId) 
             sql.functions.MIN(WorkflowStep.position).as('minPosition')
         )
         .from(WorkflowStep
-            .join(Task).on(Task.stepId.equals(WorkflowStep.id))
+            // .join(Task).on(Task.stepId.equals(WorkflowStep.id))
         )
         .where(
             WorkflowStep.workflowId.equals(curStep.workflowId)
             .and(WorkflowStep.position.gt(curStep.position))
-            .and(Task.productId.equals(productId))
-            .and(Task.uoaId.equals(uoaId))
+            // .and(Task.productId.equals(productId))
+            // .and(Task.uoaId.equals(uoaId))
         )
     );
     if (result[0]) {

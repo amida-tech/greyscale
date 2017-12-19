@@ -79,6 +79,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
     //if (req.user.roleID !== 2 && req.user.roleID !== 1) { // TODO check org owner
     //    throw new HttpError(403, 'Access denied');
     //}
+
     var curStep = yield * common.getCurrentStepExt(req, productId, UOAid);
 
     var autoResolve = false;
