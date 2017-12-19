@@ -338,6 +338,7 @@ var getNextStep = function* (req, minNextStepPosition, curStep) {
         )
         .where(WorkflowStep.workflowId.equals(curStep.workflowId)
             .and(WorkflowStep.position.equals(minNextStepPosition))
+            .and(Task.uoaId.equals(curStep.task.uoaId))
         )
     );
     return result[0];
