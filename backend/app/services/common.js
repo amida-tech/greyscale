@@ -490,6 +490,39 @@ var getSurveyFromSurveyService = function (surveyId, jwt) {
 
 exports.getSurveyFromSurveyService = getSurveyFromSurveyService;
 
+var copyAssessmentAtSurveyService = function (assessmentId, prevAssessmentId, jwt) {
+    const path = 'assessment-answers/';
+    const path2 = '/as-copy';
+
+    const requestOptions = {
+        url: config.surveyService + path + assessmentId + path2,
+        method: 'POST',
+        headers: {
+            'authorization': jwt,
+            'origin': config.domain
+        },
+        json: {
+            prevAssessmentId
+        },
+        resolveWithFullResponse: true,
+    };
+
+    return request(requestOptions)
+        .then((res) => {
+            if (res.statusCode > 299 || res.statusCode < 200) {
+                const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                return Promise.reject(httpErr);
+            }
+            return res
+        })
+        .catch((err) => {
+            const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
+            return Promise.reject(httpErr);
+        });
+}
+
+exports.copyAssessmentAtSurveyService = copyAssessmentAtSurveyService;
+
 var getCompletedTaskByStepId = function* (req, workflowStepId) {
 
     return yield req.thunkQuery(

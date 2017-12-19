@@ -166,8 +166,10 @@ var moveWorkflow = function* (req, productId, UOAid) {
         }
 
         var nextTask = yield * common.getTask(req, nextStep.taskId);
-        console.log(curStep.task.assessmentId);
-        console.log(nextTask.assessmentId);
+        common.copyAssessmentAtSurveyService(
+            nextTask.assessmentId,
+            curStep.task.assessmentId,
+            req.headers.authorization);
 
     } else {
         // next step does not exists - set productUOA status to complete
