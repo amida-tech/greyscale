@@ -225,7 +225,6 @@ var isExistsUserInRealm = function* (req, realm, email) {
 exports.isExistsUserInRealm = isExistsUserInRealm;
 
 var getCurrentStepExt = function* (req, productId, uoaId) {
-    console.log(`I GOT IN THE GET CURRENT STEP EXT FUNCTION`);
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(
         ProductUOA
