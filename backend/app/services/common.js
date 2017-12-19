@@ -225,13 +225,13 @@ var isExistsUserInRealm = function* (req, realm, email) {
 exports.isExistsUserInRealm = isExistsUserInRealm;
 
 var getCurrentStepExt = function* (req, productId, uoaId) {
+    console.log(`I GOT IN THE GET CURRENT STEP EXT FUNCTION`);
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(
         ProductUOA
         .select(
             WorkflowStep.star(),
-            'row_to_json("Tasks".*) as task',
-            'row_to_json("Surveys".*) as survey'
+            'row_to_json("Tasks".*) as task'
         )
         .from(
             ProductUOA
@@ -261,9 +261,10 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
         throw new HttpError(403, 'Task is not defined for this Product and UOA');
     }
 
-    if (!curStep.survey) {
-        throw new HttpError(403, 'Survey is not defined for this Product');
-    }
+    //TODO: Maybe pull survey here and check
+    // if (!curStep.survey) {
+    //     throw new HttpError(403, 'Survey is not defined for this Product');
+    // }
 
     if (req.user.roleID === 3) { // simple user
         if (!_.contains(curStep.task.userIds, req.user.id)) { // ToDo: add groupIds (when frontend will support feature "Assign groups to task")
@@ -287,13 +288,13 @@ var getMinNextStepPositionWithTask = function* (req, curStep, productId, uoaId) 
             sql.functions.MIN(WorkflowStep.position).as('minPosition')
         )
         .from(WorkflowStep
-            .join(Task).on(Task.stepId.equals(WorkflowStep.id))
+            // .join(Task).on(Task.stepId.equals(WorkflowStep.id))
         )
         .where(
             WorkflowStep.workflowId.equals(curStep.workflowId)
             .and(WorkflowStep.position.gt(curStep.position))
-            .and(Task.productId.equals(productId))
-            .and(Task.uoaId.equals(uoaId))
+            // .and(Task.productId.equals(productId))
+            // .and(Task.uoaId.equals(uoaId))
         )
     );
     if (result[0]) {

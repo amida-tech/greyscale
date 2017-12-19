@@ -74,12 +74,17 @@ var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
 };
 
 var moveWorkflow = function* (req, productId, UOAid) {
+    console.log(`I GOT IN MOVEWORKFLOW()`);
     var essenceId, task, userTo, organization, product, uoa, step, survey, note;
     var thunkQuery = req.thunkQuery;
     //if (req.user.roleID !== 2 && req.user.roleID !== 1) { // TODO check org owner
     //    throw new HttpError(403, 'Access denied');
     //}
+
+    console.log(`GETTING CURRENT STEP`)
     var curStep = yield * common.getCurrentStepExt(req, productId, UOAid);
+
+    console.log(`GOT CURRENT STEP: ${curStep.task.id}`);
 
     var autoResolve = false;
     if (req.query.force) { // force to move step
@@ -88,6 +93,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
     }
 
     if (req.query.resolve || autoResolve) { // try to resolve
+        console.log(`TRYING TO RESOLVE`)
         // check if resolve is possible
         var resolvePossible = yield * isResolvePossible(req, curStep.task.id);
         if (!resolvePossible) {
@@ -121,8 +127,10 @@ var moveWorkflow = function* (req, productId, UOAid) {
     }
 
     // check if exist return flag(s)
+    console.log(`CHECKING FOR RETURN FLAG`);
     var returnStepId = yield * common.getReturnStep(req, curStep.task.id);
     if (returnStepId && !req.query.force && !req.query.resolve) { // exist discussion`s entries with return flags and not activated (only for !force and !resolve)
+        console.log(`RETURN STEPS ID IS: ${returnStepId}`)
         // set currentStep to step from returnTaskId
         yield * updateCurrentStep(req, returnStepId, productId, UOAid);
         // activate discussion`s entry with return flag
@@ -143,10 +151,13 @@ var moveWorkflow = function* (req, productId, UOAid) {
         return;
     }
     var minNextStepPosition = yield * common.getMinNextStepPositionWithTask(req, curStep, productId, UOAid);
+    console.log(`MIN NEXT STEP IS: ${minNextStepPosition}`)
     var nextStep = null;
     if (minNextStepPosition !== null) { // min next step exists, position is not null
+        console.log(`MIN NEXT STEP IS NOT NULL`)
         nextStep = yield * common.getNextStep(req, minNextStepPosition, curStep);
     } else { // if does not exist next steps with task, then get last step
+        console.log(`MIN NEXT STEP IS NULL`)
         var lastStepPosition = yield * common.getLastStepPosition(req, curStep);
         if (lastStepPosition !== null) { // last step exists, position is not null
             nextStep = yield * common.getNextStep(req, lastStepPosition, curStep);
