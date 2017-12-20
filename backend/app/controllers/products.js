@@ -165,6 +165,12 @@ var moveWorkflow = function* (req, productId, UOAid) {
             }, nextStep.taskId, nextStep.taskId, 'Tasks', 'activateTask');
         }
 
+        var nextTask = yield * common.getTask(req, nextStep.taskId);
+        common.copyAssessmentAtSurveyService(
+            nextTask.assessmentId,
+            curStep.task.assessmentId,
+            req.headers.authorization);
+
     } else {
         // next step does not exists - set productUOA status to complete
         yield thunkQuery(
