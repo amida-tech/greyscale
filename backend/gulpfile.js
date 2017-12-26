@@ -1,53 +1,27 @@
-let gulp = require('gulp');
-let plato = require('es6-plato');
+const gulp = require('gulp');
+const plato = require('es6-plato');
+const lintRules = require('./.eslintrc')
 
-let appSrc = './app/**';
-let testSrc = './test/**';
+const appSrc = './app/**';
+const testSrc = './test/**';
 
-let appOutputDir = './artifacts/app';
-let testOutputDir = './artifacts/test';
+const appOutputDir = './artifacts/app';
+const testOutputDir = './artifacts/test';
 
+const complexityRules = {};
 
-let lintRules = {
-  'rules': {
-    'indent': [2,'tab'],
-    'quotes': [2,'single'],
-    'semi': [2,'always'],
-    'no-console' : [1],
-    'curly': ['error'],
-    'no-dupe-keys': 2,
-    'func-names': [1, 'always']
-  },
-  'env': {
-    'es6': true
-  },
-  'globals':['require'],
-  'parserOptions' : {
-    'sourceType': 'module',
-    'ecmaFeatures': {
-      'jsx': true,
-      'modules': true
-    }
-  }
-};
-
-
-let complexityRules = {
-
-};
-
-let platoArgs = {
-    title: 'example',
+const platoArgs = {
+    title: 'GreyScale Code Analysis',
     eslint: lintRules,
-    complexity: complexityRules
+    complexity: complexityRules,
 };
 
 function analysis() {
-  return plato.inspect(appSrc, appOutputDir, platoArgs);
+    return plato.inspect(appSrc, appOutputDir, platoArgs);
 }
 
 function testAnalysis() {
-  return plato.inspect(testSrc, testOutputDir, platoArgs);
+    return plato.inspect(testSrc, testOutputDir, platoArgs);
 }
 
 gulp.task('appAnalysis', analysis);
