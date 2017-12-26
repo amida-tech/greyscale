@@ -2,15 +2,15 @@
 
 # Indaba Platforms, Frameworks & Development Tools
   - [AngularJS](http://angularjs.org/): JavaScript Single Page Application Framework
-  - [Bootstrap](http://getbootstrap.com/): Responsive UI Framework
+  - [Bootstrap](http://getbootstrap.com/): Responsive UI Framework 
   - [Sass](http://sass-lang.com/): CSS Extension Language
   - [Compass](http://compass-style.org/): Tool for Compiling SASS into CSS
   - [NodeJS](http://nodejs.org/): Platform for Running Development Tools
   - [NPM](https://www.npmjs.org/):Package Manager for Node
   - [GruntJS](http://gruntjs.com/): Node Task Runner for Development and Build Activities
-  - [Bower](http://bower.io/): Package Manager for Front End Components
-  - [Yeoman](http://yeoman.io/): Scaffolding Tool for the Front End App
-
+  - [Bower](http://bower.io/): Package Manager for Front End Components 
+  - [Yeoman](http://yeoman.io/): Scaffolding Tool for the Front End App 
+  
 # Indaba Installation
 
 1. Download [source code](https://github.com/amida-tech/greyscale/)
@@ -24,7 +24,7 @@ gem install compass
 
 npm install -g grunt-cli bower yo generator-karma generator-angular
 
-# Go to the client directory and run
+# Go to the client directory and run 
 npm install
 bower install
 
@@ -88,9 +88,9 @@ Please do not update it manually.
 
 To build, run  
 
-`bower update`
+`bower update` 
 
-`bower install`
+`bower install` 
 
 `grunt build`
 
@@ -104,9 +104,3 @@ To build a deployment suitable for a docker image, run `grunt buildDocker`
 # Testing
 
 Running `grunt test` will run the unit tests with karma
-
-# Code Analysis
-From `/backend`
-1. `$ gulp appAnalysis` to analyze code in `/app`
-2. `$ gulp testAnalysis` to analyze code in `/test`
-3. Files are written to `/artifacts`
