@@ -9,6 +9,8 @@ var client = require('../db_bootstrap'),
     UnitOfAnalysisTagLink = require('../models/uoataglinks'),
     Language = require('../models/languages'),
     ProductUOA = require('../models/product_uoa'),
+    Product = require('../models/products'),
+    Project = require('../models/projects'),
     Task = require('../models/tasks'),
     co = require('co'),
     Query = require('../util').Query,
@@ -154,6 +156,7 @@ module.exports = {
     },
 
     deleteOne: function (req, res, next) {
+        console.log(`I GOT IN THE DELETE`)
         var thunkQuery = req.thunkQuery;
         co(function* () {
 
@@ -162,6 +165,30 @@ module.exports = {
                 if (_.first(result)) {
                     throw new HttpError(403, 'Subject used in Subject to Tag link. Could not delete Subject');
                 }
+
+                console.log(`PRODUCT ID IS: ${req.body.productId}`);
+
+                // Check if project has ever been active
+                var project = yield thunkQuery(
+                    Project
+                        .select(
+                            Project.star()
+                        )
+                        .from(
+                            Project
+                                .leftJoin(Product)
+                                .on(Product.projectId.equals(Project.id))
+                                .leftJoin(ProductUOA)
+                                .on(ProductUOA.UOAid.equals(req.params.id))
+                        )
+                        .where(
+                            Product.id.equals(req.body.productId)
+                        )
+                );
+
+                console.log(`PROJECT GOTTEN IS: ${project}`);
+                console.log(`PROJECT GOTTEN IS NAME IS: ${project.id}`);
+                return false;
 
                 var task = yield thunkQuery(
                     'SELECT "Tasks".* ' +
