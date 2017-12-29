@@ -79,6 +79,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
     //if (req.user.roleID !== 2 && req.user.roleID !== 1) { // TODO check org owner
     //    throw new HttpError(403, 'Access denied');
     //}
+
     var curStep = yield * common.getCurrentStepExt(req, productId, UOAid);
 
     var autoResolve = false;
@@ -163,6 +164,12 @@ var moveWorkflow = function* (req, productId, UOAid) {
                 action: 'Task activated (next step)',
             }, nextStep.taskId, nextStep.taskId, 'Tasks', 'activateTask');
         }
+
+        var nextTask = yield * common.getTask(req, nextStep.taskId);
+        common.copyAssessmentAtSurveyService(
+            nextTask.assessmentId,
+            curStep.task.assessmentId,
+            req.headers.authorization);
 
     } else {
         // next step does not exists - set productUOA status to complete
@@ -311,7 +318,8 @@ module.exports = {
                         ProductUOA.currentStepId.equals(WorkflowStep.as(curStepAlias).id)
                     )
                 )
-                .where(Task.productId.equals(req.params.id))
+                .where(Task.productId.equals(req.params.id)
+                .and(Task.isDeleted.isNull()))
             );
         }).then(function (data) {
             res.json(data);

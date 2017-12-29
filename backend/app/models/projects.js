@@ -9,7 +9,8 @@ var columns = [
     'matrixId',
     'startTime',
     'status',
-    'closeTime'
+    'closeTime',
+    'firstActivated'
 ];
 
 var Project = sql.define({
@@ -18,8 +19,8 @@ var Project = sql.define({
 });
 
 Project.statuses = [
-    0, //active
-    1 //inactive
+    0, //inactive
+    1 //active
 ];
 
 Project.whereCol = columns;

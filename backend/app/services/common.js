@@ -24,7 +24,6 @@ var
     config = require('../../config'),
     request = require('request-promise');
 
-
 var getEntityById = function* (req, id, model, key) {
     var thunkQuery = req.thunkQuery;
     return yield thunkQuery(model.select().from(model).where(model[key].equals(parseInt(id))));
@@ -61,7 +60,19 @@ exports.getTaskByStep = getTaskByStep;
 
 var checkDuplicateTask = function* (req, stepId, uoaId, productId) {
     var thunkQuery = req.thunkQuery;
-    var result = yield thunkQuery(Task.select().where(Task.stepId.equals(stepId).and(Task.uoaId.equals(uoaId)).and(Task.productId.equals(productId))));
+    var result = yield thunkQuery(
+        Task.select().where(
+            Task.stepId.equals(
+                stepId
+            ).and(
+                Task.uoaId.equals(uoaId)
+            ).and(
+                Task.productId.equals(productId)
+            ).and(
+                Task.isDeleted.isNull()
+            )
+        )
+    );
     if (_.first(result)) {
         throw new HttpError(403, 'Couldn`t add task with the same uoaId, stepId and productId');
     }
@@ -219,8 +230,7 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
         ProductUOA
         .select(
             WorkflowStep.star(),
-            'row_to_json("Tasks".*) as task',
-            'row_to_json("Surveys".*) as survey'
+            'row_to_json("Tasks".*) as task'
         )
         .from(
             ProductUOA
@@ -233,8 +243,6 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
             )
             .leftJoin(Product)
             .on(ProductUOA.productId.equals(Product.id))
-            .leftJoin(Survey)
-            .on(Product.surveyId.equals(Survey.id))
         )
         .where(
             ProductUOA.productId.equals(productId)
@@ -252,9 +260,10 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
         throw new HttpError(403, 'Task is not defined for this Product and UOA');
     }
 
-    if (!curStep.survey) {
-        throw new HttpError(403, 'Survey is not defined for this Product');
-    }
+    //TODO: Maybe pull survey here and check
+    // if (!curStep.survey) {
+    //     throw new HttpError(403, 'Survey is not defined for this Product');
+    // }
 
     if (req.user.roleID === 3) { // simple user
         if (!_.contains(curStep.task.userIds, req.user.id)) { // ToDo: add groupIds (when frontend will support feature "Assign groups to task")
@@ -278,13 +287,13 @@ var getMinNextStepPositionWithTask = function* (req, curStep, productId, uoaId) 
             sql.functions.MIN(WorkflowStep.position).as('minPosition')
         )
         .from(WorkflowStep
-            .join(Task).on(Task.stepId.equals(WorkflowStep.id))
+            // .join(Task).on(Task.stepId.equals(WorkflowStep.id))
         )
         .where(
             WorkflowStep.workflowId.equals(curStep.workflowId)
             .and(WorkflowStep.position.gt(curStep.position))
-            .and(Task.productId.equals(productId))
-            .and(Task.uoaId.equals(uoaId))
+            // .and(Task.productId.equals(productId))
+            // .and(Task.uoaId.equals(uoaId))
         )
     );
     if (result[0]) {
@@ -329,6 +338,7 @@ var getNextStep = function* (req, minNextStepPosition, curStep) {
         )
         .where(WorkflowStep.workflowId.equals(curStep.workflowId)
             .and(WorkflowStep.position.equals(minNextStepPosition))
+            .and(Task.uoaId.equals(curStep.task.uoaId))
         )
     );
     return result[0];
@@ -416,16 +426,28 @@ var insertProjectUser = function* (req, userId, projectId) {
 
 exports.insertProjectUser = insertProjectUser;
 
-var checkRecordExistById = function* (req, database, column, requestId) {
+var checkRecordExistById = function* (req, database, column, requestId, isDeletedCondition) {
     var thunkQuery = req.thunkQuery;
 
-    var record = yield thunkQuery(
-        '( ' +
-        'SELECT count(1) ' +
-        'FROM "' + database + '" ' +
-        'WHERE "' + database + '"."' + column + '" = ' + requestId +
-        ') '
-    );
+    if (typeof isDeletedCondition === 'undefined') {
+        var record = yield thunkQuery(
+            '( ' +
+            'SELECT count(1) ' +
+            'FROM "' + database + '" ' +
+            'WHERE "' + database + '"."' + column + '" = ' + requestId +
+            ') '
+        );
+    } else {
+        var record = yield thunkQuery(
+            '( ' +
+            'SELECT count(1) ' +
+            'FROM "' + database + '" ' +
+            'WHERE "' + database + '"."' + column + '" = ' + requestId +
+            'AND "' + database + '"."' + isDeletedCondition + '" is NULL ' +
+            ') '
+        );
+
+    }
 
     // If record exist it will return a count > 0
     if (parseInt(record['0'].count) > 0) {
@@ -467,3 +489,48 @@ var getSurveyFromSurveyService = function (surveyId, jwt) {
 };
 
 exports.getSurveyFromSurveyService = getSurveyFromSurveyService;
+
+var copyAssessmentAtSurveyService = function (assessmentId, prevAssessmentId, jwt) {
+    const path = 'assessment-answers/';
+    const path2 = '/as-copy';
+
+    const requestOptions = {
+        url: config.surveyService + path + assessmentId + path2,
+        method: 'POST',
+        headers: {
+            'authorization': jwt,
+            'origin': config.domain
+        },
+        json: {
+            prevAssessmentId
+        },
+        resolveWithFullResponse: true,
+    };
+
+    return request(requestOptions)
+        .then((res) => {
+            if (res.statusCode > 299 || res.statusCode < 200) {
+                const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                return Promise.reject(httpErr);
+            }
+            return res
+        })
+        .catch((err) => {
+            const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
+            return Promise.reject(httpErr);
+        });
+}
+
+exports.copyAssessmentAtSurveyService = copyAssessmentAtSurveyService;
+
+var getCompletedTaskByStepId = function* (req, workflowStepId) {
+
+    return yield req.thunkQuery(
+        'SELECT "ProductUOA".* ' +
+        'FROM "ProductUOA" ' +
+        'WHERE "ProductUOA"."currentStepId" = ' + workflowStepId +
+        'AND "ProductUOA"."isComplete" = TRUE '
+    );
+};
+
+exports.getCompletedTaskByStepId = getCompletedTaskByStepId;

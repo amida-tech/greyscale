@@ -96,6 +96,7 @@ module.exports = {
                         stages: [],
                         userGroups: [],
                         subjects,
+                        firstActivated: projects[i].firstActivated,
                     });
                 }
             }
@@ -140,7 +141,7 @@ module.exports = {
                                 .leftJoin(WorkflowStepGroup)
                                 .on(WorkflowStepGroup.stepId.equals(WorkflowSteps.id))
                         )
-                        .where(Product.projectId.equals(project.id))
+                        .where(Product.projectId.equals(project.id).and(WorkflowSteps.isDeleted.isNull()))
                         .group(WorkflowSteps.id)
                 );
 
@@ -184,8 +185,9 @@ module.exports = {
                 );
 
                 userGroups.map((userGroupObject) =>  {
-                    var users = userGroupObject.users.map((user) => user.id);
-                    userGroupObject.users = users;
+                    if (userGroupObject.users[0] !== null) {
+                        userGroupObject.users = userGroupObject.users.map((user) => user.id);
+                    }
                     return userGroupObject;
                 });
 
@@ -216,6 +218,7 @@ module.exports = {
                 aggregateObject.productId = productId;
                 aggregateObject.surveyId = surveyId;
                 aggregateObject.workflowId = _.first(_.map(workflowId, 'id'));
+                aggregateObject.firstActivated = project.firstActivated;
             }
 
             return aggregateObject;
@@ -252,9 +255,18 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkProjectData(req);
-            var updateObj = _.pick(req.body, ['title', 'description', 'startTime', 'closeTime', 'status', 'codeName']);
+            var updateObj = _.pick(req.body, ['title', 'description', 'startTime', 'closeTime', 'status', 'codeName', 'firstActivated']);
             var result = false;
             if (Object.keys(updateObj).length) {
+
+                var project = yield thunkQuery(
+                    Project.select().where(Project.id.equals(req.params.id))
+                );
+
+                // Update firstActivated if the status was changed from 0 to 1
+                if (parseInt(updateObj.status) === 1 && _.first(project).firstActivated === null) {
+                    updateObj.firstActivated = new Date();
+                }
                 result = yield thunkQuery(
                     Project
                     .update(updateObj)
@@ -329,10 +341,7 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkProjectData(req);
-            // patch for status
-            req.body = _.extend(req.body, {
-                status: 1
-            });
+
             req.body = _.extend(req.body, {
                 userAdminId: req.user.realmUserId
             }); // add from realmUserId instead of user id
@@ -351,7 +360,7 @@ module.exports = {
                     title: result.name,
                     description: req.body.description,
                     projectId: result.id,
-                    status: 0,
+                    status: 1,
                 }).returning(Product.id)
             )).id;
 
@@ -387,7 +396,7 @@ module.exports = {
     userAssignment: function (req, res, next) {
         co(function*() {
             var projectExist = yield * common.checkRecordExistById(req, 'Projects', 'id', req.params.projectId);
-            var userExist = yield * common.checkRecordExistById(req, 'Users', 'id',  req.body.userId);
+            var userExist = yield * common.checkRecordExistById(req, 'Users', 'id',  req.body.userId, 'isDeleted');
 
             if (projectExist === true && userExist === true) {
                 var insertedData =  yield * common.insertProjectUser(req, req.body.userId, req.params.projectId);
@@ -477,7 +486,7 @@ function* checkProjectData(req) {
     }
 
     if (typeof req.body.status !== 'undefined') {
-        if (Project.statuses.indexOf(req.body.status) === -1) {
+        if (Project.statuses.indexOf(parseInt(req.body.status)) === -1) {
             throw new HttpError(403, 'Status can be only 1 (active) and 0 (inactive)');
         }
     }
