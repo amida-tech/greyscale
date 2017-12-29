@@ -1,32 +1,120 @@
-indaba-backend:
-  image: "amidatech/greyscale-backend:${INDABA_ENV}"
-  environment:
-    RDS_USERNAME: ${RDS_USERNAME}
-    RDS_PASSWORD: ${RDS_PASSWORD}
-    RDS_HOSTNAME: ${RDS_HOSTNAME}
-    RDS_TESTUSER: ${RDS_TESTUSER}
-    INDABA_PG_DB: ${INDABA_PG_DB}
-    AUTH_SALT:    ${AUTH_SALT}
-    GET_HOSTS_FROM: dns
-  ports:
-  - "3005:3005"
-  links:
-  - "memcached"
+version: "2.1"
+services:
 
-memcached:
-  image: "memcached:latest"
-  ports:
-  - "11211:11211"
+  indaba-backend:
+    image: "amidatech/indaba-backend:${ENV}"
+    environment:
+      INDABA_PG_USERNAME: ${INDABA_PG_USERNAME}
+      INDABA_PG_PASSWORD: ${INDABA_PG_PASSWORD}
+      INDABA_PG_HOSTNAME: ${INDABA_PG_HOSTNAME}
+      INDABA_PG_TESTUSER: ${INDABA_PG_TESTUSER}
+      AUTH_SALT:          ${AUTH_SALT}
+      MEMCACHED_HOST:     memcached
+      JWT_SECRET:         veryverysecret
+      AUTH_SERVICE_URL:   auth-service
+      SURVEY_SERVICE_URL: survey-service
+    ports:
+    - "3005"
 
-indaba-frontend:
-  image: "amidatech/greyscale-client:${INDABA_ENV}"
-  links:
-  - "indaba-backend"
-  environment:
-    INDABA_URL: http://indaba-backend:3005
-    GET_HOSTS_FROM: dns
-  ports:
-  - "80:80"
-  - "443:443"
-  labels:
-    kompose.service.type: LoadBalancer
+  indaba-db:
+    image: "postgres:10.1"
+    ports:
+    - "5432"
+    environment:
+    - POSTGRES_USER=amida
+    - POSTGRES_PASSWORD=amida
+    - POSTGRES_DB=indaba
+
+  memcached:
+    image: "memcached:1.5.4"
+    ports:
+    - "11211:11211"
+
+  auth-db:
+    image: "postgres:10.1"
+    ports:
+    - "5432"
+    environment:
+    - POSTGRES_USER=amida
+    - POSTGRES_PASSWORD=amida
+    - POSTGRES_DB=auth
+
+  indaba-frontend:
+    image: "amidatech/indaba-client:${ENV}"
+    ports:
+    - "80:3000"
+    environment:
+    - API_HTTP_URL=indaba-backend
+    - API_HTTPS_URL=indaba-backend
+    - AUTH_API_HTTP_URL=auth-service
+    - AUTH_API_HTTPS_URL=auth-service
+    - NODE_ENV=${ENV}
+    - REALM=test
+
+  auth-service:
+    image: "amidatech/auth-service:${ENV}"
+    ports:
+    - "4000"
+    environment:
+    - NODE_ENV=${ENV}
+    - JWT_MODE=hmac
+    - JWT_SECRET=veryverysecret
+    - PG_DB=auth
+    - PG_USER=amida
+    - PG_PASSWD=amida
+    - PG_HOST=auth-db
+    - PG_PORT=5432
+    - MAILER_SERVICE_PROVIDER=Gmail
+    - CREATE_USER_ADMIN=false
+
+  messaging-service:
+    image: "amidatech/messaging-service:${ENV}"
+    ports:
+    - "4001"
+    environment:
+    - NODE_ENV=${ENV}
+    - JWT_MODE=hmac
+    - JWT_SECRET=veryverysecret
+    - PG_DB=messaging
+    - PG_USER=amida
+    - PG_PASSWD=amida
+    - PG_HOST=messaging-db
+    - PG_PORT=5432
+    - MAILER_SERVICE_PROVIDER=Gmail
+    - CREATE_USER_ADMIN=false
+
+  messaging-db:
+    image: "postgres:10.1"
+    ports:
+    - "5432"
+    environment:
+    - POSTGRES_USER=amida
+    - POSTGRES_PASSWORD=amida
+    - POSTGRES_DB=messaging
+
+  survey-service:
+    image: "amidatech/survey-service:${ENV}"
+    ports:
+    - "9005"
+    environment:
+    - NODE_ENV=${ENV}
+    - SURVEY_SERVICE_DB_NAME=${SURVEY_SERVICE_DB_NAME}
+    - SURVEY_SERVICE_DB_PORT=${SURVEY_SERVICE_DB_PORT}
+    - SURVEY_SERVICE_DB_HOST=survey-db
+    - SURVEY_SERVICE_DB_USER=${SURVEY_SERVICE_DB_USER}
+    - SURVEY_SERVICE_DB_PASS=${SURVEY_SERVICE_DB_PASS}
+    - SURVEY_SERVICE_DB_DIALECT=${SURVEY_SERVICE_DB_DIALECT}
+    - SURVEY_SERVICE_DB_POOL_MAX=5
+    - SURVEY_SERVICE_DB_POOL_MIN=0
+    - SURVEY_SERVICE_DB_POOL_IDLE=10000
+    - SURVEY_SERVICE_LOGGING_LEVEL=emerg
+    - SURVEY_SERVICE_CORS_ORIGIN=*
+
+  survey-db:
+    image: "postgres:10.1"
+    ports:
+    - "5432"
+    environment:
+    - POSTGRES_USER=amida
+    - POSTGRES_PASSWORD=amida
+    - POSTGRES_DB=survey
