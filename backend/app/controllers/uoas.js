@@ -184,7 +184,6 @@ module.exports = {
                 );
 
                 if (_.first(project)) {
-                    console.log(`I FOUND A PROJECT: ${project[0].codeName}`);
                     // If project is not active, delete UAO without any issues
                     if (project[0].status === 0) {
                         yield thunkQuery(
@@ -214,7 +213,6 @@ module.exports = {
                             'FROM "Tasks" ' +
                             'WHERE "Tasks"."uoaId" = ' + req.params.id +
                             'AND "Tasks"."productId" = ' + req.body.productId
-                            // 'AND "Tasks"."isComplete" is True '
                         );
 
                         if (!_.first(task)) {
@@ -238,7 +236,6 @@ module.exports = {
                                 throw new HttpError(403, 'Cannot delete UOA of already completed task');
                             } else {
                                 // TODO: Add check to make sure there aren't answered questions for survey
-                                console.log(`FOUND A TASK`)
                                 // Soft delete the UOA from the Product UAO Table
                                 yield thunkQuery(
                                     'UPDATE "ProductUOA"' +
