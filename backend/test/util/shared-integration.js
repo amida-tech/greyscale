@@ -83,15 +83,15 @@ class SharedIntegration {
                     return callback(err);
                 }
                 const count = result.rows[0].count;
-                if (count !== 0) {
-                    return callback(null, true);
+                if ((count === 0) || (count === '0')) {
+                    try {
+                        that.initialize(mcl);
+                    } catch (err2) {
+                        return callback(err2);
+                    }
+                    return callback(null, false);
                 }
-                try {
-                    that.initialize(mcl);
-                } catch (err2) {
-                    return callback(err2);
-                }
-                callback(null, false);
+                return callback(null, true);
             });
         };
     }
