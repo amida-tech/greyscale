@@ -66,6 +66,7 @@
     "grunt-mocha-test": "^0.12.7",
     "jit-grunt": "~0.10.0",
     "jshint-stylish": "^2.1.0",
+    "mock-require": "^2.0.2",
     "sinon": "^2.3.6",
     "supertest": "^0.13.0"
   },
