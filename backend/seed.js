@@ -19,8 +19,6 @@ const groupCommon = require('./test/util/group-common');
 const History = require('./test/util/History');
 const AuthService = require('./test/util/mock_auth_service');
 
-const dbname = 'indabatestuser';
-
 const authService = new AuthService();
 const superTest = new IndaSuperTest(authService);
 const shared = new SharedIntegration(superTest);
@@ -37,7 +35,7 @@ const organization = config.testEntities.organization;
 const admin = config.testEntities.admin;
 const users = config.testEntities.users;
 
-shared.setupForSeedFn({ dbname })((err, initialized) => {
+shared.setupForSeedFn()((err, initialized) => {
     if (err) {
         console.log('failure');
         console.log(err);
