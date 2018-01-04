@@ -38,7 +38,13 @@ const resetDatabase = function resetDatabase(pgConnect, dbName, callback) {
     });
 };
 
+const checkExistanceOfUsers = function (pgConnect, callback) {
+    const query = `SELECT COUNT(*) AS count FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '"Users"'`;
+    runQuery(pgConnect, query, callback);
+};
+
 module.exports = {
     runQuery,
     resetDatabase,
+    checkExistanceOfUsers,
 };
