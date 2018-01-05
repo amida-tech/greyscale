@@ -1,4 +1,4 @@
-FROM node:5.10.1
+FROM node:6.9.5
 
 COPY ./ /indaba
 
@@ -8,4 +8,4 @@ RUN ["npm",  "i"]
 
 EXPOSE 3005:3005
 
-CMD ["npm", "start"]
+CMD node --harmony app.js
