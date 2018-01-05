@@ -263,9 +263,53 @@ module.exports = {
                     Project.select().where(Project.id.equals(req.params.id))
                 );
 
-                // Update firstActivated if the status was changed from 0 to 1
-                if (parseInt(updateObj.status) === 1 && _.first(project).firstActivated === null) {
-                    updateObj.firstActivated = new Date();
+                console.log(`UPDATING THE STATUS TO: ${updateObj.status}`);
+
+                // Ensure conditions are met if project status is being set to 1 (activated)
+                if (parseInt(updateObj.status) === 1) {
+
+                    // Check that the survey is published
+                    const product = yield thunkQuery(
+                        Product.select(Product.star()).from(Product).where(Product.projectId.equals(req.params.id))
+                    );
+
+                    const survey = yield * common.getSurveyFromSurveyService(product[0].surveyId, req.headers.authorization);
+
+                    if (survey.body.status !== 'published') {
+                        throw new HttpError(400, 'Survey is not published, project cannot be started');
+                    }
+
+                    // check that project has at least one subject
+                    const projectUOA = yield thunkQuery(
+                        ProductUOA.select().from(ProductUOA).where(ProductUOA.productId.equals(product[0].id))
+                    );
+
+                    if (!_.first(projectUOA)) {
+                        throw new HttpError(400, 'Project contains no subjects, project cannot be started');
+                    }
+
+                    // check that the project has at least one user
+                    const projectUser = yield thunkQuery(
+                        ProjectUser.select(ProjectUser.star()).from(ProjectUser).where(ProjectUser.projectId.equals(req.params.id))
+                    );
+
+                    if (!_.first(projectUser)) {
+                        throw new HttpError(400, 'No user assigned to project, project cannot be started');
+                    }
+
+                    // check that the project has at least one user group assigned
+                    const projectUserGroup = yield thunkQuery(
+                        ProjectUserGroup.select().from(ProjectUserGroup).where(ProjectUserGroup.projectId.equals(req.params.id))
+                    );
+
+                    if (!_.first(projectUserGroup)) {
+                        throw new HttpError(400, 'No user group assigned to project, project cannot be started');
+                    }
+
+                    // If this is the first time we are activating the project then set it to the current time
+                    if (_.first(project).firstActivated === null) {
+                        updateObj.firstActivated = new Date();
+                    }
                 }
                 result = yield thunkQuery(
                     Project
