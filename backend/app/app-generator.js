@@ -23,6 +23,8 @@ const newExpress = function () {
     return app;
 };
 
+const messageService = require('./services/messages');
+
 const initExpress = function (app) {
     const startServer = function () {
         // Start server
@@ -32,6 +34,23 @@ const initExpress = function (app) {
         });
 
         require('./socket/socket-controller.server').init(server);
+
+        messageService.createSystemMessageUser()
+        .then(logger.debug)
+        .catch(() => {
+            logger.debug('Failed to create system message user.')
+            logger.debug('This may be because it already exists.')
+            logger.debug('If so, the subsequent authentication attempt should succeed');
+        })
+        .then(() =>
+            messageService.authAsSystemMessageUser()
+            .then((response) => {
+                app.set(messageService.SYSTEM_MESSAGE_USER_TOKEN_FIELD, response.token)
+                logger.debug('Authenticated as system message user');
+            }).catch(() => {
+                logger.error('Failed to authenticate as system message user, system messages will not be sent');
+            })
+        );
     };
 
     // MEMCHACHE
