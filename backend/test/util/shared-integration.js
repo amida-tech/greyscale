@@ -18,6 +18,29 @@ class SharedIntegration {
         this.hxUser = hxUser;
     }
 
+    initialize(mcl, dbnamein, dbuserin, hostin) {
+        const dbname = dbnamein || config.pgConnect.database;
+        const dbuser = dbuserin || config.pgConnect.user;
+        const host = hostin || config.pgConnect.host;
+        const schemaPath = path.resolve(__dirname, '../../db_setup/schema.indaba.sql');
+        const dataPath = path.resolve(__dirname, '../../db_setup/data.indaba.sql');
+        const schemaSql = fs.readFileSync(schemaPath);
+        const dataSql = fs.readFileSync(dataPath);
+        childProcess.execSync(`psql -h ${host} -U ${dbuser} ${dbname}`, {
+            input: schemaSql
+        })
+        childProcess.execSync(`psql -h ${host} -U ${dbuser} ${dbname}`, {
+            input: dataSql
+        })
+        const app = appGenerator.generate();
+        const mcClient = app.locals.mcClient;
+        sinon.stub(mcClient, 'set').callsFake((key, value, cb) => mcl.set(key, value, cb));
+        sinon.stub(mcClient, 'get').callsFake((key, cb) => mcl.get(key, cb));
+        sinon.stub(mcClient, 'delete').callsFake((key, cb) => mcl.delete(key, cb));
+        this.indaSuperTest.initialize(app);
+    }
+
+
     setupFn(options) {
         const indaSuperTest = this.indaSuperTest;
         const mcl = new memcacheMock.Client();
@@ -47,6 +70,28 @@ class SharedIntegration {
                 sinon.stub(mcClient, 'delete').callsFake((key, cb) => mcl.delete(key, cb));
                 indaSuperTest.initialize(app);
                 done();
+            });
+        };
+    }
+
+    setupForSeedFn() {
+        const that = this;
+        const mcl = new memcacheMock.Client();
+        return function setUp(callback) {
+            pgUtil.checkExistanceOfUsers(config.pgConnect, (err, result) => {
+                if (err) {
+                    return callback(err);
+                }
+                const count = result.rows[0].count;
+                if ((count === 0) || (count === '0')) {
+                    try {
+                        that.initialize(mcl);
+                    } catch (err2) {
+                        return callback(err2);
+                    }
+                    return callback(null, false);
+                }
+                return callback(null, true);
             });
         };
     }
