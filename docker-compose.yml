@@ -3,6 +3,8 @@ services:
 
   indaba-backend:
     image: "amidatech/indaba-backend:${ENV}"
+    depends_on:
+      - indaba-db
     environment:
       INDABA_PG_USERNAME: ${INDABA_PG_USERNAME}
       INDABA_PG_PASSWORD: ${INDABA_PG_PASSWORD}
@@ -53,6 +55,8 @@ services:
 
   auth-service:
     image: "amidatech/auth-service:${ENV}"
+    depends_on:
+      - auth-db
     ports:
     - "4000"
     environment:
@@ -69,6 +73,8 @@ services:
 
   messaging-service:
     image: "amidatech/messaging-service:${ENV}"
+    depends_on:
+      - messaging-db
     ports:
     - "4001"
     environment:
@@ -94,6 +100,8 @@ services:
 
   survey-service:
     image: "amidatech/survey-service:${ENV}"
+    depends_on:
+      - survey-db
     ports:
     - "9005"
     environment:
