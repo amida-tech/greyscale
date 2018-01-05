@@ -106,7 +106,10 @@ var environments = {
                 notificationBody: './views/notifications/welcome.html',
                 emailBody: './views/emails/welcome.html'
             }
-        }
+        },
+        messageService: process.env.MESSAGE_SERVICE_URL || 'http://localhost:4002',
+        systemMessageUser: process.env.SYS_MESSAGE_USER || 'indaba@example.com',
+        systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD || 'password'
     },
 
     test: {
