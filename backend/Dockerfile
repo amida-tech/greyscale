@@ -7,6 +7,8 @@ RUN chmod -R 600 /indaba/.pgpass
 
 WORKDIR /indaba
 
+RUN cp test/util/shared-integration-with-pg-pwd.js test/util/shared-integration.js
+
 RUN ["npm",  "i"]
 
 EXPOSE 3005:3005
