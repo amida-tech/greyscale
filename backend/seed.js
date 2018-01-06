@@ -16,7 +16,7 @@ const IndaSuperTest = require('./test/util/inda-supertest');
 const organizationCommon = require('./test/util/organization-common');
 const userCommon = require('./test/util/user-common');
 const groupCommon = require('./test/util/group-common');
-const History = require('./test/util/History');
+const History = require('./test/util/history');
 const AuthService = require('./test/util/mock_auth_service');
 
 const authService = new AuthService();
@@ -44,7 +44,7 @@ shared.setupForSeedFn()((err, initialized) => {
     }
     if (initialized) {
         console.log('already initialized');
-        process.exit(1);
+        process.exit(0);
         return;
     }
     Promise.resolve()

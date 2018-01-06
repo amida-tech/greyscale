@@ -16,7 +16,7 @@ spec:
         image: elijahgeorge1/indaba-backend
         env:
         - name: INDABA_PG_USERNAME
-          value: amida_indaba
+          value: indabauser
         - name: INDABA_PG_PASSWORD
           value: amida-indaba
         - name: INDABA_PG_HOSTNAME
@@ -36,7 +36,7 @@ spec:
         - name: AUTH_SERVICE_URL
           value: http://aa7e54a82ede111e7b4a1060c5163e47-61384471.us-west-2.elb.amazonaws.com:4000/api/v0
         - name: DOMAIN
-          value: http://localhost:3005
+          value: http://a93777759f18511e7b4a1060c5163e47-2052654379.us-west-2.elb.amazonaws.com:3005
         ports:
         - name: nodejs-port
           containerPort: 3005
