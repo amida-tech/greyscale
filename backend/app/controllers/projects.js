@@ -263,14 +263,12 @@ module.exports = {
                     Project.select().where(Project.id.equals(req.params.id))
                 );
 
-                console.log(`UPDATING THE STATUS TO: ${updateObj.status}`);
-
                 // Ensure conditions are met if project status is being set to 1 (activated)
                 if (parseInt(updateObj.status) === 1) {
 
                     // Check that the survey is published
                     const product = yield thunkQuery(
-                        Product.select(Product.star()).from(Product).where(Product.projectId.equals(req.params.id))
+                        Product.select().from(Product).where(Product.projectId.equals(req.params.id))
                     );
 
                     const survey = yield common.getSurveyFromSurveyService(product[0].surveyId, req.headers.authorization);
@@ -318,7 +316,11 @@ module.exports = {
                             .where(Workflow.productId.equals(product[0].id))
                     );
 
-                    for (var i=0; i <= stages.length; i++) {
+                    if (!_.first(projectUserGroup)) {
+                        throw new HttpError(400, 'No stages assigned to project, project cannot be started');
+                    }
+
+                    for (var i=0; i < stages.length; i++) {
                         if (stages[i].title === null || stages[i].startDate === null || stages[i].endDate === null) {
                             throw new HttpError(400, 'Stage is missing a property, project cannot be started');
                         }
