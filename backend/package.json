@@ -20,6 +20,7 @@
     "ejs-locals": "1.0.2",
     "express": "4.10.2",
     "express-csv": "0.6.0",
+    "gulp": "^3.9.1",
     "jsonwebtoken": "^7.4.1",
     "lodash": "^4.17.4",
     "memcache": "0.3.0",
@@ -51,6 +52,7 @@
   "devDependencies": {
     "chai": "^3.4.1",
     "dotenv": "^4.0.0",
+    "es6-plato": "^1.0.15",
     "eslint": "^2.9.0",
     "eslint-config-google": "^0.5.0",
     "eslint-config-standard": "^5.3.1",
