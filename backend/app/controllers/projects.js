@@ -273,7 +273,7 @@ module.exports = {
                         Product.select(Product.star()).from(Product).where(Product.projectId.equals(req.params.id))
                     );
 
-                    const survey = yield * common.getSurveyFromSurveyService(product[0].surveyId, req.headers.authorization);
+                    const survey = yield common.getSurveyFromSurveyService(product[0].surveyId, req.headers.authorization);
 
                     if (survey.body.status !== 'published') {
                         throw new HttpError(400, 'Survey is not published, project cannot be started');
@@ -304,6 +304,24 @@ module.exports = {
 
                     if (!_.first(projectUserGroup)) {
                         throw new HttpError(400, 'No user group assigned to project, project cannot be started');
+                    }
+
+                    // Check stages
+                    const stages = yield thunkQuery(
+                        WorkflowSteps
+                            .select()
+                            .from(
+                                WorkflowSteps
+                                    .leftJoin(Workflow)
+                                    .on(WorkflowSteps.workflowId.equals(Workflow.id))
+                            )
+                            .where(Workflow.productId.equals(product[0].id))
+                    );
+
+                    for (var i=0; i <= stages.length; i++) {
+                        if (stages[i].title === null || stages[i].startDate === null || stages[i].endDate === null) {
+                            throw new HttpError(400, 'Stage is missing a property, project cannot be started');
+                        }
                     }
 
                     // If this is the first time we are activating the project then set it to the current time
