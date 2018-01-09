@@ -26,10 +26,10 @@ class SharedIntegration {
         const dataPath = path.resolve(__dirname, '../../db_setup/data.indaba.sql');
         const schemaSql = fs.readFileSync(schemaPath);
         const dataSql = fs.readFileSync(dataPath);
-        childProcess.execSync(`psql -h ${host} -U ${dbuser} ${dbname}`, {
+        childProcess.execSync(`PGPASSFILE=/indaba/.pgpass psql -h ${host} -U ${dbuser} ${dbname}`, {
             input: schemaSql
         })
-        childProcess.execSync(`psql -h ${host} -U ${dbuser} ${dbname}`, {
+        childProcess.execSync(`PGPASSFILE=/indaba/.pgpass psql -h ${host} -U ${dbuser} ${dbname}`, {
             input: dataSql
         })
         const app = appGenerator.generate();
