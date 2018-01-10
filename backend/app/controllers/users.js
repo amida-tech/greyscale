@@ -19,8 +19,7 @@ var client = require('../db_bootstrap'),
     UOA = require('../models/uoas'),
     sql = require('sql'),
     notifications = require('../controllers/notifications'),
-    request = require('request-promise'),
-    config = require('../../config');
+    request = require('request-promise');
 
 var Role = require('../models/roles');
 var Query = require('../util').Query,
@@ -124,6 +123,9 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var user = yield * insertOne(req, res, next);
+
+            //Temporarily Assign a password to user so they can login. CHANGE THIS
+            req.body.password = config.qaPassword;
 
             // Create user on Auth service
             if (user) {

@@ -17,7 +17,8 @@ const base = {
     surveyService: process.env.SURVEY_SERVICE_URL || 'http://localhost:9005/api/v1.0/',
     messageService: process.env.MESSAGE_SERVICE_URL,
     systemMessageUser: process.env.SYS_MESSAGE_USER,
-    systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD
+    systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD,
+    qaPassword: process.env.QA_PASSWORD,
 };
 
 var environments = {
@@ -203,7 +204,7 @@ var environments = {
             organization : {
                 name: 'Test organization',
                 realm: 'testorg'
-            }
+            },
         },
         //templates for notifications for EJS render
         notificationTemplates: {
