@@ -183,6 +183,9 @@ A list of full environment variable settings is below.  They can be either manua
 - AUTH_SALT: Authorization salt (saltForHash)
 - INDABA_PG_TESTUSER: Dtabase user for test (indabauser)
 - INDABA_USER_TOKEN: Token for user authentication.  Makes it possible to use API without authentication for a particular user.
+- MESSAGE_SERVICE_URL: The root url for the application's message service (http://localhost:4002)
+- SYS_MESSAGE_USER: The email field of the auth service user that is used to send system messages
+- SYS_MESSAGE_PASSWORD: The auth service password for the user that is used to send system messages
 
 ## Deployment with Google Cloud (Kubernetes)
 NOTE: Container Engine SQL support in Google Cloud is bad right now and will probably change.

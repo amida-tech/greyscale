@@ -15,6 +15,9 @@ const base = {
     awsBucket : "your-aws-bucket",
     authService: process.env.AUTH_SERVICE_URL || 'http://localhost:4000/api/v0',
     surveyService: process.env.SURVEY_SERVICE_URL || 'http://localhost:9005/api/v1.0/',
+    messageService: process.env.MESSAGE_SERVICE_URL,
+    systemMessageUser: process.env.SYS_MESSAGE_USER,
+    systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD,
     qaPassword: process.env.QA_PASSWORD,
 };
 
@@ -104,7 +107,10 @@ var environments = {
                 notificationBody: './views/notifications/welcome.html',
                 emailBody: './views/emails/welcome.html'
             }
-        }
+        },
+        messageService: process.env.MESSAGE_SERVICE_URL || 'http://localhost:4002',
+        systemMessageUser: process.env.SYS_MESSAGE_USER || 'indaba@example.com',
+        systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD || 'password'
     },
 
     test: {
