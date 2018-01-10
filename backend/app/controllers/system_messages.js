@@ -26,6 +26,12 @@ module.exports = {
                     .then((auth) => {
                         req.app.set(messageService.SYSTEM_MESSAGE_USER_TOKEN_FIELD, auth.token);
                     })
+                    .catch(() => {
+                        const message = 'Failed to send system message. Could not authenticate as system message user'
+                        logger.error(message)
+                        res.status(400, message).end();
+                        throw new Error(message);
+                    })
                     .then(() =>
                         messageService.sendSystemMessage(
                             req.app.get(messageService.SYSTEM_MESSAGE_USER_TOKEN_FIELD),
@@ -37,11 +43,14 @@ module.exports = {
                             logger.debug(resp);
                             res.status(204).end();
                         })
+                        .catch((err) => {
+                            logger.error('Failed to send system message');
+                            logger.error(err);
+                            throw err;
+                        })
                     )
                 }
                 throw err;
-            }).catch(() => {
-                res.status(400).send('Failed to send system message');
             });
         }
     }
