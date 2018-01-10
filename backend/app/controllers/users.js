@@ -19,8 +19,7 @@ var client = require('../db_bootstrap'),
     UOA = require('../models/uoas'),
     sql = require('sql'),
     notifications = require('../controllers/notifications'),
-    request = require('request-promise'),
-    config = require('../../config');
+    request = require('request-promise');
 
 var Role = require('../models/roles');
 var Query = require('../util').Query,
@@ -124,6 +123,11 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var user = yield * insertOne(req, res, next);
+
+            //Temporarily Assign a password to user so they can login. CHANGE THIS
+            req.body.password = config.qaPassword;
+
+            console.log(`PASSWORD GIVEN TO AUTH SERVICE IS: ${req.body.password}`);
 
             // Create user on Auth service
             if (user) {
@@ -1172,6 +1176,8 @@ function* insertOne(req, res, next) {
     if (!req.body.email || !req.body.roleID || !req.body.password || !req.body.firstName) {
         throw new HttpError(400, 'Email, password, role id and firstname fields are required');
     }
+
+    console.log(`PASSWORD TO BE USED IS: ${req.body.password}`);
 
     // validate email
     if (!vl.isEmail(req.body.email)) {
