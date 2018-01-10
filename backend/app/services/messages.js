@@ -4,29 +4,6 @@ const config = require('../../config');
 module.exports = {
     SYSTEM_MESSAGE_USER_TOKEN_FIELD: 'SYSTEM_MESSAGE_USER_TOKEN',
     SYSTEM_MESSAGE_SUBJECT: 'System Message',
-    createSystemMessageUser: function() {
-        const path = '/user';
-
-        const requestOptions = {
-            url: config.authService + path,
-            method: 'POST',
-            json: {
-                username: config.systemMessageUser,
-                email: config.systemMessageUser,
-                password: config.systemMessagePassword,
-                scopes: [],
-            }
-        };
-
-        return request(requestOptions)
-        .catch((err) => {
-            if (err.statusCode === 400) {
-                return err;
-            }
-            throw err;
-        });
-    },
-
     authAsSystemMessageUser: function() {
         const path = '/auth/login';
 

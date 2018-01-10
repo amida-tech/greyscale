@@ -27,30 +27,23 @@ const messageService = require('./services/messages');
 
 const initExpress = function (app) {
     const startServer = function () {
-        // Start server
-        var server = app.listen(process.env.PORT || config.port || 3000, function () {
-            logger.debug('Listening on port ' + server.address().port);
-            console.log('ok, server is running!'); // need for background test server
+        return messageService.authAsSystemMessageUser()
+        .then((response) => {
+            app.set(messageService.SYSTEM_MESSAGE_USER_TOKEN_FIELD, response.token)
+            logger.debug('Authenticated as system message user');
+
+            var server = app.listen(process.env.PORT || config.port || 3000, function () {
+                logger.debug('Listening on port ' + server.address().port);
+                console.log('ok, server is running!'); // need for background test server
+            });
+
+            require('./socket/socket-controller.server').init(server);
+        }).catch(() => {
+            logger.error('Failed to authenticate as system message user');
+            logger.error(`Expected a system message user (${config.systemMessageUser} to exist.)`);
+            logger.error('Expected to authenticate with password in SYS_MESSAGE_PASSWORD');
+            throw new Error('Failed to authenticate as system message user');
         });
-
-        require('./socket/socket-controller.server').init(server);
-
-        messageService.createSystemMessageUser()
-        .then(logger.debug)
-        .catch(() => {
-            logger.debug('Failed to create system message user.')
-            logger.debug('This may be because it already exists.')
-            logger.debug('If so, the subsequent authentication attempt should succeed');
-        })
-        .then(() =>
-            messageService.authAsSystemMessageUser()
-            .then((response) => {
-                app.set(messageService.SYSTEM_MESSAGE_USER_TOKEN_FIELD, response.token)
-                logger.debug('Authenticated as system message user');
-            }).catch(() => {
-                logger.error('Failed to authenticate as system message user, system messages will not be sent');
-            })
-        );
     };
 
     // MEMCHACHE
