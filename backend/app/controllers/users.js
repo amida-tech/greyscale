@@ -125,8 +125,8 @@ module.exports = {
         co(function* () {
             var user = yield * insertOne(req, res, next);
 
-
             // Create user on Auth service
+            // TODO: https://jira.amida-tech.com/browse/INBA-609
             var userAuthed = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
             if (userAuthed.statusCode > 299) {
                 userAuthed = yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID, req.headers.authorization)
@@ -204,6 +204,7 @@ module.exports = {
             var user = yield thunkQuery(User.insert(newClient).returning(User.id));
 
             // Create user on the auth service
+            // TODO: https://jira.amida-tech.com/browse/INBA-609
             var userAuthed = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
             if (userAuthed.statusCode > 299) {
                 userAuthed = yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID, req.headers.authorization)
@@ -438,7 +439,7 @@ module.exports = {
                 };
 
                 var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
-
+                // TODO: https://jira.amida-tech.com/browse/INBA-609
                 var userAuthed = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
                 if (userAuthed.statusCode > 299) {
                     userAuthed = yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID, req.headers.authorization)
@@ -1269,6 +1270,7 @@ function* insertOne(req, res, next) {
     return user;
 }
 
+// TODO: https://jira.amida-tech.com/browse/INBA-609
 function _getUserOnAuthService(email, jwt) {
     const path = '/user/byEmail/' + email;
 
