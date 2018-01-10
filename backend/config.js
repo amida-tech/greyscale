@@ -8,14 +8,34 @@ const base = {
     devUserToken: process.env.INDABA_USER_TOKEN,
     jwtSecret: process.env.JWT_SECRET,
     aws: {
-        accessKeyId: 'YOURAWSACCESSKEY',
-        secretAccessKey: 'yourAwsSecretAccessKey',
-        region: 'us-east-1'
+        accessKeyId: process.env.AWS_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_SECRET,
+        region: 'us-west-2'
     },
     awsBucket : "your-aws-bucket",
     authService: process.env.AUTH_SERVICE_URL || 'http://localhost:4000/api/v0',
     surveyService: process.env.SURVEY_SERVICE_URL || 'http://localhost:9005/api/v1.0/',
 };
+
+var AWS = require('aws-sdk');
+AWS.config.update(base.aws);
+
+var smtpConfig = {
+    host: 'host',
+    port: 465,
+    auth: {
+        user: 'user_email',
+        pass: 'user_pass'
+    },
+    secure: true
+};
+
+var sesConfig = {
+    SES: new AWS.SES({
+        apiVersion: '2010-12-01'
+    })
+};
+
 
 var environments = {
     development: {
@@ -51,15 +71,7 @@ var environments = {
         email: {
             disable: false, // disabling SMTP/email functionality when true (default: false)
             transport: {
-                opts: {
-                    host: 'host',
-                    port: 465,
-                    auth: {
-                        user: 'user_email',
-                        pass: 'user_pass'
-                    },
-                    secure: true
-                }
+                opts: process.env.email === 'ses' ? sesConfig : smtpConfig
             },
             sender: {
                 name: "Mail sender name",
