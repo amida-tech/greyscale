@@ -125,10 +125,18 @@ module.exports = {
         co(function* () {
             var user = yield * insertOne(req, res, next);
 
+
+            console.log("////////////////////////////////////////JAMES: USER")
+            console.log(user);
+
             // Create user on Auth service
+            var auth;
             if (user) {
-                yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID)
+                auth = yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID)
             }
+
+            console.log("////////////////////////////////////////JAMES: AUTH")
+            console.log(auth);
 
             if (req.body.projectId) {
                 yield * common.insertProjectUser(req, user.id, req.body.projectId);
@@ -1248,6 +1256,43 @@ function* insertOne(req, res, next) {
         );
     }
     return user;
+}
+
+function _getUserOnAuthService(username, password, roleId) {
+    var scopes = [];
+    // Check if user being created is admin
+    if (roleId == 1 || roleId == 2) {
+        scopes = ['admin'];
+    }
+
+    const path = '/user';
+
+    const requestOptions = {
+        url: config.authService + path,
+        method: 'GET',
+        json: {
+            username,
+            password: password,
+            scopes: scopes,
+        },
+        resolveWithFullResponse: true,
+    };
+
+    return request(requestOptions)
+        .then((res) => {
+            if (res.statusCode > 299 || res.statusCode < 200) {
+                const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                return Promise.reject(httpErr);
+            }
+            return res
+        })
+        .catch((err) => {
+            if (err.statusCode === 400) {
+                return err;
+            }
+            const httpErr = new HttpError(500, `Unable to use auth service: ${err.message}`);
+            return Promise.reject(httpErr);
+        });
 }
 
 function _createUserOnAuthService(email, password, roleId) {

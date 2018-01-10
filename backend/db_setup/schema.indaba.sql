@@ -1768,6 +1768,7 @@ CREATE TABLE "Users" (
     "isAnonymous" boolean DEFAULT false NOT NULL,
     "langId" integer,
     salt character varying,
+    "authId" integer,
     "isDeleted" timestamp(6) without time zone
 );
 
@@ -3111,6 +3112,7 @@ CREATE TABLE "Users" (
     "isAnonymous" boolean DEFAULT false NOT NULL,
     "langId" integer,
     salt character varying,
+    "authId" integer,
     "isDeleted" timestamp(6) without time zone
 );
 
@@ -4565,6 +4567,7 @@ CREATE TABLE "Users" (
     "isAnonymous" boolean DEFAULT false NOT NULL,
     "langId" integer,
     salt character varying,
+    "authId" integer,
     "isDeleted" timestamp(6) without time zone
 );
 

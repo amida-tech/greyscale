@@ -39,6 +39,7 @@ var columns = [
     'affiliation',
     'isAnonymous',
     'langId',
+    'authId',
     'isDeleted',
 ];
 
@@ -71,6 +72,7 @@ var viewFields = [
     'lastActive',
     'affiliation',
     'isAnonymous',
+    'authId',
     'isDeleted',
 ];
 
@@ -99,7 +101,8 @@ User.validPassword = function (pas, salt, checkpas) {
 User.editCols = [
     'firstName', 'lastName', 'phone', 'birthday', 'password',
     'updated', 'timezone', 'location', 'cell', 'address',
-    'lang', 'bio', 'notifyLevel', 'affiliation', 'isAnonymous', 'isDeleted',
+    'lang', 'bio', 'notifyLevel', 'affiliation', 'isAnonymous',
+    'authId', 'isDeleted',
 ];
 
 User.translate = [
@@ -117,7 +120,8 @@ User.view = function (user) {
 User.sesInfo = [
     'id', 'firstName', 'lastName', 'role', 'email',
     'roleID', 'rights', 'organizationId',
-    'projectId', 'password', 'salt', 'realmUserId'
+    'projectId', 'password', 'salt', 'realmUserId',
+    'authId'
 ];
 
 User.whereCol = columns;
