@@ -126,17 +126,16 @@ module.exports = {
             var user = yield * insertOne(req, res, next);
 
 
-            console.log("////////////////////////////////////////JAMES: USER")
-            console.log(user);
-
             // Create user on Auth service
-            var auth;
-            if (user) {
-                auth = yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID)
+            var userAuthed = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
+            if (userAuthed.statusCode > 299) {
+                userAuthed = yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID, req.headers.authorization)
             }
-
-            console.log("////////////////////////////////////////JAMES: AUTH")
-            console.log(auth);
+            var updateObj = {
+                authId: typeof userAuthed.body === 'string' ?
+                    JSON.parse(userAuthed.body).id : userAuthed.body.id,
+            };
+            yield thunkQuery(User.update(updateObj).where(User.id.equals(user.id)));
 
             if (req.body.projectId) {
                 yield * common.insertProjectUser(req, user.id, req.body.projectId);
@@ -205,9 +204,15 @@ module.exports = {
             var user = yield thunkQuery(User.insert(newClient).returning(User.id));
 
             // Create user on the auth service
-            if (user) {
-                yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID)
+            var userAuthed = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
+            if (userAuthed.statusCode > 299) {
+                userAuthed = yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID, req.headers.authorization)
             }
+            var updateObj = {
+                authId: typeof userAuthed.body === 'string' ?
+                    JSON.parse(userAuthed.body).id : userAuthed.body.id,
+            };
+            yield thunkQuery(User.update(updateObj).where(User.id.equals(user.id)));
 
             bologger.log({
                 //req: req, Does not use req if you want to use public namespace TODO realm?
@@ -434,9 +439,15 @@ module.exports = {
 
                 var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
 
-                if (userId) {
-                    yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID)
+                var userAuthed = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
+                if (userAuthed.statusCode > 299) {
+                    userAuthed = yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID, req.headers.authorization)
                 }
+                var updateObj = {
+                    authId: typeof userAuthed.body === 'string' ?
+                        JSON.parse(userAuthed.body).id : userAuthed.body.id,
+                };
+                yield thunkQuery(User.update(updateObj).where(User.id.equals(userId)));
 
                 newUserId = userId[0].id;
                 bologger.log({
@@ -1258,45 +1269,30 @@ function* insertOne(req, res, next) {
     return user;
 }
 
-function _getUserOnAuthService(username, password, roleId) {
-    var scopes = [];
-    // Check if user being created is admin
-    if (roleId == 1 || roleId == 2) {
-        scopes = ['admin'];
-    }
-
-    const path = '/user';
+function _getUserOnAuthService(email, jwt) {
+    const path = '/user/byEmail/' + email;
 
     const requestOptions = {
         url: config.authService + path,
         method: 'GET',
-        json: {
-            username,
-            password: password,
-            scopes: scopes,
+        headers: {
+            'authorization': jwt,
+            'origin': config.domain
         },
         resolveWithFullResponse: true,
     };
-
     return request(requestOptions)
         .then((res) => {
             if (res.statusCode > 299 || res.statusCode < 200) {
                 const httpErr = new HttpError(res.statusCode, res.statusMessage);
                 return Promise.reject(httpErr);
             }
-            return res
+            return res;
         })
-        .catch((err) => {
-            if (err.statusCode === 400) {
-                return err;
-            }
-            const httpErr = new HttpError(500, `Unable to use auth service: ${err.message}`);
-            return Promise.reject(httpErr);
-        });
+        .catch((err) => err);
 }
 
-function _createUserOnAuthService(email, password, roleId) {
-
+function _createUserOnAuthService(email, password, roleId, jwt) {
     var scopes = [];
     // Check if user being created is admin
     if (roleId == 1 || roleId == 2) {
@@ -1304,10 +1300,13 @@ function _createUserOnAuthService(email, password, roleId) {
     }
 
     const path = '/user';
-
     const requestOptions = {
         url: config.authService + path,
         method: 'POST',
+        headers: {
+            'authorization': jwt,
+            'origin': config.domain
+        },
         json: {
             username: email,
             email: email,
