@@ -6,6 +6,6 @@ WORKDIR /indaba
 
 RUN ["npm",  "i"]
 
-EXPOSE 3005:3005
+EXPOSE 3005
 
 CMD ["npm", "start"]
