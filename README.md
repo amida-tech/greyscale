@@ -47,7 +47,7 @@ to rebuild with the `--no-cache` option.
 
 `docker run --name indaba-postgres -ti -e POSTGRES_PASSWORD=indabapassword -p 5432:5432 -v /Amida/greyscale/backend/db_setup:/shared-volume -d postgres:9.6.5-alpine`
 
-*** 
+***
 `--name indaba-postgres`
 
 `--name <new container name that will be seen by running 'docker ps'>`
@@ -96,7 +96,7 @@ to rebuild with the `--no-cache` option.
 
 - If you have are running low on disk space or other system resources, run `docker ps -a` (the -a means "list all containers, even stopped containers") and check that you don't have a large number of un-needed or un-used docker containers. If you do, run `docker rm <name or container id>` for each container. If NONE of the docker containers are useful, run `docker rm $(docker ps -a -q)`. Please note, the previous command will give an error message for all running containers. To stop running containers, run `docker stop $(docker ps -a -q)`, you may then run `docker rm $(docker ps -a -q)` to remove all containers
 
-2. Verify the indaba-postgres container was created and started by running 
+2. Verify the indaba-postgres container was created and started by running
 
 `docker ps`
 ![Verify Indaba Postgres Container is Running](images/readme/step2_verify_running.png)
@@ -109,7 +109,7 @@ to rebuild with the `--no-cache` option.
 
 4. Create the indaba user:
 
-`createuser -h localhost -U postgres -W -P -s indabauser` 
+`createuser -h localhost -U postgres -W -P -s indabauser`
 ![Create PostgreSQL user](images/readme/step4_createuser.png)
 
 - The first prompts is requesting a new password to associate with the user indabauser (in PostgreSQL, role and and username mean the same thing)
@@ -118,17 +118,17 @@ to rebuild with the `--no-cache` option.
 
 5. Create the indaba database:
 
-`createdb -h localhost -U indabauser indaba` 
+`createdb -h localhost -U indabauser indaba`
 
 6. Use `psql` to restore an indaba database (from `/greyscale/backend/db_setup` ):
 
-`psql -h localhost -U indabauser indaba < schema.indaba.sql` 
+`psql -h localhost -U indabauser indaba < schema.indaba.sql`
 
 ![End of Schema import](images/readme/step6.2_schema_import.png)
 - Note 1: At the time this README.md was modified, there were 851 lines of output
 - Note 2: The schema import has errors related to the roles/usernames "sean" and "indaba". I (chris.porter) have not verified that these errors can safely be ignored. If you have issues, please look into problems associated with the schema import.
 
-`psql -h localhost -U indabauser indaba < /shared-volume/data.indaba.sql` 
+`psql -h localhost -U indabauser indaba < /shared-volume/data.indaba.sql`
 ![Beginning of Data import](images/readme/step6.3_begin_data_import.png)
 .
 .
@@ -156,18 +156,18 @@ Most people will not want to re-run the above commands every time they start a n
 - Start a new Docker container based on the new image
 `docker run docker ps -q -l`
 
-9. Get the IP address of the PostgreSQL container: 
+9. Get the IP address of the PostgreSQL container:
 
 ![Get IP Address](images/readme/step10_get_ip_address.png)
-`docker inspect indaba-postgres | grep IPAddress` 
+`docker inspect indaba-postgres | grep IPAddress`
 
-10. Set local environment variables: 
+10. Set local environment variables:
 
-`export AUTH_SALT='nMsDo)_1fh' && export RDS_USERNAME=indabauser && export RDS_PASSWORD=indabapassword && export RDS_HOSTNAME=<ip address above> && export INDABA_PG_DB=indaba && export INDABA_ENV=dev` 
+`export AUTH_SALT='nMsDo)_1fh' && export RDS_USERNAME=indabauser && export RDS_PASSWORD=indabapassword && export RDS_HOSTNAME=<ip address above> && export INDABA_PG_DB=indaba && export INDABA_ENV=dev`
 
-11. Start docker-compose from the greyscale root dir: 
+11. Start docker-compose from the greyscale root dir:
 
-`docker-compose up -d` 
+`docker-compose up -d`
 
 12. Confirm everything is running with `docker ps`
 13. Check localhost:80. If you’re on a Mac, you may have a defalt Apache server running that you need to kill.
@@ -186,6 +186,14 @@ A list of full environment variable settings is below.  They can be either manua
 - MESSAGE_SERVICE_URL: The root url for the application's message service (http://localhost:4002)
 - SYS_MESSAGE_USER: The email field of the auth service user that is used to send system messages
 - SYS_MESSAGE_PASSWORD: The auth service password for the user that is used to send system messages
+
+## Deployment with Kubernetes (AWS)
+See the [paper](https://paper.dropbox.com/doc/Amida-Microservices-Kubernetes-Deployment-Xsz32zX8nwT9qctitGNVc) write-up for instructions on how to deploy with Kubernetes on AWS using `Kops`. The `kubernetes.yml` file included in the project root directory contains the deployment definition for this project.
+
+### A Few Things to Note
+- The  `.pgpass` file is needed by the `Dockerfile` to run the `seed.js` script upon startup. This is only necessary when seeding password protected databases. You will need to ensure that the file is configured with the correct database parameters in this format `hostname:port:database:username:password`.
+
+- If using AWS' Elasticache and RDS to deploy memcached and postgres respectively, make sure the instance is configured with the appropriate security groups to allow traffic from the cluster's instance. The paper doc referenced above describes how this can be done.
 
 ## Deployment with Google Cloud (Kubernetes)
 NOTE: Container Engine SQL support in Google Cloud is bad right now and will probably change.
@@ -225,7 +233,7 @@ kubectl proxy
 gcloud container clusters delete greyscale-cluster
 ```
 
-15. If you need to free up space after development, run ``docker rmi `docker ps -aq` `` 
+15. If you need to free up space after development, run ``docker rmi `docker ps -aq` ``
 ---
 
 ## Contributing

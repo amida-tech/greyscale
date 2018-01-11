@@ -41,7 +41,7 @@
     "socket.io": "^1.4.5",
     "sql": "0.48.0",
     "superagent": "^1.8.3",
-    "supertest": "0.13.0",
+    "supertest": "^0.13.0",
     "supertest-session": "^3.1.0",
     "thunkify": "2.1.2",
     "underscore": "1.7.0",
@@ -69,8 +69,7 @@
     "jit-grunt": "~0.10.0",
     "jshint-stylish": "^2.1.0",
     "mock-require": "^2.0.2",
-    "sinon": "^2.3.6",
-    "supertest": "^0.13.0"
+    "sinon": "^2.3.6"
   },
   "engines": {
     "node": "~5.0.0"
