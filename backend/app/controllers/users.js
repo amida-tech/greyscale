@@ -1236,37 +1236,20 @@ function* insertOne(req, res, next) {
 
         var essenceId = yield * common.getEssenceId(req, 'Users');
 
-        // send email to user using new email function
-        const subject = 'Thank you for registering at Indaba! Email Works!';
-        var body = 'Hi '+ user.firstName;
-        body += '<br>';
-        body += '<br>';
-        body += 'Welcome to Indaba. We love you!';
-        body += '<br>';
-        body += '<br>';
-        body += 'Thanks';
-        body += '<br>';
-        body += '<br>';
-        body += '-The Indaba Ninjas';
-
-        const ccList = ['james@amida.com', 'kate@amida.com', 'christopher@amida.com', 'perry@amida.com'];
-
-        common.newSendEmail(user.email, subject, body, body, ccList);
-
-        // var note = yield * notifications.createNotification(req, {
-        //     userFrom: req.user.realmUserId,
-        //     userTo: user.id,
-        //     body: 'Thank you for registering at Indaba',
-        //     essenceId: essenceId,
-        //     entityId: user.id,
-        //     notifyLevel: req.body.notifyLevel,
-        //     name: req.body.firstName,
-        //     surname: req.body.lastName,
-        //     subject: 'Thank you for registering at Indaba',
-        //     config: config
-        // },
-        //     'welcome'
-        // );
+        var note = yield * notifications.createNotification(req, {
+            userFrom: req.user.realmUserId,
+            userTo: user.id,
+            body: 'Thank you for registering at Indaba',
+            essenceId: essenceId,
+            entityId: user.id,
+            notifyLevel: req.body.notifyLevel,
+            name: req.body.firstName,
+            surname: req.body.lastName,
+            subject: 'Thank you for registering at Indaba',
+            config: config
+        },
+            'welcome'
+        );
     }
     return user;
 }

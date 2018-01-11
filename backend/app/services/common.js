@@ -536,37 +536,37 @@ var getCompletedTaskByStepId = function* (req, workflowStepId) {
 
 exports.getCompletedTaskByStepId = getCompletedTaskByStepId;
 
-var newSendEmail = function (to, subject, text, html, ccList) {
-    console.log(`I GOT IN THE NEW SEND MAIL FUNCTION`);
-    console.log(`TRYING TO SEND EMAIL TO ${to}`)
-
-    if ( typeof(ccList) === "undefined" || ccList === null) {
-        ccList = [];
-    }
-
-    var transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: 'indaba-mailer-dev@amida.com',
-            pass: 'indabapassword' // TODO: Pass from .env file
-        }
-    });
-
-    const mailOptions = {
-        from: 'indaba-mailer-dev@amida.com',
-        to: to,
-        subject: subject,
-        text: text,
-        bcc: ccList,
-        html: html,
-    };
-
-    transporter.sendMail(mailOptions, function (err, info) {
-        if (err)
-            console.log(`ERROR IN SENDING MAIL TO: ${to} WITH ERROR ${err}`)
-        else
-            console.log(`AN EMAIL WAS SENT TO: ${to} - ${info}`);
-    });
-};
-
-exports.newSendEmail = newSendEmail;
+// var newSendEmail = function (to, subject, text, html, ccList) {
+//     console.log(`I GOT IN THE NEW SEND MAIL FUNCTION`);
+//     console.log(`TRYING TO SEND EMAIL TO ${to}`)
+//
+//     if ( typeof(ccList) === "undefined" || ccList === null) {
+//         ccList = [];
+//     }
+//
+//     var transporter = nodemailer.createTransport({
+//         service: 'gmail',
+//         auth: {
+//             user: 'indaba-mailer-dev@amida.com',
+//             pass: 'indabapassword' // TODO: Pass from .env file
+//         }
+//     });
+//
+//     const mailOptions = {
+//         from: 'indaba-mailer-dev@amida.com',
+//         to: to,
+//         subject: subject,
+//         text: text,
+//         bcc: ccList,
+//         html: html,
+//     };
+//
+//     transporter.sendMail(mailOptions, function (err, info) {
+//         if (err)
+//             console.log(`ERROR IN SENDING MAIL TO: ${to} WITH ERROR ${err}`)
+//         else
+//             console.log(`AN EMAIL WAS SENT TO: ${to} - ${info}`);
+//     });
+// };
+//
+// exports.newSendEmail = newSendEmail;

@@ -93,17 +93,33 @@ function* checkString(val, keyName) {
 }
 
 function* createNotification(req, note, template) {
+
+    console.log(`I GOT IN THE NOTIFICATION FUNCTION`);
+
     var thunkQuery = req.thunkQuery;
     note = yield * checkInsert(req, note);
+
+    console.log(`NOTE IS - FROM: ${note.userFrom}, TO: ${note.userTo}, BODY: ${note.body}`);
+
     var note4insert = _.extend({}, note);
+
+    console.log(`FIRST NOTE_4_INSERT IS ${note.userFrom}, TO: ${note.userTo}, BODY: ${note.body}`);
     template = (template || 'default');
     if (!config.notificationTemplates[template]) {
         template = 'default';
     }
 
+    console.log(`TEMPLATE IS: ${template}`);
+
     note4insert.note = yield * renderFile(config.notificationTemplates[template].notificationBody, note4insert);
     note4insert = _.pick(note4insert, Notification.insertCols); // insert only columns that may be inserted
+
+    console.log(`MODIFIED NOTE_4_INSERT IS: ${note.userFrom}, TO: ${note.userTo}, BODY: ${note.body}`);
+
     var noteInserted = yield thunkQuery(Notification.insert(note4insert).returning(Notification.id));
+
+    console.log(`INSERTED RECORD INTO NOTIFICATION DB ${noteInserted.id} `);
+
     if (parseInt(note.notifyLevel) > 1) { // onsite notification
         socketController.sendNotification(note.userTo);
     }
@@ -127,6 +143,8 @@ function* createNotification(req, note, template) {
         html: note.message
     };
 
+    console.log(`EMAIL FROM EMAIL OPTIONS IS: ${emailOptions.to.email}`);
+
     var updateFields = {
         email: userTo.email,
         message: note.message,
@@ -139,6 +157,7 @@ function* createNotification(req, note, template) {
     var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(noteInserted[0].id)));
 
     if (parseInt(note.notifyLevel) > 1 && !config.email.disable) { // email notification
+        console.log(`DECIDED TO SEND EMAIL NOIFICATION`);
         sendEmail(req, emailOptions, note, noteInserted[0].id);
     }
 
@@ -642,6 +661,7 @@ function* checkInsert(req, note) {
         }
         var entityId = yield * checkOneId(req, note.entityId, model, 'id', 'id', 'Notification`s entity(' + essence.fileName + ')');
     }
+    console.log(`RETURNING NOTE: ${Object.keys(note)}`);
     return note;
 }
 
@@ -698,7 +718,16 @@ function sendEmail(req, emailOptions, note, noteId) {
         var mailer = new Emailer(emailOptions, note);
         //Sync mail send
         var err = false;
-        var sendResult = yield * mailer.sendSync();
+        // var sendResult = yield * mailer.sendSync();
+
+        console.log(`ABOUT TO CALL SendNewEmail() `);
+        var sendResult = yield * mailer.sendEmailWithGmail(
+            emailOptions.to.email, emailOptions.to.subject,
+            emailOptions.html, emailOptions.html
+        );
+
+        console.log(`SEND RESULT IS: ${sendResult}`);
+
         err = sendResult.name === 'Error';
         if (err) {
             debug('EMAIL RESULT ERROR --->>> ' + sendResult.message);

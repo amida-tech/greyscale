@@ -16,6 +16,7 @@ const base = {
     authService: process.env.AUTH_SERVICE_URL || 'http://localhost:4000/api/v0',
     surveyService: process.env.SURVEY_SERVICE_URL || 'http://localhost:9005/api/v1.0/',
     qaPassword: process.env.QA_PASSWORD,
+    gmailPass: process.env.GMAIL_PASS,
 };
 
 var environments = {
