@@ -5,6 +5,7 @@ var emailer = require('nodemailer'),
     config = require('../config'),
     smtpTransport = require('nodemailer-smtp-transport');
 
+
 function Emailer(options, data) {
     this.options = options;
     this.data = data;
