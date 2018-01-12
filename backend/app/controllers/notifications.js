@@ -93,7 +93,6 @@ function* checkString(val, keyName) {
 }
 
 function* createNotification(req, note, template) {
-
     var thunkQuery = req.thunkQuery;
     note = yield * checkInsert(req, note);
 
@@ -706,13 +705,10 @@ function sendEmail(req, emailOptions, note, noteId) {
         var err = false;
         // var sendResult = yield * mailer.sendSync();
 
-        console.log(`ABOUT TO CALL SendNewEmail() `);
         var sendResult = yield * mailer.sendEmailWithGmail(
             emailOptions.to.email, emailOptions.to.subject,
             emailOptions.html, emailOptions.html
         );
-
-        console.log(`SEND RESULT IS: ${sendResult}`);
 
         err = sendResult.name === 'Error';
         if (err) {
