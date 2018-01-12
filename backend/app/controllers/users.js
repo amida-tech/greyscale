@@ -407,7 +407,6 @@ module.exports = {
                     };
                 }
             }
-
             var org = yield thunkQuery(
                 Organization.select().where(Organization.realm.equals(req.params.realm))
             );
@@ -441,8 +440,10 @@ module.exports = {
                     'notifyLevel': req.body.notifyLevel
                 };
 
-                var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
+                var userObject = yield thunkQuery(User.insert(newClient).returning(User.id));
+                var userId = _.first(userObject).id
                 // TODO: https://jira.amida-tech.com/browse/INBA-609
+
                 var userAuthed = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
                 if (userAuthed.statusCode > 299) {
                     userAuthed = yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID, req.headers.authorization)
@@ -451,9 +452,14 @@ module.exports = {
                     authId: typeof userAuthed.body === 'string' ?
                         JSON.parse(userAuthed.body).id : userAuthed.body.id,
                 };
-                yield thunkQuery(User.update(updateObj).where(User.id.equals(userId)));
 
-                newUserId = userId[0].id;
+                yield thunkQuery(
+                    User.update({
+                        authId: updateObj.authId
+                    }).where(User.id.equals(userId))
+                );
+
+                newUserId = userId;
                 bologger.log({
                     req: req,
                     user: req.user,
