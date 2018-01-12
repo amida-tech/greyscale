@@ -93,6 +93,7 @@ function arrayString(val) {
 }
 
 exports.Query = function (realm) {
+    console.log(`I AM IN THE QUERY FUNCTION`);
     if (typeof realm === 'undefined') {
         realm = config.pgConnect.adminSchema;
     }
