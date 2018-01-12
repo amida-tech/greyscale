@@ -646,7 +646,6 @@ function* checkInsert(req, note) {
         }
         var entityId = yield * checkOneId(req, note.entityId, model, 'id', 'id', 'Notification`s entity(' + essence.fileName + ')');
     }
-    console.log(`RETURNING NOTE: ${Object.keys(note)}`);
     return note;
 }
 
