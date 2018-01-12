@@ -441,7 +441,7 @@ module.exports = {
                 };
 
                 var userObject = yield thunkQuery(User.insert(newClient).returning(User.id));
-                var userId = _.first(userObject).id
+                var userId = _.first(userObject).id;
                 // TODO: https://jira.amida-tech.com/browse/INBA-609
 
                 var userAuthed = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
@@ -460,6 +460,7 @@ module.exports = {
                 );
 
                 newUserId = userId;
+
                 bologger.log({
                     req: req,
                     user: req.user,
