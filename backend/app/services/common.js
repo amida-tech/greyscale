@@ -22,6 +22,7 @@ var
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
     config = require('../../config'),
+    nodemailer = require('nodemailer');
     request = require('request-promise');
 
 var getEntityById = function* (req, id, model, key) {
@@ -534,3 +535,4 @@ var getCompletedTaskByStepId = function* (req, workflowStepId) {
 };
 
 exports.getCompletedTaskByStepId = getCompletedTaskByStepId;
+

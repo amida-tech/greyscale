@@ -19,6 +19,7 @@ var client = require('../db_bootstrap'),
     UOA = require('../models/uoas'),
     sql = require('sql'),
     notifications = require('../controllers/notifications'),
+    mailer = require('../../lib/mailer'),
     request = require('request-promise');
 
 var Role = require('../models/roles');
@@ -1234,6 +1235,7 @@ function* insertOne(req, res, next) {
         user = _.first(user);
 
         var essenceId = yield * common.getEssenceId(req, 'Users');
+
         var note = yield * notifications.createNotification(req, {
             userFrom: req.user.realmUserId,
             userTo: user.id,

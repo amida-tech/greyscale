@@ -95,7 +95,9 @@ function* checkString(val, keyName) {
 function* createNotification(req, note, template) {
     var thunkQuery = req.thunkQuery;
     note = yield * checkInsert(req, note);
+
     var note4insert = _.extend({}, note);
+
     template = (template || 'default');
     if (!config.notificationTemplates[template]) {
         template = 'default';
@@ -103,7 +105,9 @@ function* createNotification(req, note, template) {
 
     note4insert.note = yield * renderFile(config.notificationTemplates[template].notificationBody, note4insert);
     note4insert = _.pick(note4insert, Notification.insertCols); // insert only columns that may be inserted
+
     var noteInserted = yield thunkQuery(Notification.insert(note4insert).returning(Notification.id));
+
     if (parseInt(note.notifyLevel) > 1) { // onsite notification
         socketController.sendNotification(note.userTo);
     }
@@ -698,7 +702,13 @@ function sendEmail(req, emailOptions, note, noteId) {
         var mailer = new Emailer(emailOptions, note);
         //Sync mail send
         var err = false;
-        var sendResult = yield * mailer.sendSync();
+        // var sendResult = yield * mailer.sendSync();
+
+        var sendResult = yield * mailer.sendEmailWithGmail(
+            emailOptions.to.email, emailOptions.to.subject,
+            emailOptions.html, emailOptions.html
+        );
+
         err = sendResult.name === 'Error';
         if (err) {
             debug('EMAIL RESULT ERROR --->>> ' + sendResult.message);
