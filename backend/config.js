@@ -169,6 +169,7 @@ var environments = {
                 email: 'su@mail.net',
                 firstName: 'SuperAdmin',
                 lastName: 'Test',
+                roleID: 1,
                 scopes: 'admin',
                 password: 'testuser12345',
             },
@@ -272,7 +273,10 @@ var environments = {
                 notificationBody: './views/notifications/comment.html',
                 emailBody: './views/emails/comment.html'
             }
-        }
+        },
+        messageService: process.env.MESSAGE_SERVICE_URL || 'http://localhost:4002',
+        systemMessageUser: process.env.SYS_MESSAGE_USER || 'indaba@example.com',
+        systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD || 'password'
     }
 };
 
