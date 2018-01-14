@@ -204,6 +204,14 @@ var environments = {
                     roleID: 3,
                     password: 'testuser3',
                     authId: 3,
+                },
+                //Added this user to be created on the auth service
+                {
+                    firstName: 'SYSMessageUser',
+                    lastName: 'SYSMessageUser',
+                    email: 'indaba@example.com',
+                    roleID: 3,
+                    password: 'password',
                 }
             ],
             organization : {
