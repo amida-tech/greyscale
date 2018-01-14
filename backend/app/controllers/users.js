@@ -456,24 +456,14 @@ module.exports = {
                 var userExistOnAuthBodyObject;
 
                 if (authUser.statusCode === 200) { // user was successfully created on the auth service
-
-                    console.log(`USER SUCCESSFULLY CREATED ON AUTH SERVICE: ${authUser.statusCode}.. AUTHUSERID IS: ${authUser.body.id}`);
-
                     userExistOnAuthBodyObject = authUser.body; // information of newly created user
-
-                    console.log(`GOTTEN ID FROM AUTH: ${userExistOnAuthBodyObject.id}`);
 
                 } else { // User wasn't created on auth so user probably already exists
 
-                    console.log(`USER MIGHT EXIST ON AUTH SERVICE: ${authUser.statusCode}`);
                     const userExistOnAuth = yield _getUserOnAuthService(newClient.email, req.headers.authorization);
 
                     if (userExistOnAuth.statusCode === 200) { // found the user on the auth service
-                        console.log(`USER ALREADY EXISTS ON AUTH. GETTING USER ID`);
-
                         userExistOnAuthBodyObject = JSON.parse(userExistOnAuth.body);
-
-                        console.log(`GOTTEN ID FROM AUTH WITH ALREADY EXISTING USER: ${userExistOnAuthBodyObject.id}`);
 
                     } else {
                         throw new HttpError(403, 'Couldn\'t create user on greyscale and user doesn\'t exist on auth');
@@ -482,7 +472,6 @@ module.exports = {
 
                 // Using the ID from the auth service, create user on greyscale
                 if (userExistOnAuthBodyObject) {
-                    console.log(`CREATING USER ON GREYSCALE`);
                     newClient.authId = userExistOnAuthBodyObject.id;
                     const userObject = yield thunkQuery(User.insert(newClient).returning(User.id));
 
@@ -1306,7 +1295,6 @@ function* insertOne(req, res, next) {
     return user;
 }
 
-// TODO: https://jira.amida-tech.com/browse/INBA-609
 function _getUserOnAuthService(email, jwt) {
     const path = '/user/byEmail/' + email;
 
@@ -1325,16 +1313,12 @@ function _getUserOnAuthService(email, jwt) {
                 const httpErr = new HttpError(res.statusCode, res.statusMessage);
                 return Promise.reject(httpErr);
             }
-            console.log(`FOUND USER ON AUTH SERVICE SO RETURNING: ${res.statusCode}`)
             return res;
         })
         .catch((err) => {
                 if (err.statusCode === 404) { // User wasn't found
-                console.log(`DIDN'T FIND USER SO RETURNING ${err.statusCode}`);
                 return err;
             }
-            console.log( `FAILING COMPLETELY ON AUTH SERVICE ${err}`)
-            console.log( `FAILING COMPLETELY ON AUTH SERVICE ${Object.keys(err)}`)
             const httpErr = new HttpError(500, `Unable to use auth service: ${err.message}`);
             return Promise.reject(httpErr);
         });
