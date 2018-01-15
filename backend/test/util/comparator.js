@@ -258,6 +258,7 @@ const comparator = {
     user(client, server) {
         const expected = _.cloneDeep(client);
         expected.id = server.id;
+        expected.authId = server.authId;
         this.addNull(expected, server);
         delete expected.password;
         delete expected.token;
