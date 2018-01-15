@@ -6,7 +6,7 @@ const _ = require('lodash');
 const mock = require('mock-require');
 
 mock('request-promise', function mockRequest() {
-    return Promise.resolve({ statusCode: 200 });
+    return Promise.resolve({ statusCode: 200, body: { id: 0 } });
 });
 
 const config = require('./config');
