@@ -364,6 +364,7 @@ module.exports = {
     },
 
     selfOrganizationInvite: function (req, res, next) {
+        console.log(`ABOUT TO INVITE USER ${req.body.email} TO PROJECT`)
         if (req.params.realm === config.pgConnect.adminSchema) {
             throw new HttpError(400, 'Incorrect realm');
         }
