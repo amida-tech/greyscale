@@ -338,7 +338,7 @@ module.exports = {
                 action: 'update',
                 object: 'organizations',
                 entity: _.first(updated).id,
-                info: 'Update organization (self)'
+                info: 'Update organization  (self)'
             });
             return updated;
         }).then(function (data) {
@@ -386,7 +386,15 @@ module.exports = {
             // If user is found in greyscale we just check to see if it's been marked as deleted and un-mark it
             if ((isExistUser && isExistUser.isActive)) {
                 if (isExistUser.isDeleted === null || isExistsAdmin) {
-                    throw new HttpError(400, 'User with this email has already registered');
+
+                    // If user is in greyscale and not deleted, we can assume that user is also on auth-
+                    // so just add to project if needed
+                    if (req.body.projectId) {
+                        yield * common.insertProjectUser(req, isExistUser.id, req.body.projectId);
+                    }
+
+                    return isExistUser;
+
                 } else if (isExistUser.isDeleted !== null) {
                     // make sure user is on auth before reactivating
                     const userExistOnAuth = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
