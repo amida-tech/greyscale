@@ -385,33 +385,29 @@ module.exports = {
 
             // If user is found in greyscale we just check to see if it's been marked as deleted and un-mark it
             if ((isExistUser)) {
-                isExistUser.registered = true;
-                if (isExistUser.isDeleted === null || isExistsAdmin) {
+                // make sure user is on auth before reactivating or doing anything else
+                const userExistOnAuth = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
+                if (userExistOnAuth.statusCode === 200) { // User is on auth
+                    isExistUser.registered = true; // Indicate that the user was previously in the DB
+                    if (isExistUser.isDeleted !== null) { // user exist and is deleted
 
-                    // If user is in greyscale and not deleted, we can assume that user is also on auth-
-                    // so just add to project if needed
+                        const updateObj = {
+                            isDeleted: null
+                        };
+
+                        yield thunkQuery(User.update(updateObj).where(User.id.equals(isExistUser.id)));
+                    }
+
+                    // If user is in greyscale and not deleted add to project if needed
                     if (req.body.projectId) {
                         yield * common.insertProjectUser(req, isExistUser.id, req.body.projectId);
                     }
 
-                    return isExistUser;
-
-                } else if (isExistUser.isDeleted !== null) {
-                    // make sure user is on auth before reactivating
-                    const userExistOnAuth = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
-                    if (userExistOnAuth.statusCode === 200) {
-                        const updateObj = {
-                            isDeleted: null
-                        };
-                        const user = yield thunkQuery(User.update(updateObj).where(User.email.equals(req.body.email)));
-
-                        return {
-                            message: 'User re-invited successfully',
-                            data: user
-                        };
-                    } else {
-                        throw new HttpError(403, 'Couldn\'t create user on greyscale because user not on auth');
-                    }
+                    return {
+                        data: isExistUser
+                    };
+                } else { // user was not found on auth
+                    throw new HttpError(403, 'Couldn\'t carry out operation because user not on auth');
                 }
             }
 
