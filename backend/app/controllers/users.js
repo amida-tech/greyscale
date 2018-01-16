@@ -349,7 +349,6 @@ module.exports = {
     },
 
     selfOrganizationInvite: function (req, res, next) {
-        console.log(`ABOUT TO INVITE USER ${req.body.email} TO PROJECT`)
         if (req.params.realm === config.pgConnect.adminSchema) {
             throw new HttpError(400, 'Incorrect realm');
         }
@@ -454,6 +453,11 @@ module.exports = {
                 if (userExistOnAuthBodyObject) {
                     newClient.authId = userExistOnAuthBodyObject.id;
                     const userObject = yield thunkQuery(User.insert(newClient).returning(User.id));
+
+                    // insert the user into the projectUserTable
+                    if (req.body.projectId) {
+                        yield * common.insertProjectUser(req, _.first(userObject).id, req.body.projectId);
+                    }
 
                     bologger.log({
                         req: req,
