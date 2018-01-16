@@ -403,9 +403,10 @@ module.exports = {
                         yield * common.insertProjectUser(req, isExistUser.id, req.body.projectId);
                     }
 
-                    return {
-                        data: isExistUser
-                    };
+                    console.log(`USER IS: ${isExistUser.firstName} ${isExistUser.lastName}`);
+
+                    return isExistUser
+
                 } else { // user was not found on auth
                     throw new HttpError(403, 'Couldn\'t carry out operation because user not on auth');
                 }
