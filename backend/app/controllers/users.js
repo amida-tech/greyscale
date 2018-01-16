@@ -384,7 +384,8 @@ module.exports = {
             org = _.first(org);
 
             // If user is found in greyscale we just check to see if it's been marked as deleted and un-mark it
-            if ((isExistUser && isExistUser.isActive)) {
+            if ((isExistUser)) {
+                isExistUser.registered = true;
                 if (isExistUser.isDeleted === null || isExistsAdmin) {
 
                     // If user is in greyscale and not deleted, we can assume that user is also on auth-
