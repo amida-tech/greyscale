@@ -195,7 +195,7 @@ module.exports = {
             // TODO: https://jira.amida-tech.com/browse/INBA-609
             var userAuthed = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
             if (userAuthed.statusCode > 299) {
-                userAuthed = yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID, req.headers.authorization)
+                userAuthed = yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID, req.headers.authorization);
             }
             var updateObj = {
                 authId: typeof userAuthed.body === 'string' ?
@@ -265,12 +265,16 @@ module.exports = {
             if (!req.body.password) {
                 throw new HttpError(400, 'Password field is required!');
             }
+            const existUser = _.first(isExist);
+            // INBA-607: We need the admin's authorization for the following request, not the req.headers.authorization.
+            const userAuthed = yield _createUserOnAuthService(existUser.email, req.body.password, existUser.roleID, req.headers.authorization);
             var data = {
                 activationToken: null,
                 isActive: true,
-                password: User.hashPassword(_.first(isExist).salt, req.body.password),
+                password: User.hashPassword(existUser.salt, req.body.password),
                 firstName: req.body.firstName,
-                lastName: req.body.lastName
+                lastName: req.body.lastName,
+                authId: userAuthed.body.id,
             };
             var updated = yield thunkQuery(User.update(data).where(User.activationToken.equals(req.params.token)).returning(User.id));
             bologger.log({
@@ -425,7 +429,8 @@ module.exports = {
                 activationToken,
                 'organizationId': org.id,
                 'isAnonymous': req.body.isAnonymous ? true : false,
-                'notifyLevel': req.body.notifyLevel
+                'notifyLevel': req.body.notifyLevel,
+                'authId': 0,
             };
 
             if (userExistOnAuth.statusCode === 200) {
