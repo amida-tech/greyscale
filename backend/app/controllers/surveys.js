@@ -70,6 +70,7 @@ module.exports = {
         });
     },
 
+    // INBA-484
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -125,9 +126,23 @@ module.exports = {
             res.status(204).end();
         }, function (err) {
             next(err);
+        }).then(function (data) {
+            const project_id = 1;
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'survey_delete',
+                object: 'projects',
+                entity: project_id,
+                info: 'Delete survey'
+            });
+            res.status(204).end();
+        }, function (err) {
+            next(err);
         });
     },
 
+    // INBA-484
     editOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -363,9 +378,23 @@ module.exports = {
             res.status(data.status).json(data);
         }, function (err) {
             next(err);
+        }).then(function (data) {
+            const project_id = 1;
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'survey_edit',
+                object: 'projects',
+                entity: project_id,
+                info: 'Edited survey'
+            });
+            res.status(204).end();
+        }, function (err) {
+            next(err);
         });
     },
 
+    // INBA-484
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -397,6 +426,19 @@ module.exports = {
                 info: 'Add new survey'
             });
             res.status(201).json(data);
+        }, function (err) {
+            next(err);
+        }).then(function (data) {
+            const project_id = 1;
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'survey_insert',
+                object: 'projects',
+                entity: project_id,
+                info: 'Inserted survey'
+            });
+            res.status(204).end();
         }, function (err) {
             next(err);
         });
@@ -432,6 +474,7 @@ module.exports = {
         });
     },
 
+    // INBA-484
     questionAdd: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -440,9 +483,23 @@ module.exports = {
             res.status(201).json(data);
         }, function (err) {
             next(err);
+        }).then(function (data) {
+            const project_id = 1;
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'question_add',
+                object: 'projects',
+                entity: project_id,
+                info: 'Question Added'
+            });
+            res.status(204).end();
+        }, function (err) {
+            next(err);
         });
     },
 
+    // INBA-484
     questionEdit: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -467,9 +524,23 @@ module.exports = {
             res.status(202).end();
         }, function (err) {
             next(err);
+        }).then(function (data) {
+            const project_id = 1;
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'question_edited',
+                object: 'projects',
+                entity: project_id,
+                info: 'Question edited'
+            });
+            res.status(204).end();
+        }, function (err) {
+            next(err);
         });
     },
 
+    // INBA-484
     questionDelete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
@@ -485,6 +556,19 @@ module.exports = {
                 object: 'SurveyQuestions',
                 entity: req.params.id,
                 info: 'Delete survey question'
+            });
+            res.status(204).end();
+        }, function (err) {
+            next(err);
+        }).then(function (data) {
+            const project_id = 1;
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'question_deleted',
+                object: 'projects',
+                entity: project_id,
+                info: 'Question edited'
             });
             res.status(204).end();
         }, function (err) {

@@ -229,6 +229,7 @@ module.exports = {
         });
     },
 
+    // INBA-484
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
@@ -251,6 +252,7 @@ module.exports = {
         });
     },
 
+    // INBA-484
     editOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -337,6 +339,7 @@ module.exports = {
         });
     },
 
+    // INBA-484
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -393,6 +396,7 @@ module.exports = {
         });
     },
 
+    // INBA-484
     userAssignment: function (req, res, next) {
         co(function*() {
             var projectExist = yield * common.checkRecordExistById(req, 'Projects', 'id', req.params.projectId);
@@ -414,9 +418,22 @@ module.exports = {
             res.status(202).json(data);
         }, function (err) {
             next(err);
+        }).then(function (data) {
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'insert',
+                object: 'projects',
+                entity: data.id,
+                info: 'Add new project'
+            });
+            res.status(201).json(data);
+        }, function (err) {
+            next(err);
         });
     },
 
+    // INBA-484
     userRemoval: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -449,6 +466,18 @@ module.exports = {
             }
         }).then(function (data) {
             res.status(202).json(data)
+        }, function (err) {
+            next(err);
+        }).then(function (data) {
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'user_removal',
+                object: 'projects',
+                entity: data.id,
+                info: 'User removed'
+            });
+            res.status(201).json(data);
         }, function (err) {
             next(err);
         });

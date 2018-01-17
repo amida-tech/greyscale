@@ -262,6 +262,7 @@ module.exports = {
         });
     },
 
+    // INBA-484
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
@@ -283,9 +284,23 @@ module.exports = {
             res.status(204).json(true);
         }, function (err) {
             next(err);
+        }).then(function (data) {
+            const project_id = 1;
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'task_deleted',
+                object: 'projects',
+                entity: project_id,
+                info: 'Task deleted'
+            });
+            res.status(204).end();
+        }, function (err) {
+            next(err);
         });
     },
 
+    // INBA-484
     updateOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -307,9 +322,23 @@ module.exports = {
             res.status(202).end();
         }, function (err) {
             next(err);
+        }).then(function (data) {
+            const project_id = 1;
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'task_updated',
+                object: 'projects',
+                entity: project_id,
+                info: 'Task updated'
+            });
+            res.status(204).end();
+        }, function (err) {
+            next(err);
         });
     },
 
+    // INBA-484
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -354,6 +383,19 @@ module.exports = {
                 info: 'Add new task'
             });
             res.status(201).json(_.first(data));
+        }, function (err) {
+            next(err);
+        }).then(function (data) {
+            const project_id = 1;
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'task_inserted',
+                object: 'projects',
+                entity: req.params.id,
+                info: 'Task inserted'
+            });
+            res.status(204).end();
         }, function (err) {
             next(err);
         });
