@@ -316,7 +316,7 @@ module.exports = {
                             .where(Workflow.productId.equals(product[0].id))
                     );
 
-                    if (!_.first(projectUserGroup)) {
+                    if (!_.first(stages)) {
                         throw new HttpError(400, 'No stages assigned to project, project cannot be started');
                     }
 
