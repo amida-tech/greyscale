@@ -5,6 +5,7 @@ var
     common = require('../services/common'),
     Product = require('../models/products'),
     Project = require('../models/projects'),
+    Survey = require('../models/surveys'),
     WorkflowStep = require('../models/workflow_steps'),
     Discussions = require('../models/discussions'),
     Task = require('../models/tasks'),
@@ -285,7 +286,9 @@ module.exports = {
         }, function (err) {
             next(err);
         }).then(function (data) {
-            const project_id = 1;
+            const product = Product.find(data.productId);
+            const survey = Survey.find(product.surveyId);
+            const project_id = survey.projectId;
             bologger.log({
                 req: req,
                 user: req.user,
@@ -323,7 +326,9 @@ module.exports = {
         }, function (err) {
             next(err);
         }).then(function (data) {
-            const project_id = 1;
+            const product = Product.find(data.productId);
+            const survey = Survey.find(product.surveyId);
+            const project_id = survey.projectId;
             bologger.log({
                 req: req,
                 user: req.user,
@@ -386,13 +391,15 @@ module.exports = {
         }, function (err) {
             next(err);
         }).then(function (data) {
-            const project_id = 1;
+            const product = Product.find(data.productId);
+            const survey = Survey.find(product.surveyId);
+            const project_id = survey.projectId;
             bologger.log({
                 req: req,
                 user: req.user,
                 action: 'task_inserted',
                 object: 'projects',
-                entity: req.params.id,
+                entity: project_id,
                 info: 'Task inserted'
             });
             res.status(204).end();
