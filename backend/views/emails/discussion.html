@@ -6,7 +6,7 @@
 
 <p>
     Date: <%= date.toLocaleString() %></br>
-    <a href="<%= config.domain %>/#/survey/<%= survey.id %>/task/<%= task.id %>"><%= action %> in the <%= uoa.name %> survey for the <%= product.title %></a></br>
+    <a href="<%= config.indabaClientDomain %>/#/survey/<%= survey.id %>/task/<%= task.id %>"><%= action %> in the <%= uoa.name %> survey for the <%= product.title %></a></br>
     <%= from.firstName %> <%= from.lastName %> posted a discussion comment:</br>
     <%- body %>
 </p>

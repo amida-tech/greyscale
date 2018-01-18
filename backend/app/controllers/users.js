@@ -195,7 +195,7 @@ module.exports = {
             // TODO: https://jira.amida-tech.com/browse/INBA-609
             var userAuthed = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
             if (userAuthed.statusCode > 299) {
-                userAuthed = yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID, req.headers.authorization)
+                userAuthed = yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID, req.headers.authorization);
             }
             var updateObj = {
                 authId: typeof userAuthed.body === 'string' ?
@@ -265,12 +265,15 @@ module.exports = {
             if (!req.body.password) {
                 throw new HttpError(400, 'Password field is required!');
             }
+            const existUser = _.first(isExist);
+            const userAuthed = yield _createUserOnAuthService(existUser.email, req.body.password, existUser.roleID, req.headers.authorization);
             var data = {
                 activationToken: null,
                 isActive: true,
-                password: User.hashPassword(_.first(isExist).salt, req.body.password),
+                password: User.hashPassword(existUser.salt, req.body.password),
                 firstName: req.body.firstName,
-                lastName: req.body.lastName
+                lastName: req.body.lastName,
+                authId: userAuthed.body.id,
             };
             var updated = yield thunkQuery(User.update(data).where(User.activationToken.equals(req.params.token)).returning(User.id));
             bologger.log({
@@ -367,7 +370,7 @@ module.exports = {
             }
 
             // Check if user exists on the auth service first.
-            let userExistOnAuth = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
+            const userExistOnAuth = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
 
             // var isExistsAdmin = yield * common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
             var isExistUser = yield * common.isExistsUserInRealm(req, req.params.realm, req.body.email);
@@ -387,18 +390,18 @@ module.exports = {
 
             // If user is found in greyscale we just check to see if it's been marked as deleted and un-mark it
             if (isExistUser) {
-                if (userExistOnAuth.statusCode !== 200) { // If user does not exist, create him.
-                    userExistOnAuth = yield _createUserOnAuthService(isExistUser.email, isExistUser.password, isExistUser.roleID, req.headers.authorization);
-                }
                 isExistUser.registered = true; // Indicate that the user was previously in the DB
                 const updateObj = {};
-                const authId = typeof userExistOnAuth.body === 'string' ? JSON.parse(userExistOnAuth.body).id : userExistOnAuth.body.id;
+                if (userExistOnAuth.statusCode === 200) {
+                    const authId = typeof userExistOnAuth.body === 'string' ? JSON.parse(userExistOnAuth.body).id : userExistOnAuth.body.id;
+                    if (isExistUser.authId !== authId) { // user needs authId update
+                        updateObj.authId = authId;
+                    }
+                }
                 if (isExistUser.isDeleted !== null) { // user exist and is deleted
                     updateObj.isDeleted = null;
                 }
-                if (isExistUser.authId !== authId) { // user needs authId update
-                    updateObj.authId = authId;
-                }
+
                 if (!_.isEmpty(updateObj)) {
                     yield thunkQuery(User.update(updateObj).where(User.id.equals(isExistUser.id)));
                 }
@@ -410,6 +413,7 @@ module.exports = {
                 return isExistUser;
             }
 
+            const activationToken = crypto.randomBytes(32).toString('hex');
             const salt= crypto.randomBytes(16).toString('hex');
             const pass = crypto.randomBytes(5).toString('hex');
 
@@ -421,19 +425,17 @@ module.exports = {
                 'salt': crypto.randomBytes(16).toString('hex'),
                 'password': User.hashPassword(salt, pass),
                 'isActive': false,
-                'activationToken': crypto.randomBytes(32).toString('hex'),
+                activationToken,
                 'organizationId': org.id,
                 'isAnonymous': req.body.isAnonymous ? true : false,
-                'notifyLevel': req.body.notifyLevel
+                'notifyLevel': req.body.notifyLevel,
+                'authId': 0,
             };
 
-            if (userExistOnAuth.statusCode !== 200) {
-                userExistOnAuth = yield _createUserOnAuthService(newClient.email, req.body.password, newClient.roleID, req.headers.authorization);
+            if (userExistOnAuth.statusCode === 200) {
+                newClient.authId = typeof userExistOnAuth.body === 'string' ? JSON.parse(userExistOnAuth.body).id : userExistOnAuth.body.id;
             }
-            const authId = typeof userExistOnAuth.body === 'string' ? JSON.parse(userExistOnAuth.body).id : userExistOnAuth.body.id;
 
-                // Using the ID from the auth service, create user on greyscale
-            newClient.authId = authId;
             const userObject = yield thunkQuery(User.insert(newClient).returning(User.id));
             newClient.id = _.first(userObject).id;
 
@@ -449,6 +451,24 @@ module.exports = {
                 entity: _.first(userObject).id,
                 info: 'Add new user (org invite)'
             });
+
+            var essenceId = yield * common.getEssenceId(req, 'Users');
+
+            yield * notifications.createNotification( req, {
+                userFrom: req.user.realmUserId,
+                userTo: _.first(userObject).id,
+                body: 'Invite',
+                essenceId,
+                entityId: _.first(userObject).id,
+                notifyLevel: req.body.notifyLevel,
+                name: req.body.firstName,
+                surname: req.body.lastName,
+                company: org,
+                inviter: req.user,
+                token: activationToken,
+                subject: 'Indaba. Organization membership',
+                config,
+            }, 'orgInvite');
 
             if (req.body.roleID === 2) { // invite admin
                 if (!org.adminUserId) {
