@@ -266,7 +266,6 @@ module.exports = {
                 throw new HttpError(400, 'Password field is required!');
             }
             const existUser = _.first(isExist);
-            // INBA-607: We need the admin's authorization for the following request, not the req.headers.authorization.
             const userAuthed = yield _createUserOnAuthService(existUser.email, req.body.password, existUser.roleID, req.headers.authorization);
             var data = {
                 activationToken: null,
