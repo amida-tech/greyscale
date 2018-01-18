@@ -263,7 +263,6 @@ module.exports = {
         });
     },
 
-    // INBA-484
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
@@ -303,7 +302,6 @@ module.exports = {
         });
     },
 
-    // INBA-484
     updateOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -343,7 +341,6 @@ module.exports = {
         });
     },
 
-    // INBA-484
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {

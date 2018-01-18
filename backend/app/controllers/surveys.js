@@ -474,7 +474,7 @@ module.exports = {
         });
     },
 
-    // INBA-484
+    // ToDo: INBA-484 survey last updates not working - Must fix in survey service
     questionAdd: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -483,23 +483,10 @@ module.exports = {
             res.status(201).json(data);
         }, function (err) {
             next(err);
-        }).then(function (data) {
-            const project_id = 1;
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'question_add',
-                object: 'projects',
-                entity: project_id,
-                info: 'Question Added'
-            });
-            res.status(204).end();
-        }, function (err) {
-            next(err);
         });
     },
 
-    // INBA-484
+    // ToDo: INBA-484 survey last updates not working - Must fix in survey service
     questionEdit: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -524,23 +511,10 @@ module.exports = {
             res.status(202).end();
         }, function (err) {
             next(err);
-        }).then(function (data) {
-            const project_id = 1;
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'question_edited',
-                object: 'projects',
-                entity: project_id,
-                info: 'Question edited'
-            });
-            res.status(204).end();
-        }, function (err) {
-            next(err);
         });
     },
 
-    // INBA-484
+    // ToDo: INBA-484 survey last updates not working - Must fix in survey service
     questionDelete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
@@ -556,19 +530,6 @@ module.exports = {
                 object: 'SurveyQuestions',
                 entity: req.params.id,
                 info: 'Delete survey question'
-            });
-            res.status(204).end();
-        }, function (err) {
-            next(err);
-        }).then(function (data) {
-            const project_id = 1;
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'question_deleted',
-                object: 'projects',
-                entity: project_id,
-                info: 'Question edited'
             });
             res.status(204).end();
         }, function (err) {

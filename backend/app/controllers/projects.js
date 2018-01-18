@@ -229,7 +229,6 @@ module.exports = {
         });
     },
 
-    // INBA-484
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
@@ -252,7 +251,6 @@ module.exports = {
         });
     },
 
-    // INBA-484
     editOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -339,7 +337,6 @@ module.exports = {
         });
     },
 
-    // INBA-484
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -396,7 +393,6 @@ module.exports = {
         });
     },
 
-    // INBA-484
     userAssignment: function (req, res, next) {
         co(function*() {
             var projectExist = yield * common.checkRecordExistById(req, 'Projects', 'id', req.params.projectId);
@@ -433,7 +429,6 @@ module.exports = {
         });
     },
 
-    // INBA-484
     userRemoval: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
