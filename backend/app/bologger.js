@@ -13,6 +13,7 @@ var
     sql = require('sql'),
     query = new Query(),
     thunkQuery = thunkify(query);
+    Project = require('./models/projects');
 
 function BoLogger() {
     this.data = {};
@@ -40,6 +41,9 @@ BoLogger.prototype.log = function (data) {
         //data.essence = yield * common.getEssenceId(data.object);
         if (data.object) {
             yield this.init(data.object, data.req);
+        }
+        if (data.object === 'projects') {
+            Project.find(data.entities).lastUpdated = Date.now();
         }
         if (typeof data.entities === 'object') {
             data.entities = JSON.stringify(data.entities);
