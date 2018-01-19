@@ -13,12 +13,14 @@ const base = {
         region: 'us-east-1'
     },
     awsBucket : "your-aws-bucket",
+    indabaClientDomain: process.env.INDABA_CLIENT_URL || 'http://localhost:3000',
     authService: process.env.AUTH_SERVICE_URL || 'http://localhost:4000/api/v0',
     surveyService: process.env.SURVEY_SERVICE_URL || 'http://localhost:9005/api/v1.0/',
     messageService: process.env.MESSAGE_SERVICE_URL,
     systemMessageUser: process.env.SYS_MESSAGE_USER,
     systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD,
     qaPassword: process.env.QA_PASSWORD,
+    gmailPass: process.env.GMAIL_PASS,
 };
 
 var environments = {
@@ -168,6 +170,7 @@ var environments = {
                 email: 'su@mail.net',
                 firstName: 'SuperAdmin',
                 lastName: 'Test',
+                roleID: 1,
                 scopes: 'admin',
                 password: 'testuser12345',
             },
@@ -185,6 +188,7 @@ var environments = {
                     email: 'user1@mail.net',
                     roleID: 3,
                     password: 'testuser1',
+                    authId: 1,
                 },
                 {
                     firstName: 'User2',
@@ -192,6 +196,7 @@ var environments = {
                     email: 'user2@mail.net',
                     roleID: 3,
                     password: 'testuser2',
+                    authId: 2,
                 },
                 {
                     firstName: 'User3',
@@ -199,6 +204,15 @@ var environments = {
                     email: 'user3@mail.net',
                     roleID: 3,
                     password: 'testuser3',
+                    authId: 3,
+                },
+                //Added this user to be created on the auth service
+                {
+                    firstName: 'SYSMessageUser',
+                    lastName: 'SYSMessageUser',
+                    email: 'indaba@example.com',
+                    roleID: 3,
+                    password: 'password',
                 }
             ],
             organization : {
@@ -268,7 +282,10 @@ var environments = {
                 notificationBody: './views/notifications/comment.html',
                 emailBody: './views/emails/comment.html'
             }
-        }
+        },
+        messageService: process.env.MESSAGE_SERVICE_URL || 'http://localhost:4002',
+        systemMessageUser: process.env.SYS_MESSAGE_USER || 'indaba@example.com',
+        systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD || 'password'
     }
 };
 

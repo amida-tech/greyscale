@@ -352,7 +352,7 @@ module.exports = {
                 .insert(
                     _.pick(req.body, Task.table._initialConfig.columns)
                 )
-                .returning(Task.id)
+                .returning('*')
             );
 
             var log = {

@@ -19,6 +19,7 @@ var client = require('../db_bootstrap'),
     UOA = require('../models/uoas'),
     sql = require('sql'),
     notifications = require('../controllers/notifications'),
+    mailer = require('../../lib/mailer'),
     request = require('request-promise');
 
 var Role = require('../models/roles');
@@ -124,14 +125,6 @@ module.exports = {
         co(function* () {
             var user = yield * insertOne(req, res, next);
 
-            //Temporarily Assign a password to user so they can login. CHANGE THIS
-            req.body.password = config.qaPassword;
-
-            // Create user on Auth service
-            if (user) {
-                yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID)
-            }
-
             if (req.body.projectId) {
                 yield * common.insertProjectUser(req, user.id, req.body.projectId);
             }
@@ -199,9 +192,16 @@ module.exports = {
             var user = yield thunkQuery(User.insert(newClient).returning(User.id));
 
             // Create user on the auth service
-            if (user) {
-                yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID)
+            // TODO: https://jira.amida-tech.com/browse/INBA-609
+            var userAuthed = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
+            if (userAuthed.statusCode > 299) {
+                userAuthed = yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID, req.headers.authorization);
             }
+            var updateObj = {
+                authId: typeof userAuthed.body === 'string' ?
+                    JSON.parse(userAuthed.body).id : userAuthed.body.id,
+            };
+            yield thunkQuery(User.update(updateObj).where(User.id.equals(user.id)));
 
             bologger.log({
                 //req: req, Does not use req if you want to use public namespace TODO realm?
@@ -265,12 +265,15 @@ module.exports = {
             if (!req.body.password) {
                 throw new HttpError(400, 'Password field is required!');
             }
+            const existUser = _.first(isExist);
+            const userAuthed = yield _createUserOnAuthService(existUser.email, req.body.password, existUser.roleID, req.headers.authorization);
             var data = {
                 activationToken: null,
                 isActive: true,
-                password: User.hashPassword(_.first(isExist).salt, req.body.password),
+                password: User.hashPassword(existUser.salt, req.body.password),
                 firstName: req.body.firstName,
-                lastName: req.body.lastName
+                lastName: req.body.lastName,
+                authId: userAuthed.body.id,
             };
             var updated = yield thunkQuery(User.update(data).where(User.activationToken.equals(req.params.token)).returning(User.id));
             bologger.log({
@@ -338,7 +341,7 @@ module.exports = {
                 action: 'update',
                 object: 'organizations',
                 entity: _.first(updated).id,
-                info: 'Update organization (self)'
+                info: 'Update organization  (self)'
             });
             return updated;
         }).then(function (data) {
@@ -354,7 +357,6 @@ module.exports = {
         }
 
         co(function* () {
-
             if (req.body.roleID === 1) {
                 throw new HttpError(400, 'You cannot invite super admins');
             }
@@ -367,117 +369,118 @@ module.exports = {
                 throw new HttpError(400, 101);
             }
 
-            var isExistsAdmin = yield * common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
+            // Check if user exists on the auth service first.
+            const userExistOnAuth = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
+
+            // var isExistsAdmin = yield * common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
             var isExistUser = yield * common.isExistsUserInRealm(req, req.params.realm, req.body.email);
 
             var thunkQuery = thunkify(new Query(req.params.realm));
 
-            // If user is found in table we check to see if it's been marked as deleted and un-mark it
-            if ((isExistUser && isExistUser.isActive)) {
-                if (isExistUser.isDeleted === null || isExistsAdmin) {
-                    throw new HttpError(400, 'User with this email has already registered');
-                } else if (isExistUser.isDeleted !== null) {
-
-                    const updateObj = {
-                        isDeleted: null
-                    };
-
-                    const user = yield thunkQuery(
-                        User.update(updateObj).where(User.email.equals(req.body.email))
-                    );
-
-                    return {
-                        message: 'User re-invited successfully',
-                        data: user
-                    };
-                }
-            }
-
+            // Verify the organization
             var org = yield thunkQuery(
                 Organization.select().where(Organization.realm.equals(req.params.realm))
             );
 
-            if (!org[0]) {
+            if (!_.first(org)) {
                 throw new HttpError(404, 'Organization not found');
             }
 
-            org = org[0];
+            org = _.first(org);
 
-            var firstName = isExistUser ? isExistUser.firstName : req.body.firstName;
-            var lastName = isExistUser ? isExistUser.lastName : req.body.lastName;
-            var activationToken = isExistUser ? isExistUser.activationToken : crypto.randomBytes(32).toString('hex');
-            var salt = crypto.randomBytes(16).toString('hex');
-            var pass = crypto.randomBytes(5).toString('hex');
-
-            var newClient;
-            var newUserId = isExistUser ? isExistUser.id : 0;
-            if (!isExistUser) {
-                newClient = {
-                    'firstName': req.body.firstName,
-                    'lastName': req.body.lastName,
-                    'email': req.body.email,
-                    'roleID': req.body.roleID, //user
-                    'salt': salt,
-                    'password': User.hashPassword(salt, pass),
-                    'isActive': false,
-                    'activationToken': activationToken,
-                    'organizationId': org.id,
-                    'isAnonymous': req.body.isAnonymous ? true : false,
-                    'notifyLevel': req.body.notifyLevel
-                };
-
-                var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
-
-                if (userId) {
-                    yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID)
-                }
-
-                newUserId = userId[0].id;
-                bologger.log({
-                    req: req,
-                    user: req.user,
-                    action: 'insert',
-                    object: 'users',
-                    entity: newUserId,
-                    info: 'Add new user (org invite)'
-                });
-
-                if (req.body.roleID === 2) { // invite admin
-                    if (!org.adminUserId) {
-                        yield thunkQuery(
-                            Organization.update({
-                                adminUserId: newUserId
-                            }).where(Organization.id.equals(org.id))
-                        );
+            // If user is found in greyscale we just check to see if it's been marked as deleted and un-mark it
+            if (isExistUser) {
+                isExistUser.registered = true; // Indicate that the user was previously in the DB
+                const updateObj = {};
+                if (userExistOnAuth.statusCode === 200) {
+                    const authId = typeof userExistOnAuth.body === 'string' ? JSON.parse(userExistOnAuth.body).id : userExistOnAuth.body.id;
+                    if (isExistUser.authId !== authId) { // user needs authId update
+                        updateObj.authId = authId;
                     }
                 }
+                if (isExistUser.isDeleted !== null) { // user exist and is deleted
+                    updateObj.isDeleted = null;
+                }
 
-                var essenceId = yield * common.getEssenceId(req, 'Users');
+                if (!_.isEmpty(updateObj)) {
+                    yield thunkQuery(User.update(updateObj).where(User.id.equals(isExistUser.id)));
+                }
 
-                var note = yield * notifications.createNotification(req, {
-                    userFrom: newUserId,
-                    userTo: newUserId,
-                    body: 'Invite',
-                    essenceId: essenceId,
-                    entityId: newUserId,
-                    notifyLevel: req.body.notifyLevel,
-                    name: firstName,
-                    surname: lastName,
-                    company: org,
-                    inviter: req.user,
-                    token: activationToken,
-                    subject: 'Indaba. Organization membership',
-                    config: config
-                },
-                    'orgInvite'
-                );
+                // If user is in greyscale and not deleted add to project if needed
+                if (req.body.projectId) {
+                    yield * common.insertProjectUser(req, isExistUser.id, req.body.projectId);
+                }
+                return isExistUser;
+            }
 
-            } else {
-                newClient = isExistUser;
+            const activationToken = crypto.randomBytes(32).toString('hex');
+            const salt= crypto.randomBytes(16).toString('hex');
+            const pass = crypto.randomBytes(5).toString('hex');
+
+            var newClient = {
+                'firstName': req.body.firstName,
+                'lastName': req.body.lastName,
+                'email': req.body.email,
+                'roleID': req.body.roleID, //user
+                'salt': crypto.randomBytes(16).toString('hex'),
+                'password': User.hashPassword(salt, pass),
+                'isActive': false,
+                activationToken,
+                'organizationId': org.id,
+                'isAnonymous': req.body.isAnonymous ? true : false,
+                'notifyLevel': req.body.notifyLevel,
+                'authId': 0,
+            };
+
+            if (userExistOnAuth.statusCode === 200) {
+                newClient.authId = typeof userExistOnAuth.body === 'string' ? JSON.parse(userExistOnAuth.body).id : userExistOnAuth.body.id;
+            }
+
+            const userObject = yield thunkQuery(User.insert(newClient).returning(User.id));
+            newClient.id = _.first(userObject).id;
+
+            if (req.body.projectId) { // insert the user into the projectUserTable
+                yield * common.insertProjectUser(req, _.first(userObject).id, req.body.projectId);
+            }
+
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'insert',
+                object: 'users',
+                entity: _.first(userObject).id,
+                info: 'Add new user (org invite)'
+            });
+
+            var essenceId = yield * common.getEssenceId(req, 'Users');
+
+            yield * notifications.createNotification( req, {
+                userFrom: req.user.realmUserId,
+                userTo: _.first(userObject).id,
+                body: 'Invite',
+                essenceId,
+                entityId: _.first(userObject).id,
+                notifyLevel: req.body.notifyLevel,
+                name: req.body.firstName,
+                surname: req.body.lastName,
+                company: org,
+                inviter: req.user,
+                token: activationToken,
+                subject: 'Indaba. Organization membership',
+                config,
+            }, 'orgInvite');
+
+            if (req.body.roleID === 2) { // invite admin
+                if (!org.adminUserId) {
+                    yield thunkQuery(
+                            Organization.update({
+                                adminUserId: _.first(userObject).id
+                            }).where(Organization.id.equals(org.id))
+                        );
+                }
             }
 
             return newClient;
-
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -1181,7 +1184,7 @@ function* insertOne(req, res, next) {
     }
 
     // validate password length
-    if (!vl.isLength(req.body.password, 6, 32)) {
+    if (!vl.isLength(req.body.password, 8, 64)) {
         throw new HttpError(400, 102);
     }
 
@@ -1193,16 +1196,24 @@ function* insertOne(req, res, next) {
     var isExistUser = yield * common.isExistsUserInRealm(req, req.params.realm, req.body.email);
     if (isExistUser) {
         isExistUser.registered = true;
-
         // If user is found in table we check to see if it's been marked as deleted and un-mark it
         if (isExistUser.isDeleted !== null) {
-            const updateObj = {
-                isDeleted: null
-            };
 
-            yield thunkQuery(
-                User.update(updateObj).where(User.email.equals(req.body.email))
-            );
+            // make sure user is on auth before reactivating
+            const userExistOnAuth = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
+
+            if (userExistOnAuth.statusCode === 200) { // User was found on auth service
+
+                const updateObj = {
+                    isDeleted: null
+                };
+
+                yield thunkQuery(
+                    User.update(updateObj).where(User.email.equals(req.body.email))
+                );
+            } else { // User wasn't found on auth but exist in greyscale
+                throw new HttpError(403, 'Couldn\'t reactivate user on greyscale because user not on auth');
+            }
         }
         return (isExistUser);
     }
@@ -1218,6 +1229,32 @@ function* insertOne(req, res, next) {
         }
     }
 
+    // create user on auth service
+
+    //Temporarily Assign a password to user so they can login. CHANGE THIS
+    const authTempPass = config.qaPassword; //TODO: REMOVE TEMP PASS ONCE MESSAGING IS ALL SET UP
+
+    const authUser = yield _createUserOnAuthService(req.body.email, authTempPass, req.body.roleID, req.headers.authorization);
+    var userExistOnAuthBodyObject;
+
+    if (authUser.statusCode === 200) { // user was successfully created on the auth service
+        userExistOnAuthBodyObject = authUser.body; // information of newly created user
+
+    } else { // User wasn't created on auth so user probably already exists
+
+        const userExistOnAuth = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
+
+        if (userExistOnAuth.statusCode === 200) { // found the user on the auth service
+            userExistOnAuthBodyObject = JSON.parse(userExistOnAuth.body);
+        } else {
+            throw new HttpError(403, 'Couldn\'t create user on greyscale and user doesn\'t exist on auth');
+        }
+    }
+
+    // Insert new user into greyscale
+    if (userExistOnAuthBodyObject) {
+        req.body.authId = userExistOnAuthBodyObject.id;
+    }
     var user = yield thunkQuery(User.insert(_.extend(_.omit(req.body, 'projectId'), {
         salt: salt
     })).returning('*'));
@@ -1234,6 +1271,7 @@ function* insertOne(req, res, next) {
         user = _.first(user);
 
         var essenceId = yield * common.getEssenceId(req, 'Users');
+
         var note = yield * notifications.createNotification(req, {
             userFrom: req.user.realmUserId,
             userTo: user.id,
@@ -1252,8 +1290,36 @@ function* insertOne(req, res, next) {
     return user;
 }
 
-function _createUserOnAuthService(email, password, roleId) {
+function _getUserOnAuthService(email, jwt) {
+    const path = '/user/byEmail/' + email;
 
+    const requestOptions = {
+        url: config.authService + path,
+        method: 'GET',
+        headers: {
+            'authorization': jwt,
+            'origin': config.domain
+        },
+        resolveWithFullResponse: true,
+    };
+    return request(requestOptions)
+        .then((res) => {
+            if (res.statusCode > 299 || res.statusCode < 200) {
+                const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                return Promise.reject(httpErr);
+            }
+            return res;
+        })
+        .catch((err) => {
+            if (err.statusCode === 404) { // User wasn't found
+                return err;
+            }
+            const httpErr = new HttpError(500, `Unable to use auth service: ${err.message}`);
+            return Promise.reject(httpErr);
+        });
+}
+
+function _createUserOnAuthService(email, password, roleId, jwt) {
     var scopes = [];
     // Check if user being created is admin
     if (roleId == 1 || roleId == 2) {
@@ -1261,10 +1327,13 @@ function _createUserOnAuthService(email, password, roleId) {
     }
 
     const path = '/user';
-
     const requestOptions = {
         url: config.authService + path,
         method: 'POST',
+        headers: {
+            'authorization': jwt,
+            'origin': config.domain
+        },
         json: {
             username: email,
             email: email,
