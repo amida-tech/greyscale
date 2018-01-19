@@ -454,8 +454,15 @@ module.exports = {
 
             var essenceId = yield * common.getEssenceId(req, 'Users');
 
+            var userFrom;
+            if (req.user.realmUserId) {
+                userFrom = req.user.realmUserId;
+            } else if (newClient.roleID === 2) {
+                userFrom = newClient.id;
+            } // ... else you're going to have a bad time.
+
             yield * notifications.createNotification( req, {
-                userFrom: req.user.realmUserId,
+                userFrom,
                 userTo: _.first(userObject).id,
                 body: 'Invite',
                 essenceId,
