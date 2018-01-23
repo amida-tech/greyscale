@@ -379,15 +379,6 @@ function* checkTaskData(req) {
 function* updateCurrentStepId(req, insertedTaskId) {
     var thunkQuery = req.thunkQuery;
 
-    var product = yield * common.getEntity(req, req.body.productId, Product, 'id');
-    if (product.status !== 2) { // not suspended
-        yield thunkQuery(
-            ProductUOA.update({
-                isComplete: false
-            }).where(ProductUOA.productId.equals(req.body.productId))
-        );
-    }
-
     var result;
     var minStepPositionQuery = WorkflowStep
         .select(
@@ -402,6 +393,7 @@ function* updateCurrentStepId(req, insertedTaskId) {
         .and(Task.uoaId.equals(req.body.uoaId))
         .and(WorkflowStep.isDeleted.isNull())
         .order(WorkflowStep.position);
+
     result = yield thunkQuery(minStepPositionQuery);
 
     if (!_.first(result)) {
@@ -409,26 +401,29 @@ function* updateCurrentStepId(req, insertedTaskId) {
     }
 
     var addedStep = _.find(result, (step) => step.id === insertedTaskId);
+
     var currentStep = _.first(yield thunkQuery(ProductUOA
         .select(
             WorkflowStep.position,
-            ProductUOA.currentStepId
+            ProductUOA.currentStepId,
+            ProductUOA.isComplete
         )
         .from(ProductUOA.join(WorkflowStep).on(ProductUOA.currentStepId.equals(WorkflowStep.id)))
         .where(ProductUOA.productId.equals(req.body.productId))
-        .and(ProductUOA.UOAid.equals(req.body.uoaId))));
+        .and(ProductUOA.UOAid.equals(req.body.uoaId)))) || {};
 
-    if (!currentStep || addedStep.position < currentStep.position) {
+    if (_.isEmpty(currentStep) || (currentStep.position + 1 === addedStep.position && currentStep.isComplete)) {
         yield thunkQuery(ProductUOA
             .update({
-                currentStepId: addedStep.stepId
+                isComplete: false,
+                currentStepId: addedStep.stepId,
             })
             .where(ProductUOA.productId.equals(req.body.productId)
                 .and(ProductUOA.UOAid.equals(req.body.uoaId))
             )
         );
-    }
         // TODO: Notify user, INBA-529.
+    }
 
     return {
         productId: req.body.productId,
