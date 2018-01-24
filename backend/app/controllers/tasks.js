@@ -412,7 +412,8 @@ function* updateCurrentStepId(req, insertedTaskId) {
         .where(ProductUOA.productId.equals(req.body.productId))
         .and(ProductUOA.UOAid.equals(req.body.uoaId))));
 
-    if (!currentStep || (currentStep.position + 1 === addedStep.position && currentStep.isComplete)) {
+    if (!currentStep || (currentStep.position + 1 === addedStep.position && currentStep.isComplete) ||
+        addedStep.position < currentStep.position) {
         yield thunkQuery(ProductUOA
             .update({
                 isComplete: false,
