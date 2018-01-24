@@ -424,6 +424,7 @@ function* updateCurrentStepId(req, insertedTaskId) {
                 .where(Workflow.productId.equals(req.body.productId))
                 .and(WorkflowStep.position.equals(0)))).id;
         } else {
+            // TODO: INBA-561
             updateObj.currentStepId = addedStep.stepId;
         }
 
