@@ -410,9 +410,9 @@ function* updateCurrentStepId(req, insertedTaskId) {
         )
         .from(ProductUOA.join(WorkflowStep).on(ProductUOA.currentStepId.equals(WorkflowStep.id)))
         .where(ProductUOA.productId.equals(req.body.productId))
-        .and(ProductUOA.UOAid.equals(req.body.uoaId)))) || {};
+        .and(ProductUOA.UOAid.equals(req.body.uoaId))));
 
-    if (_.isEmpty(currentStep) || (currentStep.position + 1 === addedStep.position && currentStep.isComplete)) {
+    if (!currentStep || (currentStep.position + 1 === addedStep.position && currentStep.isComplete)) {
         yield thunkQuery(ProductUOA
             .update({
                 isComplete: false,
