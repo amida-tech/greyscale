@@ -19,7 +19,6 @@ const base = {
     messageService: process.env.MESSAGE_SERVICE_URL,
     systemMessageUser: process.env.SYS_MESSAGE_USER,
     systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD,
-    qaPassword: process.env.QA_PASSWORD,
     gmailPass: process.env.GMAIL_PASS,
 };
 
