@@ -163,7 +163,8 @@ module.exports = {
                 'AND "Tasks"."isDeleted" is NULL ' +
                 ') '
             );
-            return yield * common.getFlagsForTask(req, tasks);
+            tasks = yield * common.getFlagsForTask(req, tasks);
+            return tasks = yield * common.getCompletenessForTask(req, tasks);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
