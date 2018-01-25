@@ -86,39 +86,207 @@ module.exports = {
             }
             var uoas = req.body.subjects.map((subject) => subject.name);
             var sqlString = "'" + uoas.toString().replace(/'/g, "''").replace(/,/g, "','") + "'";
+
+
+            console.log(`UOAS ARE: ${uoas}`);
+            console.log(`UOAS ARE: ${uoas.length}`);
+            console.log(`UOAS ARE: ${uoas[0]}`);
+
+            console.log(`SQL STRING IS: ${sqlString}`)
         } else {
             throw new HttpError(400, 'Missing Subjects');
         }
 
         co(function* () {
-            var added = yield thunkQuery(
+
+            // Check if Subjects already exist in DB
+            const existingRecords = yield thunkQuery(
                 'SELECT name, id FROM "UnitOfAnalysis" ' +
                 'WHERE LOWER("UnitOfAnalysis"."name") IN (' + sqlString.toLowerCase() + ') ' +
                 'AND "UnitOfAnalysis"."unitOfAnalysisType" = ' + req.body.unitOfAnalysisType
-
             );
-            var insert = _.difference(uoas, added.map((exist) => exist.name));
-            for (var i = 0; i < insert.length; i++) {
-                var result = yield thunkQuery(UnitOfAnalysis.insert({
-                    name: insert[i],
-                    creatorId: req.user.realmUserId,
-                    ownerId: req.user.realmUserId,
-                    unitOfAnalysisType: req.body.unitOfAnalysisType,
-                    created: new Date(),
-                }).returning(UnitOfAnalysis.id));
-                added.push({name: insert[i], id: _.first(result).id});
-            }
-            if (req.body.productId) {
-                for (var j = 0; j < added.length; j++) {
-                    yield thunkQuery(ProductUOA.insert({
-                        productId: req.body.productId,
-                        UOAid: added[j].id,
-                        currentStepId: null,
-                        isComplete: false,
-                    }));
+
+            console.log(`EXISTING RECORD: ${existingRecords.length}`)
+
+            let insertedRecords = [];
+
+            if (!_.first(existingRecords)) { // No record was found
+
+                // Insert the new records
+                for (const i = 0; i < uoas.length; i ++) { // Inserts the Subjects / UOA's
+
+                    const insertedRecord = yield thunkQuery(
+                        UnitOfAnalysis.insert({
+                            name: uoas[i],
+                            creatorId: req.user.realmUserId,
+                            ownerId: req.user.realmUserId,
+                            unitOfAnalysisType: req.body.unitOfAnalysisType,
+                            created: new Date(),
+                        }).returning(UnitOfAnalysis.id)
+                    );
+
+                    console.log(`INSERTED RECORD IS: ${insertedRecord}`);
+                    console.log(`INSERTED RECORD IS: ${Object.keys(insertedRecord)}`);
+                    console.log(`INSERTED RECORD IS: ${_.first(insertedRecord).id}`);
+
+                    // Insert into the productUOA table if applicable
+                    if (req.body.productId) {
+                        yield thunkQuery(ProductUOA.insert({
+                            productId: req.body.productId,
+                            UOAid: _.first(insertedRecord).id,
+                            currentStepId: null,
+                            isComplete: false,
+                        }));
+                    }
+
+                    insertedRecords.push(insertedRecord);
+                }
+
+                return {
+                    data: insertedRecords,
+                    message: 'Successfully inserted subject'
+                };
+
+            } else { // Record was found
+                for (const i = 0; i < existingRecords.length; i ++) {
+                    if (existingRecords[i].isDeleted !== null) { // Subject is marked as deleted
+                        const updateObj = {
+                            isDeleted: null
+                        };
+                        const updatedRecord = yield thunkQuery(
+                            UnitOfAnalysis.update(updateObj).where(UnitOfAnalysis.id.equals(added[uoa].id))
+                        );
+
+                        // Insert into the productUOA table if applicable
+                        if (req.body.productId) {
+                            // check that record doesn't already exist in productUOA
+                            const recordInProductUOA = yield thunkQuery(
+                                ProductUOA.select().where(ProductUOA.UOAid.equals(added[uoa].id))
+                            );
+
+                            if (!_.first(recordInProductUOA)) { // Record not in productUOA, we can add it
+                                yield thunkQuery(ProductUOA.insert({
+                                    productId: req.body.productId,
+                                    UOAid: insertedRecord.id,
+                                    currentStepId: null,
+                                    isComplete: false,
+                                }));
+                            }
+                        }
+                        return {
+                            data: updatedRecord,
+                            message: "Subject Updated successfully!"
+                        }
+                    } else {
+                        // Insert into the productUOA table if applicable
+                        if (req.body.productId) {
+                            // check that record doesn't already exist in productUOA
+                            const recordInProductUOA = yield thunkQuery(
+                                ProductUOA.select().where(ProductUOA.UOAid.equals(added[uoa].id))
+                            );
+
+                            if (!_.first(recordInProductUOA)) { // Record not in productUOA, we can add it
+                                yield thunkQuery(ProductUOA.insert({
+                                    productId: req.body.productId,
+                                    UOAid: insertedRecord.id,
+                                    currentStepId: null,
+                                    isComplete: false,
+                                }));
+                            } else {
+                                throw new HttpError(403, 'Error adding duplicate subject to project');
+                            }
+
+                            return {
+                                data: recordInProductUOA,
+                                message: "Subject was added to project successfully!"
+                            }
+                        }
+                        throw new HttpError(400, 'Error adding duplicate subject to system')
+                    }
                 }
             }
-            return added;
+
+
+
+
+
+
+
+
+
+
+
+
+
+            // var added = yield thunkQuery(
+            //     'SELECT name, id FROM "UnitOfAnalysis" ' +
+            //     'WHERE LOWER("UnitOfAnalysis"."name") IN (' + sqlString.toLowerCase() + ') ' +
+            //     'AND "UnitOfAnalysis"."unitOfAnalysisType" = ' + req.body.unitOfAnalysisType
+            // );
+            //
+            // if (added.length > 0) { // means the subject is in the DB
+            //     for (var uoa = 0; uoa < added.length; uoa ++) {
+            //         if (added[uoa].isDeleted !== null) { // check if its deleted
+            //             const updateObj = {
+            //                 isDeleted: null
+            //             };
+            //             yield thunkQuery(
+            //                 UnitOfAnalysis.update(updateObj).where(UnitOfAnalysis.id.equals(added[uoa].id))
+            //             )
+            //
+            //             // check if its already in the project
+            //             const uoaInProject = yield thunkQuery(
+            //                 ProductUOA.select().where(ProductUOA.UOAid.equals(added[uoa].id))
+            //             );
+            //
+            //             if (!_.first(uoaInProject)) {
+            //                 throw new HttpError(403, 'Subject already exist in project');
+            //             }
+            //         } else {
+            //             // check if its already in the project
+            //             const uoaInProject = yield thunkQuery(
+            //                 ProductUOA.select().where(ProductUOA.UOAid.equals(added[uoa].id))
+            //             );
+            //
+            //             if (!_.first(uoaInProject)) {
+            //                 throw new HttpError(403, 'Subject already exist in project');
+            //             } else {
+            //                 yield thunkQuery(ProductUOA.insert({
+            //                     productId: req.body.productId,
+            //                     UOAid: added[j].id,
+            //                     currentStepId: null,
+            //                     isComplete: false,
+            //                 }));
+            //             }
+            //         }
+            //     }
+            // } else {
+            //
+            //     var insert = _.difference(uoas, added.map((exist) => exist.name));
+            //
+            //     for (var i = 0; i < insert.length; i++) {
+            //         var result = yield thunkQuery(UnitOfAnalysis.insert({
+            //             name: insert[i],
+            //             creatorId: req.user.realmUserId,
+            //             ownerId: req.user.realmUserId,
+            //             unitOfAnalysisType: req.body.unitOfAnalysisType,
+            //             created: new Date(),
+            //         }).returning(UnitOfAnalysis.id));
+            //         added.push({name: insert[i], id: _.first(result).id});
+            //     }
+            //     if (req.body.productId) {
+            //         for (var j = 0; j < added.length; j++) {
+            //             yield thunkQuery(ProductUOA.insert({
+            //                 productId: req.body.productId,
+            //                 UOAid: added[j].id,
+            //                 currentStepId: null,
+            //                 isComplete: false,
+            //             }));
+            //         }
+            //     }
+            // }
+
+            // return added;
         }).then(function (data) {
             bologger.log({
                 req: req,
