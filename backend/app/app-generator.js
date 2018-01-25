@@ -31,18 +31,18 @@ const initExpress = function (app) {
         .then((response) => {
             app.set(messageService.SYSTEM_MESSAGE_USER_TOKEN_FIELD, response.token)
             logger.debug('Authenticated as system message user');
-
+        }).catch((err) => {
+            logger.error('Failed to authenticate as system message user');
+            logger.error(`Expected a system message user (${config.systemMessageUser} to exist.)`);
+            logger.error('Expected to authenticate with password in SYS_MESSAGE_PASSWORD');
+            logger.error(err);
+        }).then(() => {
             var server = app.listen(process.env.PORT || config.port || 3000, function () {
                 logger.debug('Listening on port ' + server.address().port);
                 console.log('ok, server is running!'); // need for background test server
             });
 
             require('./socket/socket-controller.server').init(server);
-        }).catch(() => {
-            logger.error('Failed to authenticate as system message user');
-            logger.error(`Expected a system message user (${config.systemMessageUser} to exist.)`);
-            logger.error('Expected to authenticate with password in SYS_MESSAGE_PASSWORD');
-            throw new Error('Failed to authenticate as system message user');
         });
     };
 
