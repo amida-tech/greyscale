@@ -1230,11 +1230,7 @@ function* insertOne(req, res, next) {
     }
 
     // create user on auth service
-
-    //Temporarily Assign a password to user so they can login. CHANGE THIS
-    const authTempPass = config.qaPassword; //TODO: REMOVE TEMP PASS ONCE MESSAGING IS ALL SET UP
-
-    const authUser = yield _createUserOnAuthService(req.body.email, authTempPass, req.body.roleID, req.headers.authorization);
+    const authUser = yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID, req.headers.authorization);
     var userExistOnAuthBodyObject;
 
     if (authUser.statusCode === 200) { // user was successfully created on the auth service
