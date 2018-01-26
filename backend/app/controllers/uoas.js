@@ -108,12 +108,12 @@ module.exports = {
 
             console.log(`EXISTING RECORD: ${existingRecords.length}`)
 
-            let insertedRecords = [];
+            const insertedRecords = [];
 
             if (!_.first(existingRecords)) { // No record was found
 
                 // Insert the new records
-                for (const i = 0; i < uoas.length; i ++) { // Inserts the Subjects / UOA's
+                for (let i = 0; i < uoas.length; i ++) { // Inserts the Subjects / UOA's
 
                     const insertedRecord = yield thunkQuery(
                         UnitOfAnalysis.insert({
@@ -125,9 +125,7 @@ module.exports = {
                         }).returning(UnitOfAnalysis.id)
                     );
 
-                    console.log(`INSERTED RECORD IS: ${insertedRecord}`);
-                    console.log(`INSERTED RECORD IS: ${Object.keys(insertedRecord)}`);
-                    console.log(`INSERTED RECORD IS: ${_.first(insertedRecord).id}`);
+                    console.log(`INSERTED RECORD ID IS: ${_.first(insertedRecord).id}`);
 
                     // Insert into the productUOA table if applicable
                     if (req.body.productId) {
@@ -144,24 +142,29 @@ module.exports = {
 
                 return {
                     data: insertedRecords,
-                    message: 'Successfully inserted subject'
+                    message: 'Successfully inserted subjects',
                 };
 
             } else { // Record was found
-                for (const i = 0; i < existingRecords.length; i ++) {
-                    if (existingRecords[i].isDeleted !== null) { // Subject is marked as deleted
+                for (let i = 0; i < existingRecords.length; i ++) {
+                    console.log(`EXISTING RECORDS IS: ${Object.keys(existingRecords)}`)
+                    console.log(`ITERATR IS: ${i}`);
+                    console.log(`IN THE FIRST PLACE NAME: ${existingRecords[i].name}`);
+                    console.log(`IN THE FIRST PLACE: ${existingRecords[i].isDeleted}`);
+                    if (typeof (existingRecords[i].isDeleted) !== 'undefined') { // Subject is marked as deleted
+                        console.log(`I GOT IN HERE BECAUSE IS_DELETED WAS UNDEFINED`)
                         const updateObj = {
                             isDeleted: null
                         };
                         const updatedRecord = yield thunkQuery(
-                            UnitOfAnalysis.update(updateObj).where(UnitOfAnalysis.id.equals(added[uoa].id))
+                            UnitOfAnalysis.update(updateObj).where(UnitOfAnalysis.id.equals(existingRecords[i].id))
                         );
 
                         // Insert into the productUOA table if applicable
                         if (req.body.productId) {
                             // check that record doesn't already exist in productUOA
                             const recordInProductUOA = yield thunkQuery(
-                                ProductUOA.select().where(ProductUOA.UOAid.equals(added[uoa].id))
+                                ProductUOA.select().where(ProductUOA.UOAid.equals(existingRecords[i].id))
                             );
 
                             if (!_.first(recordInProductUOA)) { // Record not in productUOA, we can add it
@@ -178,11 +181,12 @@ module.exports = {
                             message: "Subject Updated successfully!"
                         }
                     } else {
+                        console.log(`I AM IN HERE BECAUSE I SKIPPED IS DELETED ${existingRecords[i].isDeleted }`)
                         // Insert into the productUOA table if applicable
                         if (req.body.productId) {
                             // check that record doesn't already exist in productUOA
                             const recordInProductUOA = yield thunkQuery(
-                                ProductUOA.select().where(ProductUOA.UOAid.equals(added[uoa].id))
+                                ProductUOA.select().where(ProductUOA.UOAid.equals(existingRecords[i].id))
                             );
 
                             if (!_.first(recordInProductUOA)) { // Record not in productUOA, we can add it
