@@ -1,5 +1,4 @@
-var client = require('../db_bootstrap'),
-    _ = require('underscore'),
+var _ = require('underscore'),
     config = require('../../config'),
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),
@@ -11,7 +10,6 @@ var client = require('../db_bootstrap'),
     ProductUOA = require('../models/product_uoa'),
     Product = require('../models/products'),
     Project = require('../models/projects'),
-    Task = require('../models/tasks'),
     co = require('co'),
     Query = require('../util').Query,
     getTranslateQuery = require('../util').getTranslateQuery,
@@ -19,8 +17,7 @@ var client = require('../db_bootstrap'),
     query = new Query(),
     thunkify = require('thunkify'),
     sql = require('sql'),
-    HttpError = require('../error').HttpError,
-    thunkQuery = thunkify(query);
+    HttpError = require('../error').HttpError;
 
 var debug = require('debug')('debug_uoas');
 debug.log = console.log.bind(console);
@@ -86,46 +83,83 @@ module.exports = {
             }
             var uoas = req.body.subjects.map((subject) => subject.name);
             var sqlString = "'" + uoas.toString().replace(/'/g, "''").replace(/,/g, "','") + "'";
-
-
-            console.log(`UOAS ARE: ${uoas}`);
-            console.log(`UOAS ARE: ${uoas.length}`);
-            console.log(`UOAS ARE: ${uoas[0]}`);
-
-            console.log(`SQL STRING IS: ${sqlString}`)
         } else {
             throw new HttpError(400, 'Missing Subjects');
         }
 
         co(function* () {
-
             // Check if Subjects already exist in DB
             const existingRecords = yield thunkQuery(
-                'SELECT name, id FROM "UnitOfAnalysis" ' +
+                'SELECT * FROM "UnitOfAnalysis" ' +
                 'WHERE LOWER("UnitOfAnalysis"."name") IN (' + sqlString.toLowerCase() + ') ' +
                 'AND "UnitOfAnalysis"."unitOfAnalysisType" = ' + req.body.unitOfAnalysisType
             );
 
-            console.log(`EXISTING RECORD: ${existingRecords.length}`)
-
+            // Empty list to hold inserted or modified records
             const insertedRecords = [];
 
-            if (!_.first(existingRecords)) { // No record was found
+            if (_.first(existingRecords)) {
+                for (let i = 0; i < existingRecords.length; i++) {
+                    if (existingRecords.isDeleted !== null) {
+                        const updateObj = {
+                            isDeleted: null
+                        };
 
-                // Insert the new records
-                for (let i = 0; i < uoas.length; i ++) { // Inserts the Subjects / UOA's
+                        yield thunkQuery(
+                            UnitOfAnalysis.update(updateObj).where(UnitOfAnalysis.id.equals(existingRecords[i].id))
+                        );
+                    }
 
+                    if (req.body.productId) {
+                        // check that record doesn't already exist in productUOA
+                        const recordInProductUOA = yield thunkQuery(
+                            ProductUOA.select().where(ProductUOA.UOAid.equals(existingRecords[i].id))
+                        );
+
+                        if (!_.first(recordInProductUOA)) { // Record not in productUOA, we can add it
+
+                            yield thunkQuery(ProductUOA.insert({
+                                productId: req.body.productId,
+                                UOAid: existingRecords[i].id,
+                                currentStepId: null,
+                                isComplete: false,
+                            }));
+                        } else if (_.first(recordInProductUOA).isDeleted !== null) {
+
+                            const updateObj = {
+                                isDeleted: null
+                            };
+
+                            const updatedRecordInProductUOA = yield thunkQuery(
+                                ProductUOA.update(updateObj).where(ProductUOA.UOAid.equals(existingRecords[i].id))
+                            );
+
+                        } else {
+                            throw new HttpError(403, 'Error adding duplicate subject to project');
+                        }
+                    }
+                    insertedRecords.push({
+                        id: existingRecords[i].id,
+                        name: existingRecords[i].name
+                    });
+                }
+            }
+
+            if (uoas.length !== existingRecords.length) {
+                //get the new records to be inserted into a new list
+                const newRecords = _.difference(uoas, existingRecords.map((exist) => exist.name));
+
+                for (let i = 0; i < newRecords.length; i++) {
+                    // Insert the new records
                     const insertedRecord = yield thunkQuery(
                         UnitOfAnalysis.insert({
-                            name: uoas[i],
+                            name: newRecords[i],
                             creatorId: req.user.realmUserId,
                             ownerId: req.user.realmUserId,
                             unitOfAnalysisType: req.body.unitOfAnalysisType,
                             created: new Date(),
-                        }).returning(UnitOfAnalysis.id)
+                        }).returning(UnitOfAnalysis.id, UnitOfAnalysis.name)
                     );
-
-                    console.log(`INSERTED RECORD ID IS: ${_.first(insertedRecord).id}`);
 
                     // Insert into the productUOA table if applicable
                     if (req.body.productId) {
@@ -136,161 +170,13 @@ module.exports = {
                             isComplete: false,
                         }));
                     }
-
-                    insertedRecords.push(insertedRecord);
-                }
-
-                return {
-                    data: insertedRecords,
-                    message: 'Successfully inserted subjects',
-                };
-
-            } else { // Record was found
-                for (let i = 0; i < existingRecords.length; i ++) {
-                    console.log(`EXISTING RECORDS IS: ${Object.keys(existingRecords)}`)
-                    console.log(`ITERATR IS: ${i}`);
-                    console.log(`IN THE FIRST PLACE NAME: ${existingRecords[i].name}`);
-                    console.log(`IN THE FIRST PLACE: ${existingRecords[i].isDeleted}`);
-                    if (typeof (existingRecords[i].isDeleted) !== 'undefined') { // Subject is marked as deleted
-                        console.log(`I GOT IN HERE BECAUSE IS_DELETED WAS UNDEFINED`)
-                        const updateObj = {
-                            isDeleted: null
-                        };
-                        const updatedRecord = yield thunkQuery(
-                            UnitOfAnalysis.update(updateObj).where(UnitOfAnalysis.id.equals(existingRecords[i].id))
-                        );
-
-                        // Insert into the productUOA table if applicable
-                        if (req.body.productId) {
-                            // check that record doesn't already exist in productUOA
-                            const recordInProductUOA = yield thunkQuery(
-                                ProductUOA.select().where(ProductUOA.UOAid.equals(existingRecords[i].id))
-                            );
-
-                            if (!_.first(recordInProductUOA)) { // Record not in productUOA, we can add it
-                                yield thunkQuery(ProductUOA.insert({
-                                    productId: req.body.productId,
-                                    UOAid: insertedRecord.id,
-                                    currentStepId: null,
-                                    isComplete: false,
-                                }));
-                            }
-                        }
-                        return {
-                            data: updatedRecord,
-                            message: "Subject Updated successfully!"
-                        }
-                    } else {
-                        console.log(`I AM IN HERE BECAUSE I SKIPPED IS DELETED ${existingRecords[i].isDeleted }`)
-                        // Insert into the productUOA table if applicable
-                        if (req.body.productId) {
-                            // check that record doesn't already exist in productUOA
-                            const recordInProductUOA = yield thunkQuery(
-                                ProductUOA.select().where(ProductUOA.UOAid.equals(existingRecords[i].id))
-                            );
-
-                            if (!_.first(recordInProductUOA)) { // Record not in productUOA, we can add it
-                                yield thunkQuery(ProductUOA.insert({
-                                    productId: req.body.productId,
-                                    UOAid: insertedRecord.id,
-                                    currentStepId: null,
-                                    isComplete: false,
-                                }));
-                            } else {
-                                throw new HttpError(403, 'Error adding duplicate subject to project');
-                            }
-
-                            return {
-                                data: recordInProductUOA,
-                                message: "Subject was added to project successfully!"
-                            }
-                        }
-                        throw new HttpError(400, 'Error adding duplicate subject to system')
-                    }
+                    insertedRecords.push({
+                        id: _.first(insertedRecord).id,
+                        name: _.first(insertedRecord).name
+                    });
                 }
             }
-
-
-
-
-
-
-
-
-
-
-
-
-
-            // var added = yield thunkQuery(
-            //     'SELECT name, id FROM "UnitOfAnalysis" ' +
-            //     'WHERE LOWER("UnitOfAnalysis"."name") IN (' + sqlString.toLowerCase() + ') ' +
-            //     'AND "UnitOfAnalysis"."unitOfAnalysisType" = ' + req.body.unitOfAnalysisType
-            // );
-            //
-            // if (added.length > 0) { // means the subject is in the DB
-            //     for (var uoa = 0; uoa < added.length; uoa ++) {
-            //         if (added[uoa].isDeleted !== null) { // check if its deleted
-            //             const updateObj = {
-            //                 isDeleted: null
-            //             };
-            //             yield thunkQuery(
-            //                 UnitOfAnalysis.update(updateObj).where(UnitOfAnalysis.id.equals(added[uoa].id))
-            //             )
-            //
-            //             // check if its already in the project
-            //             const uoaInProject = yield thunkQuery(
-            //                 ProductUOA.select().where(ProductUOA.UOAid.equals(added[uoa].id))
-            //             );
-            //
-            //             if (!_.first(uoaInProject)) {
-            //                 throw new HttpError(403, 'Subject already exist in project');
-            //             }
-            //         } else {
-            //             // check if its already in the project
-            //             const uoaInProject = yield thunkQuery(
-            //                 ProductUOA.select().where(ProductUOA.UOAid.equals(added[uoa].id))
-            //             );
-            //
-            //             if (!_.first(uoaInProject)) {
-            //                 throw new HttpError(403, 'Subject already exist in project');
-            //             } else {
-            //                 yield thunkQuery(ProductUOA.insert({
-            //                     productId: req.body.productId,
-            //                     UOAid: added[j].id,
-            //                     currentStepId: null,
-            //                     isComplete: false,
-            //                 }));
-            //             }
-            //         }
-            //     }
-            // } else {
-            //
-            //     var insert = _.difference(uoas, added.map((exist) => exist.name));
-            //
-            //     for (var i = 0; i < insert.length; i++) {
-            //         var result = yield thunkQuery(UnitOfAnalysis.insert({
-            //             name: insert[i],
-            //             creatorId: req.user.realmUserId,
-            //             ownerId: req.user.realmUserId,
-            //             unitOfAnalysisType: req.body.unitOfAnalysisType,
-            //             created: new Date(),
-            //         }).returning(UnitOfAnalysis.id));
-            //         added.push({name: insert[i], id: _.first(result).id});
-            //     }
-            //     if (req.body.productId) {
-            //         for (var j = 0; j < added.length; j++) {
-            //             yield thunkQuery(ProductUOA.insert({
-            //                 productId: req.body.productId,
-            //                 UOAid: added[j].id,
-            //                 currentStepId: null,
-            //                 isComplete: false,
-            //             }));
-            //         }
-            //     }
-            // }
-
-            // return added;
+            return insertedRecords;
         }).then(function (data) {
             bologger.log({
                 req: req,

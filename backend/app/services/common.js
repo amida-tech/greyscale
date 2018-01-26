@@ -535,4 +535,3 @@ var getCompletedTaskByStepId = function* (req, workflowStepId) {
 };
 
 exports.getCompletedTaskByStepId = getCompletedTaskByStepId;
-
