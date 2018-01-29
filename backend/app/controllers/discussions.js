@@ -100,7 +100,7 @@ module.exports = {
                 '"Discussions" ' +
                 'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id"';
 
-            var selectWhere = 'WHERE 1=1 ';
+            var selectWhere = 'WHERE "Tasks".id = ' + task.id + ' ';
             selectWhere = setWhereInt(selectWhere, uoaId, 'Tasks', 'uoaId');
 
             if (req.query.filter === 'resolve') {
@@ -131,6 +131,14 @@ module.exports = {
             var discussionData = _.map(_.groupBy(yield thunkQuery(selectQuery), 'questionId'), function(discussion, questionId) {
                 return { questionId, discussion }
             });
+
+            if (req.user.roleID !== 2) {
+                return _.filter(discussionData, (flag) => {
+                    _.some(flag.discussion, (discuss) => {
+                        discuss.userId === req.user.userRealmId
+                        || discuss.userFromId === req.user.userRealmId})
+                });
+            }
             return discussionData;
         }).then(function (data) {
             res.json(data);

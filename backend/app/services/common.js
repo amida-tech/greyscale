@@ -400,11 +400,15 @@ exports.prepUsersForTask = prepUsersForTask;
 var getDiscussedTasks = function* (req, tasks, userId) {
     var thunkQuery = req.thunkQuery;
     var assignedTaskIds = _.map(tasks, 'id');
-    var discussedTaskIds = _.map(yield thunkQuery(
-        'SELECT DISTINCT "Discussions"."taskId" FROM "Discussions" WHERE ' +
-        '"Discussions"."taskId" != ANY(ARRAY[' + assignedTaskIds + ']) AND ' +
+    var discussedTaskIds = yield thunkQuery(
+        'SELECT DISTINCT "Discussions"."taskId" FROM "Discussions" WHERE NOT' +
+        '("Discussions"."taskId" = ANY(ARRAY[' + assignedTaskIds + '])) AND ' +
         '"Discussions"."userId" = ' + userId + ' AND "Discussions"' +
-        '."isResolve" = false'), 'taskId');
+        '."isResolve" = false');
+    if (!_.first(discussedTaskIds)) {
+        return tasks;
+    }
+    discussedTaskIds = _.map(discussedTaskIds, 'taskId');
     var discussTasks = yield thunkQuery(
         'SELECT "Tasks".*, "Products"."projectId", "Products"."surveyId" ' +
         'FROM "Tasks" LEFT JOIN "Products" on "Products".id = "Tasks"."productId" '+
