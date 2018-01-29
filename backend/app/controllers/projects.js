@@ -322,7 +322,7 @@ module.exports = {
 
                     for (var i=0; i < stages.length; i++) {
                         if (stages[i].title === '' || stages[i].startDate === null || stages[i].endDate === null) {
-                            throw new HttpError(400, 'Stage is missing a property, project cannot be started');
+                            throw new HttpError(403, 'Stage is missing a property, project cannot be started');
                         }
 
 
