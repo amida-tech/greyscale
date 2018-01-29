@@ -283,7 +283,7 @@ module.exports = {
                     );
 
                     if (!_.first(projectUOA)) {
-                        throw new HttpError(400, 'Project contains no subjects, project cannot be started');
+                        throw new HttpError(403, 'Project contains no subjects, project cannot be started');
                     }
 
                     // check that the project has at least one user
@@ -292,7 +292,7 @@ module.exports = {
                     );
 
                     if (!_.first(projectUser)) {
-                        throw new HttpError(400, 'No user assigned to project, project cannot be started');
+                        throw new HttpError(403, 'No user assigned to project, project cannot be started');
                     }
 
                     // check that the project has at least one user group assigned
@@ -301,7 +301,7 @@ module.exports = {
                     );
 
                     if (!_.first(projectUserGroup)) {
-                        throw new HttpError(400, 'No user group assigned to project, project cannot be started');
+                        throw new HttpError(403, 'No user group assigned to project, project cannot be started');
                     }
 
                     // Check stages
@@ -317,12 +317,24 @@ module.exports = {
                     );
 
                     if (!_.first(stages)) {
-                        throw new HttpError(400, 'No stages assigned to project, project cannot be started');
+                        throw new HttpError(403, 'No stages assigned to project, project cannot be started');
                     }
 
                     for (var i=0; i < stages.length; i++) {
-                        if (stages[i].title === null || stages[i].startDate === null || stages[i].endDate === null) {
+                        if (stages[i].title === '' || stages[i].startDate === null || stages[i].endDate === null) {
                             throw new HttpError(400, 'Stage is missing a property, project cannot be started');
+                        }
+
+
+                        // Check that the stage has at least one user group
+                        const workflowStepGroup = yield thunkQuery(
+                            WorkflowStepGroup.select()
+                                .from(WorkflowStepGroup)
+                                .where(WorkflowStepGroup.stepId.equals(stages[i].id))
+                        );
+
+                        if (!_.first(workflowStepGroup)) {
+                            throw new HttpError(400, 'Stage is missing a user Group, project cannot be started');
                         }
                     }
 
