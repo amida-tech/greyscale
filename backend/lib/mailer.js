@@ -5,6 +5,7 @@ var emailer = require('nodemailer'),
     config = require('../config'),
     smtpTransport = require('nodemailer-smtp-transport');
 
+
 function Emailer(options, data) {
     this.options = options;
     this.data = data;
@@ -82,6 +83,37 @@ Emailer.prototype.getAttachments = function (html) {
         }
     }
     return attachments;
+};
+
+Emailer.prototype.sendEmailWithGmail = function (to, subject, text, html, ccList) {
+    if (typeof(ccList) === "undefined" || ccList === null) {
+        ccList = [];
+    }
+
+    const transporter = emailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'indaba-mailer-dev@amida.com',
+            pass: config.gmailPass
+        }
+    });
+
+    const mailOptions = {
+        from: 'indaba-mailer-dev@amida.com',
+        to: to,
+        subject: subject,
+        text: text,
+        bcc: ccList,
+        html: html,
+    };
+
+    transporter.sendMail(mailOptions, function (err, info) {
+        if (err) {
+            return err;
+        } else {
+            return info;
+        }
+    });
 };
 
 module.exports = Emailer;

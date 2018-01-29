@@ -4,6 +4,7 @@ var
     Product = require('../models/products'),
     ProductUOA = require('../models/product_uoa'),
     Essence = require('../models/essences'),
+    Workflow = require('../models/workflows'),
     WorkflowStep = require('../models/workflow_steps'),
     WorkflowStepGroup = require('../models/workflow_step_groups'),
     Group = require('../models/groups'),
@@ -22,6 +23,7 @@ var
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
     config = require('../../config'),
+    nodemailer = require('nodemailer');
     request = require('request-promise');
 
 var getEntityById = function* (req, id, model, key) {
@@ -411,6 +413,58 @@ var getFlagsForTask = function* (req, tasks) {
 };
 
 exports.getFlagsForTask = getFlagsForTask;
+
+var getCompletenessForTask = function* (req, tasks) {
+    var thunkQuery = req.thunkQuery;
+    for (var i = 0; i < tasks.length; i++) {
+        tasks[i].complete = false;
+
+        // Task is complete if the corresponding ProductUOA is at the task's step and is marked isComplete
+        var completeAndCurrent = yield thunkQuery(
+            ProductUOA
+            .select()
+            .where(
+                ProductUOA.UOAid.equals(tasks[i].uoaId)
+                .and(ProductUOA.productId.equals(tasks[i].productId))
+                .and(ProductUOA.currentStepId.equals(tasks[i].stepId))
+                .and(ProductUOA.isComplete.equals(true))
+            )
+        );
+        if (completeAndCurrent.length > 0) {
+            tasks[i].complete = true;
+        } else {
+            // Task is complete if the corresponding ProductUOA is at a step with a higher position than the task's
+            var taskPosition = yield thunkQuery(
+                WorkflowStep.select(WorkflowStep.position)
+                .where(
+                    WorkflowStep.id.equals(tasks[i].stepId)
+                )
+            );
+            var currentPosition = yield thunkQuery(
+                WorkflowStep.select(WorkflowStep.position)
+                .from(WorkflowStep
+                    .leftJoin(Workflow)
+                    .on(WorkflowStep.workflowId.equals(Workflow.id))
+                    .leftJoin(ProductUOA)
+                    .on(ProductUOA.productId.equals(Workflow.productId))
+                )
+                .where(
+                    Workflow.productId.equals(tasks[i].productId)
+                    .and(WorkflowStep.id.equals(ProductUOA.currentStepId))
+                    .and(ProductUOA.UOAid.equals(tasks[i].uoaId))
+                )
+            );
+
+            if (currentPosition.length === 1 && taskPosition.length === 1 &&
+                currentPosition[0].position > taskPosition[0].position) {
+                tasks[i].complete = true;
+            }
+        }
+    }
+    return tasks;
+}
+
+exports.getCompletenessForTask = getCompletenessForTask;
 
 var insertProjectUser = function* (req, userId, projectId) {
     var thunkQuery = req.thunkQuery;

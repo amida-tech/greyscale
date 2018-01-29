@@ -586,3 +586,10 @@ var logs = require('./controllers/logs');
 
 router.route('/:realm/v0.2/logs')
     .get(authenticate('jwt').always, logs.select);
+
+//----------------------------------------------------------------------------------------------------------------------
+//    System Messages
+//----------------------------------------------------------------------------------------------------------------------
+var SystemMessages = require('./controllers/system_messages');
+router.route('/:realm/v0.2/system_messages')
+    .post(authenticate('jwt').always, jsonParser, SystemMessages.send)

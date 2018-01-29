@@ -163,7 +163,8 @@ module.exports = {
                 'AND "Tasks"."isDeleted" is NULL ' +
                 ') '
             );
-            return yield * common.getFlagsForTask(req, tasks);
+            tasks = yield * common.getFlagsForTask(req, tasks);
+            return tasks = yield * common.getCompletenessForTask(req, tasks);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -321,7 +322,7 @@ module.exports = {
                 .insert(
                     _.pick(req.body, Task.table._initialConfig.columns)
                 )
-                .returning(Task.id)
+                .returning('*')
             );
 
             var log = {
