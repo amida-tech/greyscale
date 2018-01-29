@@ -188,39 +188,25 @@ module.exports = {
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            var returnObject = yield * checkInsert(req);
+            // yield * checkInsert(req);
             var task = yield * common.getTask(req, parseInt(req.body.taskId));
-            //var currentStep = yield * common.getCurrentStepExt(req, task.productId, task.uoaId); // ??? could user commented ???
-            var stepTo = yield * common.getEntity(req, req.body.stepId, WorkflowStep, 'id');
-            var taskTo = yield * common.getTaskByStep(req, stepTo.id, task.uoaId);
-            var retTask = task;
-            if (returnObject) {
-                var returnTaskId = null;
-                if (req.body.isReturn) {
-                    returnTaskId = yield * returnTaskIdIfReturnFlagsExists(req, task.id);
-                }
-                if (returnTaskId) {
-                    retTask = yield * common.getTask(req, returnTaskId);
-                    req.body = _.extend(req.body, {
-                        stepId: retTask.stepId
-                    }); // use stepId from previous return flags
-                    req.body = _.extend(req.body, {
-                        returnTaskId: returnTaskId
-                    }); // use returnTaskId from previous return flags
-                } else {
-                    retTask = yield * common.getTask(req, parseInt(returnObject.taskId));
-                }
-            }
             req.body = _.extend(req.body, {
                 userFromId: req.user.realmUserId
             }); // add from realmUserId instead of user id
             req.body = _.extend(req.body, {
                 stepFromId: task.stepId
             }); // add stepFromId from task (for future use)
-            if (!req.body.isReturn && !req.body.isResolve) {
+            if (!req.body.isResolve) {
                 req.body = _.extend(req.body, {
                     activated: true
                 }); // ordinary entries is activated
+            } else {
+                yield thunkQuery(
+                    Discussion.update({ isResolve: true })
+                    .where(Discussion.taskId.equals(req.body.taskId))
+                    .and(Discussion.questionId.equals(req.body.questionId))
+                    .and(Discussion.stepId.equals(req.body.stepId))
+                );
             }
             req.body = _.pick(req.body, Discussion.insertCols); // insert only columns that may be inserted
             var result = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
@@ -529,12 +515,6 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
     var userId = user.id;
     var blindReview = (!!currentStep.blindReview);
     var query;
-
-    console.log("***************************DISCUSSION Line 578");
-    console.log(blindReview);
-    console.log(currentStep.id);
-    console.log(isNotAdmin);
-    console.log(tag);
 
     if (tag !== 'resolve') {
         // available all users for this survey
