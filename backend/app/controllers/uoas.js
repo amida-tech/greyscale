@@ -25,6 +25,11 @@ var client = require('../db_bootstrap'),
 var debug = require('debug')('debug_uoas');
 debug.log = console.log.bind(console);
 
+const DELETE_OPTIONS = {
+    'entireSystem': 1,
+    'projectOnly': 2
+};
+
 module.exports = {
 
     selectOrigLanguage: function (req, res, next) {
@@ -182,17 +187,17 @@ module.exports = {
                 console.log(`FOUND A PRODUCT FOR THE UOA.. CHECKING WHERE PRODUCTID IS PASSED FROM`);
                 if (req.body.productId) {
                     console.log(`PRODUCT_ID CAME FROM REQ BODY: ${req.body.productId} SOFT DELETING UOA: ${req.params.id}`);
-                    yield * softDeleteHelper(req, req.body.productId, req.params.id);
+                    yield * softDeleteHelper(req, req.body.productId, DELETE_OPTIONS.projectOnly);
                 } else {
                     console.log(`PRODUCT_ID WAS NOT PASSED IN FROM BODY`);
                     if (productUOA.length === 1) { // UOA is assigned to only one project
                         console.log(`PRODUCT UOA LENGTH IS ONE.. SOFT DELETING UOA`);
-                        yield * softDeleteHelper(req, productUOA[0].id, req.params.id);
+                        yield * softDeleteHelper(req, productUOA[0].id, DELETE_OPTIONS.entireSystem);
                     } else {
                         console.log(`PRODUCT UOA LENGTH IS GREATER THAN ONE.. SOFT DELETING UOA`);
                         // Delete all UOA's from all products
                         for (var i = 0; i < productUOA.length; i++) {
-                            yield * softDeleteHelper(req, productUOA[i].id, req.params.id);
+                            yield * softDeleteHelper(req, productUOA[i].id, DELETE_OPTIONS.entireSystem);
                         }
                     }
                 }
@@ -445,7 +450,7 @@ module.exports = {
 
 };
 
-function* softDeleteHelper(req, productId) {
+function* softDeleteHelper(req, productId, deleteOption) {
     var thunkQuery = req.thunkQuery,
         UOAId = req.params.id;
 
@@ -488,12 +493,14 @@ function* softDeleteHelper(req, productId) {
                 'AND "uoaId" = ' + UOAId
             );
 
-            console.log(`DELETING FROM UOA`);
-            yield thunkQuery(
-                'UPDATE "UnitOfAnalysis"' +
-                'SET "isDeleted" = (to_timestamp(' + Date.now() +
-                '/ 1000.0)) WHERE "id" = ' + UOAId
-            );
+            if (deleteOption === 1) {
+                console.log(`DELETING FROM UOA`);
+                yield thunkQuery(
+                    'UPDATE "UnitOfAnalysis"' +
+                    'SET "isDeleted" = (to_timestamp(' + Date.now() +
+                    '/ 1000.0)) WHERE "id" = ' + UOAId
+                );
+            }
         } else { // Project is active and we have to do other checks.
 
             console.log(`FOUND AN ACTIVE PROJECT`);
@@ -519,13 +526,15 @@ function* softDeleteHelper(req, productId) {
                     'AND "productId" = ' + productId
                 );
 
-                console.log(`DELETING FROM UOA`);
-                // Soft delete from the UOA table
-                yield thunkQuery(
-                    'UPDATE "UnitOfAnalysis"' +
-                    'SET "isDeleted" = (to_timestamp(' + Date.now() +
-                    '/ 1000.0)) WHERE "id" = ' + UOAId
-                );
+                if (deleteOption === 1) {
+                    console.log(`DELETING FROM UOA`);
+                    // Soft delete from the UOA table
+                    yield thunkQuery(
+                        'UPDATE "UnitOfAnalysis"' +
+                        'SET "isDeleted" = (to_timestamp(' + Date.now() +
+                        '/ 1000.0)) WHERE "id" = ' + UOAId
+                    );
+                }
 
             } else {
                 console.log(`FOUND TAKS WITH PROJECT. CHECKING IF TASK IS COMPLETED`);
@@ -533,7 +542,7 @@ function* softDeleteHelper(req, productId) {
                     console.log(`TASK IS COMPLETED- CANNOT DELETE UOA`);
                     throw new HttpError(403, 'Cannot delete UOA of already completed task');
                 } else {
-                    // TODO: Add check to make sure there aren't answered questions for survey
+                    // TODO: Add check to make sure there aren't answered questions for survey Blocked by SER-160
 
                     console.log(`NO COMPLETED TAKS ASSIGNED`);
 
@@ -555,16 +564,26 @@ function* softDeleteHelper(req, productId) {
                         'AND "uoaId" = ' + UOAId
                     );
 
-                    console.log(`DELETING FROM UOA`);
-                    yield thunkQuery(
-                        'UPDATE "UnitOfAnalysis"' +
-                        'SET "isDeleted" = (to_timestamp(' + Date.now() +
-                        '/ 1000.0)) WHERE "id" = ' + UOAId
-                    );
+                    if (deleteOption === 1) {
+                        console.log(`DELETING FROM UOA`);
+                        yield thunkQuery(
+                            'UPDATE "UnitOfAnalysis"' +
+                            'SET "isDeleted" = (to_timestamp(' + Date.now() +
+                            '/ 1000.0)) WHERE "id" = ' + UOAId
+                        );
+                    }
                 }
             }
         }
     } else {
-        throw new HttpError(403, 'No Project Found');
+        console.log(`NO PROJECTS FOUND SO CHECKING TO DELETE FROM SYSTEM`)
+        if (deleteOption === 1) {
+            console.log(`DELETING FROM UOA`);
+            yield thunkQuery(
+                'UPDATE "UnitOfAnalysis"' +
+                'SET "isDeleted" = (to_timestamp(' + Date.now() +
+                '/ 1000.0)) WHERE "id" = ' + UOAId
+            );
+        }
     }
 }
