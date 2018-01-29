@@ -168,7 +168,7 @@ module.exports = {
                 ProductUOA.select().from(ProductUOA).where(ProductUOA.UOAid.equals(req.params.id))
             );
 
-            console.log(`THE PRODUCT FOR THE UOA PASSED IS: ${productUOA.productId}`);
+            console.log(`THE PRODUCT FOR THE UOA PASSED IS: ${productUOA[0].productId}`);
 
             if (!_.first(productUOA)) {
                 console.log(`NO PRODUCT FOUND FOR THAT UOA.. DELETING UOA: ${req.params.id}`);
@@ -182,17 +182,17 @@ module.exports = {
                 console.log(`FOUND A PRODUCT FOR THE UOA.. CHECKING WHERE PRODUCTID IS PASSED FROM`);
                 if (req.body.productId) {
                     console.log(`PRODUCT_ID CAME FROM REQ BODY: ${req.body.productId} SOFT DELETING UOA: ${req.params.id}`);
-                    yield * softDeleteHelper(req.body.productId, req.params.id);
+                    yield * softDeleteHelper(req, req.body.productId, req.params.id);
                 } else {
                     console.log(`PRODUCT_ID WAS NOT PASSED IN FROM BODY`);
                     if (productUOA.length === 1) { // UOA is assigned to only one project
                         console.log(`PRODUCT UOA LENGTH IS ONE.. SOFT DELETING UOA`);
-                        yield * softDeleteHelper(productUOA[0].id, req.params.id);
+                        yield * softDeleteHelper(req, productUOA[0].id, req.params.id);
                     } else {
                         console.log(`PRODUCT UOA LENGTH IS GREATER THAN ONE.. SOFT DELETING UOA`);
                         // Delete all UOA's from all products
                         for (var i = 0; i < productUOA.length; i++) {
-                            yield * softDeleteHelper(productUOA[i].id, req.params.id);
+                            yield * softDeleteHelper(req, productUOA[i].id, req.params.id);
                         }
                     }
                 }
@@ -445,8 +445,11 @@ module.exports = {
 
 };
 
-function* softDeleteHelper(productId, UOAId) {
+function* softDeleteHelper(req, productId) {
+    var thunkQuery = req.thunkQuery,
+        UOAId = req.params.id;
 
+    console.log(`CHECKING IF PROJECT IS ACTIVE BEFORE SOFT DELETING`);
     // Check if project has ever been active
     var project = yield thunkQuery(
         Project
@@ -465,7 +468,10 @@ function* softDeleteHelper(productId, UOAId) {
 
     if (_.first(project)) {
         // If project is not active, delete UAO without any issues
-        if (project[0].status === 0) {
+        if (_.first(project).status === 0) {
+            console.log(`FOUND A NON-ACTIVE PROJECT`)
+
+            console.log(`DELETING FROM PRODUCT UOA`);
             yield thunkQuery(
                 'UPDATE "ProductUOA"' +
                 'SET "isDeleted" = (to_timestamp(' + Date.now() +
@@ -473,6 +479,7 @@ function* softDeleteHelper(productId, UOAId) {
                 'AND "productId" = ' + productId
             );
 
+            console.log(`DELETING FROM TASKS `);
             // Soft delete the task with that UAO ID
             yield thunkQuery(
                 'UPDATE "Tasks"' +
@@ -481,6 +488,7 @@ function* softDeleteHelper(productId, UOAId) {
                 'AND "uoaId" = ' + UOAId
             );
 
+            console.log(`DELETING FROM UOA`);
             yield thunkQuery(
                 'UPDATE "UnitOfAnalysis"' +
                 'SET "isDeleted" = (to_timestamp(' + Date.now() +
@@ -488,6 +496,9 @@ function* softDeleteHelper(productId, UOAId) {
             );
         } else { // Project is active and we have to do other checks.
 
+            console.log(`FOUND AN ACTIVE PROJECT`);
+
+            console.log(`PULLING TASKS ASSOCIATED WITH PROJECT`);
             // check if there are any tasks assigned
             var task = yield thunkQuery(
                 'SELECT "Tasks".* ' +
@@ -497,6 +508,9 @@ function* softDeleteHelper(productId, UOAId) {
             );
 
             if (!_.first(task)) {
+                console.log(`NO TAKS ASSIGNED TO THIS PROJECT OR UOA`);
+
+                console.log(`DELETING FROM PRODUCT UOA`);
                 // Soft delete the UOA from the Product UAO Table
                 yield thunkQuery(
                     'UPDATE "ProductUOA"' +
@@ -505,6 +519,7 @@ function* softDeleteHelper(productId, UOAId) {
                     'AND "productId" = ' + productId
                 );
 
+                console.log(`DELETING FROM UOA`);
                 // Soft delete from the UOA table
                 yield thunkQuery(
                     'UPDATE "UnitOfAnalysis"' +
@@ -513,10 +528,16 @@ function* softDeleteHelper(productId, UOAId) {
                 );
 
             } else {
-                if (task[0].isComplete === true) {
+                console.log(`FOUND TAKS WITH PROJECT. CHECKING IF TASK IS COMPLETED`);
+                if (_.first(task).isComplete === true) {
+                    console.log(`TASK IS COMPLETED- CANNOT DELETE UOA`);
                     throw new HttpError(403, 'Cannot delete UOA of already completed task');
                 } else {
                     // TODO: Add check to make sure there aren't answered questions for survey
+
+                    console.log(`NO COMPLETED TAKS ASSIGNED`);
+
+                    console.log(`DELETING FROM PRODUCT UOA`);
                     // Soft delete the UOA from the Product UAO Table
                     yield thunkQuery(
                         'UPDATE "ProductUOA"' +
@@ -525,6 +546,7 @@ function* softDeleteHelper(productId, UOAId) {
                         'AND "productId" = ' + productId
                     );
 
+                    console.log(`DELETING FROM TAKS`);
                     // Soft delete the task with that UAO ID
                     yield thunkQuery(
                         'UPDATE "Tasks"' +
@@ -533,6 +555,7 @@ function* softDeleteHelper(productId, UOAId) {
                         'AND "uoaId" = ' + UOAId
                     );
 
+                    console.log(`DELETING FROM UOA`);
                     yield thunkQuery(
                         'UPDATE "UnitOfAnalysis"' +
                         'SET "isDeleted" = (to_timestamp(' + Date.now() +
