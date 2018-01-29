@@ -188,8 +188,6 @@ module.exports = {
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            var isReturn = req.body.isReturn;
-            var isResolve = req.body.isResolve;
             var returnObject = yield * checkInsert(req);
             var task = yield * common.getTask(req, parseInt(req.body.taskId));
             //var currentStep = yield * common.getCurrentStepExt(req, task.productId, task.uoaId); // ??? could user commented ???
@@ -198,7 +196,7 @@ module.exports = {
             var retTask = task;
             if (returnObject) {
                 var returnTaskId = null;
-                if (isReturn) {
+                if (req.body.isReturn) {
                     returnTaskId = yield * returnTaskIdIfReturnFlagsExists(req, task.id);
                 }
                 if (returnTaskId) {
@@ -219,7 +217,7 @@ module.exports = {
             req.body = _.extend(req.body, {
                 stepFromId: task.stepId
             }); // add stepFromId from task (for future use)
-            if (!isReturn && !isResolve) {
+            if (!req.body.isReturn && !req.body.isResolve) {
                 req.body = _.extend(req.body, {
                     activated: true
                 }); // ordinary entries is activated
@@ -272,49 +270,6 @@ module.exports = {
 
         }).then(function (data) {
             res.status(201).json(_.first(data));
-        }, function (err) {
-            next(err);
-        });
-    },
-
-    /**
-     * Checks Mark all discussions with a given question ID as resolvedt
-     * @param {Object} req - Request object
-     * @param {Object} res - Response object
-     * @param {Function} next - Express next middleware function
-     * @return {Object} A json object with either a success or error message
-     */
-    markAsResolved: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-        co(function* () {
-
-            // Check if there is a record matching the passed in discussion ID
-            var discussionExist = yield * common.checkRecordExistById(req, 'Discussions', 'questionId', req.params.questionId);
-
-            if (discussionExist === true) {
-                return yield thunkQuery(
-                    Discussion.update({
-                        isResolve: true
-                    }).where(
-                        Discussion.questionId.equals(req.params.questionId)
-                    )
-                );
-            } else {
-                throw new HttpError(403, 'No discussion matching that question ID');
-            }
-        }).then(function (data) {
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'update',
-                object: 'discussions',
-                entity: req.params.questionId,
-                info: 'Resolve Discussion'
-            });
-            res.status(202).json({
-                'data': data,
-                'message': 'Discussion marked as resolved'
-            });
         }, function (err) {
             next(err);
         });
@@ -575,6 +530,12 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
     var blindReview = (!!currentStep.blindReview);
     var query;
 
+    console.log("***************************DISCUSSION Line 578");
+    console.log(blindReview);
+    console.log(currentStep.id);
+    console.log(isNotAdmin);
+    console.log(tag);
+
     if (tag !== 'resolve') {
         // available all users for this survey
         query =
@@ -681,6 +642,8 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
                 'AND "Discussions"."isResolve" = false ' +
                 'AND "Discussions"."activated" = true ' +
                 'LIMIT 1';
+
+            console.log("")
             var result = yield thunkQuery(query);
             resolve = (_.first(result)) ? [_.last(result)] : result;
         }

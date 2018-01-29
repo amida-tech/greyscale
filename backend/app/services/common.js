@@ -24,7 +24,7 @@ var
     HttpError = require('../error').HttpError,
     config = require('../../config'),
     nodemailer = require('nodemailer');
-    request = require('request-promise');
+request = require('request-promise');
 
 var getEntityById = function* (req, id, model, key) {
     var thunkQuery = req.thunkQuery;
@@ -396,6 +396,25 @@ var prepUsersForTask = function* (req, task) {
     return task;
 };
 exports.prepUsersForTask = prepUsersForTask;
+
+var getDiscussedTasks = function* (req, tasks, userId) {
+    var thunkQuery = req.thunkQuery;
+    var assignedTaskIds = _.map(tasks, 'id');
+    var discussedTaskIds = _.map(yield thunkQuery(
+        'SELECT DISTINCT "Discussions"."taskId" FROM "Discussions" WHERE ' +
+        '"Discussions"."taskId" != ANY(ARRAY[' + assignedTaskIds + ']) AND ' +
+        '"Discussions"."userId" = ' + userId + ' AND "Discussions"' +
+        '."isResolve" = false'), 'taskId');
+    var discussTasks = yield thunkQuery(
+        'SELECT "Tasks".*, "Products"."projectId", "Products"."surveyId" ' +
+        'FROM "Tasks" LEFT JOIN "Products" on "Products".id = "Tasks"."productId" '+
+        'LEFT JOIN "Projects" ON "Projects".id = "Products".id WHERE "Tasks".id ' +
+        '= ANY(ARRAY[' + discussedTaskIds + ']) AND "Tasks"."isDeleted" is NULL'
+    )
+    return tasks.concat(discussTasks);
+}
+
+exports.getDiscussedTasks = getDiscussedTasks;
 
 var getFlagsForTask = function* (req, tasks) {
     var thunkQuery = req.thunkQuery;
