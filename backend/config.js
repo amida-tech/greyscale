@@ -13,12 +13,12 @@ const base = {
         region: 'us-east-1'
     },
     awsBucket : "your-aws-bucket",
+    indabaClientDomain: process.env.INDABA_CLIENT_URL || 'http://localhost:3000',
     authService: process.env.AUTH_SERVICE_URL || 'http://localhost:4000/api/v0',
     surveyService: process.env.SURVEY_SERVICE_URL || 'http://localhost:9005/api/v1.0/',
     messageService: process.env.MESSAGE_SERVICE_URL,
     systemMessageUser: process.env.SYS_MESSAGE_USER,
     systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD,
-    qaPassword: process.env.QA_PASSWORD,
     gmailPass: process.env.GMAIL_PASS,
 };
 
