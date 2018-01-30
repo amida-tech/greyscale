@@ -492,6 +492,28 @@ var getCompletenessForTask = function* (req, tasks) {
 
 exports.getCompletenessForTask = getCompletenessForTask;
 
+var getActiveForTask = function* (req, tasks) {
+    var thunkQuery = req.thunkQuery;
+    for (var i = 0; i < tasks.length; i++) {
+        // Task is active if the corresponding ProductUOA is at the task's step and is not marked isComplete
+        var current = yield thunkQuery(
+            ProductUOA
+            .select()
+            .where(
+                ProductUOA.UOAid.equals(tasks[i].uoaId)
+                .and(ProductUOA.productId.equals(tasks[i].productId))
+                .and(ProductUOA.currentStepId.equals(tasks[i].stepId))
+                .and(ProductUOA.isComplete.equals(false))
+            )
+        );
+
+        tasks[i].active = current.length > 0;
+    }
+    return tasks;
+}
+
+exports.getActiveForTask = getActiveForTask;
+
 var insertProjectUser = function* (req, userId, projectId) {
     var thunkQuery = req.thunkQuery;
     var data = yield thunkQuery(ProjectUser.select().where({ projectId, userId }));

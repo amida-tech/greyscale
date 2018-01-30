@@ -271,9 +271,85 @@ module.exports = {
                     Project.select().where(Project.id.equals(req.params.id))
                 );
 
-                // Update firstActivated if the status was changed from 0 to 1
-                if (parseInt(updateObj.status) === 1 && _.first(project).firstActivated === null) {
-                    updateObj.firstActivated = new Date();
+                // Ensure conditions are met if project status is being set to 1 (activated)
+                if (parseInt(updateObj.status) === 1) {
+
+                    // Check that the survey is published
+                    const product = yield thunkQuery(
+                        Product.select().from(Product).where(Product.projectId.equals(req.params.id))
+                    );
+
+                    const survey = yield common.getSurveyFromSurveyService(product[0].surveyId, req.headers.authorization);
+
+                    if (survey.body.status !== 'published') {
+                        throw new HttpError(400, 'Survey is not published, project cannot be started');
+                    }
+
+                    // check that project has at least one subject
+                    const projectUOA = yield thunkQuery(
+                        ProductUOA.select().from(ProductUOA).where(ProductUOA.productId.equals(product[0].id))
+                    );
+
+                    if (!_.first(projectUOA)) {
+                        throw new HttpError(403, 'Project contains no subjects, project cannot be started');
+                    }
+
+                    // check that the project has at least one user
+                    const projectUser = yield thunkQuery(
+                        ProjectUser.select(ProjectUser.star()).from(ProjectUser).where(ProjectUser.projectId.equals(req.params.id))
+                    );
+
+                    if (!_.first(projectUser)) {
+                        throw new HttpError(403, 'No user assigned to project, project cannot be started');
+                    }
+
+                    // check that the project has at least one user group assigned
+                    const projectUserGroup = yield thunkQuery(
+                        ProjectUserGroup.select().from(ProjectUserGroup).where(ProjectUserGroup.projectId.equals(req.params.id))
+                    );
+
+                    if (!_.first(projectUserGroup)) {
+                        throw new HttpError(403, 'No user group assigned to project, project cannot be started');
+                    }
+
+                    // Check stages
+                    const stages = yield thunkQuery(
+                        WorkflowSteps
+                            .select()
+                            .from(
+                                WorkflowSteps
+                                    .leftJoin(Workflow)
+                                    .on(WorkflowSteps.workflowId.equals(Workflow.id))
+                            )
+                            .where(Workflow.productId.equals(product[0].id))
+                    );
+
+                    if (!_.first(stages)) {
+                        throw new HttpError(403, 'No stages assigned to project, project cannot be started');
+                    }
+
+                    for (var i=0; i < stages.length; i++) {
+                        if (stages[i].title === '' || stages[i].startDate === null || stages[i].endDate === null) {
+                            throw new HttpError(403, 'Stage is missing a property, project cannot be started');
+                        }
+
+
+                        // Check that the stage has at least one user group
+                        const workflowStepGroup = yield thunkQuery(
+                            WorkflowStepGroup.select()
+                                .from(WorkflowStepGroup)
+                                .where(WorkflowStepGroup.stepId.equals(stages[i].id))
+                        );
+
+                        if (!_.first(workflowStepGroup)) {
+                            throw new HttpError(400, 'Stage is missing a user Group, project cannot be started');
+                        }
+                    }
+
+                    // If this is the first time we are activating the project then set it to the current time
+                    if (_.first(project).firstActivated === null) {
+                        updateObj.firstActivated = new Date();
+                    }
                 }
                 result = yield thunkQuery(
                     Project
