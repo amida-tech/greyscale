@@ -61,11 +61,22 @@ module.exports = {
                     );
 
                     var productId = _.first(_.map(product, 'id'));
-
+                    var flags = 0;
                     if (productId) {
                         var workflowId = yield thunkQuery(
                             Workflow.select(Workflow.id).from(Workflow).where(Workflow.productId.equals(productId))
                         );
+                        console.log(productId);
+                        flags = yield thunkQuery(
+                            'SELECT DISTINCT "Discussions"."questionId" FROM "Discussions" ' +
+                            'JOIN "Tasks" on "Discussions"."taskId" = "Tasks"."id" WHERE ' +
+                            '"Tasks"."productId" = ' + productId + ' AND "Discussions".' +
+                            '"isResolve" = false GROUP BY "Discussions"."questionId"'
+                        );
+                        flags = flags.length;
+                        console.log("***************************");
+                        console.log(flags);
+                        console.log(flags.length);
                     }
 
                     var subjects = yield thunkQuery(
@@ -96,7 +107,7 @@ module.exports = {
                         stages: [],
                         userGroups: [],
                         subjects,
-                        flags:
+                        flags,
                         firstActivated: projects[i].firstActivated,
                     });
                 }
