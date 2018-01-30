@@ -400,11 +400,12 @@ exports.prepUsersForTask = prepUsersForTask;
 var getDiscussedTasks = function* (req, tasks, userId) {
     var thunkQuery = req.thunkQuery;
     var assignedTaskIds = _.map(tasks, 'id');
-    var discussedTaskIds = yield thunkQuery(
-        'SELECT DISTINCT "Discussions"."taskId" FROM "Discussions" WHERE NOT' +
-        '("Discussions"."taskId" = ANY(ARRAY[' + assignedTaskIds + '])) AND ' +
-        '"Discussions"."userId" = ' + userId + ' AND "Discussions"' +
-        '."isResolve" = false');
+    var sqlDiscussString = 'SELECT DISTINCT "Discussions"."taskId" FROM "Discussions" WHERE';
+    if (assignedTaskIds.length > 1) {
+        sqlDiscussString += ' NOT ("Discussions"."taskId" = ANY(ARRAY[' + assignedTaskIds + '])) AND ';
+    }
+    sqlDiscussString += '"Discussions"."userId" = ' + userId + ' AND "Discussions"."isResolve" = false';
+    var discussedTaskIds = yield thunkQuery(sqlDiscussString);
     if (!_.first(discussedTaskIds)) {
         return tasks;
     }
@@ -427,7 +428,9 @@ var getFlagsForTask = function* (req, tasks) {
             'SELECT COUNT(dc."questionId") FROM (SELECT DISTINCT ' +
             '"Discussions"."questionId" FROM "Discussions" WHERE ' +
             '"Discussions"."taskId" = ' + tasks[i].id + ' AND ' +
-            '"Discussions"."isResolve" = false GROUP BY ' +
+            '("Discussions"."userId" = ' + req.user.realmUserId + ' OR ' +
+            '"Discussions"."userFromId" = ' + req.user.realmUserId +
+            ') AND "Discussions"."isResolve" = false GROUP BY ' +
             '"Discussions"."questionId") as dc;'
         );
         tasks[i].flagCount = parseInt(flaggedChat[0].count);

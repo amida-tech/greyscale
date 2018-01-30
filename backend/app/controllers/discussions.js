@@ -134,10 +134,8 @@ module.exports = {
 
             if (req.user.roleID !== 2 && !task.userIds.includes(req.user.realmUserId)) {
                 var filteredData = _.filter(discussionData, (flag) =>
-                    _.some(flag.discussion, (discuss) =>
-                        discuss.userId !== req.user.realmUserId ||
-                        discuss.userFromId !== req.user.realmUserId));
-                console.log(filteredData);
+                    _.some(flag.discussion, (discuss) => (discuss.userId === req.user.realmUserId ||
+                        discuss.userFromId === req.user.realmUserId)));
                 return filteredData;
             }
             return discussionData;
