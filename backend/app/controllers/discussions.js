@@ -630,7 +630,6 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
                 'AND "Discussions"."activated" = true ' +
                 'LIMIT 1';
 
-            console.log("")
             var result = yield thunkQuery(query);
             resolve = (_.first(result)) ? [_.last(result)] : result;
         }
