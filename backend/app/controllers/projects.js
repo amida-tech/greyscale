@@ -66,7 +66,6 @@ module.exports = {
                         var workflowId = yield thunkQuery(
                             Workflow.select(Workflow.id).from(Workflow).where(Workflow.productId.equals(productId))
                         );
-                        console.log(productId);
                         flags = yield thunkQuery(
                             'SELECT DISTINCT "Discussions"."questionId" FROM "Discussions" ' +
                             'JOIN "Tasks" on "Discussions"."taskId" = "Tasks"."id" WHERE ' +
@@ -74,9 +73,6 @@ module.exports = {
                             '"isResolve" = false GROUP BY "Discussions"."questionId"'
                         );
                         flags = flags.length;
-                        console.log("***************************");
-                        console.log(flags);
-                        console.log(flags.length);
                     }
 
                     var subjects = yield thunkQuery(

@@ -423,16 +423,16 @@ exports.getDiscussedTasks = getDiscussedTasks;
 
 var getFlagsForTask = function* (req, tasks) {
     var thunkQuery = req.thunkQuery;
+    var prefixSql = 'SELECT COUNT(dc."questionId") FROM (SELECT DISTINCT ' +
+    '"Discussions"."questionId" FROM "Discussions" WHERE "Discussions"."taskId" = ';
+    var postfixSql = (req.user.roleID === 2 ? ' AND ' :
+    ' AND ("Discussions"."userId" = ' + req.user.realmUserId + ' OR ' +
+    '"Discussions"."userFromId" = ' + req.user.realmUserId + ') AND ')
+        +'"Discussions"."isResolve" = false GROUP BY "Discussions"."questionId") as dc;';
+    console.log("***************************");
+    console.log(prefixSql + 'X' + postfixSql);
     for (var i = 0; i < tasks.length; i++) {
-        var flaggedChat = yield thunkQuery(
-            'SELECT COUNT(dc."questionId") FROM (SELECT DISTINCT ' +
-            '"Discussions"."questionId" FROM "Discussions" WHERE ' +
-            '"Discussions"."taskId" = ' + tasks[i].id + ' AND ' +
-            '("Discussions"."userId" = ' + req.user.realmUserId + ' OR ' +
-            '"Discussions"."userFromId" = ' + req.user.realmUserId +
-            ') AND "Discussions"."isResolve" = false GROUP BY ' +
-            '"Discussions"."questionId") as dc;'
-        );
+        var flaggedChat = yield thunkQuery(prefixSql + tasks[i].id + postfixSql);
         tasks[i].flagCount = parseInt(flaggedChat[0].count);
     }
     return tasks;
