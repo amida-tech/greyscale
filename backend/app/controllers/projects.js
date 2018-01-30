@@ -96,6 +96,7 @@ module.exports = {
                         stages: [],
                         userGroups: [],
                         subjects,
+                        flags:
                         firstActivated: projects[i].firstActivated,
                     });
                 }

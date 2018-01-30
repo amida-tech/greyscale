@@ -149,7 +149,6 @@ module.exports = {
     getSelfTasks: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            console.log("Is this where?");
             var tasks = yield thunkQuery(
                 '( ' +
                 'SELECT "Tasks".*, "Products"."projectId", "Products"."surveyId" ' +
@@ -164,7 +163,6 @@ module.exports = {
                 'AND "Tasks"."isDeleted" is NULL ' +
                 ') '
             );
-            console.log("Or is this where?");
             tasks = yield * common.getDiscussedTasks(req, tasks, req.user.id);
             tasks = yield * common.getFlagsForTask(req, tasks);
             return tasks = yield * common.getCompletenessForTask(req, tasks);
