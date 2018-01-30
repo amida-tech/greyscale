@@ -132,12 +132,13 @@ module.exports = {
                 return { questionId, discussion }
             });
 
-            if (req.user.roleID !== 2) {
-                return _.filter(discussionData, (flag) => {
-                    _.some(flag.discussion, (discuss) => {
-                        discuss.userId === req.user.userRealmId
-                        || discuss.userFromId === req.user.userRealmId})
-                });
+            if (req.user.roleID !== 2 && !task.userIds.includes(req.user.realmUserId)) {
+                var filteredData = _.filter(discussionData, (flag) =>
+                    _.some(flag.discussion, (discuss) =>
+                        discuss.userId !== req.user.realmUserId ||
+                        discuss.userFromId !== req.user.realmUserId));
+                console.log(filteredData);
+                return filteredData;
             }
             return discussionData;
         }).then(function (data) {
