@@ -165,7 +165,8 @@ module.exports = {
                 ') '
             );
             tasks = yield * common.getFlagsForTask(req, tasks);
-            return tasks = yield * common.getCompletenessForTask(req, tasks);
+            tasks = yield * common.getCompletenessForTask(req, tasks);
+            return tasks = yield * common.getActiveForTask(req, tasks);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
