@@ -94,6 +94,7 @@ function* checkString(val, keyName) {
 
 function* createNotification(req, note, template) {
     var thunkQuery = req.thunkQuery;
+
     note = yield * checkInsert(req, note);
 
     var note4insert = _.extend({}, note);
