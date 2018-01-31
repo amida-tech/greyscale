@@ -2471,7 +2471,8 @@ CREATE TABLE "Projects" (
     "adminUserId" integer,
     "closeTime" timestamp with time zone,
     "firstActivated" timestamp(6) without time zone,
-    "langId" integer
+    "langId" integer,
+    "lastUpdated" timestamp(0) with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -3927,7 +3928,8 @@ CREATE TABLE "Projects" (
     "adminUserId" integer,
     "closeTime" timestamp with time zone,
     "firstActivated" timestamp(6) without time zone,
-    "langId" integer
+    "langId" integer,
+    "lastUpdated" timestamp(0) with time zone DEFAULT now() NOT NULL
 );
 
 

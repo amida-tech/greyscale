@@ -5,6 +5,7 @@ var
     common = require('../services/common'),
     Product = require('../models/products'),
     Project = require('../models/projects'),
+    Survey = require('../models/surveys'),
     WorkflowStep = require('../models/workflow_steps'),
     Workflow = require('../models/workflows'),
     Discussions = require('../models/discussions'),
@@ -286,6 +287,21 @@ module.exports = {
             res.status(204).json(true);
         }, function (err) {
             next(err);
+        }).then(function (data) {
+            const product = Product.find(data.productId);
+            const survey = Survey.find(product.surveyId);
+            const project_id = survey.projectId;
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'task_deleted',
+                object: 'projects',
+                entity: project_id,
+                info: 'Task deleted'
+            });
+            res.status(204).end();
+        }, function (err) {
+            next(err);
         });
     },
 
@@ -308,6 +324,21 @@ module.exports = {
                 info: 'Update task'
             });
             res.status(202).end();
+        }, function (err) {
+            next(err);
+        }).then(function (data) {
+            const product = Product.find(data.productId);
+            const survey = Survey.find(product.surveyId);
+            const project_id = survey.projectId;
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'task_updated',
+                object: 'projects',
+                entity: project_id,
+                info: 'Task updated'
+            });
+            res.status(204).end();
         }, function (err) {
             next(err);
         });
@@ -357,6 +388,21 @@ module.exports = {
                 info: 'Add new task'
             });
             res.status(201).json(_.first(data));
+        }, function (err) {
+            next(err);
+        }).then(function (data) {
+            const product = Product.find(data.productId);
+            const survey = Survey.find(product.surveyId);
+            const project_id = survey.projectId;
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'task_inserted',
+                object: 'projects',
+                entity: project_id,
+                info: 'Task inserted'
+            });
+            res.status(204).end();
         }, function (err) {
             next(err);
         });

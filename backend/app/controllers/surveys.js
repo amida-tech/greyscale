@@ -70,6 +70,7 @@ module.exports = {
         });
     },
 
+    // INBA-484
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -125,9 +126,23 @@ module.exports = {
             res.status(204).end();
         }, function (err) {
             next(err);
+        }).then(function (data) {
+            const project_id = 1;
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'survey_delete',
+                object: 'projects',
+                entity: project_id,
+                info: 'Delete survey'
+            });
+            res.status(204).end();
+        }, function (err) {
+            next(err);
         });
     },
 
+    // INBA-484
     editOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -363,9 +378,23 @@ module.exports = {
             res.status(data.status).json(data);
         }, function (err) {
             next(err);
+        }).then(function (data) {
+            const project_id = 1;
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'survey_edit',
+                object: 'projects',
+                entity: project_id,
+                info: 'Edited survey'
+            });
+            res.status(204).end();
+        }, function (err) {
+            next(err);
         });
     },
 
+    // INBA-484
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -397,6 +426,19 @@ module.exports = {
                 info: 'Add new survey'
             });
             res.status(201).json(data);
+        }, function (err) {
+            next(err);
+        }).then(function (data) {
+            const project_id = 1;
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'survey_insert',
+                object: 'projects',
+                entity: project_id,
+                info: 'Inserted survey'
+            });
+            res.status(204).end();
         }, function (err) {
             next(err);
         });
@@ -432,6 +474,7 @@ module.exports = {
         });
     },
 
+    // ToDo: INBA-484 survey last updates not working - Must fix in survey service
     questionAdd: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -443,6 +486,7 @@ module.exports = {
         });
     },
 
+    // ToDo: INBA-484 survey last updates not working - Must fix in survey service
     questionEdit: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -470,6 +514,7 @@ module.exports = {
         });
     },
 
+    // ToDo: INBA-484 survey last updates not working - Must fix in survey service
     questionDelete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 

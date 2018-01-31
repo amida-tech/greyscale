@@ -87,7 +87,7 @@ module.exports = {
                     projectList.push({
                         id: projects[i].id,
                         name: projects[i].codeName,
-                        lastUpdated: null,
+                        lastUpdated: projects[i].lastUpdated,
                         status: projects[i].status,
                         productId,
                         surveyId: (_.first(_.map(product, 'surveyId')) || null),
@@ -209,7 +209,7 @@ module.exports = {
 
                 aggregateObject.id = project.id;
                 aggregateObject.name = project.codeName;
-                aggregateObject.lastUpdated = null; // need to figure out wha this is
+                aggregateObject.lastUpdated = project.lastUpdated;
                 aggregateObject.status = project.status;
                 aggregateObject.users = _.map(userList, 'userId');
                 aggregateObject.stages = stages;
@@ -255,7 +255,7 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkProjectData(req);
-            var updateObj = _.pick(req.body, ['title', 'description', 'startTime', 'closeTime', 'status', 'codeName', 'firstActivated']);
+            var updateObj = _.pick(req.body, ['title', 'description', 'startTime', 'closeTime', 'status', 'codeName', 'firstActivated', 'lastUpdated']);
             var result = false;
             if (Object.keys(updateObj).length) {
 
@@ -490,6 +490,18 @@ module.exports = {
             res.status(202).json(data);
         }, function (err) {
             next(err);
+        }).then(function (data) {
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'insert',
+                object: 'projects',
+                entity: data.id,
+                info: 'Add new project'
+            });
+            res.status(201).json(data);
+        }, function (err) {
+            next(err);
         });
     },
 
@@ -525,6 +537,18 @@ module.exports = {
             }
         }).then(function (data) {
             res.status(202).json(data)
+        }, function (err) {
+            next(err);
+        }).then(function (data) {
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'user_removal',
+                object: 'projects',
+                entity: data.id,
+                info: 'User removed'
+            });
+            res.status(201).json(data);
         }, function (err) {
             next(err);
         });
