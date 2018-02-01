@@ -195,7 +195,6 @@ module.exports = {
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            // yield * checkInsert(req);
             var task = yield * common.getTask(req, parseInt(req.body.taskId));
             req.body = _.extend(req.body, {
                 userFromId: req.user.realmUserId
