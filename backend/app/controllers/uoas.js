@@ -81,6 +81,17 @@ module.exports = {
             if (!Array.isArray(req.body.subjects)) {
                 req.body.subjects = [{name: req.body.subjects}];
             }
+
+            // Check that no blank subject name was passed in
+            for (let i = 0; i < req.body.subjects.length; i++) {
+                console.log(`BODY LENGTH IS: ${req.body.subjects.length}`)
+                console.log(`CHECKING SUBJECTS FOR EMPYT STRING`)
+                if (req.body.subjects[i].name == '') {
+                    console.log(`FOUND AN EMPTY STRING`);
+                    throw new HttpError(400, 'Subject Cannot be empty');
+                }
+            }
+
             var uoas = req.body.subjects.map((subject) => subject.name);
             var sqlString = "'" + uoas.toString().replace(/'/g, "''").replace(/,/g, "','") + "'";
         } else {
@@ -100,7 +111,7 @@ module.exports = {
 
             if (_.first(existingRecords)) {
                 for (let i = 0; i < existingRecords.length; i++) {
-                    if (existingRecords.isDeleted !== null) {
+                    if (existingRecords[i].isDeleted !== null) {
                         const updateObj = {
                             isDeleted: null
                         };
@@ -130,7 +141,7 @@ module.exports = {
                                 isDeleted: null
                             };
 
-                            const updatedRecordInProductUOA = yield thunkQuery(
+                            yield thunkQuery(
                                 ProductUOA.update(updateObj).where(ProductUOA.UOAid.equals(existingRecords[i].id))
                             );
 
