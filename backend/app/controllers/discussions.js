@@ -268,6 +268,9 @@ module.exports = {
                 entity: result[0].id,
                 info: 'Add discussion`s entry'
             });
+
+            yield bumpProjectLastUpdatedForTask(req, parseInt(req.body.taskId));
+
             return result;
 
         }).then(function (data) {
@@ -989,4 +992,18 @@ function* returnTaskIdIfReturnFlagsExists(req, taskId) {
         )
     );
     return (_.first(result)) ? result[0].returnTaskId : null;
+}
+
+function * bumpProjectLastUpdatedForTask(req, taskId) {
+    const taskResult = yield req.thunkQuery(
+        Task
+        .select(Product.projectId)
+        .from(
+            Task.leftJoin(Product)
+            .on(Task.productId.equals(Product.id)))
+        .where(Task.id.equals(taskId))
+    );
+    if (taskResult.length === 1) {
+        yield common.bumpProjectLastUpdated(req, taskResult[0].projectId);
+    }
 }
