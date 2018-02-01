@@ -10,7 +10,8 @@ var columns = [
     'startTime',
     'status',
     'closeTime',
-    'firstActivated'
+    'firstActivated',
+    'lastUpdated'
 ];
 
 var Project = sql.define({
