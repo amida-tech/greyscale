@@ -217,38 +217,7 @@ module.exports = {
             req.body = _.pick(req.body, Discussion.insertCols); // insert only columns that may be inserted
             var result = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
 
-            // TODO: Notifications handling?
-            // if (!isReturn && !isResolve) { // notify only ordinary entries
-            //     // prepare for notify
-            //     var userFrom = yield * common.getUser(req, req.user.id);
-            //     // static blindReview
-            //     var productId = task.productId;
-            //     var uoaId = task.uoaId;
-            //     var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
-            //     var from = {
-            //         firstName: userFrom.firstName,
-            //         lastName: userFrom.lastName
-            //     };
-            //     if (stepTo.blindReview) {
-            //         userFromName = stepTo.role + ' (' + stepTo.title + ')';
-            //         from = {
-            //             firstName: stepTo.role,
-            //             lastName: '(' + stepTo.title + ')'
-            //         };
-            //     } else if (userFrom.isAnonymous) {
-            //         userFromName = 'Anonymous -' + stepTo.role + ' (' + stepTo.title + ')';
-            //         from = {
-            //             firstName: 'Anonymous -' + stepTo.role,
-            //             lastName: '(' + stepTo.title + ')'
-            //         };
-            //     }
-            //     notify(req, {
-            //         body: req.body.entry,
-            //         action: 'Comment added',
-            //         userFromName: userFromName,
-            //         from: from
-            //     }, result[0].id, taskTo.id, 'Discussions', 'discussion');
-            // }
+            yield * notifyHelper(req, _.first(result));
 
             bologger.log({
                 req: req,
@@ -258,6 +227,7 @@ module.exports = {
                 entity: result[0].id,
                 info: 'Add discussion`s entry'
             });
+
             return result;
 
         }).then(function (data) {
@@ -275,48 +245,23 @@ module.exports = {
                 updated: new Date()
             }); // update `updated`
             req.body = _.pick(req.body, Discussion.updateCols); // update only columns that may be updated
-            var result = yield thunkQuery(Discussion.update(req.body).where(Discussion.id.equals(req.params.id)).returning(Discussion.id));
+
+            yield thunkQuery(Discussion.update(req.body).where(Discussion.id.equals(req.params.id)).returning(Discussion.id));
+
             // prepare for notify
             var entry = yield * common.getDiscussionEntry(req, req.params.id);
-            if (!entry.isReturn && !entry.isResolve) { // // notify only ordinary entries
-                var userFrom = yield * common.getUser(req, req.user.id);
-                // static blindReview
-                var task = yield * common.getTask(req, entry.taskId);
-                var stepTo = yield * common.getEntity(req, entry.stepId, WorkflowStep, 'id');
-                var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
-                var from = {
-                    firstName: userFrom.firstName,
-                    lastName: userFrom.lastName
-                };
-                if (stepTo.blindReview) {
-                    userFromName = stepTo.role + ' (' + stepTo.title + ')';
-                    from = {
-                        firstName: stepTo.role,
-                        lastName: '(' + stepTo.title + ')'
-                    };
-                } else if (userFrom.isAnonymous) {
-                    userFromName = 'Anonymous -' + stepTo.role + ' (' + stepTo.title + ')';
-                    from = {
-                        firstName: 'Anonymous -' + stepTo.role,
-                        lastName: '(' + stepTo.title + ')'
-                    };
-                }
-                notify(req, {
-                    body: req.body.entry,
-                    action: 'Comment updated',
-                    userFromName: userFromName,
-                    from: from
-                }, result[0].id, stepTo.taskid, 'Discussions', 'discussion');
-            }
+
+            yield * notifyHelper(req, entry);
+
             bologger.log({
                 req: req,
                 user: req.user,
                 action: 'update',
                 object: 'discussions',
-                entity: result[0].id,
+                entity: entry.id,
                 info: 'Update body of discussion`s entry'
             });
-            return result;
+            return entry;
 
         }).then(function (data) {
             res.status(202).end();
@@ -937,4 +882,41 @@ function* returnTaskIdIfReturnFlagsExists(req, taskId) {
         )
     );
     return (_.first(result)) ? result[0].returnTaskId : null;
+}
+
+function* notifyHelper(req, discussion) {
+
+    if (!discussion.isReturn && discussion.isResolve) {
+        var userFrom = yield * common.getUser(req, req.user.id),
+            stepTo = yield * common.getEntity(req, discussion.stepId, WorkflowStep, 'id');
+
+        var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
+
+        var from = {
+            firstName: userFrom.firstName,
+            lastName: userFrom.lastName
+        };
+
+        if (stepTo.blindReview) {
+            userFromName = stepTo.role + ' (' + stepTo.title + ')';
+            from = {
+                firstName: stepTo.role,
+                lastName: '(' + stepTo.title + ')'
+            };
+        } else if (userFrom.isAnonymous) {
+            userFromName = 'Anonymous -' + stepTo.role + ' (' + stepTo.title + ')';
+            from = {
+                firstName: 'Anonymous -' + stepTo.role,
+                lastName: '(' + stepTo.title + ')'
+            };
+        }
+
+        notify(req, {
+            body: req.body.entry,
+            action: 'Comment updated',
+            userFromName: userFromName,
+            from: from
+        }, discussion.id, stepTo.taskid, 'Discussions', 'discussion');
+    }
+
 }
