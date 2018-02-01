@@ -84,10 +84,7 @@ module.exports = {
 
             // Check that no blank subject name was passed in
             for (let i = 0; i < req.body.subjects.length; i++) {
-                console.log(`BODY LENGTH IS: ${req.body.subjects.length}`)
-                console.log(`CHECKING SUBJECTS FOR EMPYT STRING`)
                 if (req.body.subjects[i].name == '') {
-                    console.log(`FOUND AN EMPTY STRING`);
                     throw new HttpError(400, 'Subject Cannot be empty');
                 }
             }
