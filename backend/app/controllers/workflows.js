@@ -307,9 +307,15 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             // Check to make sure workflowStep exists
-            const workflowStepExist = yield * common.checkRecordExistById(req, 'WorkflowSteps', 'id', req.params.stepId);
-
-            if (workflowStepExist === false) {
+            let workflowStepExist = yield thunkQuery(
+                'SELECT "WorkflowSteps"."workflowId", "WorkflowSteps"."position" ' +
+                'FROM "WorkflowSteps" WHERE "WorkflowSteps"."id" = ' + req.params.stepId
+            );
+            //let workflowStepExist = yield * common.checkRecordExistById(req, 'WorkflowSteps', 'id', req.params.stepId);
+            console.log("********************************");
+            workflowStepExist = _.first(workflowStepExist);
+            console.log(workflowStepExist);
+            if (!workflowStepExist) {
                 throw new HttpError(403, 'WorkflowStep with id = ' + req.params.stepId + ' does not exist');
             }
 
@@ -322,6 +328,12 @@ module.exports = {
 
                 // Delete entry from work flow group
                 yield thunkQuery(WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(req.params.stepId)));
+
+                yield thunkQuery(
+                    'UPDATE "WorkflowSteps" SET "position" = "position" -1 WHERE ' +
+                    '"workflowId" = ' + workflowStepExist.workflowId + ' AND ' +
+                    '"position" > ' + workflowStepExist.position + ' AND "isDeleted" is NULL'
+                );
 
                 // Soft delete stage / workflowStep
                 return yield thunkQuery(
