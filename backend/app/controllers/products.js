@@ -220,6 +220,10 @@ var moveWorkflow = function* (req, productId, UOAid) {
             });
         }
     }
+
+    const productResult = yield thunkQuery(Product.select(Product.projectId).where(Product.id.equals(productId)));
+    yield common.bumpProjectLastUpdated(req, productResult[0].projectId);
+
     debug(nextStep);
 
 };
