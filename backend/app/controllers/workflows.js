@@ -311,10 +311,8 @@ module.exports = {
                 'SELECT "WorkflowSteps"."workflowId", "WorkflowSteps"."position" ' +
                 'FROM "WorkflowSteps" WHERE "WorkflowSteps"."id" = ' + req.params.stepId
             );
-            //let workflowStepExist = yield * common.checkRecordExistById(req, 'WorkflowSteps', 'id', req.params.stepId);
-            console.log("********************************");
             workflowStepExist = _.first(workflowStepExist);
-            console.log(workflowStepExist);
+
             if (!workflowStepExist) {
                 throw new HttpError(403, 'WorkflowStep with id = ' + req.params.stepId + ' does not exist');
             }
@@ -325,7 +323,6 @@ module.exports = {
             if (_.first(completedTasks)) {
                 throw new HttpError(403, 'Cannot delete Stage with completed Task');
             } else {
-
                 // Delete entry from work flow group
                 yield thunkQuery(WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(req.params.stepId)));
 
