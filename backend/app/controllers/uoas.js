@@ -74,6 +74,8 @@ module.exports = {
 
     insert: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
+        var uoas;
+        var sqlString;
 
         // Verify that the body contains the subjects
         if (req.body.subjects) {
@@ -89,8 +91,8 @@ module.exports = {
                 }
             }
 
-            var uoas = req.body.subjects.map((subject) => subject.name);
-            var sqlString = "'" + uoas.toString().replace(/'/g, "''").replace(/,/g, "','") + "'";
+            uoas = req.body.subjects.map((subject) => subject.name);
+            sqlString = "'" + uoas.toString().replace(/'/g, "''").replace(/,/g, "','") + "'";
         } else {
             throw new HttpError(400, 'Missing Subjects');
         }
