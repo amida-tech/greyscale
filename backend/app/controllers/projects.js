@@ -343,6 +343,8 @@ module.exports = {
                         updateObj.firstActivated = new Date();
                     }
                 }
+
+                updateObj.lastUpdated = new Date();
                 result = yield thunkQuery(
                     Project
                     .update(updateObj)
