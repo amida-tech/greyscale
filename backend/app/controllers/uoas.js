@@ -20,6 +20,7 @@ var client = require('../db_bootstrap'),
     thunkify = require('thunkify'),
     sql = require('sql'),
     HttpError = require('../error').HttpError,
+    common = require('../services/common'),
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_uoas');
@@ -117,7 +118,10 @@ module.exports = {
                         isComplete: false,
                     }));
                 }
+
+                yield common.bumpProjectLastUpdatedByProduct(req, req.body.productId);
             }
+
             return added;
         }).then(function (data) {
             bologger.log({
