@@ -612,6 +612,20 @@ var getCompletedTaskByStepId = function* (req, workflowStepId) {
 
 exports.getCompletedTaskByStepId = getCompletedTaskByStepId;
 
+var bumpProjectLastUpdatedByProduct = function *(req, productId) {
+
+    const productResult = yield req.thunkQuery(
+        Product.select(Product.projectId)
+        .where(Product.id.equals(productId))
+    );
+
+    if (productResult.length === 1) {
+        yield bumpProjectLastUpdated(req, productResult[0].projectId);
+    }
+}
+
+exports.bumpProjectLastUpdatedByProduct = bumpProjectLastUpdatedByProduct;
+
 var bumpProjectLastUpdated = function *(req, projectId) {
     return yield req.thunkQuery(
         Project

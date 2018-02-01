@@ -291,7 +291,7 @@ module.exports = {
                 }
             }
 
-            yield bumpProjectLastUpdatedForProduct(req, productId);
+            yield common.bumpProjectLastUpdatedByProduct(req, productId);
 
             return {
                 updated: updatedIds,
@@ -389,16 +389,4 @@ function* setCurrentStepToNull(req, productId) {
         .where(ProductUOA.productId.equals(productId))
     );
 
-}
-
-function* bumpProjectLastUpdatedForProduct(req, productId) {
-
-    const productResult = yield req.thunkQuery(
-        Product.select(Product.projectId)
-        .where(Product.id.equals(productId))
-    );
-
-    if (productResult.length === 1) {
-        yield common.bumpProjectLastUpdated(req, productResult[0].projectId);
-    }
 }
