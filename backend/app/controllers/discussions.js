@@ -100,7 +100,7 @@ module.exports = {
                 '"Discussions" ' +
                 'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id"';
 
-            var selectWhere = 'WHERE 1=1 ';
+            var selectWhere = 'WHERE "Tasks".id = ' + task.id + ' ';
             selectWhere = setWhereInt(selectWhere, uoaId, 'Tasks', 'uoaId');
 
             if (req.query.filter === 'resolve') {
@@ -131,6 +131,13 @@ module.exports = {
             var discussionData = _.map(_.groupBy(yield thunkQuery(selectQuery), 'questionId'), function(discussion, questionId) {
                 return { questionId, discussion }
             });
+
+            if (req.user.roleID !== 2 && !task.userIds.includes(req.user.realmUserId)) {
+                var filteredData = _.filter(discussionData, (flag) =>
+                    _.some(flag.discussion, (discuss) => (discuss.userId === req.user.realmUserId ||
+                        discuss.userFromId === req.user.realmUserId)));
+                return filteredData;
+            }
             return discussionData;
         }).then(function (data) {
             res.json(data);
@@ -188,41 +195,24 @@ module.exports = {
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            var isReturn = req.body.isReturn;
-            var isResolve = req.body.isResolve;
-            var returnObject = yield * checkInsert(req);
             var task = yield * common.getTask(req, parseInt(req.body.taskId));
-            //var currentStep = yield * common.getCurrentStepExt(req, task.productId, task.uoaId); // ??? could user commented ???
-            var stepTo = yield * common.getEntity(req, req.body.stepId, WorkflowStep, 'id');
-            var taskTo = yield * common.getTaskByStep(req, stepTo.id, task.uoaId);
-            var retTask = task;
-            if (returnObject) {
-                var returnTaskId = null;
-                if (isReturn) {
-                    returnTaskId = yield * returnTaskIdIfReturnFlagsExists(req, task.id);
-                }
-                if (returnTaskId) {
-                    retTask = yield * common.getTask(req, returnTaskId);
-                    req.body = _.extend(req.body, {
-                        stepId: retTask.stepId
-                    }); // use stepId from previous return flags
-                    req.body = _.extend(req.body, {
-                        returnTaskId: returnTaskId
-                    }); // use returnTaskId from previous return flags
-                } else {
-                    retTask = yield * common.getTask(req, parseInt(returnObject.taskId));
-                }
-            }
             req.body = _.extend(req.body, {
                 userFromId: req.user.realmUserId
             }); // add from realmUserId instead of user id
             req.body = _.extend(req.body, {
                 stepFromId: task.stepId
             }); // add stepFromId from task (for future use)
-            if (!isReturn && !isResolve) {
+            if (!req.body.isResolve) {
                 req.body = _.extend(req.body, {
                     activated: true
                 }); // ordinary entries is activated
+            } else {
+                yield thunkQuery(
+                    Discussion.update({ isResolve: true })
+                    .where(Discussion.taskId.equals(req.body.taskId))
+                    .and(Discussion.questionId.equals(req.body.questionId))
+                    .and(Discussion.stepId.equals(req.body.stepId))
+                );
             }
             req.body = _.pick(req.body, Discussion.insertCols); // insert only columns that may be inserted
             var result = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
@@ -272,49 +262,6 @@ module.exports = {
 
         }).then(function (data) {
             res.status(201).json(_.first(data));
-        }, function (err) {
-            next(err);
-        });
-    },
-
-    /**
-     * Checks Mark all discussions with a given question ID as resolvedt
-     * @param {Object} req - Request object
-     * @param {Object} res - Response object
-     * @param {Function} next - Express next middleware function
-     * @return {Object} A json object with either a success or error message
-     */
-    markAsResolved: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-        co(function* () {
-
-            // Check if there is a record matching the passed in discussion ID
-            var discussionExist = yield * common.checkRecordExistById(req, 'Discussions', 'questionId', req.params.questionId);
-
-            if (discussionExist === true) {
-                return yield thunkQuery(
-                    Discussion.update({
-                        isResolve: true
-                    }).where(
-                        Discussion.questionId.equals(req.params.questionId)
-                    )
-                );
-            } else {
-                throw new HttpError(403, 'No discussion matching that question ID');
-            }
-        }).then(function (data) {
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'update',
-                object: 'discussions',
-                entity: req.params.questionId,
-                info: 'Resolve Discussion'
-            });
-            res.status(202).json({
-                'data': data,
-                'message': 'Discussion marked as resolved'
-            });
         }, function (err) {
             next(err);
         });
@@ -681,6 +628,7 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
                 'AND "Discussions"."isResolve" = false ' +
                 'AND "Discussions"."activated" = true ' +
                 'LIMIT 1';
+
             var result = yield thunkQuery(query);
             resolve = (_.first(result)) ? [_.last(result)] : result;
         }

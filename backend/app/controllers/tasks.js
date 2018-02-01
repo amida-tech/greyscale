@@ -164,6 +164,7 @@ module.exports = {
                 'AND "Tasks"."isDeleted" is NULL ' +
                 ') '
             );
+            tasks = yield * common.getDiscussedTasks(req, tasks, req.user.id);
             tasks = yield * common.getFlagsForTask(req, tasks);
             tasks = yield * common.getCompletenessForTask(req, tasks);
             return tasks = yield * common.getActiveForTask(req, tasks);

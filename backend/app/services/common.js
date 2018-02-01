@@ -24,7 +24,7 @@ var
     HttpError = require('../error').HttpError,
     config = require('../../config'),
     nodemailer = require('nodemailer');
-    request = require('request-promise');
+request = require('request-promise');
 
 var getEntityById = function* (req, id, model, key) {
     var thunkQuery = req.thunkQuery;
@@ -397,16 +397,40 @@ var prepUsersForTask = function* (req, task) {
 };
 exports.prepUsersForTask = prepUsersForTask;
 
+var getDiscussedTasks = function* (req, tasks, userId) {
+    var thunkQuery = req.thunkQuery;
+    var assignedTaskIds = _.map(tasks, 'id');
+    var sqlDiscussString = 'SELECT DISTINCT "Discussions"."taskId" FROM "Discussions" WHERE';
+    if (assignedTaskIds.length > 1) {
+        sqlDiscussString += ' NOT ("Discussions"."taskId" = ANY(ARRAY[' + assignedTaskIds + '])) AND ';
+    }
+    sqlDiscussString += '"Discussions"."userId" = ' + userId + ' AND "Discussions"."isResolve" = false';
+    var discussedTaskIds = yield thunkQuery(sqlDiscussString);
+    if (!_.first(discussedTaskIds)) {
+        return tasks;
+    }
+    discussedTaskIds = _.map(discussedTaskIds, 'taskId');
+    var discussTasks = yield thunkQuery(
+        'SELECT "Tasks".*, "Products"."projectId", "Products"."surveyId" ' +
+        'FROM "Tasks" LEFT JOIN "Products" on "Products".id = "Tasks"."productId" '+
+        'LEFT JOIN "Projects" ON "Projects".id = "Products".id WHERE "Tasks".id ' +
+        '= ANY(ARRAY[' + discussedTaskIds + ']) AND "Tasks"."isDeleted" is NULL'
+    )
+    return tasks.concat(discussTasks);
+}
+
+exports.getDiscussedTasks = getDiscussedTasks;
+
 var getFlagsForTask = function* (req, tasks) {
     var thunkQuery = req.thunkQuery;
+    var prefixSql = 'SELECT COUNT(dc."questionId") FROM (SELECT DISTINCT ' +
+    '"Discussions"."questionId" FROM "Discussions" WHERE "Discussions"."taskId" = ';
+    var suffixSql = (req.user.roleID === 2 ? ' AND ' :
+    ' AND ("Discussions"."userId" = ' + req.user.realmUserId + ' OR ' +
+    '"Discussions"."userFromId" = ' + req.user.realmUserId + ') AND ')
+        +'"Discussions"."isResolve" = false GROUP BY "Discussions"."questionId") as dc;';
     for (var i = 0; i < tasks.length; i++) {
-        var flaggedChat = yield thunkQuery(
-            'SELECT COUNT(dc."questionId") FROM (SELECT DISTINCT ' +
-            '"Discussions"."questionId" FROM "Discussions" WHERE ' +
-            '"Discussions"."taskId" = ' + tasks[i].id + ' AND ' +
-            '"Discussions"."isResolve" = false GROUP BY ' +
-            '"Discussions"."questionId") as dc;'
-        );
+        var flaggedChat = yield thunkQuery(prefixSql + tasks[i].id + suffixSql);
         tasks[i].flagCount = parseInt(flaggedChat[0].count);
     }
     return tasks;
