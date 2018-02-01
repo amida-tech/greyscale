@@ -387,6 +387,7 @@ function* updateCurrentStepId(req, insertedTaskId) {
         .select(
             WorkflowStep.position,
             Task.stepId,
+            Task.assessmentId,
             Task.id
         )
         .from(WorkflowStep
@@ -427,7 +428,11 @@ function* updateCurrentStepId(req, insertedTaskId) {
                 .where(Workflow.productId.equals(req.body.productId))
                 .and(WorkflowStep.position.equals(0)))).id;
         } else {
-            // TODO: INBA-561
+            const priorStep = _.find(result, (step) => step.position === addedStep.position -1);
+            common.copyAssessmentAtSurveyService(
+                addedStep.assessmentId,
+                priorStep.assessmentId,
+                req.headers.authorization);
             updateObj.currentStepId = addedStep.stepId;
         }
 
