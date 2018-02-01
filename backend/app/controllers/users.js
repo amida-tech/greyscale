@@ -352,6 +352,7 @@ module.exports = {
     },
 
     selfOrganizationInvite: function (req, res, next) {
+
         if (req.params.realm === config.pgConnect.adminSchema) {
             throw new HttpError(400, 'Incorrect realm');
         }
@@ -454,21 +455,24 @@ module.exports = {
 
             var essenceId = yield * common.getEssenceId(req, 'Users');
 
-            yield * notifications.createNotification( req, {
-                userFrom: req.user.realmUserId,
-                userTo: _.first(userObject).id,
-                body: 'Invite',
-                essenceId,
-                entityId: _.first(userObject).id,
-                notifyLevel: req.body.notifyLevel,
-                name: req.body.firstName,
-                surname: req.body.lastName,
-                company: org,
-                inviter: req.user,
-                token: activationToken,
-                subject: 'Indaba. Organization membership',
-                config,
-            }, 'orgInvite');
+            if (req.user.realmUserId !== null) {
+
+                yield * notifications.createNotification( req, {
+                    userFrom: req.user.realmUserId,
+                    userTo: _.first(userObject).id,
+                    body: 'Invite',
+                    essenceId,
+                    entityId: _.first(userObject).id,
+                    notifyLevel: req.body.notifyLevel,
+                    name: req.body.firstName,
+                    surname: req.body.lastName,
+                    company: org,
+                    inviter: req.user,
+                    token: activationToken,
+                    subject: 'Indaba. Organization membership',
+                    config,
+                }, 'orgInvite');
+            };
 
             if (req.body.roleID === 2) { // invite admin
                 if (!org.adminUserId) {

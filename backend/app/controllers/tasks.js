@@ -6,6 +6,7 @@ var
     Product = require('../models/products'),
     Project = require('../models/projects'),
     WorkflowStep = require('../models/workflow_steps'),
+    Workflow = require('../models/workflows'),
     Discussions = require('../models/discussions'),
     Task = require('../models/tasks'),
     User = require('../models/users'),
@@ -164,7 +165,8 @@ module.exports = {
                 ') '
             );
             tasks = yield * common.getFlagsForTask(req, tasks);
-            return tasks = yield * common.getCompletenessForTask(req, tasks);
+            tasks = yield * common.getCompletenessForTask(req, tasks);
+            return tasks = yield * common.getActiveForTask(req, tasks);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -380,17 +382,7 @@ function* checkTaskData(req) {
 function* updateCurrentStepId(req, insertedTaskId) {
     var thunkQuery = req.thunkQuery;
 
-    var product = yield * common.getEntity(req, req.body.productId, Product, 'id');
-    if (product.status !== 2) { // not suspended
-        yield thunkQuery(
-            ProductUOA.update({
-                isComplete: false
-            }).where(ProductUOA.productId.equals(req.body.productId))
-        );
-    }
-
-    var result;
-    var minStepPositionQuery = WorkflowStep
+    var result = yield thunkQuery(WorkflowStep
         .select(
             WorkflowStep.position,
             Task.stepId,
@@ -402,34 +394,50 @@ function* updateCurrentStepId(req, insertedTaskId) {
         .where(Task.productId.equals(req.body.productId))
         .and(Task.uoaId.equals(req.body.uoaId))
         .and(WorkflowStep.isDeleted.isNull())
-        .order(WorkflowStep.position);
-    result = yield thunkQuery(minStepPositionQuery);
+        .and(Task.isDeleted.isNull())
+        .order(WorkflowStep.position));
 
     if (!_.first(result)) {
         throw new HttpError(403, 'Could not find the min step position for productId: ' + req.body.productId );
     }
 
     var addedStep = _.find(result, (step) => step.id === insertedTaskId);
+
     var currentStep = _.first(yield thunkQuery(ProductUOA
         .select(
             WorkflowStep.position,
-            ProductUOA.currentStepId
+            ProductUOA.currentStepId,
+            ProductUOA.isComplete
         )
         .from(ProductUOA.join(WorkflowStep).on(ProductUOA.currentStepId.equals(WorkflowStep.id)))
         .where(ProductUOA.productId.equals(req.body.productId))
         .and(ProductUOA.UOAid.equals(req.body.uoaId))));
 
-    if (!currentStep || addedStep.position < currentStep.position) {
+    if (!currentStep || (currentStep.position + 1 === addedStep.position && currentStep.isComplete)) {
+        var updateObj = {
+            isComplete: false,
+        };
+        if (!currentStep) {
+            updateObj.currentStepId = _.first(yield thunkQuery(WorkflowStep
+                .select(
+                    WorkflowStep.id
+                )
+                .from(WorkflowStep.join(Workflow).on(WorkflowStep.workflowId.equals(Workflow.id)))
+                .where(Workflow.productId.equals(req.body.productId))
+                .and(WorkflowStep.position.equals(0)))).id;
+        } else {
+            // TODO: INBA-561
+            updateObj.currentStepId = addedStep.stepId;
+        }
+
         yield thunkQuery(ProductUOA
-            .update({
-                currentStepId: addedStep.stepId
-            })
+            .update(updateObj)
             .where(ProductUOA.productId.equals(req.body.productId)
                 .and(ProductUOA.UOAid.equals(req.body.uoaId))
             )
         );
-    }
         // TODO: Notify user, INBA-529.
+    }
 
     return {
         productId: req.body.productId,
