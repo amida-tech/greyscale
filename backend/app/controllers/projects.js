@@ -87,7 +87,7 @@ module.exports = {
                     projectList.push({
                         id: projects[i].id,
                         name: projects[i].codeName,
-                        lastUpdated: null,
+                        lastUpdated: projects[i].lastUpdated,
                         status: projects[i].status,
                         productId,
                         surveyId: (_.first(_.map(product, 'surveyId')) || null),
@@ -209,7 +209,7 @@ module.exports = {
 
                 aggregateObject.id = project.id;
                 aggregateObject.name = project.codeName;
-                aggregateObject.lastUpdated = null; // need to figure out wha this is
+                aggregateObject.lastUpdated = project.lastUpdated;
                 aggregateObject.status = project.status;
                 aggregateObject.users = _.map(userList, 'userId');
                 aggregateObject.stages = stages;
