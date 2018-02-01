@@ -1,6 +1,7 @@
 var
     _ = require('underscore'),
     config = require('../../config'),
+    Project = require('../models/projects'),
     Product = require('../models/products'),
     ProductUOA = require('../models/product_uoa'),
     Essence = require('../models/essences'),
@@ -610,3 +611,13 @@ var getCompletedTaskByStepId = function* (req, workflowStepId) {
 };
 
 exports.getCompletedTaskByStepId = getCompletedTaskByStepId;
+
+var bumpProjectLastUpdated = function *(req, projectId) {
+    return yield req.thunkQuery(
+        Project
+        .update({lastUpdated: new Date()})
+        .where(Project.id.equals(projectId))
+    )
+}
+
+exports.bumpProjectLastUpdated = bumpProjectLastUpdated;
