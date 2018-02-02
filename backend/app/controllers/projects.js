@@ -510,6 +510,8 @@ module.exports = {
                     req.params.projectId + ' AND "ProjectUsers"."userId" = ' + req.params.userId
                 );
 
+                yield common.bumpProjectLastUpdated(req, req.params.projectId);
+
                 var productId = _.first(_.map((yield thunkQuery(
                     Product.select(Product.id).from(Product).where(Product.projectId.equals(req.params.projectId))
                 )), 'id'));
