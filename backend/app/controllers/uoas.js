@@ -210,6 +210,8 @@ module.exports = {
                             'SET "isDeleted" = (to_timestamp(' + Date.now() +
                             '/ 1000.0)) WHERE "id" = ' + req.params.id
                         );
+
+                        yield common.bumpProjectLastUpdated(req, project[0].id);
                     } else { // Project is active and we have to do other checks.
                         // check if there are any tasks assigned
                         var task = yield thunkQuery(
@@ -234,6 +236,8 @@ module.exports = {
                                 'SET "isDeleted" = (to_timestamp(' + Date.now() +
                                 '/ 1000.0)) WHERE "id" = ' + req.params.id
                             );
+
+                            yield common.bumpProjectLastUpdated(req, project[0].id);
 
                         } else {
                             if (task[0].isComplete === true) {
@@ -261,6 +265,8 @@ module.exports = {
                                     'SET "isDeleted" = (to_timestamp(' + Date.now() +
                                     '/ 1000.0)) WHERE "id" = ' + req.params.id
                                 );
+
+                                yield common.bumpProjectLastUpdated(req, project[0].id);
                             }
                         }
                     }
