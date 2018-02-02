@@ -12,7 +12,7 @@ var _ = require('underscore'),
     query = new Query(),
     co = require('co'),
     thunkify = require('thunkify'),
-
+    common = require('../services/common'),
     thunkQuery = thunkify(query);
 
 module.exports = {
@@ -66,6 +66,7 @@ module.exports = {
 
             if (req.body.projectId) {
                 yield thunkQuery(ProjectUserGroup.insert({projectId: req.body.projectId, groupId}));
+                yield common.bumpProjectLastUpdated(req, req.body.projectId);
             }
             return groupResult;
         }).then(function (data) {
