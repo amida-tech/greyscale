@@ -291,6 +291,8 @@ module.exports = {
                 }
             }
 
+            yield common.bumpProjectLastUpdatedByProduct(req, productId);
+
             return {
                 updated: updatedIds,
                 inserted: insertIds

@@ -20,6 +20,7 @@ var client = require('../db_bootstrap'),
     thunkify = require('thunkify'),
     sql = require('sql'),
     HttpError = require('../error').HttpError,
+    common = require('../services/common'),
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_uoas');
@@ -117,7 +118,10 @@ module.exports = {
                         isComplete: false,
                     }));
                 }
+
+                yield common.bumpProjectLastUpdatedByProduct(req, req.body.productId);
             }
+
             return added;
         }).then(function (data) {
             bologger.log({
@@ -206,6 +210,8 @@ module.exports = {
                             'SET "isDeleted" = (to_timestamp(' + Date.now() +
                             '/ 1000.0)) WHERE "id" = ' + req.params.id
                         );
+
+                        yield common.bumpProjectLastUpdated(req, project[0].id);
                     } else { // Project is active and we have to do other checks.
                         // check if there are any tasks assigned
                         var task = yield thunkQuery(
@@ -230,6 +236,8 @@ module.exports = {
                                 'SET "isDeleted" = (to_timestamp(' + Date.now() +
                                 '/ 1000.0)) WHERE "id" = ' + req.params.id
                             );
+
+                            yield common.bumpProjectLastUpdated(req, project[0].id);
 
                         } else {
                             if (task[0].isComplete === true) {
@@ -257,6 +265,8 @@ module.exports = {
                                     'SET "isDeleted" = (to_timestamp(' + Date.now() +
                                     '/ 1000.0)) WHERE "id" = ' + req.params.id
                                 );
+
+                                yield common.bumpProjectLastUpdated(req, project[0].id);
                             }
                         }
                     }

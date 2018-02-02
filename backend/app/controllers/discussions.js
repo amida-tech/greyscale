@@ -242,6 +242,8 @@ module.exports = {
                 info: 'Add discussion`s entry'
             });
 
+            yield bumpProjectLastUpdatedForTask(req, parseInt(req.body.taskId));
+
             return result;
 
         }).then(function (data) {
@@ -896,6 +898,7 @@ function* returnTaskIdIfReturnFlagsExists(req, taskId) {
     return (_.first(result)) ? result[0].returnTaskId : null;
 }
 
+<<<<<<< HEAD
 function* notifyHelper(req, discussionId) {
 
     console.log();
@@ -944,4 +947,18 @@ function* notifyHelper(req, discussionId) {
         }, discussion.id, discussion.taskId, 'Discussions', 'discussion');
     }
 
+=======
+function * bumpProjectLastUpdatedForTask(req, taskId) {
+    const taskResult = yield req.thunkQuery(
+        Task
+        .select(Product.projectId)
+        .from(
+            Task.leftJoin(Product)
+            .on(Task.productId.equals(Product.id)))
+        .where(Task.id.equals(taskId))
+    );
+    if (taskResult.length === 1) {
+        yield common.bumpProjectLastUpdated(req, taskResult[0].projectId);
+    }
+>>>>>>> 49af067ea6e0fd04ae6792871b3661acc11d2cdb
 }
