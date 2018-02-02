@@ -479,6 +479,8 @@ module.exports = {
             if (projectExist === true && userExist === true) {
                 var insertedData =  yield * common.insertProjectUser(req, req.body.userId, req.params.projectId);
 
+                yield common.bumpProjectLastUpdated(req, req.params.projectId);
+
                 if (insertedData) {
                     return {
                         'message': 'Successfully Inserted data',
