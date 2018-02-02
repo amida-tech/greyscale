@@ -140,6 +140,14 @@ module.exports = {
                         info: 'Add new users for group'
                     });
                 }
+
+                const projectUserGroupResult = yield req.thunkQuery(ProjectUserGroup
+                .select(ProjectUserGroup.projectId)
+                .where(ProjectUserGroup.groupId.equals(req.params.id)));
+
+                if (projectUserGroupResult.length > 0) {
+                    yield common.bumpProjectLastUpdated(req, projectUserGroupResult[0].projectId);
+                }
             }
         }).then(function () {
             res.status(202).end();
