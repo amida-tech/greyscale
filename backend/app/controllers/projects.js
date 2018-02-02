@@ -534,6 +534,25 @@ module.exports = {
         }, function (err) {
             next(err);
         });
+    },
+
+    editSurvey: function(req, res, next) {
+        co(function* () {
+            const surveyId = parseInt(req.params.id);
+            if (Number.isNaN(surveyId)) {
+                throw new HttpError(400, 'Survey ID invalid');
+            }
+
+            const productResult = yield req.thunkQuery(
+                Product.select(Product.projectId)
+                .where(Product.surveyId.equals(surveyId))
+            );
+
+            if (productResult.length > 0) {
+                yield common.bumpProjectLastUpdated(req, productResult[0].projectId);
+            }
+        })
+        .then(() => res.status(204).end(), next);
     }
 };
 

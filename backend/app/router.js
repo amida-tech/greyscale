@@ -89,6 +89,9 @@ router.route('/:realm/v0.2/projects/:id/products')
 router.route('/:realm/v0.2/projects/:id/surveys')
     .get(authenticate('jwt').always, projects.surveyList);
 
+router.route('/:realm/v0.2/projects/survey/:id')
+    .put(authenticate('jwt').always, jsonParser, projects.editSurvey);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEYS
 //----------------------------------------------------------------------------------------------------------------------
