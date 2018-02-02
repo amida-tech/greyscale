@@ -220,6 +220,9 @@ var moveWorkflow = function* (req, productId, UOAid) {
             });
         }
     }
+
+    yield common.bumpProjectLastUpdatedByProduct(req, productId);
+
     debug(nextStep);
 
 };
