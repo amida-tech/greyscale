@@ -48,16 +48,26 @@ var setWhereInt = function (selectQuery, val, model, key) {
 };
 
 var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
+
+    console.log();
+    console.log(`I GOT IN THE MAIN NOTIFY FUNCTION`)
+
     co(function* () {
         var userTo, note;
         // notify
         var sentUsersId = []; // array for excluding duplicate sending
         var task = yield * common.getTask(req, taskId);
+        console.log(`GOT TASK: ${task.id}`)
         for (var i in task.userIds) {
             if (sentUsersId.indexOf(task.userIds[i]) === -1) {
-                if (req.user.id !== task.userIds[i]) { // don't send self notification
+                console.log(`ENTERED FIRST IF BLOCK`)
+                console.log()
+                if (req.body.userId !== task.userIds[i]) { // don't send self notification
+                    console.log(`ENTERED SECOND IF BLOCK`)
                     userTo = yield * common.getUser(req, task.userIds[i]);
+                    console.log(`SENDING TO USER: ${userTo.firstName}`)
                     note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
+                    console.log(`CALLING NOTIFY FROM FIRST BLOCK WITH NOTE: ${note}`)
                     notifications.notify(req, userTo, note, templateName);
                     sentUsersId.push(task.userIds[i]);
                 }
@@ -70,6 +80,7 @@ var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
                     if (req.user.id !== usersFromGroup[j].userId) { // don't send self notification
                         userTo = yield * common.getUser(req, usersFromGroup[j].userId);
                         note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
+                        console.log(`CALLING NOTIFY FROM SECOND BLOCK`)
                         notifications.notify(req, userTo, note, templateName);
                         sentUsersId.push(usersFromGroup[j].userId);
                     }
@@ -193,6 +204,7 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+        console.log(`I GOT IN THE INSERTONE FOR DISCUSSION`);
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var task = yield * common.getTask(req, parseInt(req.body.taskId));
@@ -217,7 +229,9 @@ module.exports = {
             req.body = _.pick(req.body, Discussion.insertCols); // insert only columns that may be inserted
             var result = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
 
-            yield * notifyHelper(req, _.first(result));
+            console.log(`INSERTED THE DISCUSSION WITH ID: ${_.first(result).id} NOW TRYING TO NOTIFY`);
+
+            yield * notifyHelper(req, _.first(result).id);
 
             bologger.log({
                 req: req,
@@ -246,12 +260,10 @@ module.exports = {
             }); // update `updated`
             req.body = _.pick(req.body, Discussion.updateCols); // update only columns that may be updated
 
-            yield thunkQuery(Discussion.update(req.body).where(Discussion.id.equals(req.params.id)).returning(Discussion.id));
+            var result = yield thunkQuery(Discussion.update(req.body).where(Discussion.id.equals(req.params.id)).returning(Discussion.id));
 
             // prepare for notify
-            var entry = yield * common.getDiscussionEntry(req, req.params.id);
-
-            yield * notifyHelper(req, entry);
+            yield * notifyHelper(req, _.first(result).id);
 
             bologger.log({
                 req: req,
@@ -884,9 +896,17 @@ function* returnTaskIdIfReturnFlagsExists(req, taskId) {
     return (_.first(result)) ? result[0].returnTaskId : null;
 }
 
-function* notifyHelper(req, discussion) {
+function* notifyHelper(req, discussionId) {
 
-    if (!discussion.isReturn && discussion.isResolve) {
+    console.log();
+    console.log(`I GOT IN THE NOTIFY HELPER FUNCTION`);
+
+    var discussion = yield * common.getDiscussionEntry(req, discussionId);
+
+    if (!discussion.isReturn && !discussion.isResolve) {
+        console.log(`IS_RETURN && IS_RESOLVE PASSED`);
+        console.log(`KEYS ARE ${Object.keys(discussion)}`)
+        console.log(`VARIABLES ARE: USR: ${req.user.id},| STEPID: ${discussion.stepId} `)
         var userFrom = yield * common.getUser(req, req.user.id),
             stepTo = yield * common.getEntity(req, discussion.stepId, WorkflowStep, 'id');
 
@@ -896,6 +916,8 @@ function* notifyHelper(req, discussion) {
             firstName: userFrom.firstName,
             lastName: userFrom.lastName
         };
+
+        console.log(`BUILT 'FROM' OBJECT ${from.firstName} ${from.lastName}`);
 
         if (stepTo.blindReview) {
             userFromName = stepTo.role + ' (' + stepTo.title + ')';
@@ -911,12 +933,15 @@ function* notifyHelper(req, discussion) {
             };
         }
 
+        console.log(`FIGURED OUT BLIND / ANNONYMOUS - CALLING THE NOTIFY FN`);
+        console.log(`VARIABLES ARE: ENTRYID: ${discussion.id}| TASKID: ${discussion.taskId}`)
+
         notify(req, {
             body: req.body.entry,
             action: 'Comment updated',
             userFromName: userFromName,
             from: from
-        }, discussion.id, stepTo.taskid, 'Discussions', 'discussion');
+        }, discussion.id, discussion.taskId, 'Discussions', 'discussion');
     }
 
 }
