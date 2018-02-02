@@ -141,13 +141,7 @@ module.exports = {
                     });
                 }
 
-                const projectUserGroupResult = yield req.thunkQuery(ProjectUserGroup
-                .select(ProjectUserGroup.projectId)
-                .where(ProjectUserGroup.groupId.equals(req.params.id)));
-
-                if (projectUserGroupResult.length > 0) {
-                    yield common.bumpProjectLastUpdated(req, projectUserGroupResult[0].projectId);
-                }
+                yield bumpProjectLastUpdatedByGroup(req, req.params.id);
             }
         }).then(function () {
             res.status(202).end();
@@ -169,6 +163,9 @@ module.exports = {
             var result = yield thunkQuery(
                 Group.delete().where(Group.id.equals(req.params.id))
             );
+
+            yield bumpProjectLastUpdatedByGroup(req, req.params.id);
+
             return result;
         }).then(function (data) {
             bologger.log({
@@ -202,3 +199,13 @@ module.exports = {
         });
     }
 };
+
+function * bumpProjectLastUpdatedByGroup(req, groupId) {
+    const projectUserGroupResult = yield req.thunkQuery(ProjectUserGroup
+    .select(ProjectUserGroup.projectId)
+    .where(ProjectUserGroup.groupId.equals(groupId)));
+
+    if (projectUserGroupResult.length > 0) {
+        yield common.bumpProjectLastUpdated(req, projectUserGroupResult[0].projectId);
+    }
+}
