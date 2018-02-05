@@ -186,7 +186,7 @@ var environments = {
                     lastName: 'Test',
                     email: 'user1@mail.net',
                     roleID: 3,
-                    password: 'testuser1',
+                    password: 'testuser12345',
                     authId: 1,
                 },
                 {
@@ -194,7 +194,7 @@ var environments = {
                     lastName: 'Test',
                     email: 'user2@mail.net',
                     roleID: 3,
-                    password: 'testuser2',
+                    password: 'testuser12345',
                     authId: 2,
                 },
                 {
@@ -202,7 +202,7 @@ var environments = {
                     lastName: 'Test',
                     email: 'user3@mail.net',
                     roleID: 3,
-                    password: 'testuser3',
+                    password: 'testuser12345',
                     authId: 3,
                 },
                 //Added this user to be created on the auth service

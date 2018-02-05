@@ -21,6 +21,7 @@ var client = require('../db_bootstrap'),
     thunkify = require('thunkify'),
     sql = require('sql'),
     HttpError = require('../error').HttpError,
+    common = require('../services/common'),
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_uoas');
@@ -123,7 +124,10 @@ module.exports = {
                         isComplete: false,
                     }));
                 }
+
+                yield common.bumpProjectLastUpdatedByProduct(req, req.body.productId);
             }
+
             return added;
         }).then(function (data) {
             bologger.log({
@@ -491,6 +495,9 @@ function* uoaSoftDeleteHelper(req, productIds, deleteOption) {
                         'SET "isDeleted" = (to_timestamp(' + Date.now() +
                         '/ 1000.0)) WHERE "id" = ' + UOAId
                     );
+
+                    yield common.bumpProjectLastUpdated(req, project[0].id);
+
                 }
             } else { // Project is active and we have to do other checks.
 
@@ -518,6 +525,9 @@ function* uoaSoftDeleteHelper(req, productIds, deleteOption) {
                             'SET "isDeleted" = (to_timestamp(' + Date.now() +
                             '/ 1000.0)) WHERE "id" = ' + UOAId
                         );
+
+                        yield common.bumpProjectLastUpdated(req, project[0].id);
+
                     }
 
                 } else {
@@ -550,6 +560,9 @@ function* uoaSoftDeleteHelper(req, productIds, deleteOption) {
                                 'SET "isDeleted" = (to_timestamp(' + Date.now() +
                                 '/ 1000.0)) WHERE "id" = ' + UOAId
                             );
+
+                            yield common.bumpProjectLastUpdated(req, project[0].id);
+
                         }
                     }
                 }

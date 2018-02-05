@@ -179,7 +179,7 @@ const comparator = {
         }
     },
     timestamp(server, property) {
-        const compareDateTime = moment().subtract(2, 'second');
+        const compareDateTime = moment().subtract(6, 'second');
         const serverStamp = server[property];
         const dateTime = moment(serverStamp);
         expect(dateTime.isAfter(compareDateTime)).to.equal(true);

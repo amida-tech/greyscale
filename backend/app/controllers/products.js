@@ -220,6 +220,9 @@ var moveWorkflow = function* (req, productId, UOAid) {
             });
         }
     }
+
+    yield common.bumpProjectLastUpdatedByProduct(req, productId);
+
     debug(nextStep);
 
 };
@@ -265,33 +268,13 @@ module.exports = {
                     'SELECT ' +
                     '"Discussions"."id" ' +
                     'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
+                    'WHERE "Discussions"."taskId" = "Tasks"."id" ' +
                     'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
                     'LIMIT 1' +
                     ') IS NULL ' +
                     'THEN FALSE ' +
                     'ELSE TRUE ' +
                     'END as flagged',
-                    '( ' +
-                    'SELECT count("Discussions"."id") ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    ') as flaggedCount',
-                    '(' +
-                    'SELECT ' +
-                    '"Discussions"."taskId" ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    'LIMIT 1' +
-                    ') as flaggedFrom',
                     'CASE ' +
                     'WHEN "' + pgEscape.string(curStepAlias) + '"."position" IS NULL AND ("WorkflowSteps"."position" = 0) THEN \'current\' ' +
                     'WHEN "' + pgEscape.string(curStepAlias) + '"."position" IS NULL AND ("WorkflowSteps"."position" <> 0) THEN \'waiting\' ' +
