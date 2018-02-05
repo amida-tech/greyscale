@@ -7,7 +7,7 @@ CREATE OR REPLACE FUNCTION :rschema.clone_schema(source_schema text, dest_schema
 
 --  This function will clone all sequences, tables, data, views & functions from any existing schema to a new one
 -- SAMPLE CALL:
--- SELECT clone_schema('public', 'new_schema', TRUE);
+-- SELECT clone_schema(':rschema', 'new_schema', TRUE);
 
 DECLARE
   src_oid          oid;
@@ -234,7 +234,7 @@ BEGIN
     buffer := schema || '.' || quote_ident(object);
     FOR column_, default_ IN
       SELECT column_name::text,
-             REPLACE(REPLACE(column_default::text, 'public.', ''), 'nextval(''', 'nextval(''' || schema || '.')
+             REPLACE(REPLACE(column_default::text, ':rschema.', ''), 'nextval(''', 'nextval(''' || schema || '.')
         FROM information_schema.COLUMNS
        WHERE table_schema = schema
          AND TABLE_NAME = object

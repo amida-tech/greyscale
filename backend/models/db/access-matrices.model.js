@@ -1,17 +1,17 @@
 'use strict';
 
-module.exports = function languages(sequelize, Sequelize, schema = 'public') {
-    const tableName = 'Languages';
+module.exports = function accessMatrices(sequelize, Sequelize, schema = 'public') {
+    const tableName = 'AccessMatrices';
     const modelName = `${schema}_${tableName}`;
     return sequelize.define(modelName, {
         name: {
             type: Sequelize.STRING(100),
         },
-        nativeName: {
-            type: Sequelize.STRING(255),
+        description: {
+            type: Sequelize.TEXT,
         },
-        code: {
-            type: Sequelize.STRING(3),
+        default_value: {
+            type: Sequelize.SMALLINT,
         },
     }, {
         freezeTableName: true,

@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
+module.exports = function essences(sequelize, Sequelize, schema = 'public') {
     const tableName = 'Essences';
     const modelName = `${schema}_${tableName}`;
     return sequelize.define(modelName, {

@@ -122,10 +122,6 @@ module.exports = function sequelizeGenerator(config) {
                     const pxs = enums.map(spec => sequelize.query(dropEnum(spec)));
                     return Promise.all(pxs)
                 })
-                // .then(() => {
-                //     const pxs = functionNames.map((name, index) => sequelize.getQueryInterface().dropFunction(name, params[index]));
-                //     return Promise.all(pxs);
-                // })
                 .then(() => {
                     const pxs = ['sceleton', 'test'].map(schema => this.createSchema(schema));
                     return Promise.all(pxs)
@@ -136,14 +132,21 @@ module.exports = function sequelizeGenerator(config) {
                 })
                 .then(() => {
                     const pxs = functions.map(r => {
-                        const fn = r.replace(':rschema', 'sceleton');
+                        const fn = r.replace(/\:rschema/g, 'public');
                         return sequelize.query(fn)
                     });
                     return Promise.all(pxs);
                 })
                 .then(() => {
                     const pxs = functions.map(r => {
-                        const fn = r.replace(':rschema', 'test');
+                        const fn = r.replace(/\:rschema/g, 'sceleton');
+                        return sequelize.query(fn)
+                    });
+                    return Promise.all(pxs);
+                })
+                .then(() => {
+                    const pxs = functions.map(r => {
+                        const fn = r.replace(/\:rschema/g, 'test');
                         return sequelize.query(fn)
                     });
                     return Promise.all(pxs);
