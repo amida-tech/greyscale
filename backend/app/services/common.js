@@ -581,7 +581,6 @@ var getSurveyFromSurveyService = function (surveyId, jwt) {
                 const httpErr = new HttpError(res.statusCode, res.statusMessage);
                 return Promise.reject(httpErr);
             }
-
             return res
         })
         .catch((err) => {
