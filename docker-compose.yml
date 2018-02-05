@@ -15,8 +15,10 @@ services:
       JWT_SECRET:         veryverysecret
       AUTH_SERVICE_URL:   auth-service
       SURVEY_SERVICE_URL: survey-service
+      MESSAGE_SERVICE_URL: messaging-service
+      DEBUG: '*'
     ports:
-    - "3005"
+    - "3005:3005"
 
   indaba-db:
     image: "postgres:10.1"
@@ -41,24 +43,12 @@ services:
     - POSTGRES_PASSWORD=amida
     - POSTGRES_DB=auth
 
-  indaba-frontend:
-    image: "amidatech/indaba-client:${ENV}"
-    ports:
-    - "80:3000"
-    environment:
-    - API_HTTP_URL=indaba-backend
-    - API_HTTPS_URL=indaba-backend
-    - AUTH_API_HTTP_URL=auth-service
-    - AUTH_API_HTTPS_URL=auth-service
-    - NODE_ENV=${ENV}
-    - REALM=test
-
   auth-service:
     image: "amidatech/auth-service:${ENV}"
     depends_on:
       - auth-db
     ports:
-    - "4000"
+    - "4000:4000"
     environment:
     - NODE_ENV=${ENV}
     - JWT_MODE=hmac
@@ -76,7 +66,7 @@ services:
     depends_on:
       - messaging-db
     ports:
-    - "4001"
+    - "4001:4001"
     environment:
     - NODE_ENV=${ENV}
     - JWT_MODE=hmac
@@ -103,7 +93,7 @@ services:
     depends_on:
       - survey-db
     ports:
-    - "9005"
+    - "9005:9005"
     environment:
     - NODE_ENV=${ENV}
     - SURVEY_SERVICE_DB_NAME=${SURVEY_SERVICE_DB_NAME}
