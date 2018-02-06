@@ -12,7 +12,6 @@ module.exports = function tokens(sequelize, Sequelize, schema = 'public') {
         body: {
             type: Sequelize.STRING(200),
             allowNull: false,
-            unique: true,
         },
         issuedAt: {
             type: Sequelize.DATE,
