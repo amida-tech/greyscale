@@ -797,6 +797,9 @@ module.exports = {
                 ProjectUser.delete().where(ProjectUser.userId.equals(req.params.id))
             );
 
+            const user = yield thunkQuery(User.select(User.email).where(User.id.equals(req.params.id)));
+            _deleteUserOnAuthService(user[0].email, req.headers.authorization);
+
             // Soft delete the user from the Users table
             return yield thunkQuery(
                 'UPDATE "Users"' +
