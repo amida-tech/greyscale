@@ -12,11 +12,11 @@ module.exports = function attachmentAttempts(sequelize, Sequelize, schema = 'pub
         filename: {
             type: 'character varying',
         },
-        size: {
-            type: Sequelize.INTEGER,
-        },
         mimetype: {
             type: 'character varying',
+        },
+        size: {
+            type: Sequelize.INTEGER,
         },
         created: {
             type: Sequelize.DATE,

@@ -34,7 +34,7 @@ module.exports = function rolesRights(sequelize, Sequelize, schema = 'public') {
         schema,
         timestamps: false,
         indexes: [{
-            name: 'fki_rolesrights_rightID',
+            name: 'RolesRights_rightID_idx',
             fields: ['rightID'],
         }],
     });

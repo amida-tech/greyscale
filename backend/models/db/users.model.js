@@ -134,7 +134,7 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
         schema,
         timestamps: false,
         indexes: [{
-            name: 'fki_roleID',
+            name: 'Users_roleID_idx',
             fields: ['roleID'],
         }],
         hooks: {
