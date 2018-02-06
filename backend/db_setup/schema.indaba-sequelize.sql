@@ -1423,7 +1423,7 @@ ALTER SEQUENCE "Languages_id_seq" OWNED BY "Languages".id;
 
 CREATE TABLE "Logs" (
     id integer NOT NULL,
-    created timestamp(6) with time zone DEFAULT now(),
+    created timestamp with time zone DEFAULT now(),
     userid integer NOT NULL,
     action character varying,
     essence integer NOT NULL,
@@ -1492,9 +1492,9 @@ CREATE TABLE "Notifications" (
     subject character varying,
     "essenceId" integer,
     "entityId" integer,
-    created timestamp(6) with time zone DEFAULT now() NOT NULL,
-    reading timestamp(6) with time zone,
-    sent timestamp(6) with time zone,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    reading timestamp with time zone,
+    sent timestamp with time zone,
     read boolean DEFAULT false,
     "notifyLevel" smallint DEFAULT 0,
     result character varying,
@@ -1596,7 +1596,7 @@ ALTER TABLE "RolesRights" OWNER TO indabauser;
 CREATE TABLE "Token" (
     "userID" integer NOT NULL,
     body character varying(200) NOT NULL,
-    "issuedAt" timestamp without time zone DEFAULT ('now'::text)::timestamp without time zone NOT NULL,
+    "issuedAt" timestamp with time zone DEFAULT ('now'::text)::timestamp with time zone NOT NULL,
     realm character varying(80) NOT NULL
 );
 
@@ -1635,7 +1635,7 @@ CREATE TABLE "Users" (
     "resetPasswordToken" character varying(100),
     "resetPasswordExpires" bigint,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp without time zone,
+    updated timestamp with time zone,
     "isActive" boolean,
     "activationToken" character varying(100),
     "organizationId" integer,
@@ -1652,7 +1652,7 @@ CREATE TABLE "Users" (
     "langId" integer,
     salt character varying,
     "authId" integer NOT NULL,
-    "isDeleted" timestamp(6) without time zone
+    "isDeleted" timestamp with time zone
 );
 
 
@@ -1711,7 +1711,7 @@ ALTER TABLE "AccessPermissions_id_seq" OWNER TO indabauser;
 --
 
 CREATE TABLE "AccessPermissions" (
-    id integer DEFAULT nextval('"AccessPermissions_id_seq"'::regclass) NOT NULL
+    id integer DEFAULT nextval('"AccessPermissions_id_seq"'::regclass) NOT NULL,
     "matrixId" integer NOT NULL,
     "roleId" integer NOT NULL,
     "rightId" integer NOT NULL,
@@ -1766,7 +1766,7 @@ CREATE TABLE "AttachmentAttempts" (
     filename character varying,
     mimetype character varying,
     size integer,
-    created timestamp without time zone DEFAULT now() NOT NULL
+    created timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1856,8 +1856,8 @@ CREATE TABLE "Discussions" (
     "userId" integer,
     entry text NOT NULL,
     "isReturn" boolean DEFAULT false NOT NULL,
-    created timestamp(6) with time zone DEFAULT now() NOT NULL,
-    updated timestamp(6) with time zone,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    updated timestamp with time zone,
     "isResolve" boolean DEFAULT false NOT NULL,
     "order" smallint DEFAULT 1 NOT NULL,
     "returnTaskId" integer,
@@ -2039,7 +2039,7 @@ ALTER TABLE "Logs_id_seq" OWNER TO indabauser;
 
 CREATE TABLE "Logs" (
     id integer DEFAULT nextval('"Logs_id_seq"'::regclass) NOT NULL,
-    created timestamp(6) with time zone DEFAULT now(),
+    created timestamp with time zone DEFAULT now(),
     "user" integer NOT NULL,
     action character varying,
     essence integer NOT NULL,
@@ -2084,9 +2084,9 @@ CREATE TABLE "Notifications" (
     subject character varying,
     "essenceId" integer,
     "entityId" integer,
-    created timestamp(6) with time zone DEFAULT now() NOT NULL,
-    reading timestamp(6) with time zone,
-    sent timestamp(6) with time zone,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    reading timestamp with time zone,
+    sent timestamp with time zone,
     read boolean DEFAULT false,
     "notifyLevel" smallint DEFAULT 0,
     result character varying,
@@ -2145,7 +2145,7 @@ CREATE TABLE "ProductUOA" (
     "UOAid" integer NOT NULL,
     "currentStepId" integer,
     "isComplete" boolean DEFAULT false NOT NULL,
-    "isDeleted" timestamp(6) without time zone
+    "isDeleted" timestamp with time zone
 );
 
 
@@ -2210,13 +2210,13 @@ CREATE TABLE "Projects" (
     "organizationId" integer,
     "codeName" character varying(100),
     description text,
-    created timestamp(0) with time zone DEFAULT now() NOT NULL,
+    created timestamp with time zone DEFAULT now() NOT NULL,
     "matrixId" integer,
     "startTime" timestamp with time zone,
     status smallint DEFAULT 0 NOT NULL,
     "adminUserId" integer,
     "closeTime" timestamp with time zone,
-    "firstActivated" timestamp(6) without time zone,
+    "firstActivated" timestamp with time zone,
     "langId" integer
 );
 
@@ -2377,7 +2377,7 @@ CREATE TABLE "Tasks" (
     "assessmentId" integer,
     "userIds" integer[],
     "groupIds" integer[],
-    "isDeleted" timestamp(6) without time zone
+    "isDeleted" timestamp with time zone
 );
 
 
@@ -2439,10 +2439,10 @@ CREATE TABLE "UnitOfAnalysis" (
     "ownerId" integer NOT NULL,
     visibility smallint DEFAULT 1 NOT NULL,
     status smallint DEFAULT 1 NOT NULL,
-    created timestamp(6) without time zone DEFAULT now() NOT NULL,
-    "isDeleted" timestamp(6) without time zone,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    "isDeleted" timestamp with time zone,
     "langId" smallint DEFAULT 1 NOT NULL,
-    updated timestamp(6) without time zone
+    updated timestamp with time zone
 );
 
 
@@ -2662,7 +2662,7 @@ CREATE TABLE "Users" (
     "resetPasswordToken" character varying(100),
     "resetPasswordExpires" bigint,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp without time zone,
+    updated timestamp with time zone,
     "isActive" boolean,
     "activationToken" character varying(100),
     "organizationId" integer,
@@ -2679,7 +2679,7 @@ CREATE TABLE "Users" (
     "langId" integer,
     salt character varying,
     "authId" integer NOT NULL,
-    "isDeleted" timestamp(6) without time zone
+    "isDeleted" timestamp with time zone
 );
 
 
@@ -2769,7 +2769,7 @@ CREATE TABLE "WorkflowSteps" (
     "allowEdit" boolean DEFAULT false NOT NULL,
     role character varying,
     "langId" integer,
-    "isDeleted" timestamp(6) without time zone
+    "isDeleted" timestamp with time zone
 );
 
 
@@ -2914,7 +2914,7 @@ CREATE TABLE "AttachmentAttempts" (
     filename character varying,
     mimetype character varying,
     size integer,
-    created timestamp without time zone DEFAULT now() NOT NULL
+    created timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -2995,8 +2995,8 @@ CREATE TABLE "Discussions" (
     "userId" integer,
     entry text NOT NULL,
     "isReturn" boolean DEFAULT false NOT NULL,
-    created timestamp(6) with time zone DEFAULT now() NOT NULL,
-    updated timestamp(6) with time zone,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    updated timestamp with time zone,
     "isResolve" boolean DEFAULT false NOT NULL,
     "order" smallint DEFAULT 1 NOT NULL,
     "returnTaskId" integer,
@@ -3183,7 +3183,7 @@ ALTER TABLE "Logs_id_seq" OWNER TO indabauser;
 
 CREATE TABLE "Logs" (
     id integer DEFAULT nextval('"Logs_id_seq"'::regclass) NOT NULL,
-    created timestamp(6) with time zone DEFAULT now(),
+    created timestamp with time zone DEFAULT now(),
     "user" integer NOT NULL,
     action character varying,
     essence integer NOT NULL,
@@ -3228,9 +3228,9 @@ CREATE TABLE "Notifications" (
     subject character varying,
     "essenceId" integer,
     "entityId" integer,
-    created timestamp(6) with time zone DEFAULT now() NOT NULL,
-    reading timestamp(6) with time zone,
-    sent timestamp(6) with time zone,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    reading timestamp with time zone,
+    sent timestamp with time zone,
     read boolean DEFAULT false,
     "notifyLevel" smallint DEFAULT 0,
     result character varying,
@@ -3289,7 +3289,7 @@ CREATE TABLE "ProductUOA" (
     "UOAid" integer NOT NULL,
     "currentStepId" integer,
     "isComplete" boolean DEFAULT false NOT NULL,
-    "isDeleted" timestamp(6) without time zone
+    "isDeleted" timestamp with time zone
 );
 
 
@@ -3354,13 +3354,13 @@ CREATE TABLE "Projects" (
     "organizationId" integer,
     "codeName" character varying(100),
     description text,
-    created timestamp(0) with time zone DEFAULT now() NOT NULL,
+    created timestamp with time zone DEFAULT now() NOT NULL,
     "matrixId" integer,
     "startTime" timestamp with time zone,
     status smallint DEFAULT 0 NOT NULL,
     "adminUserId" integer,
     "closeTime" timestamp with time zone,
-    "firstActivated" timestamp(6) without time zone,
+    "firstActivated" timestamp with time zone,
     "langId" integer
 );
 
@@ -3520,7 +3520,7 @@ CREATE TABLE "Tasks" (
     "assessmentId" integer,
     "userIds" integer[],
     "groupIds" integer[],
-    "isDeleted" timestamp(6) without time zone
+    "isDeleted" timestamp with time zone
 );
 
 
@@ -3582,10 +3582,10 @@ CREATE TABLE "UnitOfAnalysis" (
     "ownerId" integer NOT NULL,
     visibility smallint DEFAULT 1 NOT NULL,
     status smallint DEFAULT 1 NOT NULL,
-    created timestamp(6) without time zone DEFAULT now() NOT NULL,
-    "isDeleted" timestamp(6) without time zone,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    "isDeleted" timestamp with time zone,
     "langId" smallint DEFAULT 1 NOT NULL,
-    updated timestamp(6) without time zone
+    updated timestamp with time zone
 );
 
 
@@ -3805,7 +3805,7 @@ CREATE TABLE "Users" (
     "resetPasswordToken" character varying(100),
     "resetPasswordExpires" bigint,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp without time zone,
+    updated timestamp with time zone,
     "isActive" boolean,
     "activationToken" character varying(100),
     "organizationId" integer,
@@ -3822,7 +3822,7 @@ CREATE TABLE "Users" (
     "langId" integer,
     salt character varying,
     "authId" integer NOT NULL,
-    "isDeleted" timestamp(6) without time zone
+    "isDeleted" timestamp with time zone
 );
 
 
@@ -3912,7 +3912,7 @@ CREATE TABLE "WorkflowSteps" (
     "allowEdit" boolean DEFAULT false NOT NULL,
     role character varying,
     "langId" integer,
-    "isDeleted" timestamp(6) without time zone
+    "isDeleted" timestamp with time zone
 );
 
 
