@@ -20,7 +20,8 @@ var client = require('../db_bootstrap'),
     sql = require('sql'),
     notifications = require('../controllers/notifications'),
     mailer = require('../../lib/mailer'),
-    request = require('request-promise');
+    request = require('request-promise'),
+    logger = require('../logger');
 
 var Role = require('../models/roles');
 var Query = require('../util').Query,
@@ -1360,4 +1361,21 @@ function _createUserOnAuthService(email, password, roleId, jwt) {
             const httpErr = new HttpError(500, `Unable to use auth service: ${err.message}`);
             return Promise.reject(httpErr);
         });
+}
+
+function _deleteUserOnAuthService(email, jwt) {
+    return _getUserOnAuthService(email, jwt).then((response) => {
+        if (response.statusCode !== 404) {
+            const requestOptions = {
+                url: `${config.authService}/user/${JSON.parse(response.body).id}`,
+                method: 'DELETE',
+                headers: {
+                    authorization: jwt,
+                    origin: config.domain
+                },
+                resolveWithFullResponse: true,
+            }
+            return request(requestOptions);
+        }
+    }, (error) => logger.debug(`Error deleting user from auth service ${error}`));
 }
