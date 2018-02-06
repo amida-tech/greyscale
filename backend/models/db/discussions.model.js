@@ -32,12 +32,12 @@ module.exports = function discussions(sequelize, Sequelize, schema = 'public') {
             defaultValue: false,
         },
         created: {
-            type: 'timestamp(6) with time zone',
+            type: Sequelize.DATE,
             allowNull: false,
-            defaultValue: Sequelize.NOW,
+            defaultValue: sequelize.literal('now()'),
         },
         updated: {
-            type: 'timestamp(6) with time zone',
+            type: Sequelize.DATE,
          },
         isResolve: {
             type: Sequelize.BOOLEAN,
@@ -94,7 +94,7 @@ module.exports = function discussions(sequelize, Sequelize, schema = 'public') {
         activated: {
             type: Sequelize.BOOLEAN,
             allowNull: false,
-            allowNull: false,
+            defaultValue: false,
         }
    }, {
         freezeTableName: true,

@@ -7,7 +7,6 @@ module.exports = function rights(sequelize, Sequelize, schema = 'public') {
         action: {
             type: Sequelize.STRING(80),
             allowNull: false,
-            unique: true,
         },
         description: {
             type: Sequelize.TEXT,
@@ -21,12 +20,16 @@ module.exports = function rights(sequelize, Sequelize, schema = 'public') {
                 },
                 key: 'id',
             },
-            unique: true,
         },
     }, {
         freezeTableName: true,
         tableName,
         schema,
         timestamps: false,
+        indexes: [{
+            name: 'Rights_action_idx',
+            unique: true,
+            fields: ['action'],
+        }],
     });
 };

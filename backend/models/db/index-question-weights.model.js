@@ -22,7 +22,7 @@ module.exports = function indexQuestionWeights(sequelize, Sequelize, schema = 'p
             primaryKey: true,
         },
         weight: {
-            type: Sequelize.DOUBLE,
+            type: Sequelize.NUMERIC,
             allowNull: false,
         },
         type: {

@@ -22,7 +22,7 @@ module.exports = function indexes(sequelize, Sequelize, schema = 'public') {
             type: Sequelize.TEXT,
         },
         divisor: {
-            type: Sequelize.DOUBLE,
+            type: Sequelize.NUMERIC,
             allowNull: false,
             defaultValue: 1
         }
@@ -31,5 +31,9 @@ module.exports = function indexes(sequelize, Sequelize, schema = 'public') {
         tableName,
         schema,
         timestamps: false,
+        indexes: [{
+            name: 'Indexes_productId_idx',
+            fields: ['productId'],
+        }],
     });
 };

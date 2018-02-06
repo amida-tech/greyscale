@@ -12,6 +12,7 @@ module.exports = function organizations(sequelize, Sequelize, schema = 'public')
         },
         adminUserId: {
             type: Sequelize.INTEGER,
+            unique: true,
         },
         url: {
             type: Sequelize.STRING(200),

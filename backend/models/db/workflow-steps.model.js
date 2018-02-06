@@ -57,7 +57,7 @@ module.exports = function workflowSteps(sequelize, Sequelize, schema = 'public')
             },
         },
         isDeleted: {
-            type: 'timestamp(6) with time zone',
+            type: Sequelize.DATE,
         },
     }, {
         freezeTableName: true,

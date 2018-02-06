@@ -17,7 +17,7 @@ module.exports = function attachments(sequelize, Sequelize, schema = 'public') {
             type: Sequelize.BLOB,
         },
         created: {
-            type: 'timestamp(6) with time zone',
+            type: Sequelize.DATE,
         },
         owner: {
             type: Sequelize.INTEGER,

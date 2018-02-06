@@ -12,6 +12,7 @@ module.exports = function languages(sequelize, Sequelize, schema = 'public') {
         },
         code: {
             type: Sequelize.STRING(3),
+            unique: true,
         },
     }, {
         freezeTableName: true,

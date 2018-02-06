@@ -10,10 +10,9 @@ module.exports = function unitOfAnalysisClassType(sequelize, Sequelize, schema =
         },
         description: {
             type: Sequelize.STRING(255),
-            allowNull: false,
         },
         langId: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.SMALLINT,
             allowNull: false,
             defaultValue: 1,
             references: {

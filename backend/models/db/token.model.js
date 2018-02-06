@@ -17,7 +17,7 @@ module.exports = function tokens(sequelize, Sequelize, schema = 'public') {
         issuedAt: {
             type: Sequelize.DATE,
             allowNull: false,
-            defaultValue: Sequelize.NOW,
+            defaultValue: sequelize.literal('now()'),
         },
         realm: {
             type: Sequelize.STRING(80),
@@ -29,5 +29,20 @@ module.exports = function tokens(sequelize, Sequelize, schema = 'public') {
         tableName,
         schema,
         timestamps: false,
+        indexes: [{
+            name: 'Token_body_idx',
+            unique: true,
+            fields: ['body'],
+        }],
+        hooks: {
+            afterSync(options) {
+                if (options.force) {
+                    if (schema === 'public') {
+                        return sequelize.query('CREATE TRIGGER tr_delete_token BEFORE INSERT ON "Token" FOR EACH ROW EXECUTE PROCEDURE twc_delete_old_token()');
+                    }
+                }
+                return null;
+            },
+        },
     });
 };

@@ -6,6 +6,7 @@ module.exports = function notifications(sequelize, Sequelize, schema = 'public')
     return sequelize.define(modelName, {
         userFrom: {
             type: Sequelize.INTEGER,
+            onDelete: 'CASCADE',
             allowNull: false,
              references: {
                 model: {
@@ -18,6 +19,7 @@ module.exports = function notifications(sequelize, Sequelize, schema = 'public')
         userTo: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            onDelete: 'CASCADE',
             references: {
                 model: {
                     schema,
@@ -40,6 +42,7 @@ module.exports = function notifications(sequelize, Sequelize, schema = 'public')
         },
         essenceId: {
             type: Sequelize.INTEGER,
+            onDelete: 'SET NULL',
             references: {
                 model: {
                     schema,
@@ -52,16 +55,16 @@ module.exports = function notifications(sequelize, Sequelize, schema = 'public')
             type: Sequelize.INTEGER,
         },
         created: {
-            type: 'timestamp(6) with time zone',
+            type: Sequelize.DATE,
             allowNull: false,
-            defaultValue: Sequelize.NOW,
+            defaultValue: sequelize.literal('now()'),
         },
         reading: {
-            type: 'timestamp(6) with time zone',
+            type: Sequelize.DATE,
             defaultValue: Sequelize.NOW,
         },
         sent: {
-            type: 'timestamp(6) with time zone',
+            type: Sequelize.DATE,
             defaultValue: Sequelize.NOW,
         },
         read: {
@@ -70,7 +73,7 @@ module.exports = function notifications(sequelize, Sequelize, schema = 'public')
         },
         notifyLevel: {
             type: Sequelize.SMALLINT,
-            defaultValue: 1,
+            defaultValue: 0,
         },
         result: {
             type: 'character varying',

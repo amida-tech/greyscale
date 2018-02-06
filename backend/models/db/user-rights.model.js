@@ -5,12 +5,12 @@ module.exports = function userRights(sequelize, Sequelize, schema = 'public') {
     const modelName = `${schema}_${tableName}`;
     return sequelize.define(modelName, {
         userID: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.BIGINT,
             allowNull: false,
-            primaryKry: true,
+            primaryKey: true,
         },
         rightID: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.BIGINT,
             allowNull: false,
             primaryKey: true,
         },

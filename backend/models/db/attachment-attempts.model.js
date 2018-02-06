@@ -11,7 +11,6 @@ module.exports = function attachmentAttempts(sequelize, Sequelize, schema = 'pub
         },
         filename: {
             type: 'character varying',
-            allowNull: false,
         },
         size: {
             type: Sequelize.INTEGER,
@@ -22,7 +21,7 @@ module.exports = function attachmentAttempts(sequelize, Sequelize, schema = 'pub
         created: {
             type: Sequelize.DATE,
             allowNull: false,
-            defaultValue: Sequelize.NOW,
+            defaultValue: sequelize.literal('now()'),
         },
     }, {
         freezeTableName: true,

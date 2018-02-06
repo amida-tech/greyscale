@@ -35,7 +35,7 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
         created: {
             type: Sequelize.DATE,
             allowNull: false,
-            defaultValue: Sequelize.NOW,
+            defaultValue: sequelize.literal('now()'),
         },
         productId: {
             type: Sequelize.INTEGER,
@@ -84,7 +84,7 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
             type: Sequelize.ARRAY(Sequelize.INTEGER),
         },
         isDeleted: {
-            type: 'timestamp(6) with time zone',
+            type: Sequelize.DATE,
         },
     }, {
         freezeTableName: true,

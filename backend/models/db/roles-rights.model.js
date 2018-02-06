@@ -8,6 +8,13 @@ module.exports = function rolesRights(sequelize, Sequelize, schema = 'public') {
             type: Sequelize.BIGINT,
             primaryKey: true,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Roles',
+                },
+                key: 'id',
+            },
         },
         rightID: {
             type: Sequelize.BIGINT,
@@ -26,6 +33,9 @@ module.exports = function rolesRights(sequelize, Sequelize, schema = 'public') {
         tableName,
         schema,
         timestamps: false,
-        indexes: [{ fields: ['rightID'] }],
+        indexes: [{
+            name: 'fki_rolesrights_rightID',
+            fields: ['rightID'],
+        }],
     });
 };

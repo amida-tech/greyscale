@@ -7,14 +7,17 @@ module.exports = function accessPermissions(sequelize, Sequelize, schema = 'publ
         matrixId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            unique: 'ids',
         },
         roleId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            unique: 'ids',
         },
         rightId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            unique: 'ids',
         },
         permission: {
             type: Sequelize.SMALLINT,

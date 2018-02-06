@@ -6,14 +6,15 @@ module.exports = function essences(sequelize, Sequelize, schema = 'public') {
     return sequelize.define(modelName, {
         tableName: {
             type: Sequelize.STRING(100),
+            unique: true,
         },
         name: {
             type: Sequelize.STRING(100),
             allowNull: false,
-            comment: 'Human readable name of essence',
         },
         fileName: {
             type: Sequelize.STRING(100),
+            unique: true,
         },
         nameField: {
             type: 'character varying',
@@ -24,5 +25,10 @@ module.exports = function essences(sequelize, Sequelize, schema = 'public') {
         tableName,
         schema,
         timestamps: false,
+        indexes: [{
+            name: 'Essences_upper_idx',
+            unique: true,
+            fields: [sequelize.literal('upper((name)::text)')],
+        }],
     });
 };

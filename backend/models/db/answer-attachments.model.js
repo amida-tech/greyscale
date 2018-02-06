@@ -22,7 +22,7 @@ module.exports = function answerAttachments(sequelize, Sequelize, schema = 'publ
         created: {
             type: Sequelize.DATE,
             allowNull: false,
-            defaultValue: Sequelize.NOW,
+            defaultValue: sequelize.literal('now()'),
         },
         owner: {
             type: Sequelize.INTEGER,

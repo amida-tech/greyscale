@@ -19,7 +19,7 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
     }
 
     return sequelize.define(modelName, {
-        roleId: {
+        roleID: {
             type: Sequelize.INTEGER,
             allowNull: false,
             references: {
@@ -29,11 +29,11 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
                 },
                 key: 'id',
             },
-            unique: true,
         },
         email: {
             type: Sequelize.STRING(80),
             allowNull: false,
+            unique: true,
         },
         firstName: {
             type: Sequelize.STRING(80),
@@ -50,7 +50,7 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
             type: Sequelize.STRING(20),
         },
         birthday: {
-            type: Sequelize.DATE,
+            type: Sequelize.DATEONLY,
         },
         resetPasswordToken: {
             type: Sequelize.STRING(100),
@@ -59,9 +59,9 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
             type: Sequelize.BIGINT,
         },
         created: {
-            type: 'timestamp(6) with time zone',
+            type: Sequelize.DATE,
             allowNull: false,
-            defaultValue: Sequelize.NOW,
+            defaultValue: sequelize.literal('now()'),
         },
         updated: {
             type: Sequelize.DATE,
@@ -106,10 +106,10 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
         isAnonymous: {
             type: Sequelize.BOOLEAN,
             allowNull: false,
+            defaultValue: false,
         },
         langId: {
             type: Sequelize.INTEGER,
-            allowNull: false,
             references: {
                 model: {
                     schema,
@@ -126,14 +126,26 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
             allowNull: false,
         },
         isDeleted: {
-            type: 'timestamp(6) with time zone',
-            allowNull: false,
-            defaultValue: Sequelize.NOW,
+            type: Sequelize.DATE,
         },
     }, {
         freezeTableName: true,
         tableName,
         schema,
         timestamps: false,
+        indexes: [{
+            name: 'fki_roleID',
+            fields: ['roleID'],
+        }],
+        hooks: {
+            afterSync(options) {
+                if (options.force) {
+                    if (schema === 'public') {
+                        return sequelize.query('CREATE TRIGGER users_before_update BEFORE UPDATE ON "Users" FOR EACH ROW EXECUTE PROCEDURE users_before_update()');
+                    }
+                }
+                return null;
+            },
+        },
     });
 };

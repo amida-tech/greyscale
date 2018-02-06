@@ -3,15 +3,16 @@
 module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
     const tableName = 'Logs';
     const modelName = `${schema}_${tableName}`;
+    const userprop = schema === 'public' ? 'userid' : 'user';
     return sequelize.define(modelName, {
         created: {
-            type: 'timestamp(6) with time zone',
-            allowNull: false,
-            defaultValue: Sequelize.NOW,
+            type: Sequelize.DATE,
+            defaultValue: sequelize.literal('now()'),
         },
-        userid: {
+        [userprop]: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            onDelete: 'SET NULL',
             references: {
                 model: {
                     schema,
@@ -26,6 +27,7 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
         essence: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            onDelete: 'SET NULL',
             references: {
                 model: {
                     schema,

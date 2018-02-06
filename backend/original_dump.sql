@@ -33,14 +33,14 @@ CREATE SCHEMA test;
 ALTER SCHEMA test OWNER TO indabauser;
 
 --
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner:
 --
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
@@ -1333,24 +1333,10 @@ CREATE TABLE "Essences" (
 ALTER TABLE "Essences" OWNER TO indabauser;
 
 --
--- Name: COLUMN "Essences".name; Type: COMMENT; Schema: public; Owner: indabauser
+-- Name: Essences_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
-COMMENT ON COLUMN "Essences".name IS 'Human readable name of essence';
-
-
---
--- Name: COLUMN "Essences"."fileName"; Type: COMMENT; Schema: public; Owner: indabauser
---
-
-COMMENT ON COLUMN "Essences"."fileName" IS 'File name in models path';
-
-
---
--- Name: Entities_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
---
-
-CREATE SEQUENCE "Entities_id_seq"
+CREATE SEQUENCE "Essences_id_seq"
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1358,28 +1344,14 @@ CREATE SEQUENCE "Entities_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Entities_id_seq" OWNER TO indabauser;
+ALTER TABLE "Essences_id_seq" OWNER TO indabauser;
 
 --
--- Name: Entities_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: indabauser
+-- Name: Essences_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: indabauser
 --
 
-ALTER SEQUENCE "Entities_id_seq" OWNED BY "Essences".id;
+ALTER SEQUENCE "Essences_id_seq" OWNED BY "Essences".id;
 
-
---
--- Name: Index_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
---
-
-CREATE SEQUENCE "Index_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "Index_id_seq" OWNER TO indabauser;
 
 --
 -- Name: Languages; Type: TABLE; Schema: public; Owner: indabauser
@@ -1502,13 +1474,6 @@ CREATE TABLE "Notifications" (
 ALTER TABLE "Notifications" OWNER TO indabauser;
 
 --
--- Name: COLUMN "Notifications"."notifyLevel"; Type: COMMENT; Schema: public; Owner: indabauser
---
-
-COMMENT ON COLUMN "Notifications"."notifyLevel" IS '0 - none, 1 - alert only, 2 - all notifications';
-
-
---
 -- Name: Rights; Type: TABLE; Schema: public; Owner: indabauser
 --
 
@@ -1583,20 +1548,6 @@ CREATE TABLE "RolesRights" (
 ALTER TABLE "RolesRights" OWNER TO indabauser;
 
 --
--- Name: Subindex_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
---
-
-CREATE SEQUENCE "Subindex_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "Subindex_id_seq" OWNER TO indabauser;
-
---
 -- Name: Token; Type: TABLE; Schema: public; Owner: indabauser
 --
 
@@ -1609,76 +1560,6 @@ CREATE TABLE "Token" (
 
 
 ALTER TABLE "Token" OWNER TO indabauser;
-
---
--- Name: UnitOfAnalysisClassType_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
---
-
-CREATE SEQUENCE "UnitOfAnalysisClassType_id_seq"
-    START WITH 9
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "UnitOfAnalysisClassType_id_seq" OWNER TO indabauser;
-
---
--- Name: UnitOfAnalysisTagLink_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
---
-
-CREATE SEQUENCE "UnitOfAnalysisTagLink_id_seq"
-    START WITH 18
-    INCREMENT BY 1
-    MINVALUE 0
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "UnitOfAnalysisTagLink_id_seq" OWNER TO indabauser;
-
---
--- Name: UnitOfAnalysisType_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
---
-
-CREATE SEQUENCE "UnitOfAnalysisType_id_seq"
-    START WITH 9
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "UnitOfAnalysisType_id_seq" OWNER TO indabauser;
-
---
--- Name: UnitOfAnalysis_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
---
-
-CREATE SEQUENCE "UnitOfAnalysis_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "UnitOfAnalysis_id_seq" OWNER TO indabauser;
-
---
--- Name: user_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
---
-
-CREATE SEQUENCE user_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE user_id_seq OWNER TO indabauser;
 
 --
 -- Name: Users; Type: TABLE; Schema: public; Owner: indabauser
@@ -1720,10 +1601,10 @@ CREATE TABLE "Users" (
 ALTER TABLE "Users" OWNER TO indabauser;
 
 --
--- Name: brand_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
+-- Name: Users_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
 --
 
-CREATE SEQUENCE brand_id_seq
+CREATE SEQUENCE "Users_id_seq"
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1731,63 +1612,14 @@ CREATE SEQUENCE brand_id_seq
     CACHE 1;
 
 
-ALTER TABLE brand_id_seq OWNER TO indabauser;
+ALTER TABLE "Users_id_seq" OWNER TO indabauser;
 
 --
--- Name: country_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
+-- Name: Users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: indabauser
 --
 
-CREATE SEQUENCE country_id_seq
-    START WITH 240
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
+ALTER SEQUENCE "Users_id_seq" OWNED BY "Users".id;
 
-
-ALTER TABLE country_id_seq OWNER TO indabauser;
-
---
--- Name: order_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
---
-
-CREATE SEQUENCE order_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE order_id_seq OWNER TO indabauser;
-
---
--- Name: transport_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
---
-
-CREATE SEQUENCE transport_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE transport_id_seq OWNER TO indabauser;
-
---
--- Name: transportmodel_id_seq; Type: SEQUENCE; Schema: public; Owner: indabauser
---
-
-CREATE SEQUENCE transportmodel_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE transportmodel_id_seq OWNER TO indabauser;
 
 SET search_path = sceleton, pg_catalog;
 
@@ -1988,10 +1820,10 @@ CREATE TABLE "Discussions" (
 ALTER TABLE "Discussions" OWNER TO indabauser;
 
 --
--- Name: Entities_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
+-- Name: Essences_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
-CREATE SEQUENCE "Entities_id_seq"
+CREATE SEQUENCE "Essences_id_seq"
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1999,7 +1831,7 @@ CREATE SEQUENCE "Entities_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Entities_id_seq" OWNER TO indabauser;
+ALTER TABLE "Essences_id_seq" OWNER TO indabauser;
 
 --
 -- Name: EntityRoles_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
@@ -2020,7 +1852,7 @@ ALTER TABLE "EntityRoles_id_seq" OWNER TO indabauser;
 --
 
 CREATE TABLE "Essences" (
-    id integer DEFAULT nextval('"Entities_id_seq"'::regclass) NOT NULL,
+    id integer DEFAULT nextval('"Essences_id_seq"'::regclass) NOT NULL,
     "tableName" character varying(100),
     name character varying(100) NOT NULL,
     "fileName" character varying(100),
@@ -2029,20 +1861,6 @@ CREATE TABLE "Essences" (
 
 
 ALTER TABLE "Essences" OWNER TO indabauser;
-
---
--- Name: COLUMN "Essences".name; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "Essences".name IS 'Human readable name of essence';
-
-
---
--- Name: COLUMN "Essences"."fileName"; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "Essences"."fileName" IS 'File name in models path';
-
 
 --
 -- Name: Groups_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
@@ -2248,13 +2066,6 @@ CREATE TABLE "Notifications" (
 
 
 ALTER TABLE "Notifications" OWNER TO indabauser;
-
---
--- Name: COLUMN "Notifications"."notifyLevel"; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "Notifications"."notifyLevel" IS '0 - none, 1 - alert only, 2 - all notifications';
-
 
 --
 -- Name: Organizations_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
@@ -2609,132 +2420,6 @@ CREATE TABLE "UnitOfAnalysis" (
 ALTER TABLE "UnitOfAnalysis" OWNER TO indabauser;
 
 --
--- Name: COLUMN "UnitOfAnalysis"."gadmId0"; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."gadmId0" IS 'ID0 for use with GADM shapefile';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."gadmId1"; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."gadmId1" IS 'ID1 for use with GADM shapefile';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."gadmId2"; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."gadmId2" IS 'ID2 for use with GADM shapefile';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."gadmId3"; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."gadmId3" IS 'ID3 for use with GADM shapefile';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."gadmObjectId"; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."gadmObjectId" IS 'OBJECTID for use with GADM shapefile (only Global Shapefile)';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."ISO"; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."ISO" IS 'only for Country level Unit Of Analysis';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."ISO2"; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."ISO2" IS 'only for Country level Unit Of Analysis';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."nameISO"; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."nameISO" IS 'only for Country level Unit Of Analysis';
-
-
---
--- Name: COLUMN "UnitOfAnalysis".name; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis".name IS 'Multilanguage';
-
-
---
--- Name: COLUMN "UnitOfAnalysis".description; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis".description IS 'Multilanguage';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."shortName"; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."shortName" IS 'Multilanguage';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."HASC"; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."HASC" IS '(example RU.AD.OK)';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."unitOfAnalysisType"; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."unitOfAnalysisType" IS 'reference to table UnitOfAnalysisType';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."parentId"; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."parentId" IS 'Link to Parent Unit of Analysis if exist';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."creatorId"; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."creatorId" IS 'Creator Id (User Id)';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."ownerId"; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."ownerId" IS 'Owner Id (User Id)';
-
-
---
--- Name: COLUMN "UnitOfAnalysis".visibility; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis".visibility IS '1 = public; 2 = private;';
-
-
---
--- Name: COLUMN "UnitOfAnalysis".status; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis".status IS '1 = active; 2 = inactive; 3 = deleted;';
-
-
---
 -- Name: UnitOfAnalysisClassType_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2761,20 +2446,6 @@ CREATE TABLE "UnitOfAnalysisClassType" (
 
 
 ALTER TABLE "UnitOfAnalysisClassType" OWNER TO indabauser;
-
---
--- Name: COLUMN "UnitOfAnalysisClassType".name; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysisClassType".name IS 'Classification Name (for example - World Bank classification) ';
-
-
---
--- Name: COLUMN "UnitOfAnalysisClassType".description; Type: COMMENT; Schema: sceleton; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysisClassType".description IS 'Classification Name description';
-
 
 --
 -- Name: UnitOfAnalysisTag_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
@@ -3064,76 +2735,6 @@ CREATE TABLE "Workflows" (
 
 ALTER TABLE "Workflows" OWNER TO indabauser;
 
---
--- Name: brand_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
---
-
-CREATE SEQUENCE brand_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE brand_id_seq OWNER TO indabauser;
-
---
--- Name: country_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
---
-
-CREATE SEQUENCE country_id_seq
-    START WITH 240
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE country_id_seq OWNER TO indabauser;
-
---
--- Name: order_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
---
-
-CREATE SEQUENCE order_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE order_id_seq OWNER TO indabauser;
-
---
--- Name: transport_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
---
-
-CREATE SEQUENCE transport_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE transport_id_seq OWNER TO indabauser;
-
---
--- Name: transportmodel_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
---
-
-CREATE SEQUENCE transportmodel_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE transportmodel_id_seq OWNER TO indabauser;
-
 SET search_path = test, pg_catalog;
 
 --
@@ -3326,10 +2927,10 @@ CREATE TABLE "Discussions" (
 ALTER TABLE "Discussions" OWNER TO indabauser;
 
 --
--- Name: Entities_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
+-- Name: Essences_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
 --
 
-CREATE SEQUENCE "Entities_id_seq"
+CREATE SEQUENCE "Essences_id_seq"
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3337,7 +2938,7 @@ CREATE SEQUENCE "Entities_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Entities_id_seq" OWNER TO indabauser;
+ALTER TABLE "Essences_id_seq" OWNER TO indabauser;
 
 --
 -- Name: EntityRoles_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
@@ -3358,7 +2959,7 @@ ALTER TABLE "EntityRoles_id_seq" OWNER TO indabauser;
 --
 
 CREATE TABLE "Essences" (
-    id integer DEFAULT nextval('"Entities_id_seq"'::regclass) NOT NULL,
+    id integer DEFAULT nextval('"Essences_id_seq"'::regclass) NOT NULL,
     "tableName" character varying(100),
     name character varying(100) NOT NULL,
     "fileName" character varying(100),
@@ -3367,20 +2968,6 @@ CREATE TABLE "Essences" (
 
 
 ALTER TABLE "Essences" OWNER TO indabauser;
-
---
--- Name: COLUMN "Essences".name; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "Essences".name IS 'Human readable name of essence';
-
-
---
--- Name: COLUMN "Essences"."fileName"; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "Essences"."fileName" IS 'File name in models path';
-
 
 --
 -- Name: Groups_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
@@ -3586,13 +3173,6 @@ CREATE TABLE "Notifications" (
 
 
 ALTER TABLE "Notifications" OWNER TO indabauser;
-
---
--- Name: COLUMN "Notifications"."notifyLevel"; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "Notifications"."notifyLevel" IS '0 - none, 1 - alert only, 2 - all notifications';
-
 
 --
 -- Name: Organizations_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
@@ -3947,132 +3527,6 @@ CREATE TABLE "UnitOfAnalysis" (
 ALTER TABLE "UnitOfAnalysis" OWNER TO indabauser;
 
 --
--- Name: COLUMN "UnitOfAnalysis"."gadmId0"; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."gadmId0" IS 'ID0 for use with GADM shapefile';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."gadmId1"; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."gadmId1" IS 'ID1 for use with GADM shapefile';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."gadmId2"; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."gadmId2" IS 'ID2 for use with GADM shapefile';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."gadmId3"; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."gadmId3" IS 'ID3 for use with GADM shapefile';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."gadmObjectId"; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."gadmObjectId" IS 'OBJECTID for use with GADM shapefile (only Global Shapefile)';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."ISO"; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."ISO" IS 'only for Country level Unit Of Analysis';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."ISO2"; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."ISO2" IS 'only for Country level Unit Of Analysis';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."nameISO"; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."nameISO" IS 'only for Country level Unit Of Analysis';
-
-
---
--- Name: COLUMN "UnitOfAnalysis".name; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis".name IS 'Multilanguage';
-
-
---
--- Name: COLUMN "UnitOfAnalysis".description; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis".description IS 'Multilanguage';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."shortName"; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."shortName" IS 'Multilanguage';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."HASC"; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."HASC" IS '(example RU.AD.OK)';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."unitOfAnalysisType"; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."unitOfAnalysisType" IS 'reference to table UnitOfAnalysisType';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."parentId"; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."parentId" IS 'Link to Parent Unit of Analysis if exist';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."creatorId"; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."creatorId" IS 'Creator Id (User Id)';
-
-
---
--- Name: COLUMN "UnitOfAnalysis"."ownerId"; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis"."ownerId" IS 'Owner Id (User Id)';
-
-
---
--- Name: COLUMN "UnitOfAnalysis".visibility; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis".visibility IS '1 = public; 2 = private;';
-
-
---
--- Name: COLUMN "UnitOfAnalysis".status; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysis".status IS '1 = active; 2 = inactive; 3 = deleted;';
-
-
---
 -- Name: UnitOfAnalysisClassType_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
 --
 
@@ -4099,20 +3553,6 @@ CREATE TABLE "UnitOfAnalysisClassType" (
 
 
 ALTER TABLE "UnitOfAnalysisClassType" OWNER TO indabauser;
-
---
--- Name: COLUMN "UnitOfAnalysisClassType".name; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysisClassType".name IS 'Classification Name (for example - World Bank classification) ';
-
-
---
--- Name: COLUMN "UnitOfAnalysisClassType".description; Type: COMMENT; Schema: test; Owner: indabauser
---
-
-COMMENT ON COLUMN "UnitOfAnalysisClassType".description IS 'Classification Name description';
-
 
 --
 -- Name: UnitOfAnalysisTag_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
@@ -4402,83 +3842,13 @@ CREATE TABLE "Workflows" (
 
 ALTER TABLE "Workflows" OWNER TO indabauser;
 
---
--- Name: brand_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
---
-
-CREATE SEQUENCE brand_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE brand_id_seq OWNER TO indabauser;
-
---
--- Name: country_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
---
-
-CREATE SEQUENCE country_id_seq
-    START WITH 240
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE country_id_seq OWNER TO indabauser;
-
---
--- Name: order_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
---
-
-CREATE SEQUENCE order_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE order_id_seq OWNER TO indabauser;
-
---
--- Name: transport_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
---
-
-CREATE SEQUENCE transport_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE transport_id_seq OWNER TO indabauser;
-
---
--- Name: transportmodel_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
---
-
-CREATE SEQUENCE transportmodel_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE transportmodel_id_seq OWNER TO indabauser;
-
 SET search_path = public, pg_catalog;
 
 --
 -- Name: Essences id; Type: DEFAULT; Schema: public; Owner: indabauser
 --
 
-ALTER TABLE ONLY "Essences" ALTER COLUMN id SET DEFAULT nextval('"Entities_id_seq"'::regclass);
+ALTER TABLE ONLY "Essences" ALTER COLUMN id SET DEFAULT nextval('"Essences_id_seq"'::regclass);
 
 
 --
@@ -4496,13 +3866,55 @@ ALTER TABLE ONLY "Logs" ALTER COLUMN id SET DEFAULT nextval('"Logs_id_seq"'::reg
 
 
 --
+-- Name: Notifications id; Type: DEFAULT; Schema: public; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Notifications" ALTER COLUMN id SET DEFAULT nextval('"Notifications_id_seq"'::regclass);
+
+
+--
 -- Name: Rights id; Type: DEFAULT; Schema: public; Owner: indabauser
 --
 
 ALTER TABLE ONLY "Rights" ALTER COLUMN id SET DEFAULT nextval('"Rights_id_seq"'::regclass);
 
 
+--
+-- Name: Roles id; Type: DEFAULT; Schema: public; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Roles" ALTER COLUMN id SET DEFAULT nextval('"Roles_id_seq"'::regclass);
+
+
+--
+-- Name: Users id; Type: DEFAULT; Schema: public; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Users" ALTER COLUMN id SET DEFAULT nextval('"Users_id_seq"'::regclass);
+
+
 SET search_path = sceleton, pg_catalog;
+
+--
+-- Name: AccessMatrices id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "AccessMatrices" ALTER COLUMN id SET DEFAULT nextval('"AccessMatrices_id_seq"'::regclass);
+
+
+--
+-- Name: AccessPermissions id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "AccessPermissions" ALTER COLUMN id SET DEFAULT nextval('"AccessPermissions_id_seq"'::regclass);
+
+
+--
+-- Name: AnswerAttachments id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "AnswerAttachments" ALTER COLUMN id SET DEFAULT nextval('"AnswerAttachments_id_seq"'::regclass);
+
 
 --
 -- Name: Attachments id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
@@ -4511,13 +3923,365 @@ SET search_path = sceleton, pg_catalog;
 ALTER TABLE ONLY "Attachments" ALTER COLUMN id SET DEFAULT nextval('"Attachments_id_seq"'::regclass);
 
 
+--
+-- Name: Discussions id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Discussions" ALTER COLUMN id SET DEFAULT nextval('"Discussions_id_seq"'::regclass);
+
+
+--
+-- Name: Essences id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Essences" ALTER COLUMN id SET DEFAULT nextval('"Essences_id_seq"'::regclass);
+
+
+--
+-- Name: Groups id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Groups" ALTER COLUMN id SET DEFAULT nextval('"Groups_id_seq"'::regclass);
+
+
+--
+-- Name: Indexes id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Indexes" ALTER COLUMN id SET DEFAULT nextval('"Indexes_id_seq"'::regclass);
+
+
+--
+-- Name: Languages id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Languages" ALTER COLUMN id SET DEFAULT nextval('"Languages_id_seq"'::regclass);
+
+
+--
+-- Name: Logs id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Logs" ALTER COLUMN id SET DEFAULT nextval('"Logs_id_seq"'::regclass);
+
+
+--
+-- Name: Notifications id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Notifications" ALTER COLUMN id SET DEFAULT nextval('"Notifications_id_seq"'::regclass);
+
+
+--
+-- Name: Organizations id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Organizations" ALTER COLUMN id SET DEFAULT nextval('"Organizations_id_seq"'::regclass);
+
+
+--
+-- Name: Products id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Products" ALTER COLUMN id SET DEFAULT nextval('"Products_id_seq"'::regclass);
+
+
+--
+-- Name: Projects id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Projects" ALTER COLUMN id SET DEFAULT nextval('"Projects_id_seq"'::regclass);
+
+
+--
+-- Name: Rights id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Rights" ALTER COLUMN id SET DEFAULT nextval('"Rights_id_seq"'::regclass);
+
+
+--
+-- Name: Roles id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Roles" ALTER COLUMN id SET DEFAULT nextval('"Roles_id_seq"'::regclass);
+
+
+--
+-- Name: Subindexes id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Subindexes" ALTER COLUMN id SET DEFAULT nextval('"Subindexes_id_seq"'::regclass);
+
+
+--
+-- Name: Tasks id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Tasks" ALTER COLUMN id SET DEFAULT nextval('"Tasks_id_seq"'::regclass);
+
+
+--
+-- Name: UnitOfAnalysis id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "UnitOfAnalysis" ALTER COLUMN id SET DEFAULT nextval('"UnitOfAnalysis_id_seq"'::regclass);
+
+
+--
+-- Name: UnitOfAnalysisClassType id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "UnitOfAnalysisClassType" ALTER COLUMN id SET DEFAULT nextval('"UnitOfAnalysisClassType_id_seq"'::regclass);
+
+
+--
+-- Name: UnitOfAnalysisTag id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "UnitOfAnalysisTag" ALTER COLUMN id SET DEFAULT nextval('"UnitOfAnalysisTag_id_seq"'::regclass);
+
+
+--
+-- Name: UnitOfAnalysisTagLink id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "UnitOfAnalysisTagLink" ALTER COLUMN id SET DEFAULT nextval('"UnitOfAnalysisTagLink_id_seq"'::regclass);
+
+
+--
+-- Name: UnitOfAnalysisType id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "UnitOfAnalysisType" ALTER COLUMN id SET DEFAULT nextval('"UnitOfAnalysisType_id_seq"'::regclass);
+
+
+--
+-- Name: Users id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Users" ALTER COLUMN id SET DEFAULT nextval('"Users_id_seq"'::regclass);
+
+
+--
+-- Name: Visualizations id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Visualizations" ALTER COLUMN id SET DEFAULT nextval('"Visualizations_id_seq"'::regclass);
+
+
+--
+-- Name: WorkflowSteps id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "WorkflowSteps" ALTER COLUMN id SET DEFAULT nextval('"WorkflowSteps_id_seq"'::regclass);
+
+
+--
+-- Name: Workflows id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Workflows" ALTER COLUMN id SET DEFAULT nextval('"Workflows_id_seq"'::regclass);
+
+
+SET search_path = test, pg_catalog;
+
+--
+-- Name: AccessMatrices id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "AccessMatrices" ALTER COLUMN id SET DEFAULT nextval('"AccessMatrices_id_seq"'::regclass);
+
+
+--
+-- Name: AccessPermissions id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "AccessPermissions" ALTER COLUMN id SET DEFAULT nextval('"AccessPermissions_id_seq"'::regclass);
+
+
+--
+-- Name: AnswerAttachments id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "AnswerAttachments" ALTER COLUMN id SET DEFAULT nextval('"AnswerAttachments_id_seq"'::regclass);
+
+
+--
+-- Name: Attachments id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Attachments" ALTER COLUMN id SET DEFAULT nextval('"Attachments_id_seq"'::regclass);
+
+
+--
+-- Name: Discussions id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Discussions" ALTER COLUMN id SET DEFAULT nextval('"Discussions_id_seq"'::regclass);
+
+
+--
+-- Name: Essences id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Essences" ALTER COLUMN id SET DEFAULT nextval('"Essences_id_seq"'::regclass);
+
+
+--
+-- Name: Groups id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Groups" ALTER COLUMN id SET DEFAULT nextval('"Groups_id_seq"'::regclass);
+
+
+--
+-- Name: Indexes id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Indexes" ALTER COLUMN id SET DEFAULT nextval('"Indexes_id_seq"'::regclass);
+
+
+--
+-- Name: Languages id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Languages" ALTER COLUMN id SET DEFAULT nextval('"Languages_id_seq"'::regclass);
+
+
+--
+-- Name: Logs id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Logs" ALTER COLUMN id SET DEFAULT nextval('"Logs_id_seq"'::regclass);
+
+
+--
+-- Name: Notifications id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Notifications" ALTER COLUMN id SET DEFAULT nextval('"Notifications_id_seq"'::regclass);
+
+
+--
+-- Name: Organizations id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Organizations" ALTER COLUMN id SET DEFAULT nextval('"Organizations_id_seq"'::regclass);
+
+
+--
+-- Name: Products id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Products" ALTER COLUMN id SET DEFAULT nextval('"Products_id_seq"'::regclass);
+
+
+--
+-- Name: Projects id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Projects" ALTER COLUMN id SET DEFAULT nextval('"Projects_id_seq"'::regclass);
+
+
+--
+-- Name: Rights id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Rights" ALTER COLUMN id SET DEFAULT nextval('"Rights_id_seq"'::regclass);
+
+
+--
+-- Name: Roles id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Roles" ALTER COLUMN id SET DEFAULT nextval('"Roles_id_seq"'::regclass);
+
+
+--
+-- Name: Subindexes id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Subindexes" ALTER COLUMN id SET DEFAULT nextval('"Subindexes_id_seq"'::regclass);
+
+
+--
+-- Name: Tasks id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Tasks" ALTER COLUMN id SET DEFAULT nextval('"Tasks_id_seq"'::regclass);
+
+
+--
+-- Name: UnitOfAnalysis id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "UnitOfAnalysis" ALTER COLUMN id SET DEFAULT nextval('"UnitOfAnalysis_id_seq"'::regclass);
+
+
+--
+-- Name: UnitOfAnalysisClassType id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "UnitOfAnalysisClassType" ALTER COLUMN id SET DEFAULT nextval('"UnitOfAnalysisClassType_id_seq"'::regclass);
+
+
+--
+-- Name: UnitOfAnalysisTag id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "UnitOfAnalysisTag" ALTER COLUMN id SET DEFAULT nextval('"UnitOfAnalysisTag_id_seq"'::regclass);
+
+
+--
+-- Name: UnitOfAnalysisTagLink id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "UnitOfAnalysisTagLink" ALTER COLUMN id SET DEFAULT nextval('"UnitOfAnalysisTagLink_id_seq"'::regclass);
+
+
+--
+-- Name: UnitOfAnalysisType id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "UnitOfAnalysisType" ALTER COLUMN id SET DEFAULT nextval('"UnitOfAnalysisType_id_seq"'::regclass);
+
+
+--
+-- Name: Users id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Users" ALTER COLUMN id SET DEFAULT nextval('"Users_id_seq"'::regclass);
+
+
+--
+-- Name: Visualizations id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Visualizations" ALTER COLUMN id SET DEFAULT nextval('"Visualizations_id_seq"'::regclass);
+
+
+--
+-- Name: WorkflowSteps id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "WorkflowSteps" ALTER COLUMN id SET DEFAULT nextval('"WorkflowSteps_id_seq"'::regclass);
+
+
+--
+-- Name: Workflows id; Type: DEFAULT; Schema: test; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Workflows" ALTER COLUMN id SET DEFAULT nextval('"Workflows_id_seq"'::regclass);
+
+
 SET search_path = public, pg_catalog;
 
 --
--- Name: Entities_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indabauser
+-- Name: Essences_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Entities_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Essences_id_seq"', 1, false);
 
 
 --
@@ -4663,48 +4427,6 @@ COPY "Users" ("roleID", id, email, "firstName", "lastName", password, cell, birt
 
 
 --
--- Name: brand_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indabauser
---
-
-SELECT pg_catalog.setval('brand_id_seq', 1, false);
-
-
---
--- Name: country_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indabauser
---
-
-SELECT pg_catalog.setval('country_id_seq', 240, false);
-
-
---
--- Name: order_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indabauser
---
-
-SELECT pg_catalog.setval('order_id_seq', 1, false);
-
-
---
--- Name: role_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indabauser
---
-
-SELECT pg_catalog.setval('role_id_seq', 1, false);
-
-
---
--- Name: transport_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indabauser
---
-
-SELECT pg_catalog.setval('transport_id_seq', 1, false);
-
-
---
--- Name: transportmodel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indabauser
---
-
-SELECT pg_catalog.setval('transportmodel_id_seq', 1, false);
-
-
---
 -- Name: user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indabauser
 --
 
@@ -4805,10 +4527,10 @@ SELECT pg_catalog.setval('"Discussions_id_seq"', 1, false);
 
 
 --
--- Name: Entities_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
+-- Name: Essences_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Entities_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Essences_id_seq"', 1, false);
 
 
 --
@@ -5231,48 +4953,6 @@ SELECT pg_catalog.setval('"Workflows_id_seq"', 1, false);
 
 
 --
--- Name: brand_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('brand_id_seq', 1, false);
-
-
---
--- Name: country_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('country_id_seq', 240, false);
-
-
---
--- Name: order_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('order_id_seq', 1, false);
-
-
---
--- Name: role_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('role_id_seq', 1, false);
-
-
---
--- Name: transport_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('transport_id_seq', 1, false);
-
-
---
--- Name: transportmodel_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('transportmodel_id_seq', 1, false);
-
-
---
 -- Name: user_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
@@ -5373,10 +5053,10 @@ SELECT pg_catalog.setval('"Discussions_id_seq"', 1, false);
 
 
 --
--- Name: Entities_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
+-- Name: Essences_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Entities_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Essences_id_seq"', 1, false);
 
 
 --
@@ -5799,48 +5479,6 @@ SELECT pg_catalog.setval('"Workflows_id_seq"', 1, false);
 
 
 --
--- Name: brand_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
---
-
-SELECT pg_catalog.setval('brand_id_seq', 1, false);
-
-
---
--- Name: country_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
---
-
-SELECT pg_catalog.setval('country_id_seq', 240, false);
-
-
---
--- Name: order_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
---
-
-SELECT pg_catalog.setval('order_id_seq', 1, false);
-
-
---
--- Name: role_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
---
-
-SELECT pg_catalog.setval('role_id_seq', 1, false);
-
-
---
--- Name: transport_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
---
-
-SELECT pg_catalog.setval('transport_id_seq', 1, false);
-
-
---
--- Name: transportmodel_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
---
-
-SELECT pg_catalog.setval('transportmodel_id_seq', 1, false);
-
-
---
 -- Name: user_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
@@ -5850,11 +5488,11 @@ SELECT pg_catalog.setval('user_id_seq', 1, false);
 SET search_path = public, pg_catalog;
 
 --
--- Name: Essences Entity_pkey; Type: CONSTRAINT; Schema: public; Owner: indabauser
+-- Name: Essences Essences_pkey; Type: CONSTRAINT; Schema: public; Owner: indabauser
 --
 
 ALTER TABLE ONLY "Essences"
-    ADD CONSTRAINT "Entity_pkey" PRIMARY KEY (id);
+    ADD CONSTRAINT "Essences_pkey" PRIMARY KEY (id);
 
 
 --
@@ -5914,6 +5552,22 @@ ALTER TABLE ONLY "Rights"
 
 
 --
+-- Name: RolesRights roleRight_pkey; Type: CONSTRAINT; Schema: public; Owner: indabauser
+--
+
+ALTER TABLE ONLY "RolesRights"
+    ADD CONSTRAINT "roleRight_pkey" PRIMARY KEY ("roleID", "rightID");
+
+
+--
+-- Name: Roles id; Type: CONSTRAINT; Schema: public; Owner: indabauser
+--
+
+ALTER TABLE ONLY "Roles"
+    ADD CONSTRAINT id PRIMARY KEY (id);
+
+
+--
 -- Name: Token Token_pkey; Type: CONSTRAINT; Schema: public; Owner: indabauser
 --
 
@@ -5927,22 +5581,6 @@ ALTER TABLE ONLY "Token"
 
 ALTER TABLE ONLY "Users"
     ADD CONSTRAINT "Users_email_key" UNIQUE (email);
-
-
---
--- Name: Roles id; Type: CONSTRAINT; Schema: public; Owner: indabauser
---
-
-ALTER TABLE ONLY "Roles"
-    ADD CONSTRAINT id PRIMARY KEY (id);
-
-
---
--- Name: RolesRights roleRight_pkey; Type: CONSTRAINT; Schema: public; Owner: indabauser
---
-
-ALTER TABLE ONLY "RolesRights"
-    ADD CONSTRAINT "roleRight_pkey" PRIMARY KEY ("roleID", "rightID");
 
 
 --
@@ -6257,22 +5895,6 @@ ALTER TABLE ONLY "UnitOfAnalysisType"
 
 ALTER TABLE ONLY "UnitOfAnalysis"
     ADD CONSTRAINT "UnitOfAnalysis_name_key" UNIQUE (name);
-
-
---
--- Name: UnitOfAnalysis UnitOfAnalysis_name_key1; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "UnitOfAnalysis"
-    ADD CONSTRAINT "UnitOfAnalysis_name_key1" UNIQUE (name);
-
-
---
--- Name: UnitOfAnalysis UnitOfAnalysis_name_key2; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "UnitOfAnalysis"
-    ADD CONSTRAINT "UnitOfAnalysis_name_key2" UNIQUE (name);
 
 
 --

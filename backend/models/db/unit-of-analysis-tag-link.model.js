@@ -14,6 +14,7 @@ module.exports = function unitOfAnalysisTagLink(sequelize, Sequelize, schema = '
                 },
                 key: 'id',
             },
+            unique: 'uoataglink',
         },
         uoaTagId: {
             type: Sequelize.INTEGER,
@@ -25,11 +26,19 @@ module.exports = function unitOfAnalysisTagLink(sequelize, Sequelize, schema = '
                 },
                 key: 'id',
             },
+            unique: 'uoataglink',
         },
     }, {
         freezeTableName: true,
         tableName,
         schema,
         timestamps: false,
+        indexes: [{
+            name: 'UnitOfAnalysisTagLink_uoaId_idx',
+            fields: ['uoaId'],
+        }, {
+            name: 'UnitOfAnalysisTagLink_uoaTagId_idx',
+            fields: ['uoaTagId'],
+        }],
     });
 };

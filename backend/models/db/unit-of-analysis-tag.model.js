@@ -10,7 +10,6 @@ module.exports = function unitOfAnalysisTag(sequelize, Sequelize, schema = 'publ
         },
         description: {
             type: Sequelize.STRING(255),
-            allowNull: false,
         },
         langId: {
             type: Sequelize.INTEGER,
@@ -24,7 +23,7 @@ module.exports = function unitOfAnalysisTag(sequelize, Sequelize, schema = 'publ
                 key: 'id',
             },
         },
-        clasTypeId: {
+        classTypeId: {
             type: Sequelize.SMALLINT,
             allowNull: false,
             references: {

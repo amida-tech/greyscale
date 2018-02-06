@@ -44,7 +44,7 @@ module.exports = function productUoa(sequelize, Sequelize, schema = 'public') {
             defaultValue: false,
         },
         isDeleted: {
-            type: 'timestamp(6) with time zone',
+            type: Sequelize.DATE,
         }
     }, {
         freezeTableName: true,

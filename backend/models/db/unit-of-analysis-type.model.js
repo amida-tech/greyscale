@@ -10,7 +10,6 @@ module.exports = function unitOfAnalysisType(sequelize, Sequelize, schema = 'pub
         },
         description: {
             type: Sequelize.STRING(255),
-            allowNull: false,
         },
         langId: {
             type: Sequelize.INTEGER,

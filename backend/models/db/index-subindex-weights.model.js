@@ -29,7 +29,7 @@ module.exports = function indexSubindexWeights(sequelize, Sequelize, schema = 'p
             },
         },
         weight: {
-            type: Sequelize.DOUBLE,
+            type: Sequelize.NUMERIC,
             allowNull: false,
         },
         type: {

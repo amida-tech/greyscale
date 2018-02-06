@@ -11,9 +11,9 @@ module.exports = function Workflows(sequelize, Sequelize, schema = 'public') {
             type: Sequelize.TEXT,
         },
         created: {
-            type: Sequelize.DATEONLY,
+            type: Sequelize.DATE,
             allowNull: false,
-            defaultValue: Sequelize.NOW,
+            defaultValue: sequelize.literal('now()'),
         },
         productId: {
             type: Sequelize.INTEGER,

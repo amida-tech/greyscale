@@ -31,6 +31,7 @@ module.exports = function unitOfAnalysis(sequelize, Sequelize, schema = 'public'
         name: {
             type: Sequelize.STRING(100),
             allowNull: false,
+            unique: true,
         },
         description: {
             type: Sequelize.STRING(255),
@@ -88,15 +89,15 @@ module.exports = function unitOfAnalysis(sequelize, Sequelize, schema = 'public'
             defaultValue: 1,
         },
         created: {
-            type: 'timestamp(6) with time zone',
+            type: Sequelize.DATE,
             allowNull: false,
-            defaultValue: Sequelize.NOW,
+            defaultValue: sequelize.literal('now()'),
         },
         isDeleted: {
-            type: 'timestamp(6) with time zone',
+            type: Sequelize.DATE,
         },
         langId: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.SMALLINT,
             allowNull: false,
             references: {
                 model: {
@@ -105,9 +106,10 @@ module.exports = function unitOfAnalysis(sequelize, Sequelize, schema = 'public'
                 },
                 key: 'id',
             },
+            defaultValue: 1,
         },
         updated: {
-            type: 'timestamp(6) with time zone',
+            type: Sequelize.DATE,
         },
     }, {
         freezeTableName: true,

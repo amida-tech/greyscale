@@ -16,6 +16,7 @@ module.exports = function projects(sequelize, Sequelize, schema = 'public') {
         },
         codeName: {
             type: Sequelize.STRING(100),
+            unique: true,
         },
         description: {
             type: Sequelize.TEXT,
@@ -23,7 +24,7 @@ module.exports = function projects(sequelize, Sequelize, schema = 'public') {
         created: {
             type: Sequelize.DATEONLY,
             allowNull: false,
-            defaultValue: Sequelize.NOW,
+            defaultValue: sequelize.literal('now()'),
         },
         matrixId: {
             type: Sequelize.INTEGER,
@@ -57,7 +58,7 @@ module.exports = function projects(sequelize, Sequelize, schema = 'public') {
             type: Sequelize.DATE,
         },
         firstActivated: {
-            type: 'timestamp(6) with time zone',
+            type: Sequelize.DATE,
         },
         langId: {
             type: Sequelize.INTEGER,
