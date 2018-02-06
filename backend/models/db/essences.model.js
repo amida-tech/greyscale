@@ -16,7 +16,7 @@ module.exports = function essences(sequelize, Sequelize, schema = 'public') {
             type: Sequelize.STRING(100),
         },
         nameField: {
-            type: Sequelize.STRING,
+            type: 'character varying',
             allowNull: false,
         },
     }, {

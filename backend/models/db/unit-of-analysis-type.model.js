@@ -16,6 +16,13 @@ module.exports = function unitOfAnalysisType(sequelize, Sequelize, schema = 'pub
             type: Sequelize.INTEGER,
             allowNull: false,
             defaultValue: 1,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Languages',
+                },
+                key: 'id',
+            },
         },
     }, {
         freezeTableName: true,

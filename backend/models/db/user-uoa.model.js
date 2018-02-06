@@ -7,10 +7,26 @@ module.exports = function userUoa(sequelize, Sequelize, schema = 'public') {
         UserId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            primaryKey: true,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Users',
+                },
+                key: 'id',
+            },
         },
         UOAid: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            primaryKey: true,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'UnitOfAnalysis',
+                },
+                key: 'id',
+            },
         },
     }, {
         freezeTableName: true,

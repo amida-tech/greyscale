@@ -5,13 +5,27 @@ module.exports = function groups(sequelize, Sequelize, schema = 'public') {
     const modelName = `${schema}_${tableName}`;
     return sequelize.define(modelName, {
         title: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         organizationId: {
             type: Sequelize.INTEGER,
-        },
+             references: {
+                model: {
+                    schema,
+                    tableName: 'Organizations',
+                },
+                key: 'id',
+            },
+       },
         langId: {
             type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Languages',
+                },
+                key: 'id',
+            },
         },
     }, {
         freezeTableName: true,

@@ -7,9 +7,16 @@ module.exports = function subindexes(sequelize, Sequelize, schema = 'public') {
         productId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Products',
+                },
+                key: 'id',
+            },
         },
         title: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         description: {
             type: Sequelize.TEXT,
@@ -24,5 +31,6 @@ module.exports = function subindexes(sequelize, Sequelize, schema = 'public') {
         tableName,
         schema,
         timestamps: false,
+        indexes: [{ fields: ['productId'] }],
     });
 };

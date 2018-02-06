@@ -7,50 +7,73 @@ module.exports = function notifications(sequelize, Sequelize, schema = 'public')
         userFrom: {
             type: Sequelize.INTEGER,
             allowNull: false,
+             references: {
+                model: {
+                    schema,
+                    tableName: 'Users',
+                },
+                key: 'id',
+            },
         },
         userTo: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Users',
+                },
+                key: 'id',
+            },
         },
         body: {
             type: Sequelize.TEXT,
         },
         email: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         message: {
             type: Sequelize.TEXT,
         },
         subject: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         essenceId: {
             type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Essences',
+                },
+                key: 'id',
+            },
         },
         entityId: {
             type: Sequelize.INTEGER,
         },
         created: {
-            type: Sequelize.DATE(6),
+            type: 'timestamp(6) with time zone',
             allowNull: false,
             defaultValue: Sequelize.NOW,
         },
         reading: {
-            type: Sequelize.DATE(6),
+            type: 'timestamp(6) with time zone',
             defaultValue: Sequelize.NOW,
         },
         sent: {
-            type: Sequelize.DATE(6),
+            type: 'timestamp(6) with time zone',
             defaultValue: Sequelize.NOW,
         },
         read: {
             type: Sequelize.BOOLEAN,
+            defaultValue: false,
         },
         notifyLevel: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.SMALLINT,
+            defaultValue: 1,
         },
         result: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         resent: {
             type: Sequelize.DATE,
@@ -59,10 +82,10 @@ module.exports = function notifications(sequelize, Sequelize, schema = 'public')
             type: Sequelize.TEXT,
         },
         userFromName: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         userToName: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
    }, {
         freezeTableName: true,

@@ -7,10 +7,26 @@ module.exports = function userGroups(sequelize, Sequelize, schema = 'public') {
         userId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            primaryKey: true,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Users',
+                },
+                key: 'id',
+            },
         },
         groupId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            primaryKey: true,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Groups',
+                },
+                key: 'id',
+            },
         },
     }, {
         freezeTableName: true,

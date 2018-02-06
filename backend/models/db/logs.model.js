@@ -5,26 +5,40 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
     const modelName = `${schema}_${tableName}`;
     return sequelize.define(modelName, {
         created: {
-            type: Sequelize.DATE(6),
+            type: 'timestamp(6) with time zone',
             allowNull: false,
             defaultValue: Sequelize.NOW,
         },
-        userId: {
+        userid: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Users',
+                },
+                key: 'id',
+            },
         },
         action: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         essence: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Essences',
+                },
+                key: 'id',
+            },
         },
         entity: {
             type: Sequelize.INTEGER,
         },
         entities: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         quantity: {
             type: Sequelize.INTEGER,
@@ -38,7 +52,7 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
             defaultValue: false,
         },
         result: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
     }, {
         freezeTableName: true,

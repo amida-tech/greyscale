@@ -7,6 +7,13 @@ module.exports = function projectUsers(sequelize, Sequelize, schema = 'public') 
         projectId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Projects',
+                },
+                key: 'id',
+            },
         },
         userId: {
             type: Sequelize.INTEGER,

@@ -7,13 +7,36 @@ module.exports = function productUoa(sequelize, Sequelize, schema = 'public') {
         productId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            primaryKey: true,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Products',
+                },
+                key: 'id',
+            },
         },
         UOAId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            primaryKey: true,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'UnitOfAnalysis',
+                },
+                key: 'id',
+            },
         },
         currentStepId: {
             type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'WorkflowSteps',
+                },
+                key: 'id',
+            },
         },
         isComplete: {
             type: Sequelize.BOOLEAN,
@@ -21,7 +44,7 @@ module.exports = function productUoa(sequelize, Sequelize, schema = 'public') {
             defaultValue: false,
         },
         isDeleted: {
-            type: Sequelize.DATE(6),
+            type: 'timestamp(6) with time zone',
         }
     }, {
         freezeTableName: true,

@@ -16,6 +16,13 @@ module.exports = function unitOfAnalysisClassType(sequelize, Sequelize, schema =
             type: Sequelize.INTEGER,
             allowNull: false,
             defaultValue: 1,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Languages',
+                },
+                key: 'id',
+            },
         },
     }, {
         freezeTableName: true,

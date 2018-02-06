@@ -32,6 +32,7 @@ const translations = require('./translations.model');
 const unitOfAnalysis = require('./unit-of-analysis.model');
 const unitOfAnalysisClassType = require('./unit-of-analysis-class-type.model');
 const unitOfAnalysisTag = require('./unit-of-analysis-tag.model');
+const unitOfAnalysisTagLink = require('./unit-of-analysis-tag-link.model');
 const unitOfAnalysisType = require('./unit-of-analysis-type.model');
 const userGroups = require('./user-groups.model');
 const userRights = require('./user-rights.model');
@@ -84,6 +85,7 @@ const defineTables = function (sequelize, Sequelize) {
     const UnitOfAnalysis2 = unitOfAnalysis(sequelize, Sequelize, 'sceleton');
     const UnitOfAnalysisClassType2 = unitOfAnalysisClassType(sequelize, Sequelize, 'sceleton');
     const UnitOfAnalysisTag2 = unitOfAnalysisTag(sequelize, Sequelize, 'sceleton');
+    const UnitOfAnalysisTagLink2 = unitOfAnalysisTagLink(sequelize, Sequelize, 'sceleton');
     const UnitOfAnalysisType2 = unitOfAnalysisType(sequelize, Sequelize, 'sceleton');
     const UserGroups2 = userGroups(sequelize, Sequelize, 'sceleton');
     const UserRights2 = userRights(sequelize, Sequelize, 'sceleton');
@@ -93,6 +95,9 @@ const defineTables = function (sequelize, Sequelize) {
     const WorkflowStepGroups2 = workflowStepGroups(sequelize, Sequelize, 'sceleton');
     const WorkflowSteps2 = workflowSteps(sequelize, Sequelize, 'sceleton');
     const Workflows2 = workflows(sequelize, Sequelize, 'sceleton');
+
+    ProjectUserGroups2.removeAttribute('id');
+    ProjectUsers2.removeAttribute('id');
 
     const AccessMatrices3 = accessMatrices(sequelize, Sequelize, 'test');
     const AccessPermissions3 = accessPermissions(sequelize, Sequelize, 'test');
@@ -125,15 +130,19 @@ const defineTables = function (sequelize, Sequelize) {
     const UnitOfAnalysis3 = unitOfAnalysis(sequelize, Sequelize, 'test');
     const UnitOfAnalysisClassType3 = unitOfAnalysisClassType(sequelize, Sequelize, 'test');
     const UnitOfAnalysisTag3 = unitOfAnalysisTag(sequelize, Sequelize, 'test');
+    const UnitOfAnalysisTagLink3 = unitOfAnalysisTagLink(sequelize, Sequelize, 'test');
     const UnitOfAnalysisType3 = unitOfAnalysisType(sequelize, Sequelize, 'test');
     const UserGroups3 = userGroups(sequelize, Sequelize, 'test');
     const UserRights3 = userRights(sequelize, Sequelize, 'test');
     const UserUOA3 = userUOA(sequelize, Sequelize, 'test');
     const Users3 = users(sequelize, Sequelize, 'test');
-    const Visualizations3 = (sequelize, Sequelize, 'test');
-    const WorkflowStepGroups3 = (sequelize, Sequelize, 'test');
-    const WorkflowSteps3 = (sequelize, Sequelize, 'test');
-    const Workflows3 = (sequelize, Sequelize, 'test');
+    const Visualizations3 =  visualizations(sequelize, Sequelize, 'test');
+    const WorkflowStepGroups3 = workflowStepGroups(sequelize, Sequelize, 'test');
+    const WorkflowSteps3 = workflowSteps(sequelize, Sequelize, 'test');
+    const Workflows3 = workflows(sequelize, Sequelize, 'test');
+
+    ProjectUserGroups3.removeAttribute('id');
+    ProjectUsers3.removeAttribute('id');
 
     return {
         sequelize,

@@ -5,7 +5,7 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
     const modelName = `${schema}_${tableName}`;
     return sequelize.define(modelName, {
         title: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         description: {
             type: Sequelize.TEXT,
@@ -13,10 +13,24 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
         uoaId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'UnitOfAnalysis',
+                },
+                key: 'id',
+            },
         },
         stepId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'WorkflowSteps',
+                },
+                key: 'id',
+            },
         },
         created: {
             type: Sequelize.DATE,
@@ -26,6 +40,13 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
         productId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Products',
+                },
+                key: 'id',
+            },
         },
         startDate: {
             type: Sequelize.DATE,
@@ -35,9 +56,23 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
         },
         userId: {
             type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Users',
+                },
+                key: 'id',
+            },
         },
         langId: {
             type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Languages',
+                },
+                key: 'id',
+            },
         },
         assessmentId: {
             type: Sequelize.INTEGER,
@@ -49,7 +84,7 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
             type: Sequelize.ARRAY(Sequelize.INTEGER),
         },
         isDeleted: {
-            type: Sequelize.DATE(6),
+            type: 'timestamp(6) with time zone',
         },
     }, {
         freezeTableName: true,

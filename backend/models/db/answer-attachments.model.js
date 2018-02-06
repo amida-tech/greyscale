@@ -8,13 +8,13 @@ module.exports = function answerAttachments(sequelize, Sequelize, schema = 'publ
             type: Sequelize.INTEGER,
         },
         filename: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         size: {
             type: Sequelize.INTEGER,
         },
         mimetype: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         body: {
             type: Sequelize.BLOB,
@@ -26,9 +26,16 @@ module.exports = function answerAttachments(sequelize, Sequelize, schema = 'publ
         },
         owner: {
             type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Users',
+                },
+                key: 'id',
+            },
         },
         amazonKey: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         }
     }, {
         freezeTableName: true,

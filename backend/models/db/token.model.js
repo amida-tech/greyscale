@@ -7,10 +7,12 @@ module.exports = function tokens(sequelize, Sequelize, schema = 'public') {
         userId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            primaryKey: true,
         },
         body: {
             type: Sequelize.STRING(200),
             allowNull: false,
+            unique: true,
         },
         issuedAt: {
             type: Sequelize.DATE,
@@ -20,6 +22,7 @@ module.exports = function tokens(sequelize, Sequelize, schema = 'public') {
         realm: {
             type: Sequelize.STRING(80),
             allowNull: false,
+            primaryKey: true,
         },
     }, {
         freezeTableName: true,

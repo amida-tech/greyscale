@@ -1,7 +1,7 @@
 'use strict';
 
-module.exports = function translations(sequelize, Sequelize, schema = 'public') {
-    const tableName = 'Translations';
+module.exports = function unitOfAnalysis(sequelize, Sequelize, schema = 'public') {
+    const tableName = 'UnitOfAnalysis';
     const modelName = `${schema}_${tableName}`;
     return sequelize.define(modelName, {
         gadmId0: {
@@ -44,6 +44,13 @@ module.exports = function translations(sequelize, Sequelize, schema = 'public') 
         unitOfAnalysisType: {
             type: Sequelize.SMALLINT,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'UnitOfAnalysisType',
+                },
+                key: 'id',
+            },
         },
         parentId: {
             type: Sequelize.INTEGER,
@@ -51,10 +58,24 @@ module.exports = function translations(sequelize, Sequelize, schema = 'public') 
         creatorId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Users',
+                },
+                key: 'id',
+            },
         },
         ownerId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Users',
+                },
+                key: 'id',
+            },
         },
         visibility: {
             type: Sequelize.SMALLINT,
@@ -67,19 +88,26 @@ module.exports = function translations(sequelize, Sequelize, schema = 'public') 
             defaultValue: 1,
         },
         created: {
-            type: Sequelize.DATE(6),
+            type: 'timestamp(6) with time zone',
             allowNull: false,
             defaultValue: Sequelize.NOW,
         },
         isDeleted: {
-            type: Sequelize.DATE(6),
+            type: 'timestamp(6) with time zone',
         },
         langId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Languages',
+                },
+                key: 'id',
+            },
         },
         updated: {
-            type: Sequelize.DATE(6),
+            type: 'timestamp(6) with time zone',
         },
     }, {
         freezeTableName: true,

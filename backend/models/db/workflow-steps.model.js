@@ -15,7 +15,7 @@ module.exports = function workflowSteps(sequelize, Sequelize, schema = 'public')
             type: Sequelize.DATE,
         },
         title: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         provideResponses: {
             type: Sequelize.BOOLEAN,
@@ -44,13 +44,20 @@ module.exports = function workflowSteps(sequelize, Sequelize, schema = 'public')
             defaultValue: false,
         },
         role: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         langId: {
             type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Languages',
+                },
+                key: 'id',
+            },
         },
         isDeleted: {
-            type: Sequelize.DATE(6),
+            type: 'timestamp(6) with time zone',
         },
     }, {
         freezeTableName: true,

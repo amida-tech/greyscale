@@ -7,10 +7,12 @@ module.exports = function userRights(sequelize, Sequelize, schema = 'public') {
         userID: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            primaryKry: true,
         },
         rightID: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            primaryKey: true,
         },
         canDo: {
             type: Sequelize.BOOLEAN,

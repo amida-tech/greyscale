@@ -7,10 +7,19 @@ module.exports = function attachmentLinks(sequelize, Sequelize, schema = 'public
         essenceId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            primaryKey: true,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Essences',
+                },
+                key: 'id',
+            },
         },
         entityId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            primaryKey: true,
         },
         attachments: {
             type: Sequelize.ARRAY(Sequelize.INTEGER),

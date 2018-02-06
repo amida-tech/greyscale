@@ -17,6 +17,14 @@ module.exports = function Workflows(sequelize, Sequelize, schema = 'public') {
         },
         productId: {
             type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Products',
+                },
+                key: 'id',
+            },
+            unique: true
         },
     }, {
         freezeTableName: true,

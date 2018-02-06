@@ -5,25 +5,25 @@ module.exports = function attachments(sequelize, Sequelize, schema = 'public') {
     const modelName = `${schema}_${tableName}`;
     return sequelize.define(modelName, {
         filename: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         size: {
             type: Sequelize.INTEGER,
         },
         mimetype: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         body: {
             type: Sequelize.BLOB,
         },
         created: {
-            type: Sequelize.DATE(6),
+            type: 'timestamp(6) with time zone',
         },
         owner: {
             type: Sequelize.INTEGER,
         },
         amazonKey: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
    }, {
         freezeTableName: true,

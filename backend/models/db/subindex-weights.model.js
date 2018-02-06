@@ -7,17 +7,26 @@ module.exports = function subindexWeights(sequelize, Sequelize, schema = 'public
         subindexId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            primaryKey: true,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Subindexes',
+                },
+                key: 'id',
+            },
         },
         questionId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            primaryKey: true,
         },
         weight: {
             type: Sequelize.DOUBLE,
             allowNull: false,
         },
         type: {
-            type: Sequelize.STRING,
+            type: 'character varying',
             allowNull: false,
         }
     }, {

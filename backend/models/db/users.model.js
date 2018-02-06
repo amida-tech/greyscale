@@ -3,10 +3,33 @@
 module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
     const tableName = 'Users';
     const modelName = `${schema}_${tableName}`;
+
+    const organizationId = {
+        type: Sequelize.INTEGER,
+    };
+
+    if (schema !== 'public') {
+        organizationId.references = {
+            model: {
+                schema,
+                tableName: 'Organizations',
+            },
+            key: 'id',
+        };
+    }
+
     return sequelize.define(modelName, {
         roleId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Roles',
+                },
+                key: 'id',
+            },
+            unique: true,
         },
         email: {
             type: Sequelize.STRING(80),
@@ -36,7 +59,7 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
             type: Sequelize.BIGINT,
         },
         created: {
-            type: Sequelize.DATE(6),
+            type: 'timestamp(6) with time zone',
             allowNull: false,
             defaultValue: Sequelize.NOW,
         },
@@ -49,20 +72,18 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
         activationToken: {
             type: Sequelize.STRING(100),
         },
-        organizationId: {
-            type: Sequelize.INTEGER,
-        },
+        organizationId,
         location: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         phone: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         address: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         lang: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         bio: {
             type: Sequelize.TEXT,
@@ -71,16 +92,16 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
             type: Sequelize.SMALLINT,
         },
         timezone: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         lastActive: {
             type: Sequelize.DATE,
         },
         timezone: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         affiliation: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         isAnonymous: {
             type: Sequelize.BOOLEAN,
@@ -89,16 +110,23 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
         langId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Languages',
+                },
+                key: 'id',
+            },
         },
         salt: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         authId: {
             type: Sequelize.INTEGER,
             allowNull: false,
         },
         isDeleted: {
-            type: Sequelize.DATE(6),
+            type: 'timestamp(6) with time zone',
             allowNull: false,
             defaultValue: Sequelize.NOW,
         },

@@ -7,7 +7,14 @@ module.exports = function discussions(sequelize, Sequelize, schema = 'public') {
         taskId: {
             type: Sequelize.INTEGER,
             allowNull: false,
-        },
+             references: {
+                model: {
+                    schema,
+                    tableName: 'Tasks',
+                },
+                key: 'id',
+            },
+       },
         questionId: {
             type: Sequelize.INTEGER,
             allowNull: false,
@@ -25,12 +32,12 @@ module.exports = function discussions(sequelize, Sequelize, schema = 'public') {
             defaultValue: false,
         },
         created: {
-            type: Sequelize.DATE(6),
+            type: 'timestamp(6) with time zone',
             allowNull: false,
             defaultValue: Sequelize.NOW,
         },
         updated: {
-            type: Sequelize.DATE(6),
+            type: 'timestamp(6) with time zone',
          },
         isResolve: {
             type: Sequelize.BOOLEAN,
@@ -44,17 +51,45 @@ module.exports = function discussions(sequelize, Sequelize, schema = 'public') {
         },
         returnTaskId: {
             type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Tasks',
+                },
+                key: 'id',
+            },
         },
         userFromId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Users',
+                },
+                key: 'id',
+            },
         },
         stepId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'WorkflowSteps',
+                },
+                key: 'id',
+            },
         },
         stepFromId: {
             type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'WorkflowSteps',
+                },
+                key: 'id',
+            },
         },
         activated: {
             type: Sequelize.BOOLEAN,

@@ -7,6 +7,13 @@ module.exports = function projectUserGroups(sequelize, Sequelize, schema = 'publ
         projectId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Projects',
+                },
+                key: 'id',
+            },
         },
         groupId: {
             type: Sequelize.INTEGER,

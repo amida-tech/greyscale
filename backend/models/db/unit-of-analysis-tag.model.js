@@ -16,10 +16,24 @@ module.exports = function unitOfAnalysisTag(sequelize, Sequelize, schema = 'publ
             type: Sequelize.INTEGER,
             allowNull: false,
             defaultValue: 1,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Languages',
+                },
+                key: 'id',
+            },
         },
         clasTypeId: {
             type: Sequelize.SMALLINT,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'UnitOfAnalysisClassType',
+                },
+                key: 'id',
+            },
         },
     }, {
         freezeTableName: true,

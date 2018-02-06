@@ -5,22 +5,29 @@ module.exports = function visualizations(sequelize, Sequelize, schema = 'public'
     const modelName = `${schema}_${tableName}`;
     return sequelize.define(modelName, {
         title: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         productId: {
             type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Products',
+                },
+                key: 'id',
+            },
         },
         topicIds: {
             type: Sequelize.ARRAY(Sequelize.INTEGER),
         },
         indexCollection: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         indexId: {
             type: Sequelize.INTEGER,
         },
         visualizationType: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         comparativeTopicId: {
             type: Sequelize.INTEGER,
@@ -28,6 +35,13 @@ module.exports = function visualizations(sequelize, Sequelize, schema = 'public'
         organizationId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Organizations',
+                },
+                key: 'id',
+            },
         },
     }, {
         freezeTableName: true,

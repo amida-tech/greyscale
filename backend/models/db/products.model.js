@@ -11,10 +11,25 @@ module.exports = function products(sequelize, Sequelize, schema = 'public') {
             type: Sequelize.TEXT,
         },
         originalLangId: {
-            type: Sequelize.INTEGER
+            type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Languages',
+                },
+                key: 'id',
+            },
         },
         projectId: {
-            type: Sequelize.INTEGER
+
+            type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Projects',
+                },
+                key: 'id',
+            },
         },
         surveyId: {
             type: Sequelize.INTEGER
@@ -25,7 +40,14 @@ module.exports = function products(sequelize, Sequelize, schema = 'public') {
             defaultValue: 0
         },
         langId: {
-            type: Sequelize.INTEGER
+            type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Languages',
+                },
+                key: 'id',
+            },
         },
     }, {
         freezeTableName: true,

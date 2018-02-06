@@ -5,18 +5,19 @@ module.exports = function attachmentAttempts(sequelize, Sequelize, schema = 'pub
     const modelName = `${schema}_${tableName}`;
     return sequelize.define(modelName, {
         key: {
-            type: Sequelize.STRING,
+            type: 'character varying',
             allowNull: false,
+            primaryKey: true,
         },
         filename: {
-            type: Sequelize.STRING,
+            type: 'character varying',
             allowNull: false,
         },
         size: {
             type: Sequelize.INTEGER,
         },
         mimetype: {
-            type: Sequelize.STRING,
+            type: 'character varying',
         },
         created: {
             type: Sequelize.DATE,

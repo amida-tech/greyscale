@@ -24,6 +24,13 @@ module.exports = function organizations(sequelize, Sequelize, schema = 'public')
         },
         langId: {
             type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Languages',
+                },
+                key: 'id',
+            },
         },
         realm: {
             type: Sequelize.STRING(80),
