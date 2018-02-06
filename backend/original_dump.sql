@@ -2160,7 +2160,7 @@ CREATE TABLE "Projects" (
     "organizationId" integer,
     "codeName" character varying(100),
     description text,
-    created timestamp(0) with time zone DEFAULT now() NOT NULL,
+    created timestamp with time zone DEFAULT now() NOT NULL,
     "matrixId" integer,
     "startTime" timestamp with time zone,
     status smallint DEFAULT 0 NOT NULL,
@@ -3239,7 +3239,7 @@ CREATE TABLE "Projects" (
     "organizationId" integer,
     "codeName" character varying(100),
     description text,
-    created timestamp(0) with time zone DEFAULT now() NOT NULL,
+    created timestamp with time zone DEFAULT now() NOT NULL,
     "matrixId" integer,
     "startTime" timestamp with time zone,
     status smallint DEFAULT 0 NOT NULL,
@@ -3825,6 +3825,40 @@ SET search_path = public, pg_catalog;
 --
 
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
+23	WorflowSteps	WorflowSteps	worflowSteps	title
+20	Groups	Groups	groups	title
+21	Organizations	Organizations	organizations	name
+22	Tasks	Tasks	tasks	title
+4	Products	Products	products	title
+6	UnitOfAnalysis	UnitOfAnalysis	uoas	name
+5	UnitOfAnalysisType	UnitOfAnalysisType	uoatypes	name
+7	UnitOfAnalysisClassType	UnitOfAnalysisClassType	uoaclasstypes	name
+8	UnitOfAnalysisTag	UnitOfAnalysisTag	uoatags	name
+13	Projects	projects	projects	codeName
+14	Discussions	Discussions	discussions	name
+15	Users	Users	users	email
+24	Notifications	notifications	notifications	body
+25	ProductUOA	productUoa	product_uoa	productId
+26	Indexes	Indexes	indexes	title
+27	Subindexes	Subindexes	subindexes	title
+28	IndexQuestionWeights	IndexQuestionWeights	index_question_weights	type
+29	IndexSubindexWeights	IndexSubindexWeights	index_subindex_weights	type
+36	Workflows	Workflows	workflows	name
+37	WorfklowSteps	WorkflowSteps	workflow_steps	title
+38	WorfklowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
+31	UnitOfAnalysisTagLink	UnitOfAnalysisTagLink	uoataglinks	id
+30	SubindexWeights	SubindexWeights	subindex_weights	type
+32	Translations	Translations	translations	field
+33	Roles	Roles	roles	name
+34	Rights	Rights	rights	action
+35	RoleRights	RoleRights	role_rights	roleId
+39	Visualizations	Visualizations	visualizations	title
+40	AccessMatrices	AccessMatrices	access_matrices	name
+41	AccessPermissions	AccessPermissions	access_permissions	id
+42	AnswerAttachments	AnswerAttachments	answer_attachments	filename
+43	Token	Token	token	realm
+44	UserUOA	UserUOA	user_uoa	UserId
+45	UserGroups	UserGroups	user_groups	UserId
 \.
 
 
@@ -3832,7 +3866,7 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 -- Name: Essences_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Essences_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Essences_id_seq"', 57, true);
 
 
 --
@@ -3840,6 +3874,11 @@ SELECT pg_catalog.setval('"Essences_id_seq"', 1, false);
 --
 
 COPY "Languages" (id, name, "nativeName", code) FROM stdin;
+1	English	English	en
+2	Russian	Русский	ru
+9	Japanese	日本語	jp
+12	Spanish	Español	es
+13	French	Le français	fr
 \.
 
 
@@ -3847,7 +3886,7 @@ COPY "Languages" (id, name, "nativeName", code) FROM stdin;
 -- Name: Languages_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Languages_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Languages_id_seq"', 13, true);
 
 
 --
@@ -3862,7 +3901,7 @@ COPY "Logs" (id, created, userid, action, essence, entity, entities, quantity, i
 -- Name: Logs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Logs_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Logs_id_seq"', 2569, true);
 
 
 --
@@ -3877,7 +3916,7 @@ COPY "Notifications" (id, "userFrom", "userTo", body, email, message, subject, "
 -- Name: Notifications_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Notifications_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Notifications_id_seq"', 4, true);
 
 
 --
@@ -3885,6 +3924,32 @@ SELECT pg_catalog.setval('"Notifications_id_seq"', 1, false);
 --
 
 COPY "Rights" (id, action, description, "essenceId") FROM stdin;
+20	rights_edit_one	Can edit one right	\N
+24	users_view_all	Can view list of all users	\N
+26	users_edit_one	Can edit the user	\N
+27	users_view_one	Can see the user	\N
+28	users_delete_one	Can delete the user	\N
+29	users_token	\N	\N
+30	users_logout_self	\N	\N
+31	users_logout	\N	\N
+32	users_view_self	\N	\N
+33	users_edit_self	\N	\N
+80	role_rights_view_one	\N	\N
+81	role_rights_add	\N	\N
+127	product_delete	Can delete products	4
+16	rights_view_all	Can see list of all rights	\N
+18	rights_view_one	Can see one right	\N
+129	work	Have to work hard :)	\N
+17	rights_add_one	Can add rights	\N
+19	rights_delete_one	Can delete one right .	\N
+131	users_uoa	Can assign units of analysis to user	\N
+133	Bruce the mighty	fghftj	13
+134	users_invite	Can invite users	\N
+135	unitofanalysis_insert_one	\N	6
+136	unitofanalysis_update_one	\N	6
+137	unitofanalysis_delete_one	\N	6
+132	product_uoa	Can get product uoa	4
+138	groups_delete	Delete groups	\N
 \.
 
 
@@ -3892,7 +3957,7 @@ COPY "Rights" (id, action, description, "essenceId") FROM stdin;
 -- Name: Rights_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Rights_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Rights_id_seq"', 138, true);
 
 
 --
@@ -3900,6 +3965,7 @@ SELECT pg_catalog.setval('"Rights_id_seq"', 1, false);
 --
 
 COPY "Roles" (id, name, "isSystem") FROM stdin;
+1	admin	t
 \.
 
 
@@ -3915,7 +3981,7 @@ COPY "RolesRights" ("roleID", "rightID") FROM stdin;
 -- Name: Roles_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Roles_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Roles_id_seq"', 16, true);
 
 
 --
@@ -3923,6 +3989,7 @@ SELECT pg_catalog.setval('"Roles_id_seq"', 1, false);
 --
 
 COPY "Token" ("userID", body, "issuedAt", realm) FROM stdin;
+2	b72b23da0fb97c07d068a0aea1ef4701118fa674d4aba283a4c057fd405ba2cc	2017-04-11 13:29:45.736001-04	test
 \.
 
 
@@ -3931,6 +3998,7 @@ COPY "Token" ("userID", body, "issuedAt", realm) FROM stdin;
 --
 
 COPY "Users" (id, "roleID", email, "firstName", "lastName", password, cell, birthday, "resetPasswordToken", "resetPasswordExpires", created, updated, "isActive", "activationToken", "organizationId", location, phone, address, lang, bio, "notifyLevel", timezone, "lastActive", affiliation, "isAnonymous", "langId", salt, "authId", "isDeleted") FROM stdin;
+350	1	su@mail.net	Test	Admin	d4faa6faca73e485fe9e78ef0d87d78530955c6a3b14dd5bb7b49070717b72ea	\N	\N	\N	\N	2016-04-04 07:37:54.284354-04	2017-04-11 12:46:48.84581-04	t	\N	\N	\N	\N	\N	\N	\N	\N	\N	2017-04-11 12:46:48.845-04	\N	f	\N	42f32f93116bf93a5ba3935037317527	273	\N
 \.
 
 
@@ -3938,7 +4006,7 @@ COPY "Users" (id, "roleID", email, "firstName", "lastName", password, cell, birt
 -- Name: Users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Users_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Users_id_seq"', 357, true);
 
 
 SET search_path = sceleton, pg_catalog;
@@ -3948,6 +4016,7 @@ SET search_path = sceleton, pg_catalog;
 --
 
 COPY "AccessMatrices" (id, name, description, default_value) FROM stdin;
+8	Default	Default access matrix	0
 \.
 
 
@@ -3955,7 +4024,7 @@ COPY "AccessMatrices" (id, name, description, default_value) FROM stdin;
 -- Name: AccessMatrices_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"AccessMatrices_id_seq"', 1, false);
+SELECT pg_catalog.setval('"AccessMatrices_id_seq"', 8, true);
 
 
 --
@@ -3970,7 +4039,7 @@ COPY "AccessPermissions" (id, "matrixId", "roleId", "rightId", permission) FROM 
 -- Name: AccessPermissions_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"AccessPermissions_id_seq"', 1, false);
+SELECT pg_catalog.setval('"AccessPermissions_id_seq"', 1, true);
 
 
 --
@@ -3985,7 +4054,7 @@ COPY "AnswerAttachments" (id, "answerId", filename, size, mimetype, body, create
 -- Name: AnswerAttachments_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"AnswerAttachments_id_seq"', 1, false);
+SELECT pg_catalog.setval('"AnswerAttachments_id_seq"', 1, true);
 
 
 --
@@ -4031,7 +4100,7 @@ COPY "Discussions" (id, "taskId", "questionId", "userId", entry, "isReturn", cre
 -- Name: Discussions_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Discussions_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Discussions_id_seq"', 1, true);
 
 
 --
@@ -4039,6 +4108,40 @@ SELECT pg_catalog.setval('"Discussions_id_seq"', 1, false);
 --
 
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
+23	WorflowSteps	WorflowSteps	worflowSteps	title
+20	Groups	Groups	groups	title
+21	Organizations	Organizations	organizations	name
+22	Tasks	Tasks	tasks	title
+4	Products	Products	products	title
+6	UnitOfAnalysis	UnitOfAnalysis	uoas	name
+5	UnitOfAnalysisType	UnitOfAnalysisType	uoatypes	name
+7	UnitOfAnalysisClassType	UnitOfAnalysisClassType	uoaclasstypes	name
+8	UnitOfAnalysisTag	UnitOfAnalysisTag	uoatags	name
+13	Projects	projects	projects	codeName
+14	Discussions	Discussions	discussions	name
+15	Users	Users	users	email
+24	Notifications	notifications	notifications	body
+25	ProductUOA	productUoa	product_uoa	productId
+26	Indexes	Indexes	indexes	title
+27	Subindexes	Subindexes	subindexes	title
+28	IndexQuestionWeights	IndexQuestionWeights	index_question_weights	type
+29	IndexSubindexWeights	IndexSubindexWeights	index_subindex_weights	type
+36	Workflows	Workflows	workflows	name
+37	WorfklowSteps	WorkflowSteps	workflow_steps	title
+38	WorfklowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
+31	UnitOfAnalysisTagLink	UnitOfAnalysisTagLink	uoataglinks	id
+30	SubindexWeights	SubindexWeights	subindex_weights	type
+32	Translations	Translations	translations	field
+33	Roles	Roles	roles	name
+34	Rights	Rights	rights	action
+35	RoleRights	RoleRights	role_rights	roleId
+39	Visualizations	Visualizations	visualizations	title
+40	AccessMatrices	AccessMatrices	access_matrices	name
+41	AccessPermissions	AccessPermissions	access_permissions	id
+42	AnswerAttachments	AnswerAttachments	answer_attachments	filename
+43	Token	Token	token	realm
+44	UserUOA	UserUOA	user_uoa	UserId
+45	UserGroups	UserGroups	user_groups	UserId
 \.
 
 
@@ -4046,7 +4149,7 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 -- Name: Essences_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Essences_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Essences_id_seq"', 45, true);
 
 
 --
@@ -4061,7 +4164,7 @@ COPY "Groups" (id, title, "organizationId", "langId") FROM stdin;
 -- Name: Groups_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Groups_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Groups_id_seq"', 1, true);
 
 
 --
@@ -4092,7 +4195,7 @@ COPY "Indexes" (id, "productId", title, description, divisor) FROM stdin;
 -- Name: Indexes_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Indexes_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Indexes_id_seq"', 1, true);
 
 
 --
@@ -4100,6 +4203,11 @@ SELECT pg_catalog.setval('"Indexes_id_seq"', 1, false);
 --
 
 COPY "Languages" (id, name, "nativeName", code) FROM stdin;
+1	English	English	en
+2	Russian	Русский	ru
+9	Japanese	日本語	jp
+12	Spanish	Español	es
+13	French	Le français	fr
 \.
 
 
@@ -4107,7 +4215,7 @@ COPY "Languages" (id, name, "nativeName", code) FROM stdin;
 -- Name: Languages_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Languages_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Languages_id_seq"', 13, true);
 
 
 --
@@ -4122,7 +4230,7 @@ COPY "Logs" (id, created, "user", action, essence, entity, entities, quantity, i
 -- Name: Logs_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Logs_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Logs_id_seq"', 1020, true);
 
 
 --
@@ -4137,7 +4245,7 @@ COPY "Notifications" (id, "userFrom", "userTo", body, email, message, subject, "
 -- Name: Notifications_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Notifications_id_seq"', 167, false);
+SELECT pg_catalog.setval('"Notifications_id_seq"', 1, true);
 
 
 --
@@ -4152,7 +4260,7 @@ COPY "Organizations" (id, name, address, "adminUserId", url, "enforceApiSecurity
 -- Name: Organizations_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Organizations_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Organizations_id_seq"', 1, true);
 
 
 --
@@ -4175,7 +4283,7 @@ COPY "Products" (id, title, description, "originalLangId", "projectId", "surveyI
 -- Name: Products_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Products_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Products_id_seq"', 1, true);
 
 
 --
@@ -4206,7 +4314,7 @@ COPY "Projects" (id, "organizationId", "codeName", description, created, "matrix
 -- Name: Projects_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Projects_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Projects_id_seq"', 1, true);
 
 
 --
@@ -4214,6 +4322,32 @@ SELECT pg_catalog.setval('"Projects_id_seq"', 1, false);
 --
 
 COPY "Rights" (id, action, description, "essenceId") FROM stdin;
+20	rights_edit_one	Can edit one right	\N
+24	users_view_all	Can view list of all users	\N
+26	users_edit_one	Can edit the user	\N
+27	users_view_one	Can see the user	\N
+28	users_delete_one	Can delete the user	\N
+29	users_token	\N	\N
+30	users_logout_self	\N	\N
+31	users_logout	\N	\N
+32	users_view_self	\N	\N
+33	users_edit_self	\N	\N
+80	role_rights_view_one	\N	\N
+81	role_rights_add	\N	\N
+127	product_delete	Can delete products	4
+16	rights_view_all	Can see list of all rights	\N
+18	rights_view_one	Can see one right	\N
+129	work	Have to work hard :)	\N
+17	rights_add_one	Can add rights	\N
+19	rights_delete_one	Can delete one right .	\N
+131	users_uoa	Can assign units of analysis to user	\N
+133	Bruce the mighty	fghftj	13
+134	users_invite	Can invite users	\N
+135	unitofanalysis_insert_one	\N	6
+136	unitofanalysis_update_one	\N	6
+137	unitofanalysis_delete_one	\N	6
+132	product_uoa	Can get product uoa	4
+138	groups_delete	Delete groups	\N
 \.
 
 
@@ -4221,7 +4355,7 @@ COPY "Rights" (id, action, description, "essenceId") FROM stdin;
 -- Name: Rights_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Rights_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Rights_id_seq"', 138, true);
 
 
 --
@@ -4229,6 +4363,9 @@ SELECT pg_catalog.setval('"Rights_id_seq"', 1, false);
 --
 
 COPY "Roles" (id, name, "isSystem") FROM stdin;
+1	admin	t
+2	client	t
+3	user	t
 \.
 
 
@@ -4237,6 +4374,32 @@ COPY "Roles" (id, name, "isSystem") FROM stdin;
 --
 
 COPY "RolesRights" ("roleID", "rightID") FROM stdin;
+2	16
+2	24
+2	26
+2	33
+2	129
+2	131
+2	132
+2	135
+2	136
+2	137
+2	138
+2	17
+2	18
+2	19
+2	20
+2	27
+2	28
+2	29
+2	30
+2	31
+2	32
+2	80
+2	81
+2	127
+2	133
+2	134
 \.
 
 
@@ -4244,7 +4407,7 @@ COPY "RolesRights" ("roleID", "rightID") FROM stdin;
 -- Name: Roles_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Roles_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Roles_id_seq"', 3, true);
 
 
 --
@@ -4267,7 +4430,7 @@ COPY "Subindexes" (id, "productId", title, description, divisor) FROM stdin;
 -- Name: Subindexes_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Subindexes_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Subindexes_id_seq"', 1, true);
 
 
 --
@@ -4282,7 +4445,7 @@ COPY "Tasks" (id, title, description, "uoaId", "stepId", created, "productId", "
 -- Name: Tasks_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Tasks_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Tasks_id_seq"', 1, true);
 
 
 --
@@ -4313,7 +4476,7 @@ COPY "UnitOfAnalysisClassType" (id, name, description, "langId") FROM stdin;
 -- Name: UnitOfAnalysisClassType_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"UnitOfAnalysisClassType_id_seq"', 9, false);
+SELECT pg_catalog.setval('"UnitOfAnalysisClassType_id_seq"', 1, true);
 
 
 --
@@ -4336,14 +4499,14 @@ COPY "UnitOfAnalysisTagLink" (id, "uoaId", "uoaTagId") FROM stdin;
 -- Name: UnitOfAnalysisTagLink_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"UnitOfAnalysisTagLink_id_seq"', 18, false);
+SELECT pg_catalog.setval('"UnitOfAnalysisTagLink_id_seq"', 1, true);
 
 
 --
 -- Name: UnitOfAnalysisTag_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"UnitOfAnalysisTag_id_seq"', 9, false);
+SELECT pg_catalog.setval('"UnitOfAnalysisTag_id_seq"', 1, true);
 
 
 --
@@ -4351,6 +4514,7 @@ SELECT pg_catalog.setval('"UnitOfAnalysisTag_id_seq"', 9, false);
 --
 
 COPY "UnitOfAnalysisType" (id, name, description, "langId") FROM stdin;
+1	Country	\N	1
 \.
 
 
@@ -4358,14 +4522,14 @@ COPY "UnitOfAnalysisType" (id, name, description, "langId") FROM stdin;
 -- Name: UnitOfAnalysisType_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"UnitOfAnalysisType_id_seq"', 9, false);
+SELECT pg_catalog.setval('"UnitOfAnalysisType_id_seq"', 1, true);
 
 
 --
 -- Name: UnitOfAnalysis_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"UnitOfAnalysis_id_seq"', 1, false);
+SELECT pg_catalog.setval('"UnitOfAnalysis_id_seq"', 1, true);
 
 
 --
@@ -4404,7 +4568,7 @@ COPY "Users" (id, "roleID", email, "firstName", "lastName", password, cell, birt
 -- Name: Users_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Users_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Users_id_seq"', 1, true);
 
 
 --
@@ -4419,7 +4583,7 @@ COPY "Visualizations" (id, title, "productId", "topicIds", "indexCollection", "i
 -- Name: Visualizations_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Visualizations_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Visualizations_id_seq"', 1, true);
 
 
 --
@@ -4442,7 +4606,7 @@ COPY "WorkflowSteps" (id, "workflowId", "startDate", "endDate", title, "provideR
 -- Name: WorkflowSteps_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"WorkflowSteps_id_seq"', 1, false);
+SELECT pg_catalog.setval('"WorkflowSteps_id_seq"', 1, true);
 
 
 --
@@ -4457,7 +4621,7 @@ COPY "Workflows" (id, name, description, created, "productId") FROM stdin;
 -- Name: Workflows_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Workflows_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Workflows_id_seq"', 1, true);
 
 
 SET search_path = test, pg_catalog;
@@ -4467,6 +4631,7 @@ SET search_path = test, pg_catalog;
 --
 
 COPY "AccessMatrices" (id, name, description, default_value) FROM stdin;
+8	Default	Default access matrix	0
 \.
 
 
@@ -4474,7 +4639,7 @@ COPY "AccessMatrices" (id, name, description, default_value) FROM stdin;
 -- Name: AccessMatrices_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"AccessMatrices_id_seq"', 1, false);
+SELECT pg_catalog.setval('"AccessMatrices_id_seq"', 8, true);
 
 
 --
@@ -4489,7 +4654,7 @@ COPY "AccessPermissions" (id, "matrixId", "roleId", "rightId", permission) FROM 
 -- Name: AccessPermissions_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"AccessPermissions_id_seq"', 1, false);
+SELECT pg_catalog.setval('"AccessPermissions_id_seq"', 1, true);
 
 
 --
@@ -4504,7 +4669,7 @@ COPY "AnswerAttachments" (id, "answerId", filename, size, mimetype, body, create
 -- Name: AnswerAttachments_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"AnswerAttachments_id_seq"', 1, false);
+SELECT pg_catalog.setval('"AnswerAttachments_id_seq"', 1, true);
 
 
 --
@@ -4550,7 +4715,7 @@ COPY "Discussions" (id, "taskId", "questionId", "userId", entry, "isReturn", cre
 -- Name: Discussions_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Discussions_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Discussions_id_seq"', 1, true);
 
 
 --
@@ -4558,6 +4723,40 @@ SELECT pg_catalog.setval('"Discussions_id_seq"', 1, false);
 --
 
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
+23	WorflowSteps	WorflowSteps	worflowSteps	title
+20	Groups	Groups	groups	title
+21	Organizations	Organizations	organizations	name
+22	Tasks	Tasks	tasks	title
+4	Products	Products	products	title
+6	UnitOfAnalysis	UnitOfAnalysis	uoas	name
+5	UnitOfAnalysisType	UnitOfAnalysisType	uoatypes	name
+7	UnitOfAnalysisClassType	UnitOfAnalysisClassType	uoaclasstypes	name
+8	UnitOfAnalysisTag	UnitOfAnalysisTag	uoatags	name
+13	Projects	projects	projects	codeName
+14	Discussions	Discussions	discussions	name
+15	Users	Users	users	email
+24	Notifications	notifications	notifications	body
+25	ProductUOA	productUoa	product_uoa	productId
+26	Indexes	Indexes	indexes	title
+27	Subindexes	Subindexes	subindexes	title
+28	IndexQuestionWeights	IndexQuestionWeights	index_question_weights	type
+29	IndexSubindexWeights	IndexSubindexWeights	index_subindex_weights	type
+36	Workflows	Workflows	workflows	name
+37	WorfklowSteps	WorkflowSteps	workflow_steps	title
+38	WorfklowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
+31	UnitOfAnalysisTagLink	UnitOfAnalysisTagLink	uoataglinks	id
+30	SubindexWeights	SubindexWeights	subindex_weights	type
+32	Translations	Translations	translations	field
+33	Roles	Roles	roles	name
+34	Rights	Rights	rights	action
+35	RoleRights	RoleRights	role_rights	roleId
+39	Visualizations	Visualizations	visualizations	title
+40	AccessMatrices	AccessMatrices	access_matrices	name
+41	AccessPermissions	AccessPermissions	access_permissions	id
+42	AnswerAttachments	AnswerAttachments	answer_attachments	filename
+43	Token	Token	token	realm
+44	UserUOA	UserUOA	user_uoa	UserId
+45	UserGroups	UserGroups	user_groups	UserId
 \.
 
 
@@ -4565,7 +4764,7 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 -- Name: Essences_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Essences_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Essences_id_seq"', 45, true);
 
 
 --
@@ -4573,6 +4772,8 @@ SELECT pg_catalog.setval('"Essences_id_seq"', 1, false);
 --
 
 COPY "Groups" (id, title, "organizationId", "langId") FROM stdin;
+2	Takers	2	\N
+3	Reviewers	2	\N
 \.
 
 
@@ -4580,7 +4781,7 @@ COPY "Groups" (id, title, "organizationId", "langId") FROM stdin;
 -- Name: Groups_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Groups_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Groups_id_seq"', 3, true);
 
 
 --
@@ -4611,7 +4812,7 @@ COPY "Indexes" (id, "productId", title, description, divisor) FROM stdin;
 -- Name: Indexes_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Indexes_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Indexes_id_seq"', 1, true);
 
 
 --
@@ -4619,6 +4820,11 @@ SELECT pg_catalog.setval('"Indexes_id_seq"', 1, false);
 --
 
 COPY "Languages" (id, name, "nativeName", code) FROM stdin;
+1	English	English	en
+2	Russian	Русский	ru
+9	Japanese	日本語	jp
+12	Spanish	Español	es
+13	French	Le français	fr
 \.
 
 
@@ -4626,7 +4832,7 @@ COPY "Languages" (id, name, "nativeName", code) FROM stdin;
 -- Name: Languages_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Languages_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Languages_id_seq"', 13, true);
 
 
 --
@@ -4641,7 +4847,7 @@ COPY "Logs" (id, created, "user", action, essence, entity, entities, quantity, i
 -- Name: Logs_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Logs_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Logs_id_seq"', 1020, true);
 
 
 --
@@ -4649,6 +4855,12 @@ SELECT pg_catalog.setval('"Logs_id_seq"', 1, false);
 --
 
 COPY "Notifications" (id, "userFrom", "userTo", body, email, message, subject, "essenceId", "entityId", created, reading, sent, read, "notifyLevel", result, resent, note, "userFromName", "userToName") FROM stdin;
+2	2	2	Invite	sean+testadmin@amida.com	<p>\n\tHello Sean Bolak!\n</p>\n\n<p>\n\tTest Admin has just invited you to create an Indaba account as a member of Test.\n</p>\n\n<p>\nPlease click <a href="localhost/#/activate/test/ab5c3b00b753eb444b0a7bedefed3f028e43eaad6b3ba1d7b8e31ad6e5244eb2">here</a> to activate your account. \n</p>\n<p>\n    Thank you!</br>\n    -Indaba\n</p>\n	Indaba. Organization membership	15	2	2017-04-11 12:00:14.263483-04	\N	\N	f	0	\N	\N	<p>\n\tHello Sean Bolak! \n\tTest Admin has just invited you to Indaba\n\tas a member of Test organization.\n</p>\n\n<p>\nPlease, activate your account by following this <a href="localhost/#/activate/test/ab5c3b00b753eb444b0a7bedefed3f028e43eaad6b3ba1d7b8e31ad6e5244eb2">link</a>\n</p>	\N	\N
+3	3	3	Invite	sean+taker@amida.com	<p>\n\tHello Taker Breaker!\n</p>\n\n<p>\n\tTest Admin has just invited you to create an Indaba account as a member of Test.\n</p>\n\n<p>\nPlease click <a href="localhost/#/activate/test/0ae4cf181b86b113e6621361274df8b72414b99a2e236ca89bd6a3d729e19a08">here</a> to activate your account. \n</p>\n<p>\n    Thank you!</br>\n    -Indaba\n</p>\n	Indaba. Organization membership	15	3	2017-04-11 12:06:42.395906-04	\N	\N	f	0	\N	\N	<p>\n\tHello Taker Breaker! \n\tTest Admin has just invited you to Indaba\n\tas a member of Test organization.\n</p>\n\n<p>\nPlease, activate your account by following this <a href="localhost/#/activate/test/0ae4cf181b86b113e6621361274df8b72414b99a2e236ca89bd6a3d729e19a08">link</a>\n</p>	\N	\N
+4	4	4	Invite	sean+reviewer@amida.com	<p>\n\tHello Reviewer McReviewface!\n</p>\n\n<p>\n\tTest Admin has just invited you to create an Indaba account as a member of Test.\n</p>\n\n<p>\nPlease click <a href="localhost/#/activate/test/573f55aae4fc327e8f75b233492611df159ba71776ae46054d5545ac63ee1016">here</a> to activate your account. \n</p>\n<p>\n    Thank you!</br>\n    -Indaba\n</p>\n	Indaba. Organization membership	15	4	2017-04-11 12:07:03.990522-04	\N	\N	f	0	\N	\N	<p>\n\tHello Reviewer McReviewface! \n\tTest Admin has just invited you to Indaba\n\tas a member of Test organization.\n</p>\n\n<p>\nPlease, activate your account by following this <a href="localhost/#/activate/test/573f55aae4fc327e8f75b233492611df159ba71776ae46054d5545ac63ee1016">link</a>\n</p>	\N	\N
+5	2	3	Task created	sean+taker@amida.com	\n<p>Task created</p>\n	New notification	22	2	2017-04-11 12:47:03.979986-04	\N	\N	f	0	\N	\N	<p>Task created</p>\n	\N	\N
+6	2	4	Task created	sean+reviewer@amida.com	\n<p>Task created</p>\n	New notification	22	3	2017-04-11 12:47:36.216184-04	\N	\N	f	0	\N	\N	<p>Task created</p>\n	\N	\N
+7	2	3	Task activated (project started)	sean+taker@amida.com	\n<p>Task activated (project started)</p>\n	New notification	22	2	2017-04-11 12:47:58.601385-04	\N	\N	f	0	\N	\N	<p>Task activated (project started)</p>\n	\N	\N
 \.
 
 
@@ -4656,7 +4868,7 @@ COPY "Notifications" (id, "userFrom", "userTo", body, email, message, subject, "
 -- Name: Notifications_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Notifications_id_seq"', 167, false);
+SELECT pg_catalog.setval('"Notifications_id_seq"', 7, true);
 
 
 --
@@ -4664,6 +4876,7 @@ SELECT pg_catalog.setval('"Notifications_id_seq"', 167, false);
 --
 
 COPY "Organizations" (id, name, address, "adminUserId", url, "enforceApiSecurity", "isActive", "langId", realm, "enableFeaturePolicy") FROM stdin;
+2	Test	\N	2	\N	\N	t	\N	test	f
 \.
 
 
@@ -4671,7 +4884,7 @@ COPY "Organizations" (id, name, address, "adminUserId", url, "enforceApiSecurity
 -- Name: Organizations_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Organizations_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Organizations_id_seq"', 2, true);
 
 
 --
@@ -4679,6 +4892,7 @@ SELECT pg_catalog.setval('"Organizations_id_seq"', 1, false);
 --
 
 COPY "ProductUOA" ("productId", "UOAid", "currentStepId", "isComplete", "isDeleted") FROM stdin;
+2	2	2	f	\N
 \.
 
 
@@ -4687,6 +4901,7 @@ COPY "ProductUOA" ("productId", "UOAid", "currentStepId", "isComplete", "isDelet
 --
 
 COPY "Products" (id, title, description, "originalLangId", "projectId", "surveyId", status, "langId") FROM stdin;
+2	Arnold S' Survey	Arnold's Survey	\N	2	2	1	\N
 \.
 
 
@@ -4694,7 +4909,7 @@ COPY "Products" (id, title, description, "originalLangId", "projectId", "surveyI
 -- Name: Products_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Products_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Products_id_seq"', 2, true);
 
 
 --
@@ -4718,6 +4933,7 @@ COPY "ProjectUsers" ("projectId", "userId") FROM stdin;
 --
 
 COPY "Projects" (id, "organizationId", "codeName", description, created, "matrixId", "startTime", status, "adminUserId", "closeTime", "firstActivated", "langId") FROM stdin;
+2	2	Org_2_project	\N	2017-04-11 11:59:50-04	\N	\N	0	\N	\N	\N	\N
 \.
 
 
@@ -4725,7 +4941,7 @@ COPY "Projects" (id, "organizationId", "codeName", description, created, "matrix
 -- Name: Projects_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Projects_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Projects_id_seq"', 2, true);
 
 
 --
@@ -4733,6 +4949,32 @@ SELECT pg_catalog.setval('"Projects_id_seq"', 1, false);
 --
 
 COPY "Rights" (id, action, description, "essenceId") FROM stdin;
+20	rights_edit_one	Can edit one right	\N
+24	users_view_all	Can view list of all users	\N
+26	users_edit_one	Can edit the user	\N
+27	users_view_one	Can see the user	\N
+28	users_delete_one	Can delete the user	\N
+29	users_token	\N	\N
+30	users_logout_self	\N	\N
+31	users_logout	\N	\N
+32	users_view_self	\N	\N
+33	users_edit_self	\N	\N
+80	role_rights_view_one	\N	\N
+81	role_rights_add	\N	\N
+127	product_delete	Can delete products	4
+16	rights_view_all	Can see list of all rights	\N
+18	rights_view_one	Can see one right	\N
+129	work	Have to work hard :)	\N
+17	rights_add_one	Can add rights	\N
+19	rights_delete_one	Can delete one right .	\N
+131	users_uoa	Can assign units of analysis to user	\N
+133	Bruce the mighty	fghftj	13
+134	users_invite	Can invite users	\N
+135	unitofanalysis_insert_one	\N	6
+136	unitofanalysis_update_one	\N	6
+137	unitofanalysis_delete_one	\N	6
+132	product_uoa	Can get product uoa	4
+138	groups_delete	Delete groups	\N
 \.
 
 
@@ -4740,7 +4982,7 @@ COPY "Rights" (id, action, description, "essenceId") FROM stdin;
 -- Name: Rights_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Rights_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Rights_id_seq"', 138, true);
 
 
 --
@@ -4748,6 +4990,9 @@ SELECT pg_catalog.setval('"Rights_id_seq"', 1, false);
 --
 
 COPY "Roles" (id, name, "isSystem") FROM stdin;
+1	admin	t
+2	client	t
+3	user	t
 \.
 
 
@@ -4756,6 +5001,32 @@ COPY "Roles" (id, name, "isSystem") FROM stdin;
 --
 
 COPY "RolesRights" ("roleID", "rightID") FROM stdin;
+2	16
+2	24
+2	26
+2	33
+2	129
+2	131
+2	132
+2	135
+2	136
+2	137
+2	138
+2	17
+2	18
+2	19
+2	20
+2	27
+2	28
+2	29
+2	30
+2	31
+2	32
+2	80
+2	81
+2	127
+2	133
+2	134
 \.
 
 
@@ -4763,7 +5034,7 @@ COPY "RolesRights" ("roleID", "rightID") FROM stdin;
 -- Name: Roles_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Roles_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Roles_id_seq"', 3, true);
 
 
 --
@@ -4786,7 +5057,7 @@ COPY "Subindexes" (id, "productId", title, description, divisor) FROM stdin;
 -- Name: Subindexes_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Subindexes_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Subindexes_id_seq"', 1, true);
 
 
 --
@@ -4794,6 +5065,8 @@ SELECT pg_catalog.setval('"Subindexes_id_seq"', 1, false);
 --
 
 COPY "Tasks" (id, title, description, "uoaId", "stepId", created, "productId", "startDate", "endDate", "userId", "langId", "assessmentId", "userIds", "groupIds", "isDeleted") FROM stdin;
+2	\N	\N	2	2	2017-04-11 12:47:03.946322-04	2	2017-04-11 00:00:00-04	2017-04-12 00:00:00-04	\N	\N	\N	{3}	{}	\N
+3	\N	\N	2	3	2017-04-11 12:47:36.170686-04	2	2017-04-11 00:00:00-04	2017-04-12 00:00:00-04	\N	\N	\N	{4}	{}	\N
 \.
 
 
@@ -4801,7 +5074,7 @@ COPY "Tasks" (id, title, description, "uoaId", "stepId", created, "productId", "
 -- Name: Tasks_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Tasks_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Tasks_id_seq"', 3, true);
 
 
 --
@@ -4817,6 +5090,7 @@ COPY "Translations" ("essenceId", "entityId", field, "langId", value) FROM stdin
 --
 
 COPY "UnitOfAnalysis" (id, "gadmId0", "gadmId1", "gadmId2", "gadmId3", "gadmObjectId", "ISO", "ISO2", "nameISO", name, description, "shortName", "HASC", "unitOfAnalysisType", "parentId", "creatorId", "ownerId", visibility, status, created, "isDeleted", "langId", updated) FROM stdin;
+2	\N	\N	\N	\N	\N	\N	\N	\N	Subject McSubjectface	This is a subject. Whatever TF that means.	McSubject	\N	1	\N	2	2	1	1	2017-04-11 12:16:05.782-04	\N	1	\N
 \.
 
 
@@ -4832,7 +5106,7 @@ COPY "UnitOfAnalysisClassType" (id, name, description, "langId") FROM stdin;
 -- Name: UnitOfAnalysisClassType_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"UnitOfAnalysisClassType_id_seq"', 9, false);
+SELECT pg_catalog.setval('"UnitOfAnalysisClassType_id_seq"', 1, true);
 
 
 --
@@ -4855,14 +5129,14 @@ COPY "UnitOfAnalysisTagLink" (id, "uoaId", "uoaTagId") FROM stdin;
 -- Name: UnitOfAnalysisTagLink_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"UnitOfAnalysisTagLink_id_seq"', 18, false);
+SELECT pg_catalog.setval('"UnitOfAnalysisTagLink_id_seq"', 1, true);
 
 
 --
 -- Name: UnitOfAnalysisTag_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"UnitOfAnalysisTag_id_seq"', 9, false);
+SELECT pg_catalog.setval('"UnitOfAnalysisTag_id_seq"', 1, true);
 
 
 --
@@ -4870,6 +5144,7 @@ SELECT pg_catalog.setval('"UnitOfAnalysisTag_id_seq"', 9, false);
 --
 
 COPY "UnitOfAnalysisType" (id, name, description, "langId") FROM stdin;
+1	Country	\N	1
 \.
 
 
@@ -4877,14 +5152,14 @@ COPY "UnitOfAnalysisType" (id, name, description, "langId") FROM stdin;
 -- Name: UnitOfAnalysisType_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"UnitOfAnalysisType_id_seq"', 9, false);
+SELECT pg_catalog.setval('"UnitOfAnalysisType_id_seq"', 1, true);
 
 
 --
 -- Name: UnitOfAnalysis_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"UnitOfAnalysis_id_seq"', 1, false);
+SELECT pg_catalog.setval('"UnitOfAnalysis_id_seq"', 2, true);
 
 
 --
@@ -4892,6 +5167,8 @@ SELECT pg_catalog.setval('"UnitOfAnalysis_id_seq"', 1, false);
 --
 
 COPY "UserGroups" ("userId", "groupId") FROM stdin;
+4	3
+3	2
 \.
 
 
@@ -4916,6 +5193,9 @@ COPY "UserUOA" ("UserId", "UOAid") FROM stdin;
 --
 
 COPY "Users" (id, "roleID", email, "firstName", "lastName", password, cell, birthday, "resetPasswordToken", "resetPasswordExpires", created, updated, "isActive", "activationToken", "organizationId", location, phone, address, lang, bio, "notifyLevel", timezone, "lastActive", affiliation, "isAnonymous", "langId", salt, "authId", "isDeleted") FROM stdin;
+4	3	sean+reviewer@amida.com	Reviewer	McReviewface	cede4a0dbdd6c8e5f3be70a5b566078c4b5370ce94cb0f2840cd7d5887ece9c5	\N	\N	\N	\N	2017-04-11 12:07:03.977-04	\N	t	573f55aae4fc327e8f75b233492611df159ba71776ae46054d5545ac63ee1016	2	\N	\N	\N	\N	\N	0	\N	\N	\N	f	\N	4375268b9458926d3519e2c4efa54d34 	0	\N
+3	3	sean+taker@amida.com	Taker	McTakeface	ca9bdaa12785f434c233549fbd96df3e65f91744ff87a34f3a8b138fb3e0527a	\N	\N	\N	\N	2017-04-11 12:06:42.376-04	\N	t	0ae4cf181b86b113e6621361274df8b72414b99a2e236ca89bd6a3d729e19a08	2	\N	\N	\N	\N	\N	0	\N	2017-04-11 13:29:34.635-04	\N	f	\N	03db9da011430abaffcc895e588e2ab0	1	\N
+2	2	sean+testadmin@amida.com	Sean	Bolak	15eaca37c16418a8a348b93cede1eb9d9598e63b18a984ebee9cb10b8a65c27a	\N	\N	\N	\N	2017-04-11 12:00:14.244-04	\N	t	ab5c3b00b753eb444b0a7bedefed3f028e43eaad6b3ba1d7b8e31ad6e5244eb2	2	\N	\N	\N	\N	\N	0	\N	2017-04-11 13:29:45.859-04	\N	f	\N	4e0381d36ab3507cfc09daa18a481bd2	2	\N
 \.
 
 
@@ -4923,7 +5203,7 @@ COPY "Users" (id, "roleID", email, "firstName", "lastName", password, cell, birt
 -- Name: Users_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Users_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Users_id_seq"', 4, true);
 
 
 --
@@ -4938,7 +5218,7 @@ COPY "Visualizations" (id, title, "productId", "topicIds", "indexCollection", "i
 -- Name: Visualizations_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Visualizations_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Visualizations_id_seq"', 1, true);
 
 
 --
@@ -4946,6 +5226,8 @@ SELECT pg_catalog.setval('"Visualizations_id_seq"', 1, false);
 --
 
 COPY "WorkflowStepGroups" ("stepId", "groupId") FROM stdin;
+2	2
+3	3
 \.
 
 
@@ -4954,6 +5236,8 @@ COPY "WorkflowStepGroups" ("stepId", "groupId") FROM stdin;
 --
 
 COPY "WorkflowSteps" (id, "workflowId", "startDate", "endDate", title, "provideResponses", "discussionParticipation", "blindReview", "seeOthersResponses", "allowTranslate", "position", "writeToAnswers", "allowEdit", role, "langId", "isDeleted") FROM stdin;
+2	2	2017-04-11 00:00:00-04	2017-04-12 00:00:00-04	Take Test	f	\N	\N	\N	f	0	t	f	Taker	\N	\N
+3	2	2017-04-11 00:00:00-04	2017-04-12 00:00:00-04	Review Test	f	\N	\N	\N	f	1	t	f	Reviewer	\N	\N
 \.
 
 
@@ -4961,7 +5245,7 @@ COPY "WorkflowSteps" (id, "workflowId", "startDate", "endDate", title, "provideR
 -- Name: WorkflowSteps_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"WorkflowSteps_id_seq"', 1, false);
+SELECT pg_catalog.setval('"WorkflowSteps_id_seq"', 3, true);
 
 
 --
@@ -4969,6 +5253,7 @@ SELECT pg_catalog.setval('"WorkflowSteps_id_seq"', 1, false);
 --
 
 COPY "Workflows" (id, name, description, created, "productId") FROM stdin;
+2	Workflow McWorkflowFace	This is a workflow.	2017-04-11 12:17:18.609871-04	2
 \.
 
 
@@ -4976,7 +5261,7 @@ COPY "Workflows" (id, name, description, created, "productId") FROM stdin;
 -- Name: Workflows_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
 --
 
-SELECT pg_catalog.setval('"Workflows_id_seq"', 1, false);
+SELECT pg_catalog.setval('"Workflows_id_seq"', 2, true);
 
 
 SET search_path = public, pg_catalog;
