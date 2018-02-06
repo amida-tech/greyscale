@@ -800,7 +800,9 @@ module.exports = {
             return yield thunkQuery(
                 'UPDATE "Users"' +
                 ' SET "isDeleted" = (to_timestamp('+ Date.now() +
-                '/ 1000.0)) WHERE "id" = ' + req.params.id
+                '/ 1000.0)), ' +
+                ' "isActive" = false ' +
+                'WHERE "id" = ' + req.params.id
             );
 
         }).then(function (data) {
