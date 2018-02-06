@@ -390,7 +390,7 @@ module.exports = {
 
             org = _.first(org);
 
-            // If user is found in greyscale we just check to see if it's been marked as deleted and un-mark it
+            // If a user is found in greyscale we just check to see if it's been marked as deleted and un-mark it
             if (isExistUser) {
                 isExistUser.registered = true; // Indicate that the user was previously in the DB
                 const updateObj = {};
@@ -409,83 +409,96 @@ module.exports = {
                 }
 
                 // If user is in greyscale and not deleted add to project if needed
-                if (req.body.projectId) {
+                if (req.body.projectId && isExistUser.isActive) {
                     yield * common.insertProjectUser(req, isExistUser.id, req.body.projectId);
                 }
-                return isExistUser;
             }
 
-            const activationToken = crypto.randomBytes(32).toString('hex');
-            const salt= crypto.randomBytes(16).toString('hex');
-            const pass = crypto.randomBytes(5).toString('hex');
+            // if the user didn't exist, or exists but is not active, send an invitation
+            if (!isExistUser || !isExistUser.isActive) {
 
-            var newClient = {
-                'firstName': req.body.firstName,
-                'lastName': req.body.lastName,
-                'email': req.body.email,
-                'roleID': req.body.roleID, //user
-                'salt': crypto.randomBytes(16).toString('hex'),
-                'password': User.hashPassword(salt, pass),
-                'isActive': false,
-                activationToken,
-                'organizationId': org.id,
-                'isAnonymous': req.body.isAnonymous ? true : false,
-                'notifyLevel': req.body.notifyLevel,
-                'authId': 0,
-            };
+                const activationToken = crypto.randomBytes(32).toString('hex');
+                const salt= crypto.randomBytes(16).toString('hex');
+                const pass = crypto.randomBytes(5).toString('hex');
 
-            if (userExistOnAuth.statusCode === 200) {
-                newClient.authId = typeof userExistOnAuth.body === 'string' ? JSON.parse(userExistOnAuth.body).id : userExistOnAuth.body.id;
-            }
+                // create the user if it doesn't exist
+                let userObject = isExistUser;
+                let newClient;
+                if (!isExistUser) {
 
-            const userObject = yield thunkQuery(User.insert(newClient).returning(User.id));
-            newClient.id = _.first(userObject).id;
+                    newClient = {
+                        'firstName': req.body.firstName,
+                        'lastName': req.body.lastName,
+                        'email': req.body.email,
+                        'roleID': req.body.roleID, //user
+                        'salt': crypto.randomBytes(16).toString('hex'),
+                        'password': User.hashPassword(salt, pass),
+                        'isActive': false,
+                        activationToken,
+                        'organizationId': org.id,
+                        'isAnonymous': req.body.isAnonymous ? true : false,
+                        'notifyLevel': req.body.notifyLevel,
+                        'authId': 0,
+                    };
 
-            if (req.body.projectId) { // insert the user into the projectUserTable
-                yield * common.insertProjectUser(req, _.first(userObject).id, req.body.projectId);
-            }
+                    if (userExistOnAuth.statusCode === 200) {
+                        newClient.authId = typeof userExistOnAuth.body === 'string' ? JSON.parse(userExistOnAuth.body).id : userExistOnAuth.body.id;
+                    }
 
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'insert',
-                object: 'users',
-                entity: _.first(userObject).id,
-                info: 'Add new user (org invite)'
-            });
+                    userObject = yield thunkQuery(User.insert(newClient).returning(User.id));
+                    userObject = _.first(userObject);
+                    newClient.id = userObject.id;
 
-            var essenceId = yield * common.getEssenceId(req, 'Users');
-
-            if (req.user.realmUserId !== null) {
-
-                yield * notifications.createNotification( req, {
-                    userFrom: req.user.realmUserId,
-                    userTo: _.first(userObject).id,
-                    body: 'Invite',
-                    essenceId,
-                    entityId: _.first(userObject).id,
-                    notifyLevel: req.body.notifyLevel,
-                    name: req.body.firstName,
-                    surname: req.body.lastName,
-                    company: org,
-                    inviter: req.user,
-                    token: activationToken,
-                    subject: 'Indaba. Organization membership',
-                    config,
-                }, 'orgInvite');
-            };
-
-            if (req.body.roleID === 2) { // invite admin
-                if (!org.adminUserId) {
-                    yield thunkQuery(
-                            Organization.update({
-                                adminUserId: _.first(userObject).id
-                            }).where(Organization.id.equals(org.id))
-                        );
+                    bologger.log({
+                        req: req,
+                        user: req.user,
+                        action: 'insert',
+                        object: 'users',
+                        entity: _.first(userObject).id,
+                        info: 'Add new user (org invite)'
+                    });
+                } else {
+                    // set the activationToken if the user does exist
+                    yield thunkQuery(User.update({activationToken}).where(User.id.equals(isExistUser.id)));
                 }
+
+                if (req.body.projectId) { // insert the user into the projectUserTable
+                    yield * common.insertProjectUser(req, userObject.id, req.body.projectId);
+                }
+
+                var essenceId = yield * common.getEssenceId(req, 'Users');
+
+                if (req.user.realmUserId !== null) {
+
+                    yield * notifications.createNotification( req, {
+                        userFrom: req.user.realmUserId,
+                        userTo: userObject.id,
+                        body: 'Invite',
+                        essenceId,
+                        entityId: userObject.id,
+                        notifyLevel: req.body.notifyLevel,
+                        name: req.body.firstName,
+                        surname: req.body.lastName,
+                        company: org,
+                        inviter: req.user,
+                        token: activationToken,
+                        subject: 'Indaba. Organization membership',
+                        config,
+                    }, 'orgInvite');
+                }
+
+                if (req.body.roleID === 2) { // invite admin
+                    if (!org.adminUserId) {
+                        yield thunkQuery(
+                                Organization.update({
+                                    adminUserId: userObject.id
+                                }).where(Organization.id.equals(org.id))
+                            );
+                    }
+                }
+                return newClient;
             }
 
-            return newClient;
         }).then(function (data) {
             res.json(data);
         }, function (err) {
