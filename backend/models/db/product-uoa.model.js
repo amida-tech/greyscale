@@ -16,7 +16,7 @@ module.exports = function productUoa(sequelize, Sequelize, schema = 'public') {
                 key: 'id',
             },
         },
-        UOAId: {
+        UOAid: {
             type: Sequelize.INTEGER,
             allowNull: false,
             primaryKey: true,

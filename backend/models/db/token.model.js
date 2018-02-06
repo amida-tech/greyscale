@@ -4,7 +4,7 @@ module.exports = function tokens(sequelize, Sequelize, schema = 'public') {
     const tableName = 'Token';
     const modelName = `${schema}_${tableName}`;
     return sequelize.define(modelName, {
-        userId: {
+        userID: {
             type: Sequelize.INTEGER,
             allowNull: false,
             primaryKey: true,
