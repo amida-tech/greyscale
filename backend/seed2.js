@@ -31,136 +31,99 @@ const workflowStepGroups = require('./test/fixtures/seed/workflow-step-groups_0'
 const userGroups = require('./test/fixtures/seed/user-groups_0');
 const tasks = require('./test/fixtures/seed/tasks_0');
 
-const setSequenceValue = async function (key, value, schema) {
+const setSequenceValue = function (key, value, schema) {
     const query = `SELECT pg_catalog.setval('"${schema}"."${key}"', ${value}, true)`;
-    await db.sequelize.query(query, { raw: true });
+    return db.sequelize.query(query, { raw: true });
 }
 
-const seedSchemaCommon = async function (schema) {
-    await db[schema].AccessMatrices.bulkCreate(accessMatrices);
-
-    await setSequenceValue('AccessMatrices_id_seq', 8, schema);
-
-    await setSequenceValue('AccessPermissions_id_seq', 1, schema);
-
-    await setSequenceValue('AnswerAttachments_id_seq', 1, schema);
-
-    await setSequenceValue('Discussions_id_seq', 1, schema);
-
-    await db[schema].Essences.bulkCreate(essences);
-    await setSequenceValue('Essences_id_seq', 45, schema);
-
-    await setSequenceValue('Indexes_id_seq', 1, schema);
-
-    await db[schema].Languages.bulkCreate(languages);
-    await setSequenceValue('Languages_id_seq', 13, schema);
-
-    await setSequenceValue('Logs_id_seq', 1020, schema);
-
-    await db[schema].Rights.bulkCreate(rights);
-    await setSequenceValue('Rights_id_seq', 138, schema);
-
-    await db[schema].Roles.bulkCreate(roles1);
-    await setSequenceValue('Roles_id_seq', 3, schema);
-
-    await db[schema].RolesRights.bulkCreate(rolesRights);
-
-    await setSequenceValue('Subindexes_id_seq', 1, schema);
-
-    await setSequenceValue('UnitOfAnalysisClassType_id_seq', 1, schema);
-
-    await setSequenceValue('UnitOfAnalysisTagLink_id_seq', 1, schema);
-
-    await setSequenceValue('UnitOfAnalysisTag_id_seq', 1, schema);
-
-    await db[schema].UnitOfAnalysisType.bulkCreate(unitOfAnalysisTypes);
-    await setSequenceValue('UnitOfAnalysisType_id_seq', 1, schema);
-
-    await setSequenceValue('Visualizations_id_seq', 1, schema);
+const seedSchemaCommon = function (schema) {
+    return Promise.resolve()
+        .then(() => db[schema].AccessMatrices.bulkCreate(accessMatrices))
+        .then(() => setSequenceValue('AccessMatrices_id_seq', 8, schema))
+        .then(() => setSequenceValue('AccessPermissions_id_seq', 1, schema))
+        .then(() => setSequenceValue('AnswerAttachments_id_seq', 1, schema))
+        .then(() => setSequenceValue('Discussions_id_seq', 1, schema))
+        .then(() => db[schema].Essences.bulkCreate(essences))
+        .then(() => setSequenceValue('Essences_id_seq', 45, schema))
+        .then(() => setSequenceValue('Indexes_id_seq', 1, schema))
+        .then(() => db[schema].Languages.bulkCreate(languages))
+        .then(() => setSequenceValue('Languages_id_seq', 13, schema))
+        .then(() => setSequenceValue('Logs_id_seq', 1020, schema))
+        .then(() => db[schema].Rights.bulkCreate(rights))
+        .then(() => setSequenceValue('Rights_id_seq', 138, schema))
+        .then(() => db[schema].Roles.bulkCreate(roles1))
+        .then(() => setSequenceValue('Roles_id_seq', 3, schema))
+        .then(() => db[schema].RolesRights.bulkCreate(rolesRights))
+        .then(() => setSequenceValue('Subindexes_id_seq', 1, schema))
+        .then(() => setSequenceValue('UnitOfAnalysisClassType_id_seq', 1, schema))
+        .then(() => setSequenceValue('UnitOfAnalysisTagLink_id_seq', 1, schema))
+        .then(() => setSequenceValue('UnitOfAnalysisTag_id_seq', 1, schema))
+        .then(() => db[schema].UnitOfAnalysisType.bulkCreate(unitOfAnalysisTypes))
+        .then(() => setSequenceValue('UnitOfAnalysisType_id_seq', 1, schema))
+        .then(() => setSequenceValue('Visualizations_id_seq', 1, schema));
 };
 
-const seedSchema0 = async function (schema) {
-    await db.public.Users.bulkCreate(users);
-    await setSequenceValue('Users_id_seq', 357, 'public');
-
-    await seedSchemaCommon(schema);
-
-    await setSequenceValue('UnitOfAnalysis_id_seq', 1, schema);
-    await setSequenceValue('Organizations_id_seq', 1, schema);
-    await setSequenceValue('Users_id_seq', 1, schema);
-    await setSequenceValue('Notifications_id_seq', 1, schema);
-    await setSequenceValue('Groups_id_seq', 1, schema);
-    await setSequenceValue('Products_id_seq', 1, schema);
-    await setSequenceValue('Projects_id_seq', 1, schema);
-    await setSequenceValue('Workflows_id_seq', 1, schema);
-    await setSequenceValue('WorkflowSteps_id_seq', 1, schema);
-    await setSequenceValue('Tasks_id_seq', 1, schema);
+const seedSchema0 = function (schema) {
+    return Promise.resolve()
+        .then(() => db.public.Users.bulkCreate(users))
+        .then(() => setSequenceValue('Users_id_seq', 357, 'public'))
+        .then(() => seedSchemaCommon(schema))
+        .then(() => setSequenceValue('UnitOfAnalysis_id_seq', 1, schema))
+        .then(() => setSequenceValue('Organizations_id_seq', 1, schema))
+        .then(() => setSequenceValue('Users_id_seq', 1, schema))
+        .then(() => setSequenceValue('Notifications_id_seq', 1, schema))
+        .then(() => setSequenceValue('Groups_id_seq', 1, schema))
+        .then(() => setSequenceValue('Products_id_seq', 1, schema))
+        .then(() => setSequenceValue('Projects_id_seq', 1, schema))
+        .then(() => setSequenceValue('Workflows_id_seq', 1, schema))
+        .then(() => setSequenceValue('WorkflowSteps_id_seq', 1, schema))
+        .then(() => setSequenceValue('Tasks_id_seq', 1, schema));
 };
 
-const seedSchema1 = async function (schema) {
-    await seedSchemaCommon(schema);
-
-    await db[schema].Organizations.bulkCreate(organizations);
-    await setSequenceValue('Organizations_id_seq', 2, schema);
-
-    await db[schema].Users.bulkCreate(users1);
-    await setSequenceValue('Users_id_seq', 4, schema);
-
-    await db[schema].UnitOfAnalysis.bulkCreate(unitOfAnalysis);
-    await setSequenceValue('UnitOfAnalysis_id_seq', 2, schema);
-
-    await db[schema].Projects.bulkCreate(projects);
-    await setSequenceValue('Projects_id_seq', 2, schema);
-
-    await db[schema].Products.bulkCreate(products);
-    await setSequenceValue('Products_id_seq', 2, schema);
-
-    await db[schema].Workflows.bulkCreate(workflows);
-    await setSequenceValue('Workflows_id_seq', 2, schema);
-
-    await db[schema].WorkflowSteps.bulkCreate(workflowSteps);
-    await setSequenceValue('WorkflowSteps_id_seq', 3, schema);
-
-    await db[schema].ProductUOA.bulkCreate(productUoas);
-
-    await db[schema].Notifications.bulkCreate(notifications);
-    await setSequenceValue('Notifications_id_seq', 7, schema);
-
-    await db[schema].Groups.bulkCreate(groups);
-    await setSequenceValue('Groups_id_seq', 3, schema);
-
-    await db[schema].WorkflowStepGroups.bulkCreate(workflowStepGroups);
-
-    await db[schema].UserGroups.bulkCreate(userGroups);
-
-    await db[schema].Tasks.bulkCreate(tasks);
-    await setSequenceValue('Tasks_id_seq', 3, schema);
+const seedSchema1 = function (schema) {
+    return Promise.resolve()
+        .then(() => seedSchemaCommon(schema))
+        .then(() => db[schema].Organizations.bulkCreate(organizations))
+        .then(() => setSequenceValue('Organizations_id_seq', 2, schema))
+        .then(() => db[schema].Users.bulkCreate(users1))
+        .then(() => setSequenceValue('Users_id_seq', 4, schema))
+        .then(() => db[schema].UnitOfAnalysis.bulkCreate(unitOfAnalysis))
+        .then(() => setSequenceValue('UnitOfAnalysis_id_seq', 2, schema))
+        .then(() => db[schema].Projects.bulkCreate(projects))
+        .then(() => setSequenceValue('Projects_id_seq', 2, schema))
+        .then(() => db[schema].Products.bulkCreate(products))
+        .then(() => setSequenceValue('Products_id_seq', 2, schema))
+        .then(() => db[schema].Workflows.bulkCreate(workflows))
+        .then(() => setSequenceValue('Workflows_id_seq', 2, schema))
+        .then(() => db[schema].WorkflowSteps.bulkCreate(workflowSteps))
+        .then(() => setSequenceValue('WorkflowSteps_id_seq', 3, schema))
+        .then(() => db[schema].ProductUOA.bulkCreate(productUoas))
+        .then(() => db[schema].Notifications.bulkCreate(notifications))
+        .then(() => setSequenceValue('Notifications_id_seq', 7, schema))
+        .then(() => db[schema].Groups.bulkCreate(groups))
+        .then(() => setSequenceValue('Groups_id_seq', 3, schema))
+        .then(() => db[schema].WorkflowStepGroups.bulkCreate(workflowStepGroups))
+        .then(() => db[schema].UserGroups.bulkCreate(userGroups))
+        .then(() => db[schema].Tasks.bulkCreate(tasks))
+        .then(() => setSequenceValue('Tasks_id_seq', 3, schema));
 };
 
-const syncAndSeed = async function() {
-    await db.sequelize.sync({ force: true });
-
-    await db.public.Essences.bulkCreate(essences);
-    await setSequenceValue('Essences_id_seq', 57, 'public');
-
-    await db.public.Languages.bulkCreate(languages);
-    await setSequenceValue('Languages_id_seq', 13, 'public');
-
-    await setSequenceValue('Logs_id_seq', 2569, 'public');
-
-    await setSequenceValue('Notifications_id_seq', 4, 'public');
-
-    await db.public.Rights.bulkCreate(rights);
-    await setSequenceValue('Rights_id_seq', 138, 'public');
-
-    await db.public.Roles.bulkCreate(roles);
-
-    await setSequenceValue('Roles_id_seq', 16, 'public');
-
-    await db.public.Token.bulkCreate(tokens);
-
-    await seedSchema0('sceleton');
-    await seedSchema1('test');
+const syncAndSeed = function() {
+     return Promise.resolve()
+       .then(() => db.sequelize.sync({ force: true }))
+        .then(() => db.public.Essences.bulkCreate(essences))
+        .then(() => setSequenceValue('Essences_id_seq', 57, 'public'))
+        .then(() => db.public.Languages.bulkCreate(languages))
+        .then(() => setSequenceValue('Languages_id_seq', 13, 'public'))
+        .then(() => setSequenceValue('Logs_id_seq', 2569, 'public'))
+        .then(() => setSequenceValue('Notifications_id_seq', 4, 'public'))
+        .then(() => db.public.Rights.bulkCreate(rights))
+        .then(() => setSequenceValue('Rights_id_seq', 138, 'public'))
+        .then(() => db.public.Roles.bulkCreate(roles))
+        .then(() => setSequenceValue('Roles_id_seq', 16, 'public'))
+        .then(() => db.public.Token.bulkCreate(tokens))
+        .then(() => seedSchema0('sceleton'))
+        .then(() => seedSchema1('test'));
 };
 
 syncAndSeed()
