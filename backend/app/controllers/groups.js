@@ -12,7 +12,7 @@ var _ = require('underscore'),
     query = new Query(),
     co = require('co'),
     thunkify = require('thunkify'),
-
+    common = require('../services/common'),
     thunkQuery = thunkify(query);
 
 module.exports = {
@@ -66,6 +66,7 @@ module.exports = {
 
             if (req.body.projectId) {
                 yield thunkQuery(ProjectUserGroup.insert({projectId: req.body.projectId, groupId}));
+                yield common.bumpProjectLastUpdated(req, req.body.projectId);
             }
             return groupResult;
         }).then(function (data) {
@@ -139,6 +140,8 @@ module.exports = {
                         info: 'Add new users for group'
                     });
                 }
+
+                yield bumpProjectLastUpdatedByGroup(req, req.params.id);
             }
         }).then(function () {
             res.status(202).end();
@@ -160,6 +163,9 @@ module.exports = {
             var result = yield thunkQuery(
                 Group.delete().where(Group.id.equals(req.params.id))
             );
+
+            yield bumpProjectLastUpdatedByGroup(req, req.params.id);
+
             return result;
         }).then(function (data) {
             bologger.log({
@@ -193,3 +199,13 @@ module.exports = {
         });
     }
 };
+
+function * bumpProjectLastUpdatedByGroup(req, groupId) {
+    const projectUserGroupResult = yield req.thunkQuery(ProjectUserGroup
+    .select(ProjectUserGroup.projectId)
+    .where(ProjectUserGroup.groupId.equals(groupId)));
+
+    if (projectUserGroupResult.length > 0) {
+        yield common.bumpProjectLastUpdated(req, projectUserGroupResult[0].projectId);
+    }
+}
