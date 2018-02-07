@@ -1,0 +1,21 @@
+1) All column comments are removed as sequelize does not support comments. Column comments does not contribute to any functionality.
+2) Sequence Entities_id_seq replaced by Essences_id_seq. This is used by Essences so this appeared to be error anyway.
+3) For a number of Sequences 'MINVALUE 0' settings are changed with 'NO MINVALUE'. All 'START WITH' fields now start with 1.
+4) All timestamps are now timestamp with time zone without precision. This was not consistent within the tables with no apperant reason.
+5) Following sequence names are replaced by what is the standard based on the table it is used:
+   role_id_seq -> Roles_id_seq
+   user_id_seq -> Users_id_seq
+   AccessMatix_id_seq -> AccessMatrices_id_seq
+   Index_id_seq -> Indexes_id_seq
+   role_id_seq -> Roles_id_seq
+   Subindex_id_seq -> Subindexes_id_seq
+6) Following Sequences are removed from public schema as they were not being used: Subindex_seq, UnitOfAnalysisClassType_id_seq,
+   UnitOfAnalysisClassType_id_seq, UnitOfAnalysisTagLink_id_seq, UnitOfAnalysisTagLink_id_seq, UnitOfAnalysisType_id_seq,
+   UnitOfAnalysisType_id_seq, UnitOfAnalysis_id_seq, UnitOfAnalysis_id_seq, brand_id_seq, country_id_seq, order_id_seq,
+   transport_id_seq, transportmodel_id_seq, Index_seq
+7) Following Sequences are removed from sceleton and test schemas
+   JSON_id_seq, brand_id_seq, country_id_seq,  OWNE, transport_id_seq, transportmodel_id__seq, transport_id_seq,
+   brand_id_seq, country_id_deq, order_id_seq, transportmodel_id_seq,
+8) Data types for UnitOfAnalysisClassType , UnitOfAnalysisTag, UnitOfAnalysis, 'id' column changed from SMALLINT to INTEGER.
+9) Unnecessary constraints UnitOfAnalysis_name_key1 and UnitOfAnalysis_name_key2 on UnitOfAnalysis.name is deleted.
+10) Ids are converted to integer from smallint.
