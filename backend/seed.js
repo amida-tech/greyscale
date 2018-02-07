@@ -35,69 +35,64 @@ const organization = config.testEntities.organization;
 const admin = config.testEntities.admin;
 const users = config.testEntities.users;
 
-shared.setupForSeedFn()((err, initialized) => {
-    if (err) {
-        console.log('failure');
-        console.log(err);
-        process.exit(1);
-        return;
-    }
-    if (initialized) {
-        console.log('already initialized');
-        process.exit(0);
-        return;
-    }
-    Promise.resolve()
-        .then(() => authService.addUser(superAdmin))
-        .then(shared.loginFn(superAdmin))
-        .then(orgTests.createOrganizationFn(organization))
-        .then(orgTests.setRealmFn(0))
-        .then(orgTests.getOrganizationFn(0))
-        .then(userTests.inviteUserFn(admin))
-        .then(shared.logoutFn())
-        .then(() => authService.addUser(admin))
-        .then(shared.loginFn(admin))
-        .then(userTests.checkActivitabilityFn(0))
-        .then(userTests.selfActivateFn(0))
-        .then(() => {
-            let px = Promise.resolve();
-            users.forEach((user) => {
-                px = px.then(userTests.inviteUserFn(user));
-            });
-            return px;
-        })
-        .then(shared.logoutFn())
-        .then(() => {
-            let px = Promise.resolve();
-            users.forEach((user, index) => {
-                px = px.then(userTests.selfActivateFn(index + 1));
-                px = px.then(() => authService.addUser(user));
-                px = px.then(shared.loginFn(user));
-                px = px.then(shared.logoutFn());
-            });
-            return px;
-        })
-        .then(shared.loginFn(admin))
-        .then(() => {
-            let px = Promise.resolve();
-            _.range(4).forEach(() => {
-                px = px.then(groupTests.createGroupFn());
-            });
-            return px;
-        })
-        .then(userTests.updateUserGroupsFn(1, [0, 2]))
-        .then(userTests.updateUserGroupsFn(2, [1, 2]))
-        .then(userTests.getUserFn(1))
-        .then(userTests.getUserFn(2))
-        .then(shared.logoutFn())
-        .then(shared.unsetupFn())
-        .then(() => {
-            console.log('success');
+shared.setupForSeedFn()()
+    .then((continueInitialization) => {
+        if (!continueInitialization) {
+            console.log('already initialized');
             process.exit(0);
-        })
-        .catch((err) => {
-            console.log('failure');
-            console.log(err);
-            process.exit(1);
-        });
-});
+            return;
+        }
+        return Promise.resolve()
+            .then(() => authService.addUser(superAdmin))
+            .then(shared.loginFn(superAdmin))
+            .then(orgTests.createOrganizationFn(organization))
+            .then(orgTests.setRealmFn(0))
+            .then(orgTests.getOrganizationFn(0))
+            .then(userTests.inviteUserFn(admin))
+            .then(shared.logoutFn())
+            .then(() => authService.addUser(admin))
+            .then(shared.loginFn(admin))
+            .then(userTests.checkActivitabilityFn(0))
+            .then(userTests.selfActivateFn(0))
+            .then(() => {
+                let px = Promise.resolve();
+                users.forEach((user) => {
+                    px = px.then(userTests.inviteUserFn(user));
+                });
+                return px;
+            })
+            .then(shared.logoutFn())
+            .then(() => {
+                let px = Promise.resolve();
+                users.forEach((user, index) => {
+                    px = px.then(userTests.selfActivateFn(index + 1));
+                    px = px.then(() => authService.addUser(user));
+                    px = px.then(shared.loginFn(user));
+                    px = px.then(shared.logoutFn());
+                });
+                return px;
+            })
+            .then(shared.loginFn(admin))
+            .then(() => {
+                let px = Promise.resolve();
+                _.range(4).forEach(() => {
+                    px = px.then(groupTests.createGroupFn());
+                });
+                return px;
+            })
+            .then(userTests.updateUserGroupsFn(1, [0, 2]))
+            .then(userTests.updateUserGroupsFn(2, [1, 2]))
+            .then(userTests.getUserFn(1))
+            .then(userTests.getUserFn(2))
+            .then(shared.logoutFn())
+            .then(shared.unsetupFn())
+            .then(() => {
+                console.log('success');
+                process.exit(0);
+            })
+            .catch((err) => {
+                console.log('failure');
+                console.log(err);
+                process.exit(1);
+            });
+    })
