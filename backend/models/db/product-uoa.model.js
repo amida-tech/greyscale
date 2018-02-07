@@ -45,7 +45,7 @@ module.exports = function productUoa(sequelize, Sequelize, schema = 'public') {
         },
         isDeleted: {
             type: Sequelize.DATE,
-        }
+        },
     }, {
         freezeTableName: true,
         tableName,

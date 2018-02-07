@@ -16,7 +16,7 @@ module.exports = function userRights(sequelize, Sequelize, schema = 'public') {
         },
         canDo: {
             type: Sequelize.BOOLEAN,
-        }
+        },
     }, {
         freezeTableName: true,
         tableName,

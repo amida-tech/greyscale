@@ -15,7 +15,7 @@ const enums = [{
         'Rejected',
         'Deleted',
         'Active',
-        'Inactive'
+        'Inactive',
     ],
 }, {
     name: 'order_status',
@@ -45,42 +45,9 @@ const enums = [{
         'Approved',
         'Available',
         'Rented',
-        'Deleted'
-   ],
+        'Deleted',
+    ],
 }];
-
-const functionNames = [
-  'clone_schema',
-  'fix_schema_references',
-  'order_before_update',
-  'tours_before_insert',
-  'tours_before_update',
-  'twc_delete_old_token',
-  'twc_get_token',
-  'user_company_check',
-  'users_before_update',
-];
-
-const params = [
-    [
-        {type: 'text', name: 'source_schema'},
-        {type: 'text', name: 'dest_schema'},
-        {type: 'boolean', name: 'include_recs'},
-    ],
-    [
-        {type: 'text', name: 'schema'},
-    ],
-    [],
-    [],
-    [],
-    [],
-    [
-        {type: 'varchar', name: 'body'},
-        {type: 'varchar', name: 'exp'},
-    ],
-    [],
-    []
-];
 
 const createEnum = function (spec) {
     const values = spec.values.map(r => `'${r}'`).join(', ');
@@ -113,16 +80,16 @@ module.exports = function sequelizeGenerator(config, schemas) {
     const { database, user, password } = config;
     const sequelize = new Sequelize(database, user, password, sequelizeOptions);
 
-    sequelize.addHook('beforeBulkSync', function (options) {
+    sequelize.addHook('beforeBulkSync', function addHook(options) {
         if (options.force) {
             return sequelize.dropAllSchemas()
                 .then(() => {
                     const pxs = enums.map(spec => sequelize.query(dropEnum(spec)));
-                    return Promise.all(pxs)
+                    return Promise.all(pxs);
                 })
                 .then(() => {
                     const pxs = schemas.map(schema => this.createSchema(schema));
-                    return Promise.all(pxs)
+                    return Promise.all(pxs);
                 })
                 .then(() => {
                     const pxs = enums.map(spec => sequelize.query(createEnum(spec)));
@@ -130,16 +97,17 @@ module.exports = function sequelizeGenerator(config, schemas) {
                 })
                 .then(() => {
                     const pxsAll = ['public', ...schemas].map((schema) => {
-                        const pxs = functions.map(r => {
-                            const fn = r.replace(/\:rschema/g, schema);
-                            return sequelize.query(fn)
+                        const pxs = functions.map((r) => {
+                            const fn = r.replace(/:rschema/g, schema);
+                            return sequelize.query(fn);
                         });
                         return Promise.all(pxs);
                     });
                     return Promise.all(pxsAll);
-                })
+                });
         }
-    })
+        return null;
+    });
 
     return { Sequelize, sequelize };
 };

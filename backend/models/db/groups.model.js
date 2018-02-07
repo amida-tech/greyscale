@@ -9,14 +9,14 @@ module.exports = function groups(sequelize, Sequelize, schema = 'public') {
         },
         organizationId: {
             type: Sequelize.INTEGER,
-             references: {
+            references: {
                 model: {
                     schema,
                     tableName: 'Organizations',
                 },
                 key: 'id',
             },
-       },
+        },
         langId: {
             type: Sequelize.INTEGER,
             references: {

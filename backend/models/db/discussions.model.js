@@ -7,14 +7,14 @@ module.exports = function discussions(sequelize, Sequelize, schema = 'public') {
         taskId: {
             type: Sequelize.INTEGER,
             allowNull: false,
-             references: {
+            references: {
                 model: {
                     schema,
                     tableName: 'Tasks',
                 },
                 key: 'id',
             },
-       },
+        },
         questionId: {
             type: Sequelize.INTEGER,
             allowNull: false,
@@ -38,7 +38,7 @@ module.exports = function discussions(sequelize, Sequelize, schema = 'public') {
         },
         updated: {
             type: Sequelize.DATE,
-         },
+        },
         isResolve: {
             type: Sequelize.BOOLEAN,
             allowNull: false,
@@ -95,8 +95,8 @@ module.exports = function discussions(sequelize, Sequelize, schema = 'public') {
             type: Sequelize.BOOLEAN,
             allowNull: false,
             defaultValue: false,
-        }
-   }, {
+        },
+    }, {
         freezeTableName: true,
         tableName,
         schema,

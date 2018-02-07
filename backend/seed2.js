@@ -34,7 +34,7 @@ const tasks = require('./test/fixtures/seed/tasks_0');
 const setSequenceValue = function (key, value, schema) {
     const query = `SELECT pg_catalog.setval('"${schema}"."${key}"', ${value}, true)`;
     return db.sequelize.query(query, { raw: true });
-}
+};
 
 const seedSchemaCommon = function (schema) {
     return Promise.resolve()
@@ -108,8 +108,8 @@ const seedSchema1 = function (schema) {
         .then(() => setSequenceValue('Tasks_id_seq', 3, schema));
 };
 
-const syncAndSeed = function() {
-     return Promise.resolve()
+const syncAndSeed = function () {
+    return Promise.resolve()
        .then(() => db.sequelize.sync({ force: true }))
         .then(() => db.public.Essences.bulkCreate(essences))
         .then(() => setSequenceValue('Essences_id_seq', 57, 'public'))
@@ -128,11 +128,11 @@ const syncAndSeed = function() {
 
 syncAndSeed()
     .then(() => {
-        console.log('success');
+        console.log('success'); // eslint-disable-line no-console
         process.exit(0);
     })
     .catch((err) => {
-        console.log('failure');
-        console.log(err);
+        console.log('failure'); // eslint-disable-line no-console
+        console.log(err);       // eslint-disable-line no-console
         process.exit(1);
     });

@@ -4,7 +4,7 @@ const essences = require('./essences.model');
 const tasks = require('./tasks.model');
 const languages = require('./languages.model');
 const logs = require('./logs.model');
-const notifications = require('./notifications.model')
+const notifications = require('./notifications.model');
 const rights = require('./rights.model');
 const roles = require('./roles.model');
 const rolesRights = require('./roles-rights.model');
@@ -19,7 +19,7 @@ const discussions = require('./discussions.model');
 const groups = require('./groups.model');
 const indexQuestionWeights = require('./index-question-weights.model');
 const indexSubindexWeights = require('./index-subindex-weights.model');
-const indexes = require('./Indexes.model');
+const indexes = require('./indexes.model');
 const organizations = require('./organizations.model');
 const productUoa = require('./product-uoa.model');
 const products = require('./products.model');
@@ -45,7 +45,7 @@ const workflows = require('./workflows.model');
 
 const definePublicTables = function (sequelize, Sequelize) {
     const Essences = essences(sequelize, Sequelize);
-    const Languages= languages(sequelize, Sequelize);
+    const Languages = languages(sequelize, Sequelize);
     const Logs = logs(sequelize, Sequelize);
     const Notifications = notifications(sequelize, Sequelize);
     const Rights = rights(sequelize, Sequelize);
@@ -168,7 +168,7 @@ const defineTables = function (sequelize, Sequelize, schemas) {
 
     return Object.assign({
         sequelize,
-        public: publicTables
+        public: publicTables,
     }, tableObjects);
 };
 

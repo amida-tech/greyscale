@@ -25,7 +25,7 @@ module.exports = function attachments(sequelize, Sequelize, schema = 'public') {
         amazonKey: {
             type: 'character varying',
         },
-   }, {
+    }, {
         freezeTableName: true,
         tableName,
         schema,

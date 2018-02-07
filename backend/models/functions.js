@@ -354,13 +354,13 @@ END$$;
 `;
 
 module.exports = [
-  cloneSchema,
-  fixSchemaReferences,
-  orderBeforeUpdate,
-  toursBeforeInsert,
-  toursBeforeUpdate,
-  twcDeleteOldToken,
-  twcGetToken,
-  userCompanyCheck,
-  usersBeforeUpdate,
+    cloneSchema,
+    fixSchemaReferences,
+    orderBeforeUpdate,
+    toursBeforeInsert,
+    toursBeforeUpdate,
+    twcDeleteOldToken,
+    twcGetToken,
+    userCompanyCheck,
+    usersBeforeUpdate,
 ];

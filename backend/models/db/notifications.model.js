@@ -13,7 +13,7 @@ module.exports = function notifications(sequelize, Sequelize, schema = 'public')
             type: Sequelize.INTEGER,
             onDelete: 'CASCADE',
             allowNull: false,
-             references: {
+            references: {
                 model: {
                     schema,
                     tableName: 'Users',
@@ -95,7 +95,7 @@ module.exports = function notifications(sequelize, Sequelize, schema = 'public')
         userToName: {
             type: 'character varying',
         },
-   }, {
+    }, {
         freezeTableName: true,
         tableName,
         schema,

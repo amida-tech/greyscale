@@ -8,14 +8,14 @@ module.exports = function indexQuestionWeights(sequelize, Sequelize, schema = 'p
             type: Sequelize.INTEGER,
             allowNull: false,
             primaryKey: true,
-             references: {
+            references: {
                 model: {
                     schema,
                     tableName: 'Indexes',
                 },
                 key: 'id',
             },
-       },
+        },
         questionId: {
             type: Sequelize.INTEGER,
             allowNull: false,
@@ -28,7 +28,7 @@ module.exports = function indexQuestionWeights(sequelize, Sequelize, schema = 'p
         type: {
             type: 'character varying',
             allowNull: false,
-        }
+        },
     }, {
         freezeTableName: true,
         tableName,

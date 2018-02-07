@@ -24,8 +24,8 @@ module.exports = function indexes(sequelize, Sequelize, schema = 'public') {
         divisor: {
             type: Sequelize.NUMERIC,
             allowNull: false,
-            defaultValue: 1
-        }
+            defaultValue: 1,
+        },
     }, {
         freezeTableName: true,
         tableName,

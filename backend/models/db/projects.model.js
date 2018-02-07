@@ -42,7 +42,7 @@ module.exports = function projects(sequelize, Sequelize, schema = 'public') {
         status: {
             type: Sequelize.SMALLINT,
             allowNull: false,
-            defaultValue: 0
+            defaultValue: 0,
         },
         adminUserId: {
             type: Sequelize.INTEGER,

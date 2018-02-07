@@ -32,12 +32,12 @@ module.exports = function products(sequelize, Sequelize, schema = 'public') {
             },
         },
         surveyId: {
-            type: Sequelize.INTEGER
+            type: Sequelize.INTEGER,
         },
         status: {
             type: Sequelize.SMALLINT,
             allowNull: false,
-            defaultValue: 0
+            defaultValue: 0,
         },
         langId: {
             type: Sequelize.INTEGER,

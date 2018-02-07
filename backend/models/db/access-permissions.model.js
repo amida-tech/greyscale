@@ -21,7 +21,7 @@ module.exports = function accessPermissions(sequelize, Sequelize, schema = 'publ
         },
         permission: {
             type: Sequelize.SMALLINT,
-        }
+        },
     }, {
         freezeTableName: true,
         tableName,

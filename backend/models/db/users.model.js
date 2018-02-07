@@ -97,9 +97,6 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
         lastActive: {
             type: Sequelize.DATE,
         },
-        timezone: {
-            type: 'character varying',
-        },
         affiliation: {
             type: 'character varying',
         },

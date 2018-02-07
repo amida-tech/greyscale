@@ -35,7 +35,7 @@ module.exports = function indexSubindexWeights(sequelize, Sequelize, schema = 'p
         type: {
             type: 'character varying',
             allowNull: false,
-        }
+        },
     }, {
         freezeTableName: true,
         tableName,

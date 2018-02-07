@@ -36,7 +36,7 @@ module.exports = function answerAttachments(sequelize, Sequelize, schema = 'publ
         },
         amazonKey: {
             type: 'character varying',
-        }
+        },
     }, {
         freezeTableName: true,
         tableName,

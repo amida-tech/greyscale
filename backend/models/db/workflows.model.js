@@ -24,7 +24,7 @@ module.exports = function Workflows(sequelize, Sequelize, schema = 'public') {
                 },
                 key: 'id',
             },
-            unique: true
+            unique: true,
         },
     }, {
         freezeTableName: true,

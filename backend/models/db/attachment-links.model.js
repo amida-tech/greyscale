@@ -23,7 +23,7 @@ module.exports = function attachmentLinks(sequelize, Sequelize, schema = 'public
         },
         attachments: {
             type: Sequelize.ARRAY(Sequelize.INTEGER),
-        }
+        },
     }, {
         freezeTableName: true,
         tableName,
