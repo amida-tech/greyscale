@@ -170,7 +170,14 @@ Most people will not want to re-run the above commands every time they start a n
 `docker-compose up -d`
 
 12. Confirm everything is running with `docker ps`
-13. Check localhost:80. If you’re on a Mac, you may have a defalt Apache server running that you need to kill.
+
+13. At this point, you will now have a functioning Indaba backend with accompanying services. You can now run a local Indaba client for testing against the backend and services. The client should make sure to set the following vars in the `.env`:
+    - NODE_ENV=development
+    - API_URL=localhost:3005
+    - AUTH_API_URL=localhost:4000
+    - SURVEY_API_URL=localhost:9005
+    - MESSAGING_API_URL=localhost:4001
+    - REALM=testorg
 
 14. If you need to free up space after development, run ``docker rmi `docker ps -aq` ``
 

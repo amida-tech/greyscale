@@ -89,6 +89,9 @@ router.route('/:realm/v0.2/projects/:id/products')
 router.route('/:realm/v0.2/projects/:id/surveys')
     .get(authenticate('jwt').always, projects.surveyList);
 
+router.route('/:realm/v0.2/projects/survey/:id')
+    .put(authenticate('jwt').always, jsonParser, projects.editSurvey);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEYS
 //----------------------------------------------------------------------------------------------------------------------
@@ -430,9 +433,6 @@ router.route('/:realm/v0.2/discussions/entryscope/:id')
 router.route('/:realm/v0.2/discussions/:id')
     .put(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ discussions.updateOne)
     .delete(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ discussions.deleteOne);
-
-router.route('/:realm/v0.2/discussions/resolve/:questionId')
-    .put(authenticate('jwt').always, discussions.markAsResolved);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    NOTIFICATIONS

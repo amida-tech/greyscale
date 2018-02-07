@@ -61,11 +61,18 @@ module.exports = {
                     );
 
                     var productId = _.first(_.map(product, 'id'));
-
+                    var flags = 0;
                     if (productId) {
                         var workflowId = yield thunkQuery(
                             Workflow.select(Workflow.id).from(Workflow).where(Workflow.productId.equals(productId))
                         );
+                        flags = yield thunkQuery(
+                            'SELECT DISTINCT "Discussions"."questionId" FROM "Discussions" ' +
+                            'JOIN "Tasks" on "Discussions"."taskId" = "Tasks"."id" WHERE ' +
+                            '"Tasks"."productId" = ' + productId + ' AND "Discussions".' +
+                            '"isResolve" = false GROUP BY "Discussions"."questionId"'
+                        );
+                        flags = flags.length;
                     }
 
                     var subjects = yield thunkQuery(
@@ -87,7 +94,7 @@ module.exports = {
                     projectList.push({
                         id: projects[i].id,
                         name: projects[i].codeName,
-                        lastUpdated: null,
+                        lastUpdated: projects[i].lastUpdated,
                         status: projects[i].status,
                         productId,
                         surveyId: (_.first(_.map(product, 'surveyId')) || null),
@@ -96,6 +103,7 @@ module.exports = {
                         stages: [],
                         userGroups: [],
                         subjects,
+                        flags,
                         firstActivated: projects[i].firstActivated,
                     });
                 }
@@ -209,7 +217,7 @@ module.exports = {
 
                 aggregateObject.id = project.id;
                 aggregateObject.name = project.codeName;
-                aggregateObject.lastUpdated = null; // need to figure out wha this is
+                aggregateObject.lastUpdated = project.lastUpdated;
                 aggregateObject.status = project.status;
                 aggregateObject.users = _.map(userList, 'userId');
                 aggregateObject.stages = stages;
@@ -343,6 +351,8 @@ module.exports = {
                         updateObj.firstActivated = new Date();
                     }
                 }
+
+                updateObj.lastUpdated = new Date();
                 result = yield thunkQuery(
                     Project
                     .update(updateObj)
@@ -477,6 +487,8 @@ module.exports = {
             if (projectExist === true && userExist === true) {
                 var insertedData =  yield * common.insertProjectUser(req, req.body.userId, req.params.projectId);
 
+                yield common.bumpProjectLastUpdated(req, req.params.projectId);
+
                 if (insertedData) {
                     return {
                         'message': 'Successfully Inserted data',
@@ -506,6 +518,8 @@ module.exports = {
                     req.params.projectId + ' AND "ProjectUsers"."userId" = ' + req.params.userId
                 );
 
+                yield common.bumpProjectLastUpdated(req, req.params.projectId);
+
                 var productId = _.first(_.map((yield thunkQuery(
                     Product.select(Product.id).from(Product).where(Product.projectId.equals(req.params.projectId))
                 )), 'id'));
@@ -528,6 +542,25 @@ module.exports = {
         }, function (err) {
             next(err);
         });
+    },
+
+    editSurvey: function(req, res, next) {
+        co(function* () {
+            const surveyId = parseInt(req.params.id);
+            if (Number.isNaN(surveyId)) {
+                throw new HttpError(400, 'Survey ID invalid');
+            }
+
+            const productResult = yield req.thunkQuery(
+                Product.select(Product.projectId)
+                .where(Product.surveyId.equals(surveyId))
+            );
+
+            if (productResult.length > 0) {
+                yield common.bumpProjectLastUpdated(req, productResult[0].projectId);
+            }
+        })
+        .then(() => res.status(204).end(), next);
     }
 };
 
