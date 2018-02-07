@@ -89,10 +89,10 @@ shared.setupForSeedFn()()
             .then(() => {
                 console.log('success');
                 process.exit(0);
-            })
-            .catch((err) => {
-                console.log('failure');
-                console.log(err);
-                process.exit(1);
             });
     })
+    .catch((err) => {
+        console.log('failure');
+        console.log(err);
+        process.exit(1);
+    });
