@@ -158,9 +158,9 @@ const defineSchemaTables = function (sequelize, Sequelize, schema) {
     };
 };
 
-const defineTables = function (sequelize, Sequelize) {
+const defineTables = function (sequelize, Sequelize, schemas) {
     const publicTables = definePublicTables(sequelize, Sequelize);
-    const tableObjects = ['sceleton', 'test'].reduce((r, schema) => {
+    const tableObjects = schemas.reduce((r, schema) => {
         const tables = defineSchemaTables(sequelize, Sequelize, schema);
         r[schema] = tables;
         return r;

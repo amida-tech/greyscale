@@ -22,7 +22,7 @@ module.exports = function projects(sequelize, Sequelize, schema = 'public') {
             type: Sequelize.TEXT,
         },
         created: {
-            type: Sequelize.DATEONLY,
+            type: Sequelize.DATE,
             allowNull: false,
             defaultValue: sequelize.literal('now()'),
         },

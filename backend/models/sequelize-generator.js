@@ -92,15 +92,13 @@ const dropEnum = function (spec) {
     return `DROP TYPE IF EXISTS ${spec.name}`;
 };
 
-module.exports = function sequelizeGenerator(config) {
+module.exports = function sequelizeGenerator(config, schemas) {
     const sequelizeOptions = {
         host: config.host,
         dialect: 'postgres',
         native: false,
         dialectOptions: {
             ssl: !!config.ssl,
-            //supportsSearchPath: true,
-            //prependSearchPath: true,
         },
         port: config.port,
         pool: {
@@ -123,7 +121,7 @@ module.exports = function sequelizeGenerator(config) {
                     return Promise.all(pxs)
                 })
                 .then(() => {
-                    const pxs = ['sceleton', 'test'].map(schema => this.createSchema(schema));
+                    const pxs = schemas.map(schema => this.createSchema(schema));
                     return Promise.all(pxs)
                 })
                 .then(() => {
@@ -131,25 +129,14 @@ module.exports = function sequelizeGenerator(config) {
                     return Promise.all(pxs);
                 })
                 .then(() => {
-                    const pxs = functions.map(r => {
-                        const fn = r.replace(/\:rschema/g, 'public');
-                        return sequelize.query(fn)
+                    const pxsAll = ['public', ...schemas].map((schema) => {
+                        const pxs = functions.map(r => {
+                            const fn = r.replace(/\:rschema/g, schema);
+                            return sequelize.query(fn)
+                        });
+                        return Promise.all(pxs);
                     });
-                    return Promise.all(pxs);
-                })
-                .then(() => {
-                    const pxs = functions.map(r => {
-                        const fn = r.replace(/\:rschema/g, 'sceleton');
-                        return sequelize.query(fn)
-                    });
-                    return Promise.all(pxs);
-                })
-                .then(() => {
-                    const pxs = functions.map(r => {
-                        const fn = r.replace(/\:rschema/g, 'test');
-                        return sequelize.query(fn)
-                    });
-                    return Promise.all(pxs);
+                    return Promise.all(pxsAll);
                 })
         }
     })

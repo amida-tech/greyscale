@@ -4,6 +4,11 @@ module.exports = function notifications(sequelize, Sequelize, schema = 'public')
     const tableName = 'Notifications';
     const modelName = `${schema}_${tableName}`;
     return sequelize.define(modelName, {
+        id: {
+            type: Sequelize.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
         userFrom: {
             type: Sequelize.INTEGER,
             onDelete: 'CASCADE',

@@ -5,7 +5,7 @@ process.env.NODE_ENV = 'test';
 const config = require('./config');
 const models = require('./models');
 
-const db = models(config.pgConnect);
+const db = models(config.pgConnect, ['sceleton', 'test']);
 
 const essences = require('./test/fixtures/seed/essences_0');
 const languages = require('./test/fixtures/seed/languages_0');
