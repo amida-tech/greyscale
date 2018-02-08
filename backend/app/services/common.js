@@ -694,8 +694,7 @@ var sendSystemMessageWithMessageService = function* (req, to, message) {
                         message,
                         messageService.SYSTEM_MESSAGE_SUBJECT
                     )
-                    .then((res) => {
-                        console.log(`SUCCEEDED THIS TIME - RETURNING RES: ${res.statusCode}`)
+                    .then((res) => {                 
                         logger.debug(res);
                         res.statusCode = 200;
                         return res
