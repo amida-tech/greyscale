@@ -78,11 +78,17 @@ module.exports = {
                         flags = flags.length;
                         stages = yield thunkQuery(
                             WorkflowSteps
-                                .select(WorkflowSteps.star())
+                                .select(
+                                    WorkflowSteps.star())
                                 .from(WorkflowSteps)
                                 .where(WorkflowSteps.workflowId.equals(workflowId))
+                                .and(WorkflowSteps.isDeleted.isNull())
                         );
+                        for (var index = 0; index < stages.length; index++) {
+                            stages[index].userGroups = [];
+                        }
                     }
+
 
                     var subjects = yield thunkQuery(
                         UnitOfAnalysis
