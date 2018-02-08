@@ -125,7 +125,8 @@ module.exports = {
                     if (req.body.productId) {
                         // check that record doesn't already exist in productUOA
                         const recordInProductUOA = yield thunkQuery(
-                            ProductUOA.select().where(ProductUOA.UOAid.equals(existingRecords[i].id))
+                            ProductUOA.select().where(ProductUOA.UOAid.equals(existingRecords[i].id)
+                                                .and(ProductUOA.productId.equals(req.body.productId)))
                         );
 
                         if (!_.first(recordInProductUOA)) { // Record not in productUOA, we can add it
