@@ -24,8 +24,8 @@ var
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
     config = require('../../config'),
-    nodemailer = require('nodemailer');
-request = require('request-promise');
+    nodemailer = require('nodemailer'),
+    request = require('request-promise');
 
 var getEntityById = function* (req, id, model, key) {
     var thunkQuery = req.thunkQuery;
@@ -513,6 +513,19 @@ var getActiveForTask = function* (req, tasks) {
 
 exports.getActiveForTask = getActiveForTask;
 
+var getAssessmentStatusForTask = function* (req, tasks) {
+    for (var i = 0; i < tasks.length; i++) {
+        let request = yield getAssessmentStatusAtSurveyService(
+            tasks[0].assessmentId,
+            req.headers.authorization);
+        request = JSON.parse(request.body);
+        tasks[i].assessmentStatus = request.status;
+    }
+    return tasks;
+}
+
+exports.getAssessmentStatusForTask = getAssessmentStatusForTask;
+
 var insertProjectUser = function* (req, userId, projectId) {
     var thunkQuery = req.thunkQuery;
     var data = yield thunkQuery(ProjectUser.select().where({ projectId, userId }));
@@ -623,6 +636,36 @@ var copyAssessmentAtSurveyService = function (assessmentId, prevAssessmentId, jw
 }
 
 exports.copyAssessmentAtSurveyService = copyAssessmentAtSurveyService;
+
+var getAssessmentStatusAtSurveyService = function (assessmentId, jwt) {
+    const path = 'assessment-answers/';
+    const path2 = '/status';
+
+    const requestOptions = {
+        url: config.surveyService + path + assessmentId + path2,
+        method: 'GET',
+        headers: {
+            'authorization': jwt,
+            'origin': config.domain
+        },
+        resolveWithFullResponse: true,
+    };
+
+    return request(requestOptions)
+        .then((res) => {
+            if (res.statusCode > 299 || res.statusCode < 200) {
+                const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                return Promise.reject(httpErr);
+            }
+            return res;
+        })
+        .catch((err) => {
+            const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
+            return Promise.reject(httpErr);
+        });
+}
+
+exports.getAssessmentStatusAtSurveyService = getAssessmentStatusAtSurveyService;
 
 var getCompletedTaskByStepId = function* (req, workflowStepId) {
 
