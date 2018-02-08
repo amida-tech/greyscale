@@ -190,13 +190,8 @@ module.exports = {
                     const productId = [{productId: req.body.productId}];
                     yield * uoaSoftDeleteHelper(req, productId, DELETE_OPTIONS.projectOnly);
                 } else {
-                    if (productUOA.length === 1) { // UOA is assigned to only one project
-                        yield * uoaSoftDeleteHelper(req, productUOA, DELETE_OPTIONS.entireSystem);
-                    } else {
-                        // Delete all UOA's from all products
-                        yield * uoaSoftDeleteHelper(req, productUOA, DELETE_OPTIONS.entireSystem);
-
-                    }
+                    // Delete all UOA's from all products
+                    yield * uoaSoftDeleteHelper(req, productUOA, DELETE_OPTIONS.entireSystem);
                 }
             }
             return true;
