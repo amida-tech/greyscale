@@ -670,7 +670,9 @@ var sendSystemMessageWithMessageService = function* (req, to, message) {
             messageService.SYSTEM_MESSAGE_SUBJECT
         )
         .then((res) => {
+            console.log(`ORIGINAL RESPONSE IS: ${res}`)
             res.statusCode = 204;
+            console.log(`SUCCESSFUL SO RETURNING ${res.statusCode}`);
             return res;
             // res.status(204).end();
         })
@@ -685,6 +687,7 @@ var sendSystemMessageWithMessageService = function* (req, to, message) {
                 .catch((err) => {
                     const message = 'Failed to send system message. Could not authenticate as system message user'
                     logger.error(message)
+                    console.log(`FAILED HERE SO RETURNING REJECTED PROMISE`)
                     return Promise.reject(message);
                 })
                 .then(() =>
@@ -694,18 +697,21 @@ var sendSystemMessageWithMessageService = function* (req, to, message) {
                         message,
                         messageService.SYSTEM_MESSAGE_SUBJECT
                     )
-                    .then((res) => {                 
+                    .then((res) => {
                         logger.debug(res);
                         res.statusCode = 200;
+                        console.log(`SUCCESSFULL ON SECOND CALL SO RETURNING ${res.statusCode}`)
                         return res
                     })
                     .catch((err) => {
                         logger.error('Failed to send system message');
                         logger.error(err);
+                        console.log(`FAILED ON SECOND CALL SO RETURNING ${err}`)
                         return Promise.reject(err);
                     })
                 )
             }
+            console.log(`FAILED AND JUST RETURNING ERR ${err}`)
             return err;
         });
     }
