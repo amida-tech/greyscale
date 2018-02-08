@@ -515,11 +515,11 @@ exports.getActiveForTask = getActiveForTask;
 
 var getAssessmentStatusForTask = function* (req, tasks) {
     for (var i = 0; i < tasks.length; i++) {
-        let request = yield getAssessmentStatusAtSurveyService(
-            tasks[0].assessmentId,
+        let statusRequest = yield getAssessmentStatusAtSurveyService(
+            tasks[i].assessmentId,
             req.headers.authorization);
-        request = JSON.parse(request.body);
-        tasks[i].assessmentStatus = request.status;
+        statusRequest = JSON.parse(statusRequest.body);
+        tasks[i].assessmentStatus = statusRequest.status;
     }
     return tasks;
 }
