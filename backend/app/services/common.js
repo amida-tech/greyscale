@@ -660,10 +660,10 @@ var bumpProjectLastUpdated = function *(req, projectId) {
 
 exports.bumpProjectLastUpdated = bumpProjectLastUpdated;
 
-var sendSystemMessageWithMessageService = function* (req, to, message) {
+var sendSystemMessageWithMessageService = function (req, to, message) {
 
     if (to && message) {
-        messageService.sendSystemMessage(
+        return messageService.sendSystemMessage(
             req.app.get(messageService.SYSTEM_MESSAGE_USER_TOKEN_FIELD),
             to,
             message,
