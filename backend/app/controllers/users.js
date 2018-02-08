@@ -454,7 +454,7 @@ module.exports = {
                         user: req.user,
                         action: 'insert',
                         object: 'users',
-                        entity: _.first(userObject).id,
+                        entity: userObject.id,
                         info: 'Add new user (org invite)'
                     });
                 } else {
