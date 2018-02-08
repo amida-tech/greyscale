@@ -12,7 +12,8 @@ var
     UserGroup = require('../models/user_groups'),
     UOA = require('../models/uoas'),
     Task = require('../models/tasks'),
-    Survey = require('../models/surveys'),
+    messageService = require('../services/messages'),
+    logger = require('../logger'),
     Discussion = require('../models/discussions'),
     Notification = require('../models/notifications'),
     Organization = require('../models/organizations'),
@@ -24,8 +25,8 @@ var
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
     config = require('../../config'),
-    nodemailer = require('nodemailer');
-request = require('request-promise');
+    nodemailer = require('nodemailer'),
+    request = require('request-promise');
 
 var getEntityById = function* (req, id, model, key) {
     var thunkQuery = req.thunkQuery;
@@ -580,7 +581,6 @@ var getSurveyFromSurveyService = function (surveyId, jwt) {
                 const httpErr = new HttpError(res.statusCode, res.statusMessage);
                 return Promise.reject(httpErr);
             }
-
             return res
         })
         .catch((err) => {
@@ -620,7 +620,7 @@ var copyAssessmentAtSurveyService = function (assessmentId, prevAssessmentId, jw
             const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
             return Promise.reject(httpErr);
         });
-}
+};
 
 exports.copyAssessmentAtSurveyService = copyAssessmentAtSurveyService;
 
@@ -646,7 +646,7 @@ var bumpProjectLastUpdatedByProduct = function *(req, productId) {
     if (productResult.length === 1) {
         yield bumpProjectLastUpdated(req, productResult[0].projectId);
     }
-}
+};
 
 exports.bumpProjectLastUpdatedByProduct = bumpProjectLastUpdatedByProduct;
 
@@ -656,6 +656,59 @@ var bumpProjectLastUpdated = function *(req, projectId) {
         .update({lastUpdated: new Date()})
         .where(Project.id.equals(projectId))
     )
-}
+};
 
 exports.bumpProjectLastUpdated = bumpProjectLastUpdated;
+
+var sendSystemMessageWithMessageService = function (req, to, message) {
+
+    if (to && message) {
+        return messageService.sendSystemMessage(
+            req.app.get(messageService.SYSTEM_MESSAGE_USER_TOKEN_FIELD),
+            to,
+            message,
+            messageService.SYSTEM_MESSAGE_SUBJECT
+        )
+        .then((res) => {
+            res.statusCode = 204;
+            return res;
+        })
+        .catch((err) => {
+            if (err.statusCode === 401) {
+                logger.debug('Attempt to send a system message was unauthorized');
+                logger.debug('Reauthenticating and trying again');
+                return messageService.authAsSystemMessageUser()
+                .then((auth) => {
+                    req.app.set(messageService.SYSTEM_MESSAGE_USER_TOKEN_FIELD, auth.token);
+                })
+                .catch((err) => {
+                    const message = 'Failed to send system message. Could not authenticate as system message user'
+                    logger.error(message)
+                    return Promise.reject(message);
+                })
+                .then(() =>
+                    messageService.sendSystemMessage(
+                        req.app.get(messageService.SYSTEM_MESSAGE_USER_TOKEN_FIELD),
+                        to,
+                        message,
+                        messageService.SYSTEM_MESSAGE_SUBJECT
+                    )
+                    .then((res) => {
+                        logger.debug(res);
+                        res.statusCode = 200;
+                        return res
+                    })
+                    .catch((err) => {
+                        logger.error('Failed to send system message');
+                        logger.error(err);
+                        return Promise.reject(err);
+                    })
+                )
+            }
+            return err;
+        });
+    }
+};
+
+exports.sendSystemMessageWithMessageService = sendSystemMessageWithMessageService;
+

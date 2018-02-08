@@ -749,11 +749,14 @@ function notify(req, userTo, note, template) {
         }
 
         note4insert.note = yield * renderFile(config.notificationTemplates[template].notificationBody, note4insert);
+
         note4insert = _.pick(note4insert, Notification.insertCols); // insert only columns that may be inserted
+
         var noteInserted = yield thunkQuery(Notification.insert(note4insert).returning(Notification.id));
         if (parseInt(note.notifyLevel) > 1) { // onsite notification
             socketController.sendNotification(note.userTo);
         }
+
         var userTo = yield * common.getUser(req, note.userTo);
         if (!vl.isEmail(userTo.email)) {
             throw new HttpError(403, 'Email is not valid: ' + userTo.email); // just in case - I think, it is not possible
@@ -820,7 +823,8 @@ function* extendNote(req, note, userTo, essenceName, entityId, orgId, taskId) {
     var product = yield * common.getEntity(req, task.productId, Product, 'id');
     var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
     var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-    var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+
+    var survey = yield common.getSurveyFromSurveyService(product.surveyId, req.headers.authorization);
 
     note = _.extend(note, {
         userFrom: req.user.realmUserId,
@@ -829,8 +833,8 @@ function* extendNote(req, note, userTo, essenceName, entityId, orgId, taskId) {
         product: product,
         uoa: uoa,
         step: step,
-        survey: survey,
-        policy: survey,
+        survey: survey.body,
+        policy: survey.body,
         user: userTo,
         organization: organization,
         date: new Date(),
