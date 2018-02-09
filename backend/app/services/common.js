@@ -521,8 +521,6 @@ var insertProjectUser = function* (req, userId, projectId) {
     if (data.length === 0) {
         var insertedData = yield thunkQuery(ProjectUser.insert({ projectId, userId }));
         return insertedData;
-    } else {
-        throw new HttpError(403, 'User is already assigned to project');
     }
 };
 
