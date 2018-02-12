@@ -62,10 +62,13 @@ module.exports = {
 
                     var productId = _.first(_.map(product, 'id'));
                     var flags = 0;
+                    var workflowId = null;
+                    var stages = [];
                     if (productId) {
-                        var workflowId = yield thunkQuery(
+                        workflowId = yield thunkQuery(
                             Workflow.select(Workflow.id).from(Workflow).where(Workflow.productId.equals(productId))
                         );
+                        workflowId = _.first(_.map(workflowId, 'id'));
                         flags = yield thunkQuery(
                             'SELECT DISTINCT "Discussions"."questionId" FROM "Discussions" ' +
                             'JOIN "Tasks" on "Discussions"."taskId" = "Tasks"."id" WHERE ' +
@@ -73,7 +76,19 @@ module.exports = {
                             '"isResolve" = false GROUP BY "Discussions"."questionId"'
                         );
                         flags = flags.length;
+                        stages = yield thunkQuery(
+                            WorkflowSteps
+                                .select(
+                                    WorkflowSteps.star())
+                                .from(WorkflowSteps)
+                                .where(WorkflowSteps.workflowId.equals(workflowId))
+                                .and(WorkflowSteps.isDeleted.isNull())
+                        );
+                        for (var index = 0; index < stages.length; index++) {
+                            stages[index].userGroups = [];
+                        }
                     }
+
 
                     var subjects = yield thunkQuery(
                         UnitOfAnalysis
@@ -98,9 +113,9 @@ module.exports = {
                         status: projects[i].status,
                         productId,
                         surveyId: (_.first(_.map(product, 'surveyId')) || null),
-                        workflowId: _.first(_.map(workflowId, 'id')),
+                        workflowId,
                         users: [],
-                        stages: [],
+                        stages,
                         userGroups: [],
                         subjects,
                         flags,

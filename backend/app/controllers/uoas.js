@@ -1,5 +1,4 @@
-var client = require('../db_bootstrap'),
-    _ = require('underscore'),
+var _ = require('underscore'),
     config = require('../../config'),
     common = require('../services/common'),
     BoLogger = require('../bologger'),
@@ -12,7 +11,6 @@ var client = require('../db_bootstrap'),
     ProductUOA = require('../models/product_uoa'),
     Product = require('../models/products'),
     Project = require('../models/projects'),
-    Task = require('../models/tasks'),
     co = require('co'),
     Query = require('../util').Query,
     getTranslateQuery = require('../util').getTranslateQuery,
@@ -84,6 +82,8 @@ module.exports = {
 
     insert: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
+        var uoas;
+        var sqlString;
 
         // Verify that the body contains the subjects
         if (req.body.subjects) {
@@ -91,44 +91,113 @@ module.exports = {
             if (!Array.isArray(req.body.subjects)) {
                 req.body.subjects = [{name: req.body.subjects}];
             }
-            var uoas = req.body.subjects.map((subject) => subject.name);
-            var sqlString = "'" + uoas.toString().replace(/'/g, "''").replace(/,/g, "','") + "'";
+
+            // Check that no blank subject name was passed in
+            for (let i = 0; i < req.body.subjects.length; i++) {
+                if (req.body.subjects[i].name == '') {
+                    throw new HttpError(400, 'Subject Cannot be empty');
+                }
+            }
+
+            uoas = req.body.subjects.map((subject) => subject.name);
+            sqlString = "'" + uoas.toString().replace(/'/g, "''").replace(/,/g, "','") + "'";
         } else {
             throw new HttpError(400, 'Missing Subjects');
         }
 
         co(function* () {
-            var added = yield thunkQuery(
-                'SELECT name, id FROM "UnitOfAnalysis" ' +
+            // Check if Subjects already exist in DB
+            const existingRecords = yield thunkQuery(
+                'SELECT * FROM "UnitOfAnalysis" ' +
                 'WHERE LOWER("UnitOfAnalysis"."name") IN (' + sqlString.toLowerCase() + ') ' +
                 'AND "UnitOfAnalysis"."unitOfAnalysisType" = ' + req.body.unitOfAnalysisType
-
             );
-            var insert = _.difference(uoas, added.map((exist) => exist.name));
-            for (var i = 0; i < insert.length; i++) {
-                var result = yield thunkQuery(UnitOfAnalysis.insert({
-                    name: insert[i],
-                    creatorId: req.user.realmUserId,
-                    ownerId: req.user.realmUserId,
-                    unitOfAnalysisType: req.body.unitOfAnalysisType,
-                    created: new Date(),
-                }).returning(UnitOfAnalysis.id));
-                added.push({name: insert[i], id: _.first(result).id});
+
+            // Empty list to hold inserted or modified records
+            const insertedRecords = [];
+
+            if (_.first(existingRecords)) {
+                for (let i = 0; i < existingRecords.length; i++) {
+                    if (existingRecords[i].isDeleted !== null) {
+                        const updateObj = {
+                            isDeleted: null
+                        };
+
+                        yield thunkQuery(
+                            UnitOfAnalysis.update(updateObj).where(UnitOfAnalysis.id.equals(existingRecords[i].id))
+                        );
+                    }
+
+                    if (req.body.productId) {
+                        // check that record doesn't already exist in productUOA
+                        const recordInProductUOA = yield thunkQuery(
+                            ProductUOA.select().where(ProductUOA.UOAid.equals(existingRecords[i].id)
+                                                .and(ProductUOA.productId.equals(req.body.productId)))
+                        );
+
+                        if (!_.first(recordInProductUOA)) { // Record not in productUOA, we can add it
+
+                            yield thunkQuery(ProductUOA.insert({
+                                productId: req.body.productId,
+                                UOAid: existingRecords[i].id,
+                                currentStepId: null,
+                                isComplete: false,
+                            }));
+                        } else if (_.first(recordInProductUOA).isDeleted !== null) {
+
+                            const updateObj = {
+                                isDeleted: null
+                            };
+
+                            yield thunkQuery(
+                                ProductUOA.update(updateObj).where(ProductUOA.UOAid.equals(existingRecords[i].id))
+                            );
+
+                        } else {
+                            throw new HttpError(403, 'Error adding duplicate subject to project');
+                        }
+                    }
+                    insertedRecords.push({
+                        id: existingRecords[i].id,
+                        name: existingRecords[i].name
+                    });
+                }
             }
-            if (req.body.productId) {
-                for (var j = 0; j < added.length; j++) {
-                    yield thunkQuery(ProductUOA.insert({
-                        productId: req.body.productId,
-                        UOAid: added[j].id,
-                        currentStepId: null,
-                        isComplete: false,
-                    }));
+
+            if (uoas.length !== existingRecords.length) {
+                //get the new records to be inserted into a new list
+                const newRecords = _.difference(uoas, existingRecords.map((exist) => exist.name));
+
+                for (let i = 0; i < newRecords.length; i++) {
+                    // Insert the new records
+                    const insertedRecord = yield thunkQuery(
+                        UnitOfAnalysis.insert({
+                            name: newRecords[i],
+                            creatorId: req.user.realmUserId,
+                            ownerId: req.user.realmUserId,
+                            unitOfAnalysisType: req.body.unitOfAnalysisType,
+                            created: new Date(),
+                        }).returning(UnitOfAnalysis.id, UnitOfAnalysis.name)
+                    );
+
+                    // Insert into the productUOA table if applicable
+                    if (req.body.productId) {
+                        yield thunkQuery(ProductUOA.insert({
+                            productId: req.body.productId,
+                            UOAid: _.first(insertedRecord).id,
+                            currentStepId: null,
+                            isComplete: false,
+                        }));
+                    }
+                    insertedRecords.push({
+                        id: _.first(insertedRecord).id,
+                        name: _.first(insertedRecord).name
+                    });
                 }
 
                 yield common.bumpProjectLastUpdatedByProduct(req, req.body.productId);
             }
-
-            return added;
+            return insertedRecords;
         }).then(function (data) {
             bologger.log({
                 req: req,
