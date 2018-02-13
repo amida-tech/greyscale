@@ -258,7 +258,7 @@ module.exports = {
 
         co(function* () {
             var curStepAlias = 'curStep';
-            return yield thunkQuery(
+            const projectTasks = yield thunkQuery(
                 Task
                 .select(
                     Task.star(),
@@ -275,6 +275,18 @@ module.exports = {
                     'THEN FALSE ' +
                     'ELSE TRUE ' +
                     'END as flagged',
+                    'CASE ' +
+                    'WHEN ' +
+                    '(' +
+                    'SELECT ' +
+                    '"Discussions"."id" ' +
+                    'FROM "Discussions" ' +
+                    'WHERE "Discussions"."taskId" = "Tasks"."id" ' +
+                    'LIMIT 1' +
+                    ') IS NULL ' +
+                    'THEN FALSE ' +
+                    'ELSE TRUE ' +
+                    'END as "flagHistory"',
                     'CASE ' +
                     'WHEN "' + pgEscape.string(curStepAlias) + '"."position" IS NULL AND ("WorkflowSteps"."position" = 0) THEN \'current\' ' +
                     'WHEN "' + pgEscape.string(curStepAlias) + '"."position" IS NULL AND ("WorkflowSteps"."position" <> 0) THEN \'waiting\' ' +
@@ -304,6 +316,7 @@ module.exports = {
                 .where(Task.productId.equals(req.params.id)
                 .and(Task.isDeleted.isNull()))
             );
+            return yield * common.getAssessmentStatusForTask(req, projectTasks);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
