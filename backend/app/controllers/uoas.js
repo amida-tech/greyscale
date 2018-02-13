@@ -58,7 +58,7 @@ module.exports = {
             res.json(_.last(data));
         }, function (err) {
             next(err);
-        });
+        });        
     },
 
     selectOne: function (req, res, next) {
@@ -129,14 +129,11 @@ module.exports = {
                     }
 
                     if (req.body.productId) {
-                        console.log(`PULLING RECORD FROM PRODUCT UOA`)
                         // check that record doesn't already exist in productUOA
                         const recordInProductUOA = yield thunkQuery(
                             ProductUOA.select().where(ProductUOA.UOAid.equals(existingRecords[i].id)
                                                 .and(ProductUOA.productId.equals(req.body.productId)))
                         );
-
-                        console.log(`FOUND RECORD FROM PRODUCT UOA: ${recordInProductUOA.productId}`)
 
                         if (!_.first(recordInProductUOA)) { // Record not in productUOA, we can add it
 
@@ -147,8 +144,6 @@ module.exports = {
                                 isComplete: false,
                             }));
                         } else if (_.first(recordInProductUOA).isDeleted !== null) {
-                            console.log(`FOUND THE RECORD DELETED IN PRODUCT UOA.. UPDATING`)
-
                             const updateObj = {
                                 isDeleted: null
                             };
