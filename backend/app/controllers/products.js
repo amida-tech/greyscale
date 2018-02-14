@@ -463,6 +463,23 @@ module.exports = {
         });
     },
 
+    newExport: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
+        co(function* () {
+
+            return 0
+
+        }).then(function (data) {
+            
+
+        }, function (err) {
+            next(err);
+        });
+
+
+    },
+
     export: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
