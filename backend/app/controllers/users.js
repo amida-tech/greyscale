@@ -392,6 +392,8 @@ module.exports = {
 
             // If a user is found in greyscale we just check to see if it's been marked as deleted and un-mark it
             if (isExistUser) {
+                console.log('*******************');
+                console.log(isExistUser);
                 isExistUser.registered = true; // Indicate that the user was previously in the DB
                 const updateObj = {};
                 if (userExistOnAuth.statusCode === 200) {
@@ -412,6 +414,7 @@ module.exports = {
                 if (req.body.projectId && isExistUser.isActive) {
                     yield * common.insertProjectUser(req, isExistUser.id, req.body.projectId);
                 }
+                return isExistUser;
             }
 
             // if the user didn't exist, or exists but is not active, send an invitation
