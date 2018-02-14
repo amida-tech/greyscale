@@ -58,7 +58,7 @@ module.exports = {
             res.json(_.last(data));
         }, function (err) {
             next(err);
-        });
+        });        
     },
 
     selectOne: function (req, res, next) {
@@ -144,7 +144,6 @@ module.exports = {
                                 isComplete: false,
                             }));
                         } else if (_.first(recordInProductUOA).isDeleted !== null) {
-
                             const updateObj = {
                                 isDeleted: null
                             };
@@ -259,13 +258,8 @@ module.exports = {
                     const productId = [{productId: req.body.productId}];
                     yield * uoaSoftDeleteHelper(req, productId, DELETE_OPTIONS.projectOnly);
                 } else {
-                    if (productUOA.length === 1) { // UOA is assigned to only one project
-                        yield * uoaSoftDeleteHelper(req, productUOA, DELETE_OPTIONS.entireSystem);
-                    } else {
-                        // Delete all UOA's from all products
-                        yield * uoaSoftDeleteHelper(req, productUOA, DELETE_OPTIONS.entireSystem);
-
-                    }
+                    // Delete all UOA's from all products
+                    yield * uoaSoftDeleteHelper(req, productUOA, DELETE_OPTIONS.entireSystem);
                 }
             }
             return true;
