@@ -392,8 +392,6 @@ module.exports = {
 
             // If a user is found in greyscale we just check to see if it's been marked as deleted and un-mark it
             if (isExistUser) {
-                console.log('*******************');
-                console.log(isExistUser);
                 isExistUser.registered = true; // Indicate that the user was previously in the DB
                 const updateObj = {};
                 if (userExistOnAuth.statusCode === 200) {
