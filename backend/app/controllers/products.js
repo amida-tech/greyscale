@@ -492,36 +492,37 @@ module.exports = {
                 //'LEFT JOIN "Users" ON ("Tasks"."userId" = "Users"."id") ' +
                 'LEFT JOIN "Users" ON ("Tasks"."userIds"[1] = "Users"."id") ' +
                 //'LEFT JOIN "Roles" ON ("EssenceRoles"."roleId" = "Roles"."id") ' +
-                'LEFT JOIN "Surveys" ON ("Products"."surveyId" = "Surveys"."id") ' +
-                'LEFT JOIN "SurveyQuestions" ON ("Surveys"."id" = "SurveyQuestions"."surveyId") ' +
+                // 'LEFT JOIN "Surveys" ON ("Products"."surveyId" = "Surveys"."id") ' +
+                // 'LEFT JOIN "SurveyQuestions" ON ("Surveys"."id" = "SurveyQuestions"."surveyId") ' +
 
-                'LEFT JOIN ( ' +
-                'SELECT ' +
-                'COALESCE(max("SurveyAnswers"."version"), -1) as max,' +
-                '"SurveyAnswers"."questionId",' +
-                '"SurveyAnswers"."userId",' +
-                '"SurveyAnswers"."UOAid",' +
-                '"SurveyAnswers"."wfStepId" ' +
-                'FROM "SurveyAnswers" ' +
-                'GROUP BY "SurveyAnswers"."questionId","SurveyAnswers"."userId","SurveyAnswers"."UOAid","SurveyAnswers"."wfStepId" ' +
-                ') as "sa" ' +
+                //TODO: Replace this with info from survey service
+                // 'LEFT JOIN ( ' +
+                // 'SELECT ' +
+                // 'COALESCE(max("SurveyAnswers"."version"), -1) as max,' +
+                // '"SurveyAnswers"."questionId",' +
+                // '"SurveyAnswers"."userId",' +
+                // '"SurveyAnswers"."UOAid",' +
+                // '"SurveyAnswers"."wfStepId" ' +
+                // 'FROM "SurveyAnswers" ' +
+                // 'GROUP BY "SurveyAnswers"."questionId","SurveyAnswers"."userId","SurveyAnswers"."UOAid","SurveyAnswers"."wfStepId" ' +
+                // ') as "sa" ' +
 
                 'on ((("sa"."questionId" = "SurveyQuestions"."id") ' +
                 'AND ("sa"."userId" = "Users"."id")) ' +
                 'AND ("sa"."UOAid" = "UnitOfAnalysis"."id")) ' +
                 'AND ("sa"."wfStepId" = "WorkflowSteps"."id") ' +
 
-                'LEFT JOIN "SurveyAnswers" ON ( ' +
-                '((("SurveyAnswers"."questionId" = "sa"."questionId") ' +
-                'AND ("SurveyAnswers"."userId" = "sa"."userId")) ' +
-                'AND ("SurveyAnswers"."UOAid" = "sa"."UOAid")) ' +
-                'AND ("SurveyAnswers"."wfStepId" = "sa"."wfStepId") ' +
-                'AND (COALESCE("SurveyAnswers"."version", -1) = "sa".max) ' +
-                ') ' +
+                // 'LEFT JOIN "SurveyAnswers" ON ( ' +
+                // '((("SurveyAnswers"."questionId" = "sa"."questionId") ' +
+                // 'AND ("SurveyAnswers"."userId" = "sa"."userId")) ' +
+                // 'AND ("SurveyAnswers"."UOAid" = "sa"."UOAid")) ' +
+                // 'AND ("SurveyAnswers"."wfStepId" = "sa"."wfStepId") ' +
+                // 'AND (COALESCE("SurveyAnswers"."version", -1) = "sa".max) ' +
+                // ') ' +
                 'WHERE ( ' +
                 pgEscape('("Tasks"."productId" = %s) ', id) +
                 // filter out section headers
-                pgEscape('AND ("SurveyQuestions"."type" NOT IN (%s))', SurveyQuestion.sectionTypes) +
+                // pgEscape('AND ("SurveyQuestions"."type" NOT IN (%s))', SurveyQuestion.sectionTypes) +
                 ')';
             debug(q);
 
