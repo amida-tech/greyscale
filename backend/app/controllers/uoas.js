@@ -602,10 +602,10 @@ function* uoaSoftDeleteHelper(req, productIds, deleteOption) {
                         const productData = yield thunkQuery(
                             Product.select().from(Product).where(Product.id.equals(productId))
                         );
-
+                        
                         const surveyId = _.first(productData).surveyId;
 
-                        const surveyAnswers = yield common.checkSurveyAnswers(surveyId, req.headers.authorization);
+                        const surveyAnswers = yield common.getUsersWithSurveyAnswers(surveyId, req.headers.authorization);
 
                         if (surveyAnswers.body !== 0) {
                             throw new HttpError(403, 'Cannot delete UOA with answered questions');

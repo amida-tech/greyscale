@@ -603,7 +603,7 @@ var getSurveyFromSurveyService = function (surveyId, jwt) {
 exports.getSurveyFromSurveyService = getSurveyFromSurveyService;
 
 
-var checkSurveyAnswers = function (surveyId, jwt) {
+var getUsersWithSurveyAnswers = function (surveyId, jwt) {
     const path = 'numberUsersBySurvey/';
 
     const requestOptions = {
@@ -631,7 +631,7 @@ var checkSurveyAnswers = function (surveyId, jwt) {
         });
 };
 
-exports.checkSurveyAnswers = checkSurveyAnswers;
+exports.getUsersWithSurveyAnswers = getUsersWithSurveyAnswers;
 
 
 var copyAssessmentAtSurveyService = function (assessmentId, prevAssessmentId, jwt) {
