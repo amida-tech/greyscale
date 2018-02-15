@@ -412,6 +412,7 @@ module.exports = {
                 if (req.body.projectId && isExistUser.isActive) {
                     yield * common.insertProjectUser(req, isExistUser.id, req.body.projectId);
                 }
+                return isExistUser;
             }
 
             // if the user didn't exist, or exists but is not active, send an invitation
