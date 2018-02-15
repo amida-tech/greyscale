@@ -1,6 +1,5 @@
 var
     _ = require('underscore'),
-    config = require('../../config'),
     common = require('../services/common'),
     productServ = require('../services/products'),
     notifications = require('../controllers/notifications'),
@@ -8,6 +7,8 @@ var
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),
     csv = require('express-csv'),
+    json2csv = require('json2csv'),
+    fs = require('file-system'),
     Product = require('../models/products'),
     Project = require('../models/projects'),
     Workflow = require('../models/workflows'),
@@ -464,14 +465,41 @@ module.exports = {
     },
 
     newExport: function (req, res, next) {
+
+        console.log(`I GOT IN THE NEW EXPORT. PRODUCT IS: ${req.params.id}`)
         var thunkQuery = req.thunkQuery;
 
         co(function* () {
+            var fields = ['car', 'price', 'color'];
 
-            return 0
+            var myCars = [
+                {
+                    'car': 'Acura',
+                    'price': 40000,
+                    'color': 'blue'
+                }, {
+                    'car': 'BMW',
+                    'price': 35000,
+                    'color': 'black'
+                }, {
+                    'car': 'Porsche',
+                    'price': 60000,
+                    'color': 'green'
+                }
+            ];
+
+            var csv = json2csv({ data: myCars, fields: fields });
+
+            console.log(csv);
+
+            return csv
 
         }).then(function (data) {
-            
+
+            console.log(`ABOUT TO SEND RESPONSE STATUS BACK`)
+
+            res.attachment('filename.csv');
+            res.status(200).send(data);
 
         }, function (err) {
             next(err);
