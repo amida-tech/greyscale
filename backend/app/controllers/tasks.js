@@ -17,6 +17,7 @@ var
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
     ProductUOA = require('../models/product_uoa'),
+    notifications = require('../controllers/notifications'),
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_products');
@@ -344,6 +345,42 @@ module.exports = {
                 log.entitites = null;
                 log.info = 'Error update currentStep for product `' + (req.body.productId || req.params.id) + '` (Not found step ID or min step position)';
             }
+
+            // Send notification (internal and email to user)
+            console.log()
+            console.log(`USER TO IS: ${req.body.userId}`);
+            const userTo = yield * common.getUser(req, req.body.userId);
+            console.log(`USER FROM IS: ${req.user.id}`);
+            const userFrom = yield * common.getUser(req, req.user.id);
+
+            const userFromName = userFrom.firstName + ' ' + userFrom.lastName;
+
+            const from = {
+                firstName: userFromName.firstName,
+                lastName: userFromName.lastName
+            };
+
+            const note0 = {
+                body: 'You have been assigned a new Task',
+                action: 'New Task',
+                userFromName: userFromName,
+                from: from
+            };
+
+            console.log(`BUILT FROM AND NOTE0 OBJECT`);
+
+            const taskId = _.first(result).id;
+            console.log(`TASK ID IS ${taskId}`)
+            const note = yield * notifications.extendNote(req, note0, userTo, 'Tasks', taskId, userTo.organizationId, taskId);
+
+            console.log(`EXTENDED NOTE BODY IS: ${note.body}`);
+
+            // Send email notification
+            notifications.notify(req, userTo, note, 'task');
+            console.log(`CONSOLE SENT EMAIL TO: ${userTo.email}`)
+
+            // Send internal notification
+            yield common.sendSystemMessageWithMessageService(req, userTo.email, note.body);
 
             bologger.log(log);
             return result;
