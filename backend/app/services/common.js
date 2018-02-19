@@ -35,12 +35,8 @@ var getEntityById = function* (req, id, model, key) {
 exports.getEntityById = getEntityById;
 
 var getEntity = function* (req, id, model, key) {
-    console.log()
-    console.log(`I GOT IN GET ENTITY`)
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(model.select().from(model).where(model[key].equals(parseInt(id))));
-
-    console.log(`RETURINING ${_.first(result).name}`)
 
     return (_.first(result)) ? result[0] : null;
 };

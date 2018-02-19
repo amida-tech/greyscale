@@ -19,6 +19,7 @@ var
     ProductUOA = require('../models/product_uoa'),
     Task = require('../models/tasks'),
     UOA = require('../models/uoas'),
+    User = require('../models/users'),
     Discussion = require('../models/discussions'),
     Index = require('../models/indexes.js'),
     Subindex = require('../models/subindexes.js'),
@@ -475,52 +476,42 @@ module.exports = {
             // Retrieve the returned data from the survey service and parse it
             const exportData = yield surveyService.getExportData(surveyId, req.params.questionId, req.headers.authorization)
 
-            console.log(`RES RETURNED IS: ${Object.keys(exportData.body[0])}`)
-
             const formattedExportData = [];
-            const formattedExportRow = {};
 
             const fields = [ // List of CSV columns
-                'Subject', 'User', 'Survey Name', 'Stage', 'Question', 'Question Type', 'Response', 'Meta', 'Date'
+                'subject', 'user', 'surveyName', 'stage', 'question', 'questionType', 'response', 'meta', 'date'
             ];
 
-            for (var i = 0; i < exportData.length; i++) {
-                const uoaId = exportData[i].group.split('-')[1];
-                console.log(`UOA ID FROM RES IS: ${uoaId}`);
+            console.log(`EXPORT DATA BODY IS: ${exportData.body.length}`);
 
+            for (var i = 0; i < exportData.body.length; i++) {
+                const uoaId = exportData.body[i].group.split('-')[1];
                 const rowUoa = yield * common.getEntity(req, parseInt(uoaId), UOA, 'id');
+                const rowStage = yield * common.getEntity(req, parseInt(exportData.body[i].stage), WorkflowStep, 'id');
 
-                console.log(`ROW UOA IS: ${_.first(rowUoa).name}`);
+                const user = yield * common.getEntity(req, exportData.body[i].userId, User, 'authId');
 
-                const rowStage = yield * common.getEntity(req, exportData[i].stage, WorkflowStep, 'id');
-                const user = yield * common.getEntity(req, exportData[i].userId, User, 'authId');
+                const formattedExportRow = {};
 
                 formattedExportRow.subject = rowUoa.name;
                 formattedExportRow.user = user.firstName + ' ' + user.lastName;
-                formattedExportRow.surveyName = exportData[i].surveyName;
+                formattedExportRow.surveyName = exportData.body[i].surveyName;
                 formattedExportRow.stage = rowStage.title;
-                formattedExportRow.question = exportData[i].questionText;
-                formattedExportRow.questionType = exportData[i].questionType;
-                formattedExportRow.response = exportData[i].value;
-                formattedExportRow.meta = exportData[i].meta;
-                formattedExportRow.date = exportData[i].date;
+                formattedExportRow.question = exportData.body[i].questionText;
+                formattedExportRow.questionType = exportData.body[i].questionType;
+                formattedExportRow.response = exportData.body[i].value;
+                formattedExportRow.meta = 'www.meta.com';
+                formattedExportRow.date = exportData.body[i].date;
 
                 formattedExportData.push(formattedExportRow);
             }
 
-                const csv = json2csv({ data: formattedExportData, fields: fields });
-
-                console.log();
-                console.log(`ABOUT TO LOG THE CSV:`)
-                console.log(csv);
-
-                return csv
+            const csv = json2csv({ data: formattedExportData, fields: fields });
+            
+            return csv
 
         }).then(function (data) {
-
-            console.log(`ABOUT TO SEND RESPONSE STATUS BACK ${data}`)
-
-            res.attachment('filename.csv');
+            res.attachment('projectdata.csv');
             res.status(200).send(data);
 
         }, function (err) {
