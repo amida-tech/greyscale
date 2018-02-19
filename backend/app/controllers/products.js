@@ -507,7 +507,7 @@ module.exports = {
             }
 
             const csv = json2csv({ data: formattedExportData, fields: fields });
-            
+
             return csv
 
         }).then(function (data) {
