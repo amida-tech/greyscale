@@ -479,10 +479,9 @@ module.exports = {
             const formattedExportData = [];
 
             const fields = [ // List of CSV columns
-                'subject', 'user', 'surveyName', 'stage', 'question', 'questionType', 'response', 'meta', 'date'
+                'subject', 'user', 'surveyName', 'stage', 'question', 'questionType', 'response', 'choiceText', 'meta',
+                'link', 'title', 'comment', 'date'
             ];
-
-            console.log(`EXPORT DATA BODY IS: ${exportData.body.length}`);
 
             for (var i = 0; i < exportData.body.length; i++) {
                 const uoaId = exportData.body[i].group.split('-')[1];
@@ -491,8 +490,13 @@ module.exports = {
 
                 const user = yield * common.getEntity(req, exportData.body[i].userId, User, 'authId');
 
-                const formattedExportRow = {};
+                //TODO: Figure out how to display flags, since a row is created for each comment made
+                const flag = yield thunkQuery(
+                    Discussion.select().from(Discussion)
+                        .where(Discussion.questionId.equals(parseInt(exportData.body[i].questionId)))
+                );
 
+                const formattedExportRow = {};
                 formattedExportRow.subject = rowUoa.name;
                 formattedExportRow.user = user.firstName + ' ' + user.lastName;
                 formattedExportRow.surveyName = exportData.body[i].surveyName;
@@ -500,7 +504,11 @@ module.exports = {
                 formattedExportRow.question = exportData.body[i].questionText;
                 formattedExportRow.questionType = exportData.body[i].questionType;
                 formattedExportRow.response = exportData.body[i].value;
-                formattedExportRow.meta = 'www.meta.com';
+                formattedExportRow.choiceText = exportData.body[i].choiceText;
+                formattedExportRow.meta = Object.keys(exportData.body[i].meta)[0];
+                formattedExportRow.link = exportData.body[i].meta.publication;
+                formattedExportRow.title = exportData.body[i].meta.title;
+                formattedExportRow.comment = exportData.body[i].comment;
                 formattedExportRow.date = exportData.body[i].date;
 
                 formattedExportData.push(formattedExportRow);
