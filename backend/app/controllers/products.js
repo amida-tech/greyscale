@@ -514,7 +514,7 @@ module.exports = {
                     formattedExportRow.publicationDate = exportData.body[i].meta.publication.date;
                 }
 
-                if (typeof exportData.body[i].comment !== 'undefined') {
+                if (typeof exportData.body[i].comment !== 'undefined' && !_.isEmpty(exportData.body[i].comment)) {
                     const commenter = yield * common.getEntity(req, exportData.body[i].comment.userId, User, 'authId');
                     formattedExportRow.commenter = commenter.firstName + ' ' + commenter.lastName;
                     formattedExportRow.commentReason = exportData.body[i].comment.reason;
