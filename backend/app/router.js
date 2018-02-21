@@ -276,7 +276,7 @@ router.route('/:realm/v0.2/products/:id/subindexes')
 //     .get( /*authenticate('token').always,*/ products.export);
 
 router.route('/:realm/v0.2/products/:productId/export.csv')
-    .get( authenticate('jwt').always, products.newExport);
+    .get( authenticate('jwt').always, products.export);
 
 router.route('/:realm/v0.2/products/:id/export_ticket')
     .get( /*authenticate('jwt').always,*/ products.getTicket);
