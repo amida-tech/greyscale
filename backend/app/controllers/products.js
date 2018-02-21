@@ -480,7 +480,8 @@ module.exports = {
 
             const fields = [ // List of CSV columns
                 'subject', 'user', 'surveyName', 'stage', 'question', 'questionType', 'response', 'choiceText',
-                'publicationLink', 'publicationTitle', 'publicationAuthor', 'publicationDate', 'comment', 'date'
+                'publicationLink', 'publicationTitle', 'publicationAuthor', 'publicationDate', 'commenter',
+                'commentReason', 'comment', 'date'
             ];
 
             for (var i = 0; i < exportData.body.length; i++) {
@@ -513,7 +514,13 @@ module.exports = {
                     formattedExportRow.publicationDate = exportData.body[i].meta.publication.date;
                 }
 
-                formattedExportRow.comment = exportData.body[i].comment;
+                if (typeof exportData.body[i].comment !== 'undefined') {
+                    const commenter = yield * common.getEntity(req, exportData.body[i].comment.userId, User, 'authId');
+                    formattedExportRow.commenter = commenter.firstName + ' ' + commenter.lastName;
+                    formattedExportRow.commentReason = exportData.body[i].comment.reason;
+                    formattedExportRow.comment = exportData.body[i].comment.text;
+                }
+
                 formattedExportRow.date = exportData.body[i].date;
 
                 formattedExportData.push(formattedExportRow);
