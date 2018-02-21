@@ -479,8 +479,8 @@ module.exports = {
             const formattedExportData = [];
 
             const fields = [ // List of CSV columns
-                'subject', 'user', 'surveyName', 'stage', 'question', 'questionType', 'response', 'choiceText', 'meta',
-                'link', 'title', 'comment', 'date'
+                'subject', 'user', 'surveyName', 'stage', 'question', 'questionType', 'response', 'choiceText',
+                'publicationLink', 'publicationTitle', 'publicationAuthor', 'publicationDate', 'comment', 'date'
             ];
 
             for (var i = 0; i < exportData.body.length; i++) {
@@ -505,9 +505,14 @@ module.exports = {
                 formattedExportRow.questionType = exportData.body[i].questionType;
                 formattedExportRow.response = exportData.body[i].value;
                 formattedExportRow.choiceText = exportData.body[i].choiceText;
-                formattedExportRow.meta = Object.keys(exportData.body[i].meta)[0];
-                formattedExportRow.link = exportData.body[i].meta.publication;
-                formattedExportRow.title = exportData.body[i].meta.title;
+
+                if (typeof exportData.body[i].meta.publication !== 'undefined') {
+                    formattedExportRow.publicationLink = exportData.body[i].meta.publication.link || null;
+                    formattedExportRow.publicationTitle = exportData.body[i].meta.publication.title || null;
+                    formattedExportRow.publicationAuthor = exportData.body[i].meta.publication.author || null;
+                    formattedExportRow.publicationDate = exportData.body[i].meta.publication.date || null;
+                }
+
                 formattedExportRow.comment = exportData.body[i].comment;
                 formattedExportRow.date = exportData.body[i].date;
 
