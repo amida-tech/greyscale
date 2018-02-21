@@ -507,10 +507,10 @@ module.exports = {
                 formattedExportRow.choiceText = exportData.body[i].choiceText;
 
                 if (typeof exportData.body[i].meta.publication !== 'undefined') {
-                    formattedExportRow.publicationLink = exportData.body[i].meta.publication.link || null;
-                    formattedExportRow.publicationTitle = exportData.body[i].meta.publication.title || null;
-                    formattedExportRow.publicationAuthor = exportData.body[i].meta.publication.author || null;
-                    formattedExportRow.publicationDate = exportData.body[i].meta.publication.date || null;
+                    formattedExportRow.publicationLink = exportData.body[i].meta.publication.link;
+                    formattedExportRow.publicationTitle = exportData.body[i].meta.publication.title;
+                    formattedExportRow.publicationAuthor = exportData.body[i].meta.publication.author;
+                    formattedExportRow.publicationDate = exportData.body[i].meta.publication.date;
                 }
 
                 formattedExportRow.comment = exportData.body[i].comment;
