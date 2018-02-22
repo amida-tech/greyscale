@@ -520,8 +520,12 @@ module.exports = {
 
                 // Get flags for each question and create a new csv
                 const flags = yield thunkQuery(
-                    Discussion.select().from(Discussion)
-                        .where(Discussion.questionId.equals(parseInt(exportData.body[i].questionId)))
+                    Discussion.select(Discussion.star(), Task.assessmentId).from(
+                        Discussion.leftJoin(Task)
+                        .on(Discussion.taskId.equals(Task.id))
+                    )
+                    .where(Discussion.questionId.equals(parseInt(exportData.body[i].questionId))
+                    .and(Task.assessmentId.equals(exportData.body[i].assessmentId)))
                 );
                 for (var flag = 0; flag < flags.length; flag++) {
                     const formattedFlagCsv = {};
