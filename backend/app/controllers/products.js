@@ -546,8 +546,6 @@ module.exports = {
 
             var data = zip.generate({ base64:false, compression: 'DEFLATE' });
 
-            data = data.toString(2);
-
             return data
 
         }).then(function (data) {
