@@ -39,6 +39,7 @@ var getEntity = function* (req, id, model, key) {
 
     console.log(`ID FROM GET ENTITY IS: ${id}`)
     var result = yield thunkQuery(model.select().from(model).where(model[key].equals(parseInt(id))));
+
     return (_.first(result)) ? result[0] : null;
 };
 exports.getEntity = getEntity;
