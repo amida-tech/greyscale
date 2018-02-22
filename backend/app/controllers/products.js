@@ -32,8 +32,6 @@ var
     pgEscape = require('pg-escape'),
     config = require('../../config'),
     surveyService = require('../services/survey'),
-    fs = require('fs'),
-    path = require('path'),
     zip = new require('node-zip')(),
     request = require('request');
 
@@ -480,7 +478,6 @@ module.exports = {
             const formattedExportData = [];
             const flagsExportData = [];
 
-
             const fields = [ // List of CSV columns
                 'subject', 'user', 'surveyName', 'stage', 'question', 'questionType', 'response', 'choiceText',
                 'publicationLink', 'publicationTitle', 'publicationAuthor', 'publicationDate', 'commenter',
@@ -543,6 +540,7 @@ module.exports = {
             const csv = json2csv({ data: formattedExportData, fields: fields });
             const flagsCsv = json2csv({ data: flagsExportData, fields: flagFields});
 
+            // Zip both files before sending to client
             zip.file('projectData.csv', csv);
             zip.file('flagsData.csv', flagsCsv);
 
