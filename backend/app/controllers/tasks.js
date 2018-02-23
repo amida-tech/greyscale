@@ -18,6 +18,7 @@ var
     HttpError = require('../error').HttpError,
     ProductUOA = require('../models/product_uoa'),
     notifications = require('../controllers/notifications'),
+    config = require('../../config'),
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_products');
@@ -376,7 +377,23 @@ module.exports = {
             console.log(`EXTENDED NOTE BODY IS: ${note.body}`);
 
             // Send email notification
-            notifications.notify(req, userTo, note, 'task');
+            // notifications.notify(req, userTo, note, 'task');
+            var essenceId = yield * common.getEssenceId(req, 'Tasks');
+
+            yield * notifications.createNotification(req, {
+                userFrom: userFrom.id,
+                userTo: userTo.id,
+                body: 'You have been assigned a new Task',
+                essenceId,
+                entityId: userTo.id,
+                name: userTo.firstName,
+                surname: userTo.lastName,
+                company: userTo.organizationId,
+                inviter: userFrom,
+                subject: 'New Task',
+                config,
+            }, 'task')
+
             console.log(`CONSOLE SENT EMAIL TO: ${userTo.email}`)
 
             // Send internal notification
