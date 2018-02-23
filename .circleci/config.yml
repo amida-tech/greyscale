@@ -14,17 +14,17 @@ jobs:
         - POSTGRES_USER: test
         - POSTGRES_DB: indaba
 
-    working_directory: ~/repo
+    working_directory: ~/repo/backend
 
     steps:
       - checkout
+          path: ~/repo
       # Download and cache dependencies
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "package.json" }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
-      - run: cd backend
       - run: npm i
       - run: npm run lint
       - run: npm test
@@ -39,10 +39,10 @@ jobs:
 
   publish:
     machine: true
+    working_directory: ~/repo/backend
     steps:
       - checkout
-
-      - run: cd backend
+          path: ~/repo
 
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
