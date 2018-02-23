@@ -1,0 +1,64 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2
+jobs:
+  test:
+    docker:
+      # specify the version you desire here
+      - image: circleci/node:8.9
+
+      - image: circleci/postgres:9.6.2-alpine
+        environment:
+        - POSTGRES_USER: test
+        - POSTGRES_DB: indaba
+
+    working_directory: ~/repo/backend
+
+    steps:
+      - checkout
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+      - run: npm i
+      - run: npm run lint
+      - run: npm test
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+      - run: ./node_modules/.bin/es6-plato -r -d report lib app.js
+      - store_artifacts:
+          path: report
+          prefix: report
+
+  publish:
+    machine: true
+    steps:
+      - checkout
+
+      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
+
+      - run: docker build -t amidatech/indaba-backend:$CIRCLE_BRANCH .
+
+      - run: docker push amidatech/indaba-backend:$CIRCLE_BRANCH
+
+workflows:
+  version: 2
+  test-publish:
+    jobs:
+      - test
+      - publish:
+          context: indaba
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - develop
+                - master
+
