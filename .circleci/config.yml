@@ -41,7 +41,7 @@ jobs:
     machine: true
     working_directory: ~/repo/backend
     steps:
-      - checkout
+      - checkout:
           path: ~/repo
 
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
