@@ -481,7 +481,8 @@ module.exports = {
             const fields = [ // List of CSV columns
                 'subject', 'user', 'surveyName', 'stage', 'question', 'questionType', 'response', 'choiceText',
                 'publicationLink', 'publicationTitle', 'publicationAuthor', 'publicationDate', 'commenter',
-                'commentReason', 'comment', 'date'
+                'commentReason', 'comment', 'historicCommenter1', 'historicReason1', 'historicComment1',
+                'historicCommenter2', 'historicReason2', 'historicComment2', 'date'
             ];
 
             const flagFields = ['question', 'questionType', 'response', 'responseBy', 'choiceText', 'flagComment', 'flaggedBy'];
@@ -494,6 +495,7 @@ module.exports = {
                 const user = yield * common.getEntity(req, exportData.body[i].userId, User, 'authId');
 
                 const formattedExportRow = {};
+
                 formattedExportRow.subject = rowUoa.name;
                 formattedExportRow.user = user.firstName + ' ' + user.lastName;
                 formattedExportRow.surveyName = exportData.body[i].surveyName;
@@ -513,8 +515,18 @@ module.exports = {
                     formattedExportRow.commenter = commenter.firstName + ' ' + commenter.lastName;
                     formattedExportRow.commentReason = exportData.body[i].comment.reason;
                     formattedExportRow.comment = exportData.body[i].comment.text;
+                    formattedExportRow.date = exportData.body[i].date;
+
+                    if (Array.isArray(exportData.body[i].commentHistory)) {
+                        for (var j=0; j < exportData.body[i].commentHistory.length; j++) {
+                            const priorCommenter = yield * common.getEntity(req, exportData.body[i].commentHistory[j].userId, User, 'authId');
+                            formattedExportRow['historicCommenter' + (j+1)] = priorCommenter.firstName + ' ' + priorCommenter.lastName;
+                            formattedExportRow['historicReason' + (j+1)] = exportData.body[i].commentHistory[j].reason;
+                            formattedExportRow['historicComment' + (j+1)] = exportData.body[i].commentHistory[j].text;
+                        }
+                    }
                 }
-                formattedExportRow.date = exportData.body[i].date;
+
 
                 formattedExportData.push(formattedExportRow);
 
