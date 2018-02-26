@@ -541,7 +541,7 @@ module.exports = {
                 }
             }
 
-            const csv = json2csv({ data: formattedExportData, fields: fields });
+            const csv = json2csv({ data: formattedExportData, fields: fields, withBOM: true });
             const flagsCsv = json2csv({ data: flagsExportData, fields: flagFields});
 
             // Zip both files before sending to client
