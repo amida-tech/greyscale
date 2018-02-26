@@ -479,7 +479,7 @@ module.exports = {
             const flagsExportData = [];
 
             const fields = [ // List of CSV columns
-                'subject', 'user', 'surveyName', 'stage', 'question', 'questionType', 'response', 'choiceText',
+                'subject', 'user', 'surveyName', 'stage', 'question', 'questionType', 'questionIndex', 'response', 'choiceText',
                 'publicationLink', 'publicationTitle', 'publicationAuthor', 'publicationDate', 'commenter',
                 'commentReason', 'comment', 'date'
             ];
@@ -500,6 +500,7 @@ module.exports = {
                 formattedExportRow.stage = rowStage.title;
                 formattedExportRow.question = exportData.body[i].questionText;
                 formattedExportRow.questionType = exportData.body[i].questionType;
+                formattedExportRow.questionIndex = exportData.body[i].questionIndex;
                 formattedExportRow.response = exportData.body[i].value;
                 formattedExportRow.choiceText = exportData.body[i].choiceText;
                 if (typeof exportData.body[i].meta.publication !== 'undefined') {
