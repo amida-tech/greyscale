@@ -58,7 +58,7 @@ module.exports = {
             res.json(_.last(data));
         }, function (err) {
             next(err);
-        });        
+        });
     },
 
     selectOne: function (req, res, next) {
@@ -588,9 +588,7 @@ function* uoaSoftDeleteHelper(req, productIds, deleteOption) {
                             'SET "isDeleted" = (to_timestamp(' + Date.now() +
                             '/ 1000.0)) WHERE "id" = ' + UOAId
                         );
-
                         yield common.bumpProjectLastUpdated(req, project[0].id);
-
                     }
 
                 } else {
@@ -599,7 +597,19 @@ function* uoaSoftDeleteHelper(req, productIds, deleteOption) {
                     if (_.first(modifiedTasksList).isComplete === true) {
                         throw new HttpError(403, 'Cannot delete UOA of already completed task');
                     } else {
-                        // TODO: Add check to make sure there aren't answered questions for survey Blocked by SER-160
+
+                        // Get the product data in order to get survey ID
+                        const productData = yield thunkQuery(
+                            Product.select().from(Product).where(Product.id.equals(productId))
+                        );
+
+                        const surveyId = _.first(productData).surveyId;
+
+                        const surveyAnswers = yield common.getUsersWithSurveyAnswers(surveyId, req.headers.authorization);
+
+                        if (surveyAnswers.body !== 0) {
+                            throw new HttpError(403, 'Cannot delete UOA with answered questions');
+                        }
 
                         // Soft delete the UOA from the Product UAO Table
                         yield thunkQuery(
@@ -623,9 +633,7 @@ function* uoaSoftDeleteHelper(req, productIds, deleteOption) {
                                 'SET "isDeleted" = (to_timestamp(' + Date.now() +
                                 '/ 1000.0)) WHERE "id" = ' + UOAId
                             );
-
                             yield common.bumpProjectLastUpdated(req, project[0].id);
-
                         }
                     }
                 }
