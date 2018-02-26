@@ -561,7 +561,7 @@ module.exports = {
                 }
             }
 
-            const csv = json2csv({ data: formattedExportData, fields: fields });
+            const csv = json2csv({ data: formattedExportData, fields: fields, withBOM: true });
             const commentCsv = json2csv({ data: commentHistoryExportData, fields: commentHistoryFields });
             const flagsCsv = json2csv({ data: flagsExportData, fields: flagFields });
 
