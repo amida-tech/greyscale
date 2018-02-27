@@ -534,6 +534,7 @@ module.exports = {
                         }
                     }
                 }
+                formattedExportRow.date = exportData.body[i].date;
 
 
                 formattedExportData.push(formattedExportRow);
