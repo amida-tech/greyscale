@@ -33,7 +33,8 @@ var
     config = require('../../config'),
     surveyService = require('../services/survey'),
     zip = new require('node-zip')(),
-    request = require('request');
+    request = require('request'),
+    aws = require('../controllers/aws');
 
 var debug = require('debug')('debug_products');
 var error = require('debug')('error');
