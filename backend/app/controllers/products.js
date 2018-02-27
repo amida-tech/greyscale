@@ -478,6 +478,7 @@ module.exports = {
 
             const formattedExportData = [];
             const flagsExportData = [];
+            const commentHistoryExportData = [];
 
             const fields = [ // List of CSV columns
                 'subject', 'user', 'surveyName', 'stage', 'question', 'questionType', 'questionIndex', 'response', 'choiceText',
@@ -488,6 +489,8 @@ module.exports = {
 
             const flagFields = ['question', 'questionType', 'response', 'responseBy', 'choiceText', 'flagComment', 'flaggedBy'];
 
+            const commentHistoryFields = ['question', 'questionType', 'subject', 'stage', 'priorCommenter', 'priorReason', 'priorComment'];
+
             for (var i = 0; i < exportData.body.length; i++) {
                 const uoaId = exportData.body[i].group.split('-')[1];
                 const rowUoa = yield * common.getEntity(req, parseInt(uoaId), UOA, 'id');
@@ -496,6 +499,7 @@ module.exports = {
                 const user = yield * common.getEntity(req, exportData.body[i].userId, User, 'authId');
 
                 const formattedExportRow = {};
+
                 formattedExportRow.subject = rowUoa.name;
                 formattedExportRow.user = user.firstName + ' ' + user.lastName;
                 formattedExportRow.surveyName = exportData.body[i].surveyName;
@@ -521,8 +525,25 @@ module.exports = {
                     formattedExportRow.commenter = commenter.firstName + ' ' + commenter.lastName;
                     formattedExportRow.commentReason = exportData.body[i].comment.reason;
                     formattedExportRow.comment = exportData.body[i].comment.text;
+                    formattedExportRow.date = exportData.body[i].date;
+
+                    if (Array.isArray(exportData.body[i].commentHistory)) {
+                        for (var j=0; j < exportData.body[i].commentHistory.length; j++) {
+                            const commentHistoryExportRow = {};
+                            const priorCommenter = yield * common.getEntity(req, exportData.body[i].commentHistory[j].userId, User, 'authId');
+                            commentHistoryExportRow.question = exportData.body[i].questionText;
+                            commentHistoryExportRow.questionType = exportData.body[i].questionType;
+                            commentHistoryExportRow.subject = rowUoa.name;
+                            commentHistoryExportRow.stage = rowStage.title;
+                            commentHistoryExportRow.priorCommenter = priorCommenter.firstName + ' ' + priorCommenter.lastName;
+                            commentHistoryExportRow.priorReason = exportData.body[i].commentHistory[j].reason;
+                            commentHistoryExportRow.priorComment = exportData.body[i].commentHistory[j].text;
+                            commentHistoryExportData.push(commentHistoryExportRow)
+                        }
+                    }
                 }
                 formattedExportRow.date = exportData.body[i].date;
+
 
                 formattedExportData.push(formattedExportRow);
 
@@ -545,15 +566,17 @@ module.exports = {
                     const flaggedBy = yield * common.getEntity(req, flags[flag].userFromId, User, 'id');
                     formattedFlagCsv.flaggedBy = flaggedBy.firstName + ' ' + flaggedBy.lastName;
 
-                    flagsExportData.push(formattedFlagCsv)
+                    flagsExportData.push(formattedFlagCsv);
                 }
             }
 
-            const csv = json2csv({ data: formattedExportData, fields: fields });
-            const flagsCsv = json2csv({ data: flagsExportData, fields: flagFields});
+            const csv = json2csv({ data: formattedExportData, fields: fields, withBOM: true });
+            const commentCsv = json2csv({ data: commentHistoryExportData, fields: commentHistoryFields });
+            const flagsCsv = json2csv({ data: flagsExportData, fields: flagFields });
 
             // Zip both files before sending to client
             zip.file('projectData.csv', csv);
+            zip.file('commentHistoryData.csv', commentCsv);
             zip.file('flagsData.csv', flagsCsv);
 
             var data = zip.generate({ base64:false, compression: 'DEFLATE' });
