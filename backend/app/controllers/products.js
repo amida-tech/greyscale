@@ -482,7 +482,7 @@ module.exports = {
 
             const fields = [ // List of CSV columns
                 'subject', 'user', 'surveyName', 'stage', 'question', 'questionType', 'questionIndex', 'response', 'choiceText',
-                'weight', 'filename', 'fileId',
+                'weight', 'filename', 'fileLink', 'fileId',
                 'publicationLink', 'publicationTitle', 'publicationAuthor', 'publicationDate', 'commenter',
                 'commentReason', 'comment', 'date'
             ];
@@ -512,6 +512,7 @@ module.exports = {
                 formattedExportRow.weight = exportData.body[i].weight;
                 if (typeof exportData.body[i].meta.file !== 'undefined') {
                     formattedExportRow.filename = exportData.body[i].meta.file.filename;
+                    formattedExportRow.fileLink = aws.getDownloadLink(req, res, formattedExportRow.filename);
                     formattedExportRow.fileId = exportData.body[i].meta.file.id;
                 }
                 if (typeof exportData.body[i].meta.publication !== 'undefined') {
