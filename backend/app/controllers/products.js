@@ -13,9 +13,7 @@ var
     Project = require('../models/projects'),
     Workflow = require('../models/workflows'),
     WorkflowStep = require('../models/workflow_steps'),
-    SurveyQuestion = require('../models/survey_questions'),
     SurveyQuestionOption = require('../models/survey_question_options'),
-    AnswerAttachment = require('../models/answer_attachments'),
     ProductUOA = require('../models/product_uoa'),
     Task = require('../models/tasks'),
     UOA = require('../models/uoas'),
@@ -34,6 +32,7 @@ var
     pgEscape = require('pg-escape'),
     config = require('../../config'),
     surveyService = require('../services/survey'),
+    zip = new require('node-zip')(),
     request = require('request');
 
 var debug = require('debug')('debug_products');
@@ -477,12 +476,19 @@ module.exports = {
             const exportData = yield surveyService.getExportData(surveyId, req.params.questionId, req.headers.authorization)
 
             const formattedExportData = [];
+            const flagsExportData = [];
+            const commentHistoryExportData = [];
 
             const fields = [ // List of CSV columns
-                'subject', 'user', 'surveyName', 'stage', 'question', 'questionType', 'response', 'choiceText',
+                'subject', 'user', 'surveyName', 'stage', 'question', 'questionType', 'questionIndex', 'response', 'choiceText',
+                'weight', 'filename', 'fileId',
                 'publicationLink', 'publicationTitle', 'publicationAuthor', 'publicationDate', 'commenter',
                 'commentReason', 'comment', 'date'
             ];
+
+            const flagFields = ['question', 'questionType', 'response', 'responseBy', 'choiceText', 'flagComment', 'flaggedBy'];
+
+            const commentHistoryFields = ['question', 'questionType', 'subject', 'stage', 'priorCommenter', 'priorReason', 'priorComment'];
 
             for (var i = 0; i < exportData.body.length; i++) {
                 const uoaId = exportData.body[i].group.split('-')[1];
@@ -491,44 +497,90 @@ module.exports = {
 
                 const user = yield * common.getEntity(req, exportData.body[i].userId, User, 'authId');
 
-                //TODO: Figure out how to display flags, since a row is created for each comment made
-                const flag = yield thunkQuery(
-                    Discussion.select().from(Discussion)
-                        .where(Discussion.questionId.equals(parseInt(exportData.body[i].questionId)))
-                );
-
                 const formattedExportRow = {};
+
                 formattedExportRow.subject = rowUoa.name;
                 formattedExportRow.user = user.firstName + ' ' + user.lastName;
                 formattedExportRow.surveyName = exportData.body[i].surveyName;
                 formattedExportRow.stage = rowStage.title;
                 formattedExportRow.question = exportData.body[i].questionText;
                 formattedExportRow.questionType = exportData.body[i].questionType;
+                formattedExportRow.questionIndex = exportData.body[i].questionIndex;
                 formattedExportRow.response = exportData.body[i].value;
                 formattedExportRow.choiceText = exportData.body[i].choiceText;
-
+                formattedExportRow.weight = exportData.body[i].weight;
+                if (typeof exportData.body[i].meta.file !== 'undefined') {
+                    formattedExportRow.filename = exportData.body[i].meta.file.filename;
+                    formattedExportRow.fileId = exportData.body[i].meta.file.id;
+                }
                 if (typeof exportData.body[i].meta.publication !== 'undefined') {
                     formattedExportRow.publicationLink = exportData.body[i].meta.publication.link;
                     formattedExportRow.publicationTitle = exportData.body[i].meta.publication.title;
                     formattedExportRow.publicationAuthor = exportData.body[i].meta.publication.author;
                     formattedExportRow.publicationDate = exportData.body[i].meta.publication.date;
                 }
-
                 if (typeof exportData.body[i].comment !== 'undefined' && !_.isEmpty(exportData.body[i].comment)) {
                     const commenter = yield * common.getEntity(req, exportData.body[i].comment.userId, User, 'authId');
                     formattedExportRow.commenter = commenter.firstName + ' ' + commenter.lastName;
                     formattedExportRow.commentReason = exportData.body[i].comment.reason;
                     formattedExportRow.comment = exportData.body[i].comment.text;
-                }
+                    formattedExportRow.date = exportData.body[i].date;
 
+                    if (Array.isArray(exportData.body[i].commentHistory)) {
+                        for (var j=0; j < exportData.body[i].commentHistory.length; j++) {
+                            const commentHistoryExportRow = {};
+                            const priorCommenter = yield * common.getEntity(req, exportData.body[i].commentHistory[j].userId, User, 'authId');
+                            commentHistoryExportRow.question = exportData.body[i].questionText;
+                            commentHistoryExportRow.questionType = exportData.body[i].questionType;
+                            commentHistoryExportRow.subject = rowUoa.name;
+                            commentHistoryExportRow.stage = rowStage.title;
+                            commentHistoryExportRow.priorCommenter = priorCommenter.firstName + ' ' + priorCommenter.lastName;
+                            commentHistoryExportRow.priorReason = exportData.body[i].commentHistory[j].reason;
+                            commentHistoryExportRow.priorComment = exportData.body[i].commentHistory[j].text;
+                            commentHistoryExportData.push(commentHistoryExportRow)
+                        }
+                    }
+                }
                 formattedExportRow.date = exportData.body[i].date;
 
+
                 formattedExportData.push(formattedExportRow);
+
+                // Get flags for each question and create a new csv
+                const flags = yield thunkQuery(
+                    Discussion.select(Discussion.star(), Task.assessmentId).from(
+                        Discussion.leftJoin(Task)
+                        .on(Discussion.taskId.equals(Task.id))
+                    )
+                    .where(Discussion.questionId.equals(parseInt(exportData.body[i].questionId))
+                    .and(Task.assessmentId.equals(exportData.body[i].assessmentId)))
+                );
+                for (var flag = 0; flag < flags.length; flag++) {
+                    const formattedFlagCsv = {};
+                    formattedFlagCsv.question = exportData.body[i].questionText;
+                    formattedFlagCsv.questionType = exportData.body[i].questionType;
+                    formattedFlagCsv.response = exportData.body[i].value;
+                    formattedFlagCsv.choiceText = exportData.body[i].choiceText;
+                    formattedFlagCsv.flagComment = flags[flag].entry;
+                    const flaggedBy = yield * common.getEntity(req, flags[flag].userFromId, User, 'id');
+                    formattedFlagCsv.flaggedBy = flaggedBy.firstName + ' ' + flaggedBy.lastName;
+
+                    flagsExportData.push(formattedFlagCsv);
+                }
             }
 
-            const csv = json2csv({ data: formattedExportData, fields: fields });
+            const csv = json2csv({ data: formattedExportData, fields: fields, withBOM: true });
+            const commentCsv = json2csv({ data: commentHistoryExportData, fields: commentHistoryFields });
+            const flagsCsv = json2csv({ data: flagsExportData, fields: flagFields });
 
-            return csv
+            // Zip both files before sending to client
+            zip.file('projectData.csv', csv);
+            zip.file('commentHistoryData.csv', commentCsv);
+            zip.file('flagsData.csv', flagsCsv);
+
+            var data = zip.generate({ base64:false, compression: 'DEFLATE' });
+
+            return data
 
         }).then(function (data) {
             res.attachment('projectdata.csv');

@@ -605,6 +605,38 @@ var getSurveyFromSurveyService = function (surveyId, jwt) {
 
 exports.getSurveyFromSurveyService = getSurveyFromSurveyService;
 
+
+var getUsersWithSurveyAnswers = function (surveyId, jwt) {
+    const path = 'numberUsersBySurvey/';
+
+    const requestOptions = {
+        url: config.surveyService + path + surveyId,
+        method: 'GET',
+        headers: {
+            'authorization': jwt,
+            'origin': config.domain
+        },
+        json: true,
+        resolveWithFullResponse: true,
+    };
+
+    return request(requestOptions)
+            .then((res) => {
+            if (res.statusCode > 299 || res.statusCode < 200) {
+                const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                return Promise.reject(httpErr);
+            }
+            return res
+})
+        .catch((err) => {
+            const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
+            return Promise.reject(httpErr);
+        });
+};
+
+exports.getUsersWithSurveyAnswers = getUsersWithSurveyAnswers;
+
+
 var copyAssessmentAtSurveyService = function (assessmentId, prevAssessmentId, jwt) {
     const path = 'assessment-answers/';
     const path2 = '/as-copy';
