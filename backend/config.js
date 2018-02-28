@@ -19,7 +19,9 @@ const base = {
     messageService: process.env.MESSAGE_SERVICE_URL,
     systemMessageUser: process.env.SYS_MESSAGE_USER,
     systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD,
-    gmailPass: process.env.GMAIL_PASS,
+    mailerPassword: process.env.MAILER_PASSWORD,
+    mailerEmailId: process.env.MAILER_EMAIL_ID,
+    mailerServiceProvider: process.env.MAILER_SERVICE_PROVIDER,
 };
 
 var environments = {
