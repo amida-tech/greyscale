@@ -43,31 +43,6 @@ module.exports.signS3 = function (req, res) {
     });
 };
 
-//TODO: Delete or uncomment generator function depending on what frontend wants
-// module.exports = {
-//     signS3: function (req, res, next) {
-//         co(function* () {
-//             const fileName = req.query['file-name'];
-//             const fileType = req.query['file-type'];
-//             const s3Params = {
-//                 Bucket: config.awsBucket,
-//                 Key: fileName,
-//                 Expires: 60,
-//                 ContentType: fileType,
-//                 ACL: 'public-read'
-//             };
-//             const signedRequest = s3.getSignedUrl('putObject', s3Params);
-//
-//             return signedRequest;
-//
-//         }).then(function (data) {
-//             res.json(data);
-//         }, function (err) {
-//             next(err);
-//         });
-//     }
-// };
-
 module.exports.getDownloadLink = function (req, res, fileName) {
 
     const params = {
