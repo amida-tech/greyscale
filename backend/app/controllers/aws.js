@@ -1,35 +1,56 @@
 var _ = require('underscore'),
-    HttpError = require('../error').HttpError,
-    AnswerAttachment = require('../models/answer_attachments'),
-    SurveyAnswer = require('../models/survey_answers'),
-
     config = require('../../config'),
     crypto = require('crypto'),
     co = require('co'),
-    AWS = require('aws-sdk');
-AWS.config.update(config.aws);
+    aws = require('aws-sdk');
 
-var s3 = new AWS.S3();
+// Update the aws config with our access and secret key
+aws.config.update(config.aws);
 
-module.exports = {
-    getDownloadLink: function (req, res, next) {
-        co(function* () {
-            var key = req.body.key;
-            var path = req.params.realm;
-            var params = {
-                Bucket: config.awsBucket,
-                Key: path + '/' + key
-            };
-            var url = s3.getSignedUrl('getObject', params);
+//Instantiate the S3 object
+var s3 = new aws.S3();
 
-            return {
-                url: url
-            };
-        }).then(function (data) {
-            res.json(data);
-        }, function (err) {
-            next(err);
-        });
-    },
+/**
+ * Respond to GET requests to /sign-s3.
+ * Upon request, return JSON containing the temporarily-signed S3 request and
+ * the anticipated URL of the image. Set the URL to expire after 60 seconds
+ * @param req
+ * @param res
+ * @returns json
+ */
+module.exports.signS3 = function (req, res) {
 
+    const fileName = req.query['file-name'];
+    const fileType = req.query['file-type'];
+    const s3Params = {
+        Bucket: config.awsBucket,
+        Key: fileName,
+        Expires: 60,
+        ContentType: fileType,
+        ACL: 'public-read'
+    };
+    s3.getSignedUrl('putObject', s3Params, function (err, data) {
+        if (err) {
+            return res.end();
+        }
+        const returnData = {
+            signedRequest: data,
+            url: 'https://'+ config.awsBucket + '.s3.amazonaws.com/'+fileName
+        };
+
+        res.write(JSON.stringify(returnData));
+        res.end();
+    });
+};
+
+module.exports.getDownloadLink = function (req, res, fileName) {
+
+    const params = {
+        Bucket: config.awsBucket,
+        Key: fileName
+    };
+
+    const url = s3.getSignedUrl('getObject', params);
+
+    return url;
 };

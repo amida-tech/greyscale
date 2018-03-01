@@ -8,11 +8,11 @@ const base = {
     devUserToken: process.env.INDABA_USER_TOKEN,
     jwtSecret: process.env.JWT_SECRET,
     aws: {
-        accessKeyId: 'YOURAWSACCESSKEY',
-        secretAccessKey: 'yourAwsSecretAccessKey',
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
         region: 'us-east-1'
     },
-    awsBucket : "your-aws-bucket",
+    awsBucket : process.env.S3_BUCKET,
     indabaClientDomain: process.env.INDABA_CLIENT_URL || 'http://localhost:3000',
     authService: process.env.AUTH_SERVICE_URL || 'http://localhost:4000/api/v0',
     surveyService: process.env.SURVEY_SERVICE_URL || 'http://localhost:9005/api/v1.0/',
