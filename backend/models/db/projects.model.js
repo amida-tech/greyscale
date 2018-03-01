@@ -70,6 +70,11 @@ module.exports = function projects(sequelize, Sequelize, schema = 'public') {
                 key: 'id',
             },
         },
+        lastUpdated: {
+            type: Sequelize.DATE,
+            allowNull: false,
+            defaultValue: sequelize.literal('now()'),
+        },
     }, {
         freezeTableName: true,
         tableName,
