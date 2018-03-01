@@ -272,8 +272,11 @@ router.route('/:realm/v0.2/products/:id/subindexes')
     .get( /*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.subindexes)
     .put(authenticate('jwt').always, jsonParser, /*checkPermission('product_update', 'products'),*/ products.editSubindexes);
 
-router.route('/:realm/v0.2/products/:ticket/export.csv')
-    .get( /*authenticate('token').always,*/ products.export);
+// router.route('/:realm/v0.2/products/:ticket/export.csv')
+//     .get( /*authenticate('token').always,*/ products.export);
+
+router.route('/:realm/v0.2/products/:productId/export.csv')
+    .get( authenticate('jwt').always, products.export);
 
 router.route('/:realm/v0.2/products/:id/export_ticket')
     .get( /*authenticate('jwt').always,*/ products.getTicket);
@@ -592,4 +595,12 @@ router.route('/:realm/v0.2/logs')
 //----------------------------------------------------------------------------------------------------------------------
 var SystemMessages = require('./controllers/system_messages');
 router.route('/:realm/v0.2/system_messages')
-    .post(authenticate('jwt').always, jsonParser, SystemMessages.send)
+    .post(authenticate('jwt').always, jsonParser, SystemMessages.send);
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//    AWS
+//----------------------------------------------------------------------------------------------------------------------
+var aws = require('./controllers/aws');
+router.route('/:realm/v0.2/sign-s3')
+    .get(authenticate('jwt').always, jsonParser, aws.signS3);

@@ -1,6 +1,6 @@
-var client = require('../db_bootstrap'),
-    _ = require('underscore'),
+var _ = require('underscore'),
     config = require('../../config'),
+    common = require('../services/common'),
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),
     vl = require('validator'),
@@ -11,7 +11,6 @@ var client = require('../db_bootstrap'),
     ProductUOA = require('../models/product_uoa'),
     Product = require('../models/products'),
     Project = require('../models/projects'),
-    Task = require('../models/tasks'),
     co = require('co'),
     Query = require('../util').Query,
     getTranslateQuery = require('../util').getTranslateQuery,
@@ -25,6 +24,11 @@ var client = require('../db_bootstrap'),
 
 var debug = require('debug')('debug_uoas');
 debug.log = console.log.bind(console);
+
+const DELETE_OPTIONS = {
+    'entireSystem': 1,
+    'projectOnly': 2
+};
 
 module.exports = {
 
@@ -78,6 +82,8 @@ module.exports = {
 
     insert: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
+        var uoas;
+        var sqlString;
 
         // Verify that the body contains the subjects
         if (req.body.subjects) {
@@ -85,44 +91,112 @@ module.exports = {
             if (!Array.isArray(req.body.subjects)) {
                 req.body.subjects = [{name: req.body.subjects}];
             }
-            var uoas = req.body.subjects.map((subject) => subject.name);
-            var sqlString = "'" + uoas.toString().replace(/'/g, "''").replace(/,/g, "','") + "'";
+
+            // Check that no blank subject name was passed in
+            for (let i = 0; i < req.body.subjects.length; i++) {
+                if (req.body.subjects[i].name == '') {
+                    throw new HttpError(400, 'Subject Cannot be empty');
+                }
+            }
+
+            uoas = req.body.subjects.map((subject) => subject.name);
+            sqlString = "'" + uoas.toString().replace(/'/g, "''").replace(/,/g, "','") + "'";
         } else {
             throw new HttpError(400, 'Missing Subjects');
         }
 
         co(function* () {
-            var added = yield thunkQuery(
-                'SELECT name, id FROM "UnitOfAnalysis" ' +
+            // Check if Subjects already exist in DB
+            const existingRecords = yield thunkQuery(
+                'SELECT * FROM "UnitOfAnalysis" ' +
                 'WHERE LOWER("UnitOfAnalysis"."name") IN (' + sqlString.toLowerCase() + ') ' +
                 'AND "UnitOfAnalysis"."unitOfAnalysisType" = ' + req.body.unitOfAnalysisType
-
             );
-            var insert = _.difference(uoas, added.map((exist) => exist.name));
-            for (var i = 0; i < insert.length; i++) {
-                var result = yield thunkQuery(UnitOfAnalysis.insert({
-                    name: insert[i],
-                    creatorId: req.user.realmUserId,
-                    ownerId: req.user.realmUserId,
-                    unitOfAnalysisType: req.body.unitOfAnalysisType,
-                    created: new Date(),
-                }).returning(UnitOfAnalysis.id));
-                added.push({name: insert[i], id: _.first(result).id});
+
+            // Empty list to hold inserted or modified records
+            const insertedRecords = [];
+
+            if (_.first(existingRecords)) {
+                for (let i = 0; i < existingRecords.length; i++) {
+                    if (existingRecords[i].isDeleted !== null) {
+                        const updateObj = {
+                            isDeleted: null
+                        };
+
+                        yield thunkQuery(
+                            UnitOfAnalysis.update(updateObj).where(UnitOfAnalysis.id.equals(existingRecords[i].id))
+                        );
+                    }
+
+                    if (req.body.productId) {
+                        // check that record doesn't already exist in productUOA
+                        const recordInProductUOA = yield thunkQuery(
+                            ProductUOA.select().where(ProductUOA.UOAid.equals(existingRecords[i].id)
+                                                .and(ProductUOA.productId.equals(req.body.productId)))
+                        );
+
+                        if (!_.first(recordInProductUOA)) { // Record not in productUOA, we can add it
+
+                            yield thunkQuery(ProductUOA.insert({
+                                productId: req.body.productId,
+                                UOAid: existingRecords[i].id,
+                                currentStepId: null,
+                                isComplete: false,
+                            }));
+                        } else if (_.first(recordInProductUOA).isDeleted !== null) {
+                            const updateObj = {
+                                isDeleted: null
+                            };
+
+                            yield thunkQuery(
+                                ProductUOA.update(updateObj).where(ProductUOA.UOAid.equals(existingRecords[i].id))
+                            );
+
+                        } else {
+                            throw new HttpError(403, 'Error adding duplicate subject to project');
+                        }
+                    }
+                    insertedRecords.push({
+                        id: existingRecords[i].id,
+                        name: existingRecords[i].name
+                    });
+                }
             }
-            if (req.body.productId) {
-                for (var j = 0; j < added.length; j++) {
-                    yield thunkQuery(ProductUOA.insert({
-                        productId: req.body.productId,
-                        UOAid: added[j].id,
-                        currentStepId: null,
-                        isComplete: false,
-                    }));
+
+            if (uoas.length !== existingRecords.length) {
+                //get the new records to be inserted into a new list
+                const newRecords = _.difference(uoas, existingRecords.map((exist) => exist.name));
+
+                for (let i = 0; i < newRecords.length; i++) {
+                    // Insert the new records
+                    const insertedRecord = yield thunkQuery(
+                        UnitOfAnalysis.insert({
+                            name: newRecords[i],
+                            creatorId: req.user.realmUserId,
+                            ownerId: req.user.realmUserId,
+                            unitOfAnalysisType: req.body.unitOfAnalysisType,
+                            created: new Date(),
+                        }).returning(UnitOfAnalysis.id, UnitOfAnalysis.name)
+                    );
+
+                    // Insert into the productUOA table if applicable
+                    if (req.body.productId) {
+                        yield thunkQuery(ProductUOA.insert({
+                            productId: req.body.productId,
+                            UOAid: _.first(insertedRecord).id,
+                            currentStepId: null,
+                            isComplete: false,
+                        }));
+                    }
+                    insertedRecords.push({
+                        id: _.first(insertedRecord).id,
+                        name: _.first(insertedRecord).name
+                    });
                 }
 
                 yield common.bumpProjectLastUpdatedByProduct(req, req.body.productId);
             }
-
-            return added;
+            return insertedRecords;
         }).then(function (data) {
             bologger.log({
                 req: req,
@@ -162,139 +236,31 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+            var result = yield thunkQuery(UnitOfAnalysisTagLink.select().where(UnitOfAnalysisTagLink.uoaId.equals(req.params.id)));
+            if (_.first(result)) {
+                throw new HttpError(403, 'Subject used in Subject to Tag link. Could not delete Subject');
+            }
 
-            // TODO: Check if the UOA passed in has a productId associated with it.
+            //Check if the UOA passed in has a productId associated with it.
+            const productUOA = yield thunkQuery(
+                ProductUOA.select().from(ProductUOA).where(ProductUOA.UOAid.equals(req.params.id))
+            );
 
-            if (req.body.productId) {
-                var result = yield thunkQuery(UnitOfAnalysisTagLink.select().where(UnitOfAnalysisTagLink.uoaId.equals(req.params.id)));
-                if (_.first(result)) {
-                    throw new HttpError(403, 'Subject used in Subject to Tag link. Could not delete Subject');
-                }
-
-                // Check if project has ever been active
-                var project = yield thunkQuery(
-                    Project
-                        .select(
-                            Project.star()
-                        )
-                        .from(
-                            Project
-                                .leftJoin(Product)
-                                .on(Product.projectId.equals(Project.id))
-                        )
-                        .where(
-                            Product.id.equals(req.body.productId)
-                        )
-                );
-
-                if (_.first(project)) {
-                    // If project is not active, delete UAO without any issues
-                    if (project[0].status === 0) {
-                        yield thunkQuery(
-                            'UPDATE "ProductUOA"' +
-                            'SET "isDeleted" = (to_timestamp(' + Date.now() +
-                            '/ 1000.0)) WHERE "UOAid" = ' + req.params.id +
-                            'AND "productId" = ' + req.body.productId
-                        );
-
-                        // Soft delete the task with that UAO ID
-                        yield thunkQuery(
-                            'UPDATE "Tasks"' +
-                            'SET "isDeleted" = (to_timestamp(' + Date.now() +
-                            '/ 1000.0)) WHERE "productId" = ' + req.body.productId +
-                            'AND "uoaId" = ' + req.params.id
-                        );
-
-                        yield thunkQuery(
-                            'UPDATE "UnitOfAnalysis"' +
-                            'SET "isDeleted" = (to_timestamp(' + Date.now() +
-                            '/ 1000.0)) WHERE "id" = ' + req.params.id
-                        );
-
-                        yield common.bumpProjectLastUpdated(req, project[0].id);
-                    } else { // Project is active and we have to do other checks.
-                        // check if there are any tasks assigned
-                        var task = yield thunkQuery(
-                            'SELECT "Tasks".* ' +
-                            'FROM "Tasks" ' +
-                            'WHERE "Tasks"."uoaId" = ' + req.params.id +
-                            'AND "Tasks"."productId" = ' + req.body.productId
-                        );
-
-                        if (!_.first(task)) {
-                            // Soft delete the UOA from the Product UAO Table
-                            yield thunkQuery(
-                                'UPDATE "ProductUOA"' +
-                                'SET "isDeleted" = (to_timestamp(' + Date.now() +
-                                '/ 1000.0)) WHERE "UOAid" = ' + req.params.id +
-                                'AND "productId" = ' + req.body.productId
-                            );
-
-                            // Soft delete from the UOA table
-                            yield thunkQuery(
-                                'UPDATE "UnitOfAnalysis"' +
-                                'SET "isDeleted" = (to_timestamp(' + Date.now() +
-                                '/ 1000.0)) WHERE "id" = ' + req.params.id
-                            );
-
-                            yield common.bumpProjectLastUpdated(req, project[0].id);
-
-                        } else {
-                            if (task[0].isComplete === true) {
-                                throw new HttpError(403, 'Cannot delete UOA of already completed task');
-                            } else {
-                                // TODO: Add check to make sure there aren't answered questions for survey
-                                // Soft delete the UOA from the Product UAO Table
-                                yield thunkQuery(
-                                    'UPDATE "ProductUOA"' +
-                                    'SET "isDeleted" = (to_timestamp(' + Date.now() +
-                                    '/ 1000.0)) WHERE "UOAid" = ' + req.params.id +
-                                    'AND "productId" = ' + req.body.productId
-                                );
-
-                                // Soft delete the task with that UAO ID
-                                yield thunkQuery(
-                                    'UPDATE "Tasks"' +
-                                    'SET "isDeleted" = (to_timestamp(' + Date.now() +
-                                    '/ 1000.0)) WHERE "productId" = ' + req.body.productId +
-                                    'AND "uoaId" = ' + req.params.id
-                                );
-
-                                yield thunkQuery(
-                                    'UPDATE "UnitOfAnalysis"' +
-                                    'SET "isDeleted" = (to_timestamp(' + Date.now() +
-                                    '/ 1000.0)) WHERE "id" = ' + req.params.id
-                                );
-
-                                yield common.bumpProjectLastUpdated(req, project[0].id);
-                            }
-                        }
-                    }
-                } else {
-                    throw new HttpError(403, 'No Project Found');
-                }
-            } else {
-                // TODO: Replicate checks for conditions if there is no productID passed in.
-                // Soft delete the UOA from the Product UAO Table
-                yield thunkQuery(
-                    'UPDATE "ProductUOA"' +
-                    'SET "isDeleted" = (to_timestamp(' + Date.now() +
-                    '/ 1000.0)) WHERE "UOAid" = ' + req.params.id
-                );
-
-                // Soft delete the task with that UAO ID
-                yield thunkQuery(
-                    'UPDATE "Tasks"' +
-                    'SET "isDeleted" = (to_timestamp(' + Date.now() +
-                    '/ 1000.0)) WHERE "uoaId" = ' + req.params.id
-                );
-
+            if (!_.first(productUOA)) {
                 // Soft delete from the UOA table
                 yield thunkQuery(
                     'UPDATE "UnitOfAnalysis"' +
                     'SET "isDeleted" = (to_timestamp(' + Date.now() +
                     '/ 1000.0)) WHERE "id" = ' + req.params.id
                 );
+            } else {
+                if (req.body.productId) {
+                    const productId = [{productId: req.body.productId}];
+                    yield * uoaSoftDeleteHelper(req, productId, DELETE_OPTIONS.projectOnly);
+                } else {
+                    // Delete all UOA's from all products
+                    yield * uoaSoftDeleteHelper(req, productUOA, DELETE_OPTIONS.entireSystem);
+                }
             }
             return true;
         }).then(function (data) {
@@ -543,3 +509,143 @@ module.exports = {
     }
 
 };
+
+function* uoaSoftDeleteHelper(req, productIds, deleteOption) {
+    var thunkQuery = req.thunkQuery,
+        UOAId = req.params.id;
+
+    for (var i = 0; i < productIds.length; i++ ) {
+        const productId = productIds[i].productId;
+
+        // Check if project has ever been active
+        var project = yield thunkQuery(
+            Project
+                .select(
+                    Project.star()
+                )
+                .from(
+                    Project
+                        .leftJoin(Product)
+                        .on(Product.projectId.equals(Project.id))
+                )
+                .where(
+                    Product.id.equals(productId)
+                )
+        );
+
+        if (_.first(project)) {
+            // If project is not active, delete UAO without any issues
+            if (_.first(project).status === 0) {
+
+                yield thunkQuery(
+                    'UPDATE "ProductUOA"' +
+                    'SET "isDeleted" = (to_timestamp(' + Date.now() +
+                    '/ 1000.0)) WHERE "UOAid" = ' + UOAId +
+                    'AND "productId" = ' + productId
+                );
+
+                // Soft delete the task with that UAO ID
+                yield thunkQuery(
+                    'UPDATE "Tasks"' +
+                    'SET "isDeleted" = (to_timestamp(' + Date.now() +
+                    '/ 1000.0)) WHERE "productId" = ' + productId +
+                    'AND "uoaId" = ' + UOAId
+                );
+
+                if (deleteOption === 1) {
+                    yield thunkQuery(
+                        'UPDATE "UnitOfAnalysis"' +
+                        'SET "isDeleted" = (to_timestamp(' + Date.now() +
+                        '/ 1000.0)) WHERE "id" = ' + UOAId
+                    );
+
+                    yield common.bumpProjectLastUpdated(req, project[0].id);
+
+                }
+            } else { // Project is active and we have to do other checks.
+
+                // check if there are any tasks assigned
+                var tasks = yield thunkQuery(
+                    'SELECT "Tasks".* ' +
+                    'FROM "Tasks" ' +
+                    'WHERE "Tasks"."uoaId" = ' + UOAId +
+                    'AND "Tasks"."productId" = ' + productId
+                );
+
+                if (!_.first(tasks)) {
+                    // Soft delete the UOA from the Product UAO Table
+                    yield thunkQuery(
+                        'UPDATE "ProductUOA"' +
+                        'SET "isDeleted" = (to_timestamp(' + Date.now() +
+                        '/ 1000.0)) WHERE "UOAid" = ' + UOAId +
+                        'AND "productId" = ' + productId
+                    );
+
+                    if (deleteOption === 1) {
+                        // Soft delete from the UOA table
+                        yield thunkQuery(
+                            'UPDATE "UnitOfAnalysis"' +
+                            'SET "isDeleted" = (to_timestamp(' + Date.now() +
+                            '/ 1000.0)) WHERE "id" = ' + UOAId
+                        );
+                        yield common.bumpProjectLastUpdated(req, project[0].id);
+                    }
+
+                } else {
+                    const modifiedTasksList = yield * common.getCompletenessForTask(req, tasks);
+
+                    if (_.first(modifiedTasksList).isComplete === true) {
+                        throw new HttpError(403, 'Cannot delete UOA of already completed task');
+                    } else {
+
+                        // Get the product data in order to get survey ID
+                        const productData = yield thunkQuery(
+                            Product.select().from(Product).where(Product.id.equals(productId))
+                        );
+
+                        const surveyId = _.first(productData).surveyId;
+
+                        const surveyAnswers = yield common.getUsersWithSurveyAnswers(surveyId, req.headers.authorization);
+
+                        if (surveyAnswers.body !== 0) {
+                            throw new HttpError(403, 'Cannot delete UOA with answered questions');
+                        }
+
+                        // Soft delete the UOA from the Product UAO Table
+                        yield thunkQuery(
+                            'UPDATE "ProductUOA"' +
+                            'SET "isDeleted" = (to_timestamp(' + Date.now() +
+                            '/ 1000.0)) WHERE "UOAid" = ' + UOAId +
+                            'AND "productId" = ' + productId
+                        );
+
+                        // Soft delete the task with that UAO ID
+                        yield thunkQuery(
+                            'UPDATE "Tasks"' +
+                            'SET "isDeleted" = (to_timestamp(' + Date.now() +
+                            '/ 1000.0)) WHERE "productId" = ' + productId +
+                            'AND "uoaId" = ' + UOAId
+                        );
+
+                        if (deleteOption === 1) {
+                            yield thunkQuery(
+                                'UPDATE "UnitOfAnalysis"' +
+                                'SET "isDeleted" = (to_timestamp(' + Date.now() +
+                                '/ 1000.0)) WHERE "id" = ' + UOAId
+                            );
+                            yield common.bumpProjectLastUpdated(req, project[0].id);
+                        }
+                    }
+                }
+            }
+        } else {
+            if (deleteOption === 1) {
+                yield thunkQuery(
+                    'UPDATE "UnitOfAnalysis"' +
+                    'SET "isDeleted" = (to_timestamp(' + Date.now() +
+                    '/ 1000.0)) WHERE "id" = ' + UOAId
+                );
+            }
+        }
+    }
+}

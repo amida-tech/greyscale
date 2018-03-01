@@ -38,4 +38,4 @@ module.exports = {
 
         return request(requestOptions);
     }
-}
+};

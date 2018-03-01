@@ -12,7 +12,8 @@ var
     UserGroup = require('../models/user_groups'),
     UOA = require('../models/uoas'),
     Task = require('../models/tasks'),
-    Survey = require('../models/surveys'),
+    messageService = require('../services/messages'),
+    logger = require('../logger'),
     Discussion = require('../models/discussions'),
     Notification = require('../models/notifications'),
     Organization = require('../models/organizations'),
@@ -24,8 +25,8 @@ var
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
     config = require('../../config'),
-    nodemailer = require('nodemailer');
-request = require('request-promise');
+    nodemailer = require('nodemailer'),
+    request = require('request-promise');
 
 var getEntityById = function* (req, id, model, key) {
     var thunkQuery = req.thunkQuery;
@@ -36,6 +37,7 @@ exports.getEntityById = getEntityById;
 var getEntity = function* (req, id, model, key) {
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(model.select().from(model).where(model[key].equals(parseInt(id))));
+
     return (_.first(result)) ? result[0] : null;
 };
 exports.getEntity = getEntity;
@@ -513,6 +515,19 @@ var getActiveForTask = function* (req, tasks) {
 
 exports.getActiveForTask = getActiveForTask;
 
+var getAssessmentStatusForTask = function* (req, tasks) {
+    for (var i = 0; i < tasks.length; i++) {
+        let statusRequest = yield getAssessmentStatusAtSurveyService(
+            tasks[i].assessmentId,
+            req.headers.authorization);
+        statusRequest = JSON.parse(statusRequest.body);
+        tasks[i].assessmentStatus = statusRequest.status;
+    }
+    return tasks;
+}
+
+exports.getAssessmentStatusForTask = getAssessmentStatusForTask;
+
 var insertProjectUser = function* (req, userId, projectId) {
     var thunkQuery = req.thunkQuery;
     var data = yield thunkQuery(ProjectUser.select().where({ projectId, userId }));
@@ -520,8 +535,6 @@ var insertProjectUser = function* (req, userId, projectId) {
     if (data.length === 0) {
         var insertedData = yield thunkQuery(ProjectUser.insert({ projectId, userId }));
         return insertedData;
-    } else {
-        throw new HttpError(403, 'User is already assigned to project');
     }
 };
 
@@ -580,7 +593,6 @@ var getSurveyFromSurveyService = function (surveyId, jwt) {
                 const httpErr = new HttpError(res.statusCode, res.statusMessage);
                 return Promise.reject(httpErr);
             }
-
             return res
         })
         .catch((err) => {
@@ -590,6 +602,38 @@ var getSurveyFromSurveyService = function (surveyId, jwt) {
 };
 
 exports.getSurveyFromSurveyService = getSurveyFromSurveyService;
+
+
+var getUsersWithSurveyAnswers = function (surveyId, jwt) {
+    const path = 'numberUsersBySurvey/';
+
+    const requestOptions = {
+        url: config.surveyService + path + surveyId,
+        method: 'GET',
+        headers: {
+            'authorization': jwt,
+            'origin': config.domain
+        },
+        json: true,
+        resolveWithFullResponse: true,
+    };
+
+    return request(requestOptions)
+            .then((res) => {
+            if (res.statusCode > 299 || res.statusCode < 200) {
+                const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                return Promise.reject(httpErr);
+            }
+            return res
+})
+        .catch((err) => {
+            const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
+            return Promise.reject(httpErr);
+        });
+};
+
+exports.getUsersWithSurveyAnswers = getUsersWithSurveyAnswers;
+
 
 var copyAssessmentAtSurveyService = function (assessmentId, prevAssessmentId, jwt) {
     const path = 'assessment-answers/';
@@ -620,9 +664,39 @@ var copyAssessmentAtSurveyService = function (assessmentId, prevAssessmentId, jw
             const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
             return Promise.reject(httpErr);
         });
-}
+};
 
 exports.copyAssessmentAtSurveyService = copyAssessmentAtSurveyService;
+
+var getAssessmentStatusAtSurveyService = function (assessmentId, jwt) {
+    const path = 'assessment-answers/';
+    const path2 = '/status';
+
+    const requestOptions = {
+        url: config.surveyService + path + assessmentId + path2,
+        method: 'GET',
+        headers: {
+            'authorization': jwt,
+            'origin': config.domain
+        },
+        resolveWithFullResponse: true,
+    };
+
+    return request(requestOptions)
+        .then((res) => {
+            if (res.statusCode > 299 || res.statusCode < 200) {
+                const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                return Promise.reject(httpErr);
+            }
+            return res;
+        })
+        .catch((err) => {
+            const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
+            return Promise.reject(httpErr);
+        });
+}
+
+exports.getAssessmentStatusAtSurveyService = getAssessmentStatusAtSurveyService;
 
 var getCompletedTaskByStepId = function* (req, workflowStepId) {
 
@@ -646,7 +720,7 @@ var bumpProjectLastUpdatedByProduct = function *(req, productId) {
     if (productResult.length === 1) {
         yield bumpProjectLastUpdated(req, productResult[0].projectId);
     }
-}
+};
 
 exports.bumpProjectLastUpdatedByProduct = bumpProjectLastUpdatedByProduct;
 
@@ -656,6 +730,59 @@ var bumpProjectLastUpdated = function *(req, projectId) {
         .update({lastUpdated: new Date()})
         .where(Project.id.equals(projectId))
     )
-}
+};
 
 exports.bumpProjectLastUpdated = bumpProjectLastUpdated;
+
+var sendSystemMessageWithMessageService = function (req, to, message) {
+
+    if (to && message) {
+        return messageService.sendSystemMessage(
+            req.app.get(messageService.SYSTEM_MESSAGE_USER_TOKEN_FIELD),
+            to,
+            message,
+            messageService.SYSTEM_MESSAGE_SUBJECT
+        )
+        .then((res) => {
+            res.statusCode = 204;
+            return res;
+        })
+        .catch((err) => {
+            if (err.statusCode === 401) {
+                logger.debug('Attempt to send a system message was unauthorized');
+                logger.debug('Reauthenticating and trying again');
+                return messageService.authAsSystemMessageUser()
+                .then((auth) => {
+                    req.app.set(messageService.SYSTEM_MESSAGE_USER_TOKEN_FIELD, auth.token);
+                })
+                .catch((err) => {
+                    const message = 'Failed to send system message. Could not authenticate as system message user'
+                    logger.error(message)
+                    return Promise.reject(message);
+                })
+                .then(() =>
+                    messageService.sendSystemMessage(
+                        req.app.get(messageService.SYSTEM_MESSAGE_USER_TOKEN_FIELD),
+                        to,
+                        message,
+                        messageService.SYSTEM_MESSAGE_SUBJECT
+                    )
+                    .then((res) => {
+                        logger.debug(res);
+                        res.statusCode = 200;
+                        return res
+                    })
+                    .catch((err) => {
+                        logger.error('Failed to send system message');
+                        logger.error(err);
+                        return Promise.reject(err);
+                    })
+                )
+            }
+            return err;
+        });
+    }
+};
+
+exports.sendSystemMessageWithMessageService = sendSystemMessageWithMessageService;
+
