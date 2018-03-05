@@ -92,15 +92,15 @@ Emailer.prototype.sendEmailWithGmail = function (to, subject, text, html, ccList
     }
 
     const transporter = emailer.createTransport({
-        service: 'gmail',
+        service: config.mailerServiceProvider,
         auth: {
-            user: 'indaba-mailer-dev@amida.com',
-            pass: config.gmailPass
+            user: config.mailerEmailId,
+            pass: config.mailerPassword
         }
     });
 
     const mailOptions = {
-        from: 'indaba-mailer-dev@amida.com',
+        from: config.mailerEmailId,
         to: to,
         subject: subject,
         text: text,

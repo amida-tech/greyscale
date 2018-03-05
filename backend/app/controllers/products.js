@@ -33,7 +33,8 @@ var
     config = require('../../config'),
     surveyService = require('../services/survey'),
     zip = new require('node-zip')(),
-    request = require('request');
+    request = require('request'),
+    aws = require('../controllers/aws');
 
 var debug = require('debug')('debug_products');
 var error = require('debug')('error');
@@ -481,12 +482,12 @@ module.exports = {
 
             const fields = [ // List of CSV columns
                 'subject', 'user', 'surveyName', 'stage', 'question', 'questionType', 'questionIndex', 'response', 'choiceText',
-                'weight', 'filename', 'fileId',
+                'weight', 'filename', 'fileLink', 'fileId',
                 'publicationLink', 'publicationTitle', 'publicationAuthor', 'publicationDate', 'commenter',
                 'commentReason', 'comment', 'date'
             ];
 
-            const flagFields = ['question', 'questionType', 'response', 'responseBy', 'choiceText', 'flagComment', 'flaggedBy'];
+            const flagFields = ['subject', 'question', 'questionType', 'response', 'responseBy', 'choiceText', 'flagComment', 'flaggedBy'];
 
             const commentHistoryFields = ['question', 'questionType', 'subject', 'stage', 'priorCommenter', 'priorReason', 'priorComment'];
 
@@ -511,6 +512,7 @@ module.exports = {
                 formattedExportRow.weight = exportData.body[i].weight;
                 if (typeof exportData.body[i].meta.file !== 'undefined') {
                     formattedExportRow.filename = exportData.body[i].meta.file.filename;
+                    formattedExportRow.fileLink = aws.getDownloadLink(req, res, formattedExportRow.filename);
                     formattedExportRow.fileId = exportData.body[i].meta.file.id;
                 }
                 if (typeof exportData.body[i].meta.publication !== 'undefined') {
@@ -557,6 +559,7 @@ module.exports = {
                 );
                 for (var flag = 0; flag < flags.length; flag++) {
                     const formattedFlagCsv = {};
+                    formattedFlagCsv.subject = rowUoa.name;
                     formattedFlagCsv.question = exportData.body[i].questionText;
                     formattedFlagCsv.questionType = exportData.body[i].questionType;
                     formattedFlagCsv.response = exportData.body[i].value;
