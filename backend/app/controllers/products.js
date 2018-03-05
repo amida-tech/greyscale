@@ -1881,7 +1881,7 @@ function* aggregateIndexes(req, productId, allQuestions) {
     var result = {
         agg: []
     };
-    for (i = 0; i < data.length; i++) {
+    for (var i = 0; i < data.length; i++) {
         data[i].indexes = {};
         indexes.forEach(function (index) {
             data[i].indexes[index.id] = (

@@ -10,7 +10,6 @@ var
     WorkflowStepGroup = require('../models/workflow_step_groups'),
     Group = require('../models/groups'),
     UserGroup = require('../models/user_groups'),
-    UOA = require('../models/uoas'),
     Task = require('../models/tasks'),
     messageService = require('../services/messages'),
     logger = require('../logger'),
@@ -21,11 +20,8 @@ var
     ProjectUser = require('../models/project_users'),
     sql = require('sql'),
     Query = require('../util').Query,
-    query = new Query(),
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
-    config = require('../../config'),
-    nodemailer = require('nodemailer'),
     request = require('request-promise');
 
 var getEntityById = function* (req, id, model, key) {
@@ -43,7 +39,6 @@ var getEntity = function* (req, id, model, key) {
 exports.getEntity = getEntity;
 
 var getTask = function* (req, taskId) {
-    var thunkQuery = req.thunkQuery;
     var result = yield * getEntityById(req, taskId, Task, 'id');
     if (!_.first(result)) {
         throw new HttpError(403, 'Task with id `' + parseInt(taskId).toString() + '` does not exist');
@@ -130,7 +125,6 @@ var getUsersFromGroup = function* (req, groupId) {
 exports.getUsersFromGroup = getUsersFromGroup;
 
 var getUsersForStepByTask = function* (req, taskId) {
-    var thunkQuery = req.thunkQuery;
     var result = yield * getEntityById(req, taskId, Task, 'id');
     if (!_.first(result)) {
         throw new HttpError(403, 'Task with id `' + parseInt(taskId).toString() + '` does not exist');
@@ -284,7 +278,7 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
 };
 exports.getCurrentStepExt = getCurrentStepExt;
 
-var getMinNextStepPositionWithTask = function* (req, curStep, productId, uoaId) {
+var getMinNextStepPositionWithTask = function* (req, curStep) {
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(
         WorkflowStep
@@ -542,9 +536,9 @@ exports.insertProjectUser = insertProjectUser;
 
 var checkRecordExistById = function* (req, database, column, requestId, isDeletedCondition) {
     var thunkQuery = req.thunkQuery;
-
+    var record;
     if (typeof isDeletedCondition === 'undefined') {
-        var record = yield thunkQuery(
+        record = yield thunkQuery(
             '( ' +
             'SELECT count(1) ' +
             'FROM "' + database + '" ' +
@@ -552,7 +546,7 @@ var checkRecordExistById = function* (req, database, column, requestId, isDelete
             ') '
         );
     } else {
-        var record = yield thunkQuery(
+        record = yield thunkQuery(
             '( ' +
             'SELECT count(1) ' +
             'FROM "' + database + '" ' +
@@ -620,16 +614,16 @@ var getUsersWithSurveyAnswers = function (surveyId, jwt) {
 
     return request(requestOptions)
             .then((res) => {
-            if (res.statusCode > 299 || res.statusCode < 200) {
-                const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                if (res.statusCode > 299 || res.statusCode < 200) {
+                    const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                    return Promise.reject(httpErr);
+                }
+                return res
+            })
+            .catch((err) => {
+                const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
                 return Promise.reject(httpErr);
-            }
-            return res
-})
-        .catch((err) => {
-            const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
-            return Promise.reject(httpErr);
-        });
+            });
 };
 
 exports.getUsersWithSurveyAnswers = getUsersWithSurveyAnswers;
@@ -755,7 +749,7 @@ var sendSystemMessageWithMessageService = function (req, to, message) {
                 .then((auth) => {
                     req.app.set(messageService.SYSTEM_MESSAGE_USER_TOKEN_FIELD, auth.token);
                 })
-                .catch((err) => {
+                .catch(() => {
                     const message = 'Failed to send system message. Could not authenticate as system message user'
                     logger.error(message)
                     return Promise.reject(message);

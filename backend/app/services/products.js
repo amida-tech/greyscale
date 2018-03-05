@@ -1,5 +1,4 @@
 var
-    _ = require('underscore'),
     ProductUOA = require('../models/product_uoa'),
     taskServ = require('../services/tasks'),
     co = require('co'),

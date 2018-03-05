@@ -577,21 +577,21 @@ module.exports = {
                 }
                 var essenceId = yield * common.getEssenceId(req, 'Users');
                 var note = yield * createNotification(req, {
-                        userFrom: req.user.realmUserId,
-                        userTo: user.id,
-                        body: body,
-                        essenceId: essenceId,
-                        entityId: user.id,
-                        notifyLevel: user.notifyLevel,
-                        name: user.firstName,
-                        surname: user.lastName,
-                        company: org,
-                        inviter: req.user,
-                        token: user.activationToken,
-                        subject: subject,
-                        config: config
-                    },
-                    template
+                    userFrom: req.user.realmUserId,
+                    userTo: user.id,
+                    body: body,
+                    essenceId: essenceId,
+                    entityId: user.id,
+                    notifyLevel: user.notifyLevel,
+                    name: user.firstName,
+                    surname: user.lastName,
+                    company: org,
+                    inviter: req.user,
+                    token: user.activationToken,
+                    subject: subject,
+                    config: config
+                },
+                template
                 );
                 /*
                                 bologger.log({
