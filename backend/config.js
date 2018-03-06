@@ -173,14 +173,14 @@ var environments = {
                 lastName: 'Test',
                 roleID: 1,
                 scopes: 'admin',
-                password: 'testuser12345',
+                password: 'Testadmin12345',
             },
             admin: {
-                email: 'test-adm@mail.net',
-                firstName: 'Admin',
-                lastName: 'Test',
+                email: process.env.ADMIN_USER_EMAIL,
+                firstName: process.env.ADMIN_USER_FIRST_NAME,
+                lastName: process.env.ADMIN_USER_LAST_NAME,
                 roleID: 2,
-                password: 'testadmin12345',
+                password: 'Adminuser1',
             },
             users: [
                 {
@@ -188,7 +188,7 @@ var environments = {
                     lastName: 'Test',
                     email: 'user1@mail.net',
                     roleID: 3,
-                    password: 'testuser12345',
+                    password: 'Testuser12345',
                     authId: 1,
                 },
                 {
@@ -196,7 +196,7 @@ var environments = {
                     lastName: 'Test',
                     email: 'user2@mail.net',
                     roleID: 3,
-                    password: 'testuser12345',
+                    password: 'Testuser12345',
                     authId: 2,
                 },
                 {
@@ -204,7 +204,7 @@ var environments = {
                     lastName: 'Test',
                     email: 'user3@mail.net',
                     roleID: 3,
-                    password: 'testuser12345',
+                    password: 'Testuser12345',
                     authId: 3,
                 }
             ],
