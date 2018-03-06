@@ -2619,7 +2619,6 @@ ALTER TABLE "Tasks_id_seq" OWNER TO indabauser;
 
 CREATE TABLE "Tasks" (
     id integer DEFAULT nextval('"Tasks_id_seq"'::regclass) NOT NULL,
-    title character varying,
     description text,
     "uoaId" integer NOT NULL,
     "stepId" integer NOT NULL,
@@ -4075,7 +4074,6 @@ ALTER TABLE "Tasks_id_seq" OWNER TO indabauser;
 
 CREATE TABLE "Tasks" (
     id integer DEFAULT nextval('"Tasks_id_seq"'::regclass) NOT NULL,
-    title character varying,
     description text,
     "uoaId" integer NOT NULL,
     "stepId" integer NOT NULL,

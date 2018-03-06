@@ -154,8 +154,10 @@ module.exports = {
         co(function* () {
             var tasks = yield thunkQuery(
                 '( ' +
-                'SELECT "Tasks".*, "Products"."projectId", "Products"."surveyId" ' +
+                'SELECT "Tasks".*, "WorkflowSteps".title, "Products"."projectId", "Products"."surveyId" ' +
                 'FROM "Tasks" ' +
+                'LEFT JOIN "WorkflowSteps" ' +
+                'ON "Tasks"."stepId" = "WorkflowSteps".id ' +
                 'LEFT JOIN "Products" ' +
                 'ON "Products".id = ' +
                 '"Tasks"."productId" ' +
