@@ -739,11 +739,9 @@ function sendEmail(req, emailOptions, note, noteId) {
 }
 
 function notify(req, userTo, note, template) {
-
     co(function* () {
         var thunkQuery = req.thunkQuery;
         note = yield * checkInsert(req, note);
-
         var note4insert = _.extend({}, note);
         template = (template || 'default');
         if (!config.notificationTemplates[template]) {
@@ -827,7 +825,7 @@ function* extendNote(req, note, userTo, essenceName, entityId, orgId, taskId) {
     var product = yield * common.getEntity(req, task.productId, Product, 'id');
     var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
     var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-    
+
     var survey = yield common.getSurveyFromSurveyService(product.surveyId, req.headers.authorization);
 
     note = _.extend(note, {
