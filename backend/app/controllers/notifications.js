@@ -739,9 +739,11 @@ function sendEmail(req, emailOptions, note, noteId) {
 }
 
 function notify(req, userTo, note, template) {
+
     co(function* () {
         var thunkQuery = req.thunkQuery;
         note = yield * checkInsert(req, note);
+
         var note4insert = _.extend({}, note);
         template = (template || 'default');
         if (!config.notificationTemplates[template]) {
@@ -752,11 +754,7 @@ function notify(req, userTo, note, template) {
 
         note4insert = _.pick(note4insert, Notification.insertCols); // insert only columns that may be inserted
 
-        console.log(`GOT THE NOTE4INSERT: ${note4insert}`)
-
         var noteInserted = yield thunkQuery(Notification.insert(note4insert).returning(Notification.id));
-
-        console.log(`INSERTED NOTE IS: ${noteInserted}`);
 
         if (parseInt(note.notifyLevel) > 1) { // onsite notification
             socketController.sendNotification(note.userTo);
@@ -815,9 +813,6 @@ function notify(req, userTo, note, template) {
 }
 
 function* extendNote(req, note, userTo, essenceName, entityId, orgId, taskId) {
-    console.log()
-    console.log(`GOT IN THE EXTEND NOTE FUNCTION`)
-
 
     if (essenceName && essenceName.length > 0) {
         var essenceId = yield * common.getEssenceId(req, essenceName);
@@ -827,21 +822,14 @@ function* extendNote(req, note, userTo, essenceName, entityId, orgId, taskId) {
         });
     }
 
-    console.log(`PULLING NEEDED INFO`);
     var organization = yield * common.getEntity(req, orgId ? orgId : req.user.organizationId, Organization, 'id');
-    console.log(`ORGANIZATION IS: ${organization}`)
     var task = yield * common.getTask(req, taskId);
-    console.log(`TASK IS: ${task}`)
     var product = yield * common.getEntity(req, task.productId, Product, 'id');
-    console.log(`PRODUCT IS: ${product}`);
-    console.log(`UOA ID IS: ${task.uoaId}`);
+
     // var uoa = yield * common.getEntity(req, task.uoaId, UOA, '  id');
     // console.log(`UOA IS: ${uoa}`);
+
     var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-    console.log(`STEP IS: ${step}`)
-
-
-    console.log(`GOT ALL THE NEEDED INFO IN EXTENDED NOTE`)
 
     var survey = yield common.getSurveyFromSurveyService(product.surveyId, req.headers.authorization);
 

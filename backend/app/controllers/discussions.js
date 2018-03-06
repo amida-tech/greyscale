@@ -13,7 +13,6 @@ var
     Task = require('../models/tasks'),
     Discussion = require('../models/discussions'),
     notifications = require('../controllers/notifications'),
-    messageService = require('../services/messages'),
     co = require('co'),
     Query = require('../util').Query,
     query = new Query(),
@@ -40,6 +39,7 @@ var setWhereInt = function (selectQuery, val, model, key) {
 };
 
 var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
+
     co(function* () {
         var userTo, note;
         // notify

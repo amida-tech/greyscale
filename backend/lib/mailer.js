@@ -86,7 +86,6 @@ Emailer.prototype.getAttachments = function (html) {
 };
 
 Emailer.prototype.sendEmailWithGmail = function (to, subject, text, html, ccList) {
-    console.log(`SENDING EMAIL WITH GMAIL`)
     if (typeof(ccList) === "undefined" || ccList === null) {
         ccList = [];
     }

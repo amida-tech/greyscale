@@ -18,10 +18,32 @@ var
     HttpError = require('../error').HttpError,
     ProductUOA = require('../models/product_uoa'),
     notifications = require('../controllers/notifications'),
+    productsController = require('../controllers/products'),
     config = require('../../config'),
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_products');
+var error = require('debug')('error');
+
+var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
+    co(function* () {
+        var userTo, note;
+        // notify
+        userTo = yield * common.getUser(req, req.body.userId);
+        note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
+
+        // get the notification email to send out
+        notifications.notify(req, userTo, note, templateName);
+
+        // Send internal notification
+        yield common.sendSystemMessageWithMessageService(req, userTo.email, note.body);
+
+    }).then(function (result) {
+        debug('Created notifications `' + note0.action + '`');
+    }, function (err) {
+        error(JSON.stringify(err));
+    });
+};
 
 module.exports = {
 
@@ -349,57 +371,13 @@ module.exports = {
                 log.info = 'Error update currentStep for product `' + (req.body.productId || req.params.id) + '` (Not found step ID or min step position)';
             }
 
-            // Send notification (internal and email to user)
-            console.log()
-            console.log(`USER TO IS: ${req.body.userId}`);
-            const userTo = yield * common.getUser(req, req.body.userId);
-            console.log(`USER FROM IS: ${req.user.id}`);
-            const userFrom = yield * common.getUser(req, req.user.id);
+            // Send notification to user (Email and Internal)
+            const taskId = _.first(result).id;
 
-            const userFromName = userFrom.firstName + ' ' + userFrom.lastName;
-
-            const from = {
-                firstName: userFromName.firstName,
-                lastName: userFromName.lastName
-            };
-
-            const note0 = {
+            notify(req, {
                 body: 'You have been assigned a new Task',
                 action: 'New Task',
-                userFromName: userFromName,
-                from: from
-            };
-
-            console.log(`BUILT FROM AND NOTE0 OBJECT`);
-
-            const taskId = _.first(result).id;
-            console.log(`TASK ID IS ${taskId}`)
-            const note = yield * notifications.extendNote(req, note0, userTo, 'Tasks', taskId, userTo.organizationId, taskId);
-
-            console.log(`EXTENDED NOTE BODY IS: ${note.body}`);
-
-            // Send email notification
-            // notifications.notify(req, userTo, note, 'task');
-            var essenceId = yield * common.getEssenceId(req, 'Tasks');
-
-            yield * notifications.createNotification(req, {
-                userFrom: userFrom.id,
-                userTo: userTo.id,
-                body: 'You have been assigned a new Task',
-                essenceId,
-                entityId: userTo.id,
-                name: userTo.firstName,
-                surname: userTo.lastName,
-                company: userTo.organizationId,
-                inviter: userFrom,
-                subject: 'New Task',
-                config,
-            }, 'task')
-
-            console.log(`CONSOLE SENT EMAIL TO: ${userTo.email}`)
-
-            // Send internal notification
-            yield common.sendSystemMessageWithMessageService(req, userTo.email, note.body);
+            }, taskId, taskId, 'Tasks', 'activateTask');
 
             bologger.log(log);
             return result;
