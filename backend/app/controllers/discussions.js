@@ -39,7 +39,6 @@ var setWhereInt = function (selectQuery, val, model, key) {
 };
 
 var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
-
     co(function* () {
         var userTo, note;
         // notify

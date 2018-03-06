@@ -753,7 +753,6 @@ function notify(req, userTo, note, template) {
         note4insert = _.pick(note4insert, Notification.insertCols); // insert only columns that may be inserted
 
         var noteInserted = yield thunkQuery(Notification.insert(note4insert).returning(Notification.id));
-
         if (parseInt(note.notifyLevel) > 1) { // onsite notification
             socketController.sendNotification(note.userTo);
         }
@@ -819,7 +818,6 @@ function* extendNote(req, note, userTo, essenceName, entityId, orgId, taskId) {
             entityId: entityId
         });
     }
-
     var organization = yield * common.getEntity(req, orgId ? orgId : req.user.organizationId, Organization, 'id');
     var task = yield * common.getTask(req, taskId);
     var product = yield * common.getEntity(req, task.productId, Product, 'id');
