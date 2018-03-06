@@ -825,12 +825,9 @@ function* extendNote(req, note, userTo, essenceName, entityId, orgId, taskId) {
     var organization = yield * common.getEntity(req, orgId ? orgId : req.user.organizationId, Organization, 'id');
     var task = yield * common.getTask(req, taskId);
     var product = yield * common.getEntity(req, task.productId, Product, 'id');
-
-    // var uoa = yield * common.getEntity(req, task.uoaId, UOA, '  id');
-    // console.log(`UOA IS: ${uoa}`);
-
+    var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
     var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-
+    
     var survey = yield common.getSurveyFromSurveyService(product.surveyId, req.headers.authorization);
 
     note = _.extend(note, {
@@ -838,7 +835,7 @@ function* extendNote(req, note, userTo, essenceName, entityId, orgId, taskId) {
         userTo: userTo.id,
         task: task,
         product: product,
-        // uoa: uoa,
+        uoa: uoa,
         step: step,
         survey: survey.body,
         policy: survey.body,

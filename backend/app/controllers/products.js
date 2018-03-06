@@ -80,9 +80,6 @@ var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
     });
 };
 
-exports.notify = notify;
-
-
 var moveWorkflow = function* (req, productId, UOAid) {
     var essenceId, task, userTo, organization, product, uoa, step, survey, note;
     var thunkQuery = req.thunkQuery;
