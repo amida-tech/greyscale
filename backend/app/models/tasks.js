@@ -4,7 +4,6 @@ var Task = sql.define({
     name: 'Tasks',
     columns: [
         'id',
-        'title',
         'description',
         'uoaId',
         'stepId',
@@ -21,7 +20,6 @@ var Task = sql.define({
 });
 
 Task.editCols = [
-    'title',
     'description',
     'startDate',
     'endDate',

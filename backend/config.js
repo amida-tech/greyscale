@@ -8,18 +8,20 @@ const base = {
     devUserToken: process.env.INDABA_USER_TOKEN,
     jwtSecret: process.env.JWT_SECRET,
     aws: {
-        accessKeyId: 'YOURAWSACCESSKEY',
-        secretAccessKey: 'yourAwsSecretAccessKey',
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
         region: 'us-east-1'
     },
-    awsBucket : "your-aws-bucket",
+    awsBucket : process.env.S3_BUCKET,
     indabaClientDomain: process.env.INDABA_CLIENT_URL || 'http://localhost:3000',
     authService: process.env.AUTH_SERVICE_URL || 'http://localhost:4000/api/v0',
     surveyService: process.env.SURVEY_SERVICE_URL || 'http://localhost:9005/api/v1.0/',
     messageService: process.env.MESSAGE_SERVICE_URL,
     systemMessageUser: process.env.SYS_MESSAGE_USER,
     systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD,
-    gmailPass: process.env.GMAIL_PASS,
+    mailerPassword: process.env.MAILER_PASSWORD,
+    mailerEmailId: process.env.MAILER_EMAIL_ID,
+    mailerServiceProvider: process.env.MAILER_SERVICE_PROVIDER,
 };
 
 var environments = {
@@ -171,14 +173,14 @@ var environments = {
                 lastName: 'Test',
                 roleID: 1,
                 scopes: 'admin',
-                password: 'testuser12345',
+                password: 'Testadmin12345',
             },
             admin: {
-                email: 'test-adm@mail.net',
-                firstName: 'Admin',
-                lastName: 'Test',
+                email: process.env.ADMIN_USER_EMAIL,
+                firstName: process.env.ADMIN_USER_FIRST_NAME,
+                lastName: process.env.ADMIN_USER_LAST_NAME,
                 roleID: 2,
-                password: 'testadmin12345',
+                password: 'Adminuser1',
             },
             users: [
                 {
@@ -186,7 +188,7 @@ var environments = {
                     lastName: 'Test',
                     email: 'user1@mail.net',
                     roleID: 3,
-                    password: 'testuser12345',
+                    password: 'Testuser12345',
                     authId: 1,
                 },
                 {
@@ -194,7 +196,7 @@ var environments = {
                     lastName: 'Test',
                     email: 'user2@mail.net',
                     roleID: 3,
-                    password: 'testuser12345',
+                    password: 'Testuser12345',
                     authId: 2,
                 },
                 {
@@ -202,7 +204,7 @@ var environments = {
                     lastName: 'Test',
                     email: 'user3@mail.net',
                     roleID: 3,
-                    password: 'testuser12345',
+                    password: 'Testuser12345',
                     authId: 3,
                 }
             ],

@@ -592,4 +592,12 @@ router.route('/:realm/v0.2/logs')
 //----------------------------------------------------------------------------------------------------------------------
 var SystemMessages = require('./controllers/system_messages');
 router.route('/:realm/v0.2/system_messages')
-    .post(authenticate('jwt').always, jsonParser, SystemMessages.send)
+    .post(authenticate('jwt').always, jsonParser, SystemMessages.send);
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//    AWS
+//----------------------------------------------------------------------------------------------------------------------
+var aws = require('./controllers/aws');
+router.route('/:realm/v0.2/sign-s3')
+    .get(authenticate('jwt').always, jsonParser, aws.signS3);

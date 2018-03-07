@@ -36,7 +36,7 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 23	WorflowSteps	WorflowSteps	worflowSteps	title
 20	Groups	Groups	groups	title
 21	Organizations	Organizations	organizations	name
-22	Tasks	Tasks	tasks	title
+22	Tasks	Tasks	tasks	description
 4	Products	Products	products	title
 6	UnitOfAnalysis	UnitOfAnalysis	uoas	name
 5	UnitOfAnalysisType	UnitOfAnalysisType	uoatypes	name
@@ -596,7 +596,7 @@ COPY "UnitOfAnalysis" (id, "gadmId0", "gadmId1", "gadmId2", "gadmId3", "gadmObje
 -- Data for Name: Tasks; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
 --
 
-COPY "Tasks" (id, title, description, "uoaId", "stepId", created, "productId", "startDate", "endDate", "userId", "langId") FROM stdin;
+COPY "Tasks" (id, description, "uoaId", "stepId", created, "productId", "startDate", "endDate", "userId", "langId") FROM stdin;
 \.
 
 
@@ -1401,9 +1401,9 @@ COPY "UnitOfAnalysis" (id, "gadmId0", "gadmId1", "gadmId2", "gadmId3", "gadmObje
 -- Data for Name: Tasks; Type: TABLE DATA; Schema: test; Owner: indaba
 --
 
-COPY "Tasks" (id, title, description, "uoaId", "stepId", created, "productId", "startDate", "endDate", "userId", "langId", "userIds", "groupIds") FROM stdin;
-2	\N	\N	2	2	2017-04-11 12:47:03.946322-04	2	2017-04-11 00:00:00-04	2017-04-12 00:00:00-04	\N	\N	{3}	{}
-3	\N	\N	2	3	2017-04-11 12:47:36.170686-04	2	2017-04-11 00:00:00-04	2017-04-12 00:00:00-04	\N	\N	{4}	{}
+COPY "Tasks" (id, description, "uoaId", "stepId", created, "productId", "startDate", "endDate", "userId", "langId", "userIds", "groupIds") FROM stdin;
+2	\N	2	2	2017-04-11 12:47:03.946322-04	2	2017-04-11 00:00:00-04	2017-04-12 00:00:00-04	\N	\N	{3}	{}
+3	\N	2	3	2017-04-11 12:47:36.170686-04	2	2017-04-11 00:00:00-04	2017-04-12 00:00:00-04	\N	\N	{4}	{}
 \.
 
 
