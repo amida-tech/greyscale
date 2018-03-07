@@ -6,9 +6,7 @@ var
     crypto = require('crypto'),
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),
-    csv = require('express-csv'),
     json2csv = require('json2csv'),
-    fs = require('file-system'),
     Product = require('../models/products'),
     Project = require('../models/projects'),
     Workflow = require('../models/workflows'),
@@ -27,13 +25,10 @@ var
     co = require('co'),
     sql = require('sql'),
     mc = require('../mc_helper'),
-    thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
     pgEscape = require('pg-escape'),
-    config = require('../../config'),
     surveyService = require('../services/survey'),
-    zip = new require('node-zip')(),
-    request = require('request');
+    zip = new require('node-zip')();
 
 var debug = require('debug')('debug_products');
 var error = require('debug')('error');
@@ -45,7 +40,8 @@ var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
         // notify
         var sentUsersId = []; // array for excluding duplicate sending
         var task = yield * common.getTask(req, taskId);
-        for (var i in task.userIds) {
+        var i;
+        for (i in task.userIds) {
             if (sentUsersId.indexOf(task.userIds[i]) === -1) {
                 if (req.user.id !== task.userIds[i]) { // don't send self notification
                     userTo = yield * common.getUser(req, task.userIds[i]);
@@ -68,7 +64,7 @@ var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
                 }
             }
         }
-    }).then(function (result) {
+    }).then(function () {
         debug('Created notifications `' + note0.action + '`');
     }, function (err) {
         error(JSON.stringify(err));
@@ -76,7 +72,7 @@ var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
 };
 
 var moveWorkflow = function* (req, productId, UOAid) {
-    var essenceId, task, userTo, organization, product, uoa, step, survey, note;
+    var task;
     var thunkQuery = req.thunkQuery;
     //if (req.user.roleID !== 2 && req.user.roleID !== 1) { // TODO check org owner
     //    throw new HttpError(403, 'Access denied');
@@ -624,8 +620,6 @@ module.exports = {
     },
 
     indexes: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-
         var productId = parseInt(req.params.id);
         co(function* () {
             return yield getIndexes(req, productId);
@@ -806,8 +800,6 @@ module.exports = {
     },
 
     subindexes: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-
         var productId = parseInt(req.params.id);
         co(function* () {
             return yield getSubindexes(req, productId);
@@ -948,8 +940,6 @@ module.exports = {
     },
 
     aggregateIndexes: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-
         var productId = parseInt(req.params.id);
         co(function* () {
             return yield aggregateIndexes(req, productId, false);
@@ -1040,7 +1030,7 @@ module.exports = {
             return yield thunkQuery(
                 Product.delete().where(Product.id.equals(req.params.id))
             );
-        }).then(function (data) {
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -1093,7 +1083,7 @@ module.exports = {
                 }
             }
             return yield thunkQuery(Product.update(_.pick(req.body, Product.editCols)).where(Product.id.equals(req.params.id)));
-        }).then(function (data) {
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -1162,7 +1152,7 @@ module.exports = {
                     UOAid: req.params.uoaid
                 })
             );
-        }).then(function (data) {
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -1218,8 +1208,6 @@ module.exports = {
             });
             var insertArr = [];
 
-            var firstStep;
-
             for (var i in req.body) {
                 if (ids.indexOf(req.body[i]) === -1) {
                     throw new HttpError(403, 'Unit of Analisys with id = ' + req.body[i] + ' does not exist');
@@ -1260,8 +1248,6 @@ module.exports = {
     },
 
     UOAdelete: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-
         co(function* () {
             // moved to services
             return yield productServ.deleteProductUOA(req, req.params.id, req.params.uoaid);
@@ -1294,7 +1280,6 @@ module.exports = {
     },
 
     productUOAmove: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield * moveWorkflow(req, req.params.id, req.params.uoaid);
         }).then(function () {
@@ -1865,9 +1850,9 @@ function* aggregateIndexes(req, productId, allQuestions) {
         }
         return qs;
     }));
-
+    var i;
     // calculate subindexes
-    for (var i = 0; i < data.length; i++) {
+    for (i = 0; i < data.length; i++) {
         data[i].subindexes = {};
         subindexes.forEach(function (si) {
             data[i].subindexes[si.id] = calcTerm(si.weights, data[i].questions, qMinsMaxes) / si.divisor;
@@ -1881,7 +1866,7 @@ function* aggregateIndexes(req, productId, allQuestions) {
     var result = {
         agg: []
     };
-    for (var i = 0; i < data.length; i++) {
+    for (i = 0; i < data.length; i++) {
         data[i].indexes = {};
         indexes.forEach(function (index) {
             data[i].indexes[index.id] = (

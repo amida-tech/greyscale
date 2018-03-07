@@ -2,10 +2,8 @@ var
     _ = require('underscore'),
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),
-    Survey = require('../models/surveys'),
     Essence = require('../models/essences'),
     SurveyAnswer = require('../models/survey_answers'),
-    AnswerAttachment = require('../models/answer_attachments'),
     AttachmentLink = require('../models/attachment_links'),
     SurveyQuestion = require('../models/survey_questions'),
     SurveyQuestionOption = require('../models/survey_question_options'),
@@ -17,26 +15,14 @@ var
     Project = require('../models/projects'),
     Organization = require('../models/organizations'),
     ProductUOA = require('../models/product_uoa'),
-    User = require('../models/users'),
     co = require('co'),
-    sql = require('sql'),
     Query = require('../util').Query,
-    query = new Query(),
-    thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
-    fs = require('fs'),
-    crypto = require('crypto'),
     config = require('../../config'),
-    common = require('../services/common'),
-    notifications = require('../controllers/notifications'),
-    mc = require('../mc_helper'),
-    pgEscape = require('pg-escape'),
-    bytes = require('bytes'),
-    thunkQuery = thunkify(query);
+    pgEscape = require('pg-escape');
 
 var AWS = require('aws-sdk');
 AWS.config.update(config.aws);
-var s3 = new AWS.S3();
 
 var debug = require('debug')('debug_survey_answers');
 debug.log = console.log.bind(console);
@@ -228,7 +214,7 @@ module.exports = {
             return yield thunkQuery(
                 SurveyAnswer.delete().where(SurveyAnswer.id.equals(req.params.id))
             );
-        }).then(function (data) {
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -313,7 +299,7 @@ module.exports = {
                 SurveyAnswer.update(updateObj).where(SurveyAnswer.id.equals(req.params.id))
             );
 
-        }).then(function (data) {
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -329,7 +315,6 @@ module.exports = {
     },
 
     add: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
         co(function* () {
             if (!Array.isArray(req.body)) {
                 req.body = [req.body];
