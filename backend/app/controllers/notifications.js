@@ -789,7 +789,15 @@ function notify(req, userTo, note, template) {
         var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(noteInserted[0].id)));
 
         if (parseInt(note.notifyLevel) > 1 && !config.email.disable) { // email notification
+
             sendEmail(req, emailOptions, note, noteInserted[0].id);
+
+            // Send internal notification
+            yield common.sendSystemMessageWithMessageService(req, userTo.email, note.body)
+
+        } else if (parseInt(note.notifyLevel) === 1 ) { // just internal notification
+
+            yield common.sendSystemMessageWithMessageService(req, userTo.email, note.body)
         }
 
         bologger.log({
