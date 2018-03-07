@@ -4,9 +4,6 @@ module.exports = function tasks(sequelize, Sequelize, schema = 'public') {
     const tableName = 'Tasks';
     const modelName = `${schema}_${tableName}`;
     return sequelize.define(modelName, {
-        title: {
-            type: 'character varying',
-        },
         description: {
             type: Sequelize.TEXT,
         },
