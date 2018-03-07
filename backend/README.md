@@ -27,6 +27,34 @@ pgAdmin restore
 node --harmony app.js (since 4.0.0 version --harmony is not necessary)
 ```
 
+
+# Set up environment variables
+```
+# Copy the environment variables 
+cp .env.example .env
+
+# Insert values for the following 
+GMAIL_PASS=enter-password
+MESSAGE_SERVICE_URL=http://localhost:4002
+SYS_MESSAGE_USER=indaba@example.com
+SYS_MESSAGE_PASSWORD=insert-pwd
+S3_BUCKET=insert-aws-bucket
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+MAILER_EMAIL_ID=insert-email-id
+MAILER_PASSWORD=pwd
+MAILER_SERVICE_PROVIDER=gmail
+ADMIN_USER_EMAIL=insert-email-here
+ADMIN_USER_FIRST_NAME=insert-firstName-here
+ADMIN_USER_LAST_NAME=insert-lastName-here
+INDABA_PG_PASSWORD=insert-pwd
+JWT_SECRET=enter-secret
+```
+
+
+Indaba uses [`debug`](https://github.com/visionmedia/debug) package. To turn debug messages on set environment variable `DEBUG` to `*`.
+
+
 # Logging
 
 Indaba uses [`debug`](https://github.com/visionmedia/debug) package. To turn debug messages on set environment variable `DEBUG` to `*`.
