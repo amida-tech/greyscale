@@ -487,7 +487,7 @@ module.exports = {
                 'commentReason', 'comment', 'date'
             ];
 
-            const flagFields = ['question', 'questionType', 'response', 'responseBy', 'choiceText', 'flagComment', 'flaggedBy'];
+            const flagFields = ['subject', 'question', 'questionType', 'response', 'responseBy', 'choiceText', 'flagComment', 'flaggedBy'];
 
             const commentHistoryFields = ['question', 'questionType', 'subject', 'stage', 'priorCommenter', 'priorReason', 'priorComment'];
 
@@ -559,6 +559,7 @@ module.exports = {
                 );
                 for (var flag = 0; flag < flags.length; flag++) {
                     const formattedFlagCsv = {};
+                    formattedFlagCsv.subject = rowUoa.name;
                     formattedFlagCsv.question = exportData.body[i].questionText;
                     formattedFlagCsv.questionType = exportData.body[i].questionType;
                     formattedFlagCsv.response = exportData.body[i].value;

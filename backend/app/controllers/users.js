@@ -268,6 +268,7 @@ module.exports = {
             }
             const existUser = _.first(isExist);
             const userAuthed = yield _createUserOnAuthService(existUser.email, req.body.password, existUser.roleID, req.headers.authorization);
+
             var data = {
                 activationToken: null,
                 isActive: true,
