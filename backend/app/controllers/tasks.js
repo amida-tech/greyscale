@@ -373,7 +373,7 @@ module.exports = {
             notify(req, {
                 body: 'You have been assigned a new Task',
                 action: 'New Task',
-            }, taskId, taskId, 'Tasks', 'activateTask');
+            }, taskId, taskId, 'Tasks', 'assignTask');
 
             bologger.log(log);
             return result;
