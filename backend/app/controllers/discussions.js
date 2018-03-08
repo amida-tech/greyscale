@@ -13,7 +13,6 @@ var
     Task = require('../models/tasks'),
     Discussion = require('../models/discussions'),
     notifications = require('../controllers/notifications'),
-    messageService = require('../services/messages'),
     co = require('co'),
     Query = require('../util').Query,
     query = new Query(),

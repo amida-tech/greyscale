@@ -52,6 +52,8 @@ var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
                     userTo = yield * common.getUser(req, task.userIds[i]);
                     note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
                     notifications.notify(req, userTo, note, templateName);
+                    // Send internal notification
+                    yield common.sendSystemMessageWithMessageService(req, userTo.email, note.body);
                     sentUsersId.push(task.userIds[i]);
                 }
             }
@@ -64,6 +66,8 @@ var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
                         userTo = yield * common.getUser(req, usersFromGroup[j].userId);
                         note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
                         notifications.notify(req, userTo, note, templateName);
+                        // Send internal notification
+                        yield common.sendSystemMessageWithMessageService(req, userTo.email, note.body);
                         sentUsersId.push(usersFromGroup[j].userId);
                     }
                 }
