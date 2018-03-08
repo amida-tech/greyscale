@@ -18,7 +18,6 @@ var
     HttpError = require('../error').HttpError,
     ProductUOA = require('../models/product_uoa'),
     notifications = require('../controllers/notifications'),
-    productsController = require('../controllers/products'),
     config = require('../../config'),
     thunkQuery = thunkify(query);
 
@@ -34,9 +33,6 @@ var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
 
         // get the notification email to send out
         notifications.notify(req, userTo, note, templateName);
-
-        // Send internal notification
-        yield common.sendSystemMessageWithMessageService(req, userTo.email, note.body);
 
     }).then(function (result) {
         debug('Created notifications `' + note0.action + '`');
@@ -377,7 +373,7 @@ module.exports = {
             notify(req, {
                 body: 'You have been assigned a new Task',
                 action: 'New Task',
-            }, taskId, taskId, 'Tasks', 'activateTask');
+            }, taskId, taskId, 'Tasks', 'assignTask');
 
             bologger.log(log);
             return result;
