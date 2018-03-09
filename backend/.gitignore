@@ -2,3 +2,7 @@ config.js
 Dockerrun.aws.json
 latest-backend.zip
 npm-debug.log
+.env
+package-lock.json
+/artifacts
+/report

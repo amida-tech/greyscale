@@ -1,6 +1,5 @@
 var
     _ = require('underscore'),
-    config = require('../../config'),
     common = require('../services/common'),
     productServ = require('../services/products'),
     notifications = require('../controllers/notifications'),
@@ -8,22 +7,17 @@ var
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),
     csv = require('express-csv'),
+    json2csv = require('json2csv'),
+    fs = require('file-system'),
     Product = require('../models/products'),
     Project = require('../models/projects'),
-    Organization = require('../models/organizations'),
     Workflow = require('../models/workflows'),
     WorkflowStep = require('../models/workflow_steps'),
-    Survey = require('../models/surveys'),
-    SurveyQuestion = require('../models/survey_questions'),
     SurveyQuestionOption = require('../models/survey_question_options'),
-    SurveyAnswer = require('../models/survey_answers'),
-    AnswerAttachment = require('../models/answer_attachments'),
-    User = require('../models/users'),
-    EssenceRole = require('../models/essence_roles'),
-    AccessMatrix = require('../models/access_matrices'),
     ProductUOA = require('../models/product_uoa'),
     Task = require('../models/tasks'),
     UOA = require('../models/uoas'),
+    User = require('../models/users'),
     Discussion = require('../models/discussions'),
     Index = require('../models/indexes.js'),
     Subindex = require('../models/subindexes.js'),
@@ -31,15 +25,16 @@ var
     IndexSubindexWeight = require('../models/index_subindex_weights.js'),
     SubindexWeight = require('../models/subindex_weights.js'),
     co = require('co'),
-    Query = require('../util').Query,
-    getTranslateQuery = require('../util').getTranslateQuery,
-    query = new Query(),
     sql = require('sql'),
     mc = require('../mc_helper'),
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
-    thunkQuery = thunkify(query),
-    pgEscape = require('pg-escape');
+    pgEscape = require('pg-escape'),
+    config = require('../../config'),
+    surveyService = require('../services/survey'),
+    zip = new require('node-zip')(),
+    request = require('request'),
+    aws = require('../controllers/aws');
 
 var debug = require('debug')('debug_products');
 var error = require('debug')('error');
@@ -57,6 +52,8 @@ var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
                     userTo = yield * common.getUser(req, task.userIds[i]);
                     note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
                     notifications.notify(req, userTo, note, templateName);
+                    // Send internal notification
+                    yield common.sendSystemMessageWithMessageService(req, userTo.email, note.body);
                     sentUsersId.push(task.userIds[i]);
                 }
             }
@@ -69,6 +66,8 @@ var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
                         userTo = yield * common.getUser(req, usersFromGroup[j].userId);
                         note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
                         notifications.notify(req, userTo, note, templateName);
+                        // Send internal notification
+                        yield common.sendSystemMessageWithMessageService(req, userTo.email, note.body);
                         sentUsersId.push(usersFromGroup[j].userId);
                     }
                 }
@@ -87,6 +86,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
     //if (req.user.roleID !== 2 && req.user.roleID !== 1) { // TODO check org owner
     //    throw new HttpError(403, 'Access denied');
     //}
+
     var curStep = yield * common.getCurrentStepExt(req, productId, UOAid);
 
     var autoResolve = false;
@@ -172,6 +172,12 @@ var moveWorkflow = function* (req, productId, UOAid) {
             }, nextStep.taskId, nextStep.taskId, 'Tasks', 'activateTask');
         }
 
+        var nextTask = yield * common.getTask(req, nextStep.taskId);
+        common.copyAssessmentAtSurveyService(
+            nextTask.assessmentId,
+            curStep.task.assessmentId,
+            req.headers.authorization);
+
     } else {
         // next step does not exists - set productUOA status to complete
         yield thunkQuery(
@@ -221,6 +227,9 @@ var moveWorkflow = function* (req, productId, UOAid) {
             });
         }
     }
+
+    yield common.bumpProjectLastUpdatedByProduct(req, productId);
+
     debug(nextStep);
 
 };
@@ -256,7 +265,7 @@ module.exports = {
 
         co(function* () {
             var curStepAlias = 'curStep';
-            return yield thunkQuery(
+            const projectTasks = yield thunkQuery(
                 Task
                 .select(
                     Task.star(),
@@ -266,49 +275,32 @@ module.exports = {
                     'SELECT ' +
                     '"Discussions"."id" ' +
                     'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
+                    'WHERE "Discussions"."taskId" = "Tasks"."id" ' +
                     'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
                     'LIMIT 1' +
                     ') IS NULL ' +
                     'THEN FALSE ' +
                     'ELSE TRUE ' +
                     'END as flagged',
-                    '( ' +
-                    'SELECT count("Discussions"."id") ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    ') as flaggedCount',
+                    'CASE ' +
+                    'WHEN ' +
                     '(' +
                     'SELECT ' +
-                    '"Discussions"."taskId" ' +
+                    '"Discussions"."id" ' +
                     'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
+                    'WHERE "Discussions"."taskId" = "Tasks"."id" ' +
                     'LIMIT 1' +
-                    ') as flaggedFrom',
+                    ') IS NULL ' +
+                    'THEN FALSE ' +
+                    'ELSE TRUE ' +
+                    'END as "flagHistory"',
                     'CASE ' +
                     'WHEN "' + pgEscape.string(curStepAlias) + '"."position" IS NULL AND ("WorkflowSteps"."position" = 0) THEN \'current\' ' +
                     'WHEN "' + pgEscape.string(curStepAlias) + '"."position" IS NULL AND ("WorkflowSteps"."position" <> 0) THEN \'waiting\' ' +
                     'WHEN ("' + pgEscape.string(curStepAlias) + '"."position" > "WorkflowSteps"."position") OR ("ProductUOA"."isComplete" = TRUE) THEN \'completed\' ' +
                     'WHEN "' + pgEscape.string(curStepAlias) + '"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
                     'WHEN "' + pgEscape.string(curStepAlias) + '"."position" < "WorkflowSteps"."position" THEN \'waiting\' ' +
-                    'END as status ',
-                    WorkflowStep.position,
-                    '(' +
-                    'SELECT max("SurveyAnswers"."created") ' +
-                    'FROM "SurveyAnswers" ' +
-                    'WHERE ' +
-                    '"SurveyAnswers"."productId" = "Tasks"."productId" ' +
-                    'AND "SurveyAnswers"."UOAid" = "Tasks"."uoaId" ' +
-                    'AND "SurveyAnswers"."wfStepId" = "Tasks"."stepId" ' +
-                    ') as "lastVersionDate"'
+                    'END as status '
                 )
                 .from(
                     Task
@@ -328,8 +320,10 @@ module.exports = {
                         ProductUOA.currentStepId.equals(WorkflowStep.as(curStepAlias).id)
                     )
                 )
-                .where(Task.productId.equals(req.params.id))
+                .where(Task.productId.equals(req.params.id)
+                .and(Task.isDeleted.isNull()))
             );
+            return yield * common.getAssessmentStatusForTask(req, projectTasks);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -480,262 +474,130 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
 
         co(function* () {
-            var id;
-            try {
-                id = yield mc.get(req.mcClient, req.params.ticket);
-            } catch (e) {
-                throw new HttpError(500, e);
-            }
+            const product = yield thunkQuery(Product.select().from(Product).where(Product.id.equals(req.params.productId)));
+            const surveyId = _.first(product).surveyId;
 
-            if (!id) {
-                throw new HttpError(400, 'Ticket is not valid');
-            }
+            // Retrieve the returned data from the survey service and parse it
+            const exportData = yield surveyService.getExportData(surveyId, req.params.questionId, req.headers.authorization)
 
-            var q =
-                'SELECT ' +
-                '"Tasks"."id" as "taskId", ' +
-                '"UnitOfAnalysis"."name" as "uoaName", ' +
-                '"UnitOfAnalysisType"."name" as "uoaTypeName", ' +
-                'array(' +
-                'SELECT "UnitOfAnalysisTag"."name" ' +
-                'FROM "UnitOfAnalysisTagLink" ' +
-                'LEFT JOIN "UnitOfAnalysisTag" ' +
-                'ON ("UnitOfAnalysisTagLink"."uoaTagId" = "UnitOfAnalysisTag"."id")' +
-                'WHERE "UnitOfAnalysisTagLink"."uoaId" = "UnitOfAnalysis"."id"' +
-                ') as "uoaTags", ' +
-                '"WorkflowSteps"."title" as "stepTitle", "WorkflowSteps"."position" as "stepPosition", ' +
-                '"Users"."id" as "ownerId", concat("Users"."firstName",\' \', "Users"."lastName") as "ownerName", ' +
-                //'"Roles"."name" as "ownerRole", ' +
-                '"Surveys"."title" as "surveyTitle", ' +
-                '"SurveyQuestions"."label" as "questionTitle", "SurveyQuestions"."qid" as "questionCode", "SurveyQuestions"."id" as "questionId", "SurveyQuestions"."value" as "questionWeight", "SurveyQuestions"."type" as "questionTypeId", "SurveyQuestions"."optionNumbering" as "optionNumbering", ' +
-                '"SurveyAnswers"."value" as "answerValue", "SurveyAnswers"."optionId" as "answerOptions", array_to_string("SurveyAnswers"."links", \', \') as "links", "SurveyAnswers"."attachments" as "attachments" ' +
+            const formattedExportData = [];
+            const flagsExportData = [];
+            const commentHistoryExportData = [];
 
-                'FROM "Tasks" ' +
-                'LEFT JOIN "Products" ON ("Tasks"."productId" = "Products"."id") ' +
-                'LEFT JOIN "UnitOfAnalysis" ON ("Tasks"."uoaId" = "UnitOfAnalysis"."id") ' +
-                'LEFT JOIN "UnitOfAnalysisType" ON ("UnitOfAnalysisType"."id" = "UnitOfAnalysis"."unitOfAnalysisType") ' +
-                'LEFT JOIN "WorkflowSteps" ON ("Tasks"."stepId" = "WorkflowSteps"."id") ' +
-                //'LEFT JOIN "Users" ON ("Tasks"."userId" = "Users"."id") ' +
-                'LEFT JOIN "Users" ON ("Tasks"."userIds"[1] = "Users"."id") ' +
-                //'LEFT JOIN "Roles" ON ("EssenceRoles"."roleId" = "Roles"."id") ' +
-                'LEFT JOIN "Surveys" ON ("Products"."surveyId" = "Surveys"."id") ' +
-                'LEFT JOIN "SurveyQuestions" ON ("Surveys"."id" = "SurveyQuestions"."surveyId") ' +
-
-                'LEFT JOIN ( ' +
-                'SELECT ' +
-                'COALESCE(max("SurveyAnswers"."version"), -1) as max,' +
-                '"SurveyAnswers"."questionId",' +
-                '"SurveyAnswers"."userId",' +
-                '"SurveyAnswers"."UOAid",' +
-                '"SurveyAnswers"."wfStepId" ' +
-                'FROM "SurveyAnswers" ' +
-                'GROUP BY "SurveyAnswers"."questionId","SurveyAnswers"."userId","SurveyAnswers"."UOAid","SurveyAnswers"."wfStepId" ' +
-                ') as "sa" ' +
-
-                'on ((("sa"."questionId" = "SurveyQuestions"."id") ' +
-                'AND ("sa"."userId" = "Users"."id")) ' +
-                'AND ("sa"."UOAid" = "UnitOfAnalysis"."id")) ' +
-                'AND ("sa"."wfStepId" = "WorkflowSteps"."id") ' +
-
-                'LEFT JOIN "SurveyAnswers" ON ( ' +
-                '((("SurveyAnswers"."questionId" = "sa"."questionId") ' +
-                'AND ("SurveyAnswers"."userId" = "sa"."userId")) ' +
-                'AND ("SurveyAnswers"."UOAid" = "sa"."UOAid")) ' +
-                'AND ("SurveyAnswers"."wfStepId" = "sa"."wfStepId") ' +
-                'AND (COALESCE("SurveyAnswers"."version", -1) = "sa".max) ' +
-                ') ' +
-                'WHERE ( ' +
-                pgEscape('("Tasks"."productId" = %s) ', id) +
-                // filter out section headers
-                pgEscape('AND ("SurveyQuestions"."type" NOT IN (%s))', SurveyQuestion.sectionTypes) +
-                ')';
-            debug(q);
-
-            var answers = yield thunkQuery(q);
-
-            // for question order
-            var questionOrdinals = {};
-            var questionCounter = 1;
-            // for attachments
-            var attachmentIds = new Set();
-            // for question options (ids of multichoice questions)
-            var optionQuestionIds = new Set();
-            answers = answers.map(function (answer) {
-                // parse out answer text and value, with logic varying by answer type
-                if (answer.questionTypeId === SurveyQuestion.bulletPointsType) {
-                    answer.answerText = answer.answerValue;
-                    answer.answerValue = '';
-                    if (answer.answerText !== null && answer.answerText.length > 0) {
-                        // remove enclosing square brackets
-                        answer.answerText = answer.answerText.slice(1, answer.answerText.length - 1);
-                    }
-                } else if (SurveyQuestion.multiSelectTypes.indexOf(answer.questionTypeId) >= 0) {
-                    // text/value to be stored later, after answer option has been retrieved
-                    optionQuestionIds.add(answer.questionId);
-                } else {
-                    answer.answerText = answer.answerValue;
-                    answer.answerValue = '';
-                }
-
-                // increment position by one to ordinal
-                if (answer.stepPosition !== null) {
-                    answer.stepPosition++;
-                }
-
-                // add blank field for answer comments
-                answer.comments = '';
-
-                // add question type description ('Text' as opposed to 0)
-                answer.questionType = SurveyQuestion.types[answer.questionTypeId];
-
-                // add question order
-                if (!(answer.questionId in questionOrdinals)) {
-                    questionOrdinals[answer.questionId] = questionCounter++;
-                }
-                answer.questionOrder = questionOrdinals[answer.questionId];
-
-                // store attachment IDs for filename lookup
-                (answer.attachments || []).forEach(function (attachmentId) {
-                    attachmentIds.add(attachmentId);
-                });
-
-                return answer;
-            });
-
-            // find attachment filenames
-            // multiple attachments per answer so this is simpler than doing a
-            // sql join above
-            var attachments = yield thunkQuery(
-                AnswerAttachment.select(
-                    AnswerAttachment.id,
-                    AnswerAttachment.filename
-                ).where(AnswerAttachment.id.in(Array.from(attachmentIds)))
-            );
-            var attachmentFilenames = {};
-            attachments.forEach(function (attachment) {
-                attachmentFilenames[attachment.id] = attachment.filename;
-            });
-            answers = answers.map(function (answer) {
-                answer.attachments = (answer.attachments || []).map(function (attachmentId) {
-                    return attachmentFilenames[attachmentId];
-                });
-                return answer;
-            });
-
-            // similarly retrieve question options
-            var questionOptionsArr = yield thunkQuery(
-                SurveyQuestionOption.select(
-                    SurveyQuestionOption.id,
-                    SurveyQuestionOption.questionId,
-                    SurveyQuestionOption.value,
-                    SurveyQuestionOption.label
-                ).where(SurveyQuestionOption.questionId.in(Array.from(optionQuestionIds)))
-            );
-            // indexed by question id then option id
-            var questionOptions = {};
-            questionOptionsArr.forEach(function (option) {
-                if (!(option.questionId in questionOptions)) {
-                    questionOptions[option.questionId] = {};
-                }
-                questionOptions[option.questionId][option.id] = option;
-            });
-            // assign question option ordinals based on ID order (how they're displayed in client)
-            for (var questionId in questionOptions) {
-                if (questionOptions.hasOwnProperty(questionId)) {
-                    var optionIds = _.sortBy(Object.keys(questionOptions[questionId]), function (id) {
-                        return parseInt(id);
-                    });
-                    for (var i = 0; i < optionIds.length; i++) {
-                        questionOptions[questionId][optionIds[i]].index = i;
-                    }
-                }
-            }
-            answers = answers.map(function (answer) {
-                if (SurveyQuestion.multiSelectTypes.indexOf(answer.questionTypeId) >= 0) {
-                    var options = (answer.answerOptions || []).map(function (optionId) {
-                        return questionOptions[answer.questionId][optionId] || {};
-                    });
-                    answer.answerText = _.pluck(options, 'label').join(',');
-                    answer.answerValue = _.pluck(options, 'value').filter(function (value) {
-                        return value;
-                    }).join(',');
-                    if (answer.optionNumbering && answer.optionNumbering !== 'none') {
-                        answer.optionIndex = _.pluck(options, 'index').map(function (optionIndex) {
-                            // passed to list-style-type CSS in client
-                            if (answer.optionNumbering === 'lower-latin') {
-                                return String.fromCharCode(97 + optionIndex); // 97 -> 'a';
-                            } else if (answer.optionNumbering === 'upper-latin') {
-                                return String.fromCharCode(65 + optionIndex); // 65 -> 'A';
-                            } else { // decimal
-                                return optionIndex + 1; // 1-index
-                            }
-                        }).join(',');
-                    }
-                }
-                return answer;
-            });
-
-            return answers;
-        }).then(function (data) {
-            var keyTitles = {
-                'surveyTitle': 'SurveyName',
-                'questionOrder': 'QuestOrder',
-                'questionCode': 'QuestCode',
-                'questionTitle': 'QuestTitle',
-                'questionType': 'QuestType',
-                'questionWeight': 'QuestValue',
-                'taskId': 'TaskID',
-                'uoaName': 'SubjName',
-                'uoaTypeName': 'SubjType',
-                'uoaTags': 'SubjTags',
-                'stepTitle': 'StepTitle',
-                'stepPosition': 'StepOrder',
-                'ownerId': 'UserID',
-                'ownerName': 'UserName',
-                'answerText': 'AnswerText',
-                'answerValue': 'AnsValue',
-                'links': 'AnsLinks',
-                'attachments': 'AnsAttach',
-                'comments': 'AnsComment',
-                'optionIndex': 'OptIndex'
-            };
-
-            // only show relevant keys and order them as we want
-            var keys = [
-                'surveyTitle',
-                'questionOrder',
-                'questionCode',
-                'questionTitle',
-                'questionType',
-                'questionWeight',
-                'taskId',
-                'uoaName',
-                'uoaTypeName',
-                'uoaTags',
-                'stepTitle',
-                'stepPosition',
-                'ownerId',
-                'ownerName',
-                'answerText',
-                'answerValue',
-                'optionIndex',
-                'links',
-                'attachments',
-                'comments'
+            const fields = [ // List of CSV columns
+                'subject', 'user', 'surveyName', 'stage', 'question', 'questionType', 'questionIndex', 'response', 'choiceText',
+                'weight', 'filename', 'fileLink', 'fileId',
+                'publicationLink', 'publicationTitle', 'publicationAuthor', 'publicationDate', 'commenter',
+                'commentReason', 'comment', 'date'
             ];
-            var labels = keys.map(function (key) {
-                return keyTitles[key];
-            });
 
-            data = data.map(function (answer) {
-                return keys.map(function (key) {
-                    return answer[key];
-                });
-            });
-            res.csv([labels].concat(data));
+            const flagFields = ['subject', 'question', 'questionType', 'response', 'responseBy', 'choiceText', 'flagComment', 'flaggedBy'];
+
+            const commentHistoryFields = ['question', 'questionType', 'subject', 'stage', 'priorCommenter', 'priorReason', 'priorComment'];
+
+            for (var i = 0; i < exportData.body.length; i++) {
+                const uoaId = exportData.body[i].group.split('-')[1];
+                const rowUoa = yield * common.getEntity(req, parseInt(uoaId), UOA, 'id');
+                const rowStage = yield * common.getEntity(req, parseInt(exportData.body[i].stage), WorkflowStep, 'id');
+
+                const user = yield * common.getEntity(req, exportData.body[i].userId, User, 'authId');
+
+                const formattedExportRow = {};
+
+                formattedExportRow.subject = rowUoa.name;
+                formattedExportRow.user = user.firstName + ' ' + user.lastName;
+                formattedExportRow.surveyName = exportData.body[i].surveyName;
+                formattedExportRow.stage = rowStage.title;
+                formattedExportRow.question = exportData.body[i].questionText;
+                formattedExportRow.questionType = exportData.body[i].questionType;
+                formattedExportRow.questionIndex = exportData.body[i].questionIndex;
+                formattedExportRow.response = exportData.body[i].value;
+                formattedExportRow.choiceText = exportData.body[i].choiceText;
+                formattedExportRow.weight = exportData.body[i].weight;
+                if (typeof exportData.body[i].meta.file !== 'undefined') {
+                    formattedExportRow.filename = exportData.body[i].meta.file.filename;
+                    formattedExportRow.fileLink = aws.getDownloadLink(req, res, formattedExportRow.filename);
+                    formattedExportRow.fileId = exportData.body[i].meta.file.id;
+                }
+                if (typeof exportData.body[i].meta.publication !== 'undefined') {
+                    formattedExportRow.publicationLink = exportData.body[i].meta.publication.link;
+                    formattedExportRow.publicationTitle = exportData.body[i].meta.publication.title;
+                    formattedExportRow.publicationAuthor = exportData.body[i].meta.publication.author;
+                    formattedExportRow.publicationDate = exportData.body[i].meta.publication.date;
+                }
+                if (typeof exportData.body[i].comment !== 'undefined' && !_.isEmpty(exportData.body[i].comment)) {
+                    const commenter = yield * common.getEntity(req, exportData.body[i].comment.userId, User, 'authId');
+                    formattedExportRow.commenter = commenter.firstName + ' ' + commenter.lastName;
+                    formattedExportRow.commentReason = exportData.body[i].comment.reason;
+                    formattedExportRow.comment = exportData.body[i].comment.text;
+                    formattedExportRow.date = exportData.body[i].date;
+
+                    if (Array.isArray(exportData.body[i].commentHistory)) {
+                        for (var j=0; j < exportData.body[i].commentHistory.length; j++) {
+                            const commentHistoryExportRow = {};
+                            const priorCommenter = yield * common.getEntity(req, exportData.body[i].commentHistory[j].userId, User, 'authId');
+                            commentHistoryExportRow.question = exportData.body[i].questionText;
+                            commentHistoryExportRow.questionType = exportData.body[i].questionType;
+                            commentHistoryExportRow.subject = rowUoa.name;
+                            commentHistoryExportRow.stage = rowStage.title;
+                            commentHistoryExportRow.priorCommenter = priorCommenter.firstName + ' ' + priorCommenter.lastName;
+                            commentHistoryExportRow.priorReason = exportData.body[i].commentHistory[j].reason;
+                            commentHistoryExportRow.priorComment = exportData.body[i].commentHistory[j].text;
+                            commentHistoryExportData.push(commentHistoryExportRow)
+                        }
+                    }
+                }
+                formattedExportRow.date = exportData.body[i].date;
+
+
+                formattedExportData.push(formattedExportRow);
+
+                // Get flags for each question and create a new csv
+                const flags = yield thunkQuery(
+                    Discussion.select(Discussion.star(), Task.assessmentId).from(
+                        Discussion.leftJoin(Task)
+                        .on(Discussion.taskId.equals(Task.id))
+                    )
+                    .where(Discussion.questionId.equals(parseInt(exportData.body[i].questionId))
+                    .and(Task.assessmentId.equals(exportData.body[i].assessmentId)))
+                );
+                for (var flag = 0; flag < flags.length; flag++) {
+                    const formattedFlagCsv = {};
+                    formattedFlagCsv.subject = rowUoa.name;
+                    formattedFlagCsv.question = exportData.body[i].questionText;
+                    formattedFlagCsv.questionType = exportData.body[i].questionType;
+                    formattedFlagCsv.response = exportData.body[i].value;
+                    formattedFlagCsv.choiceText = exportData.body[i].choiceText;
+                    formattedFlagCsv.flagComment = flags[flag].entry;
+                    const flaggedBy = yield * common.getEntity(req, flags[flag].userFromId, User, 'id');
+                    formattedFlagCsv.flaggedBy = flaggedBy.firstName + ' ' + flaggedBy.lastName;
+
+                    flagsExportData.push(formattedFlagCsv);
+                }
+            }
+
+            const csv = json2csv({ data: formattedExportData, fields: fields, withBOM: true });
+            const commentCsv = json2csv({ data: commentHistoryExportData, fields: commentHistoryFields });
+            const flagsCsv = json2csv({ data: flagsExportData, fields: flagFields });
+
+            // Zip both files before sending to client
+            zip.file('projectData.csv', csv);
+            zip.file('commentHistoryData.csv', commentCsv);
+            zip.file('flagsData.csv', flagsCsv);
+
+            var data = zip.generate({ base64:false, compression: 'DEFLATE' });
+
+            return data
+
+        }).then(function (data) {
+            res.attachment('projectdata.csv');
+            res.status(200).send(data);
+
         }, function (err) {
             next(err);
         });
+
+
     },
 
     getTicket: function (req, res, next) {
@@ -1207,10 +1069,14 @@ module.exports = {
             yield * checkProductData(req);
             if (parseInt(req.body.status) === 1) { // if status changed to 'STARTED'
                 var product = yield * common.getEntity(req, req.params.id, Product, 'id');
-                var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-                if (survey.isDraft) {
-                    throw new HttpError(403, 'You can not start the project. Survey have status `in Draft`');
+
+                //Check that the survey exist in the survey service
+
+                const survey = yield common.getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization);
+                if (survey.body.status == 'draft') {
+                    throw new HttpError(400, 'You can not start the project. Survey have status `in Draft`');
                 }
+
                 var result = yield * updateCurrentStepId(req);
                 if (typeof result === 'object') {
                     bologger.log({
@@ -1243,7 +1109,7 @@ module.exports = {
                 entity: req.params.id,
                 info: 'Update product'
             });
-            res.status(202).end();
+            res.status(202).json(true);
         }, function (err) {
             next(err);
         });
@@ -1469,13 +1335,11 @@ function* checkProductData(req) {
         }
     }
 
-    if (req.body.surveyId) {
-        var isExistSurvey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.body.surveyId)));
-        if (!_.first(isExistSurvey)) {
-            throw new HttpError(403, 'Survey with id = ' + req.body.surveyId + ' does not exist');
-        }
-    }
+    var surveyCheck = yield common.getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization);
 
+    if (surveyCheck.statusCode !== 200) {
+        throw new HttpError( surveyCheck.statusCode, surveyCheck.error);
+    }
     if (req.body.projectId) {
         var isExistProject = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
         if (!_.first(isExistProject)) {
@@ -1490,7 +1354,9 @@ function* updateCurrentStepId(req) {
 
     var essenceId = yield * common.getEssenceId(req, 'Tasks');
     var product = yield * common.getEntity(req, req.params.id, Product, 'id');
-    var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+
+    //TODO: Get survey from survery service if needed
+    // var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
 
     console.log(product.status);
 

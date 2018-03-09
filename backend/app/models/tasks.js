@@ -4,7 +4,6 @@ var Task = sql.define({
     name: 'Tasks',
     columns: [
         'id',
-        'title',
         'description',
         'uoaId',
         'stepId',
@@ -12,21 +11,21 @@ var Task = sql.define({
         'productId',
         'startDate',
         'endDate',
-        //'userId',
         'userIds',
         'groupIds',
-        'langId'
+        'langId',
+        'assessmentId',
+        'isDeleted'
     ]
 });
 
 Task.editCols = [
-    'title',
     'description',
     'startDate',
     'endDate',
-    //'userId',
     'userIds',
-    'groupIds'
+    'groupIds',
+    'assessmentId',
 ];
 
 Task.translate = [

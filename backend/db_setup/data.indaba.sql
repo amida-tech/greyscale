@@ -34,13 +34,9 @@ SELECT pg_catalog.setval('"Entities_id_seq"', 57, true);
 
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 23	WorflowSteps	WorflowSteps	worflowSteps	title
-16	Surveys	Surveys	surveys	title
-17	SurveyQuestions	Survey Questions	survey_questions	label
-18	SurveyQuestionOptions	Survey Question Options	survey_question_options	label
-19	SurveyAnswers	Survey Answers	survey_answers	value
 20	Groups	Groups	groups	title
 21	Organizations	Organizations	organizations	name
-22	Tasks	Tasks	tasks	title
+22	Tasks	Tasks	tasks	description
 4	Products	Products	products	title
 6	UnitOfAnalysis	UnitOfAnalysis	uoas	name
 5	UnitOfAnalysisType	UnitOfAnalysisType	uoatypes	name
@@ -124,8 +120,8 @@ COPY "Roles" (id, name, "isSystem") FROM stdin;
 -- Data for Name: Users; Type: TABLE DATA; Schema: public; Owner: indabauser
 --
 
-COPY "Users" ("roleID", id, email, "firstName", "lastName", password, cell, birthday, "resetPasswordToken", "resetPasswordExpires", created, updated, "isActive", "activationToken", "organizationId", location, phone, address, lang, bio, "notifyLevel", timezone, "lastActive", affiliation, "isAnonymous", "langId", salt) FROM stdin;
-1	350	su@mail.net	Test	Admin	d4faa6faca73e485fe9e78ef0d87d78530955c6a3b14dd5bb7b49070717b72ea	\N	\N	\N	\N	2016-04-04 07:37:54.284354-04	2017-04-11 12:46:48.84581	t	\N	\N	\N	\N	\N	\N	\N	\N	\N	2017-04-11 12:46:48.845-04	\N	f	\N	42f32f93116bf93a5ba3935037317527
+COPY "Users" ("roleID", id, email, "firstName", "lastName", password, cell, birthday, "resetPasswordToken", "resetPasswordExpires", created, updated, "isActive", "activationToken", "organizationId", location, phone, address, lang, bio, "notifyLevel", timezone, "lastActive", affiliation, "isAnonymous", "langId", salt, "authId") FROM stdin;
+1	350	su@mail.net	Test	Admin	d4faa6faca73e485fe9e78ef0d87d78530955c6a3b14dd5bb7b49070717b72ea	\N	\N	\N	\N	2016-04-04 07:37:54.284354-04	2017-04-11 12:46:48.84581	t	\N	\N	\N	\N	\N	\N	\N	\N	\N	2017-04-11 12:46:48.845-04	\N	f	\N	42f32f93116bf93a5ba3935037317527	273
 \.
 
 
@@ -440,15 +436,6 @@ COPY "Projects" (id, "organizationId", "codeName", description, created, "matrix
 \.
 
 
---
--- TOC entry 3849 (class 0 OID 1599954)
--- Dependencies: 253
--- Data for Name: Surveys; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "Surveys" (id, title, description, created, "projectId", "isDraft", "langId") FROM stdin;
-\.
-
 
 --
 -- TOC entry 3831 (class 0 OID 1599863)
@@ -457,16 +444,6 @@ COPY "Surveys" (id, title, description, created, "projectId", "isDraft", "langId
 --
 
 COPY "Products" (id, title, description, "originalLangId", "projectId", "surveyId", status, "langId") FROM stdin;
-\.
-
-
---
--- TOC entry 3848 (class 0 OID 1599942)
--- Dependencies: 252
--- Data for Name: SurveyQuestions; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "SurveyQuestions" (id, "surveyId", type, label, "isRequired", "position", description, skip, size, "minLength", "maxLength", "isWordmml", "incOtherOpt", units, "intOnly", value, qid, links, attachment, "optionNumbering", "langId", "withLinks", "hasComments") FROM stdin;
 \.
 
 
@@ -487,16 +464,6 @@ COPY "Workflows" (id, name, description, created, "productId") FROM stdin;
 --
 
 COPY "WorkflowSteps" ("workflowId", id, "startDate", "endDate", title, "provideResponses", "discussionParticipation", "blindReview", "seeOthersResponses", "allowTranslate", "position", "writeToAnswers", "allowEdit", role, "langId") FROM stdin;
-\.
-
-
---
--- TOC entry 3844 (class 0 OID 1599921)
--- Dependencies: 248
--- Data for Name: SurveyAnswers; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "SurveyAnswers" (id, "questionId", "userId", value, created, "productId", "UOAid", "wfStepId", version, "surveyId", "optionId", "langId", "isResponse", "isAgree", comments, attachments, links, updated) FROM stdin;
 \.
 
 
@@ -537,10 +504,6 @@ COPY "AttachmentAttempts" (key, filename, mimetype, size, created) FROM stdin;
 
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 23	WorflowSteps	WorflowSteps	worflowSteps	title
-16	Surveys	Surveys	surveys	title
-17	SurveyQuestions	Survey Questions	survey_questions	label
-18	SurveyQuestionOptions	Survey Question Options	survey_question_options	label
-19	SurveyAnswers	Survey Answers	survey_answers	value
 20	Groups	Groups	groups	title
 21	Organizations	Organizations	organizations	name
 22	Tasks	Tasks	tasks	title
@@ -623,7 +586,7 @@ COPY "UnitOfAnalysisType" (id, name, description, "langId") FROM stdin;
 -- Data for Name: UnitOfAnalysis; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
 --
 
-COPY "UnitOfAnalysis" (id, "gadmId0", "gadmId1", "gadmId2", "gadmId3", "gadmObjectId", "ISO", "ISO2", "nameISO", name, description, "shortName", "HASC", "unitOfAnalysisType", "parentId", "creatorId", "ownerId", visibility, status, created, deleted, "langId", updated) FROM stdin;
+COPY "UnitOfAnalysis" (id, "gadmId0", "gadmId1", "gadmId2", "gadmId3", "gadmObjectId", "ISO", "ISO2", "nameISO", name, description, "shortName", "HASC", "unitOfAnalysisType", "parentId", "creatorId", "ownerId", visibility, status, created, "isDeleted", "langId", updated) FROM stdin;
 \.
 
 
@@ -633,7 +596,7 @@ COPY "UnitOfAnalysis" (id, "gadmId0", "gadmId1", "gadmId2", "gadmId3", "gadmObje
 -- Data for Name: Tasks; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
 --
 
-COPY "Tasks" (id, title, description, "uoaId", "stepId", created, "productId", "startDate", "endDate", "userId", "langId") FROM stdin;
+COPY "Tasks" (id, description, "uoaId", "stepId", created, "productId", "startDate", "endDate", "userId", "langId") FROM stdin;
 \.
 
 
@@ -936,43 +899,6 @@ SELECT pg_catalog.setval('"Subindex_id_seq"', 1, true);
 
 
 --
--- TOC entry 4001 (class 0 OID 0)
--- Dependencies: 246
--- Name: SurveyAnswerVersions_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"SurveyAnswerVersions_id_seq"', 4, true);
-
-
---
--- TOC entry 4002 (class 0 OID 0)
--- Dependencies: 247
--- Name: SurveyAnswers_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"SurveyAnswers_id_seq"', 1, true);
-
-
---
--- TOC entry 3846 (class 0 OID 1599932)
--- Dependencies: 250
--- Data for Name: SurveyQuestionOptions; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "SurveyQuestionOptions" (id, "questionId", value, label, skip, "isSelected", "langId") FROM stdin;
-\.
-
-
---
--- TOC entry 4003 (class 0 OID 0)
--- Dependencies: 251
--- Name: SurveyQuestions_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"SurveyQuestions_id_seq"', 1, true);
-
-
---
 -- TOC entry 4004 (class 0 OID 0)
 -- Dependencies: 254
 -- Name: Tasks_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
@@ -1180,15 +1106,6 @@ SELECT pg_catalog.setval('role_id_seq', 3, true);
 
 
 --
--- TOC entry 4017 (class 0 OID 0)
--- Dependencies: 249
--- Name: surveyQuestionOptions_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"surveyQuestionOptions_id_seq"', 1, true);
-
-
---
 -- TOC entry 4018 (class 0 OID 0)
 -- Dependencies: 282
 -- Name: transport_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
@@ -1301,10 +1218,10 @@ COPY "Roles" (id, name, "isSystem") FROM stdin;
 -- Data for Name: Users; Type: TABLE DATA; Schema: test; Owner: indaba
 --
 
-COPY "Users" ("roleID", id, email, "firstName", "lastName", password, cell, birthday, "resetPasswordToken", "resetPasswordExpires", created, updated, "isActive", "activationToken", "organizationId", location, phone, address, lang, bio, "notifyLevel", timezone, "lastActive", affiliation, "isAnonymous", "langId", salt) FROM stdin;
-3	4	sean+reviewer@amida.com	Reviewer	McReviewface	cede4a0dbdd6c8e5f3be70a5b566078c4b5370ce94cb0f2840cd7d5887ece9c5	\N	\N	\N	\N	2017-04-11 12:07:03.977-04	\N	t	573f55aae4fc327e8f75b233492611df159ba71776ae46054d5545ac63ee1016	2	\N	\N	\N	\N	\N	0	\N	\N	\N	f	\N	4375268b9458926d3519e2c4efa54d34
-3	3	sean+taker@amida.com	Taker	McTakeface	ca9bdaa12785f434c233549fbd96df3e65f91744ff87a34f3a8b138fb3e0527a	\N	\N	\N	\N	2017-04-11 12:06:42.376-04	\N	t	0ae4cf181b86b113e6621361274df8b72414b99a2e236ca89bd6a3d729e19a08	2	\N	\N	\N	\N	\N	0	\N	2017-04-11 13:29:34.635-04	\N	f	\N	03db9da011430abaffcc895e588e2ab0
-2	2	sean+testadmin@amida.com	Sean	Bolak	15eaca37c16418a8a348b93cede1eb9d9598e63b18a984ebee9cb10b8a65c27a	\N	\N	\N	\N	2017-04-11 12:00:14.244-04	\N	t	ab5c3b00b753eb444b0a7bedefed3f028e43eaad6b3ba1d7b8e31ad6e5244eb2	2	\N	\N	\N	\N	\N	0	\N	2017-04-11 13:29:45.859-04	\N	f	\N	4e0381d36ab3507cfc09daa18a481bd2
+COPY "Users" ("roleID", id, email, "firstName", "lastName", password, cell, birthday, "resetPasswordToken", "resetPasswordExpires", created, updated, "isActive", "activationToken", "organizationId", location, phone, address, lang, bio, "notifyLevel", timezone, "lastActive", affiliation, "isAnonymous", "langId", salt, "authId") FROM stdin;
+3	4	sean+reviewer@amida.com	Reviewer	McReviewface	cede4a0dbdd6c8e5f3be70a5b566078c4b5370ce94cb0f2840cd7d5887ece9c5	\N	\N	\N	\N	2017-04-11 12:07:03.977-04	\N	t	573f55aae4fc327e8f75b233492611df159ba71776ae46054d5545ac63ee1016	2	\N	\N	\N	\N	\N	0	\N	\N	\N	f	\N	4375268b9458926d3519e2c4efa54d34 	0
+3	3	sean+taker@amida.com	Taker	McTakeface	ca9bdaa12785f434c233549fbd96df3e65f91744ff87a34f3a8b138fb3e0527a	\N	\N	\N	\N	2017-04-11 12:06:42.376-04	\N	t	0ae4cf181b86b113e6621361274df8b72414b99a2e236ca89bd6a3d729e19a08	2	\N	\N	\N	\N	\N	0	\N	2017-04-11 13:29:34.635-04	\N	f	\N	03db9da011430abaffcc895e588e2ab0	1
+2	2	sean+testadmin@amida.com	Sean	Bolak	15eaca37c16418a8a348b93cede1eb9d9598e63b18a984ebee9cb10b8a65c27a	\N	\N	\N	\N	2017-04-11 12:00:14.244-04	\N	t	ab5c3b00b753eb444b0a7bedefed3f028e43eaad6b3ba1d7b8e31ad6e5244eb2	2	\N	\N	\N	\N	\N	0	\N	2017-04-11 13:29:45.859-04	\N	f	\N	4e0381d36ab3507cfc09daa18a481bd2	2
 \.
 
 
@@ -1320,17 +1237,6 @@ COPY "Projects" (id, "organizationId", "codeName", description, created, "matrix
 
 
 --
--- TOC entry 3951 (class 0 OID 1602021)
--- Dependencies: 436
--- Data for Name: Surveys; Type: TABLE DATA; Schema: test; Owner: indaba
---
-
-COPY "Surveys" (id, title, description, created, "projectId", "isDraft", "langId") FROM stdin;
-2	Test Survey - Just One Question	This is a test survey for development purposes.	2017-04-11 12:01:42.316167-04	2	f	\N
-\.
-
-
---
 -- TOC entry 3933 (class 0 OID 1601843)
 -- Dependencies: 418
 -- Data for Name: Products; Type: TABLE DATA; Schema: test; Owner: indaba
@@ -1338,18 +1244,6 @@ COPY "Surveys" (id, title, description, created, "projectId", "isDraft", "langId
 
 COPY "Products" (id, title, description, "originalLangId", "projectId", "surveyId", status, "langId") FROM stdin;
 2	Arnold S' Survey	Arnold's Survey	\N	2	2	1	\N
-\.
-
-
---
--- TOC entry 3944 (class 0 OID 1601951)
--- Dependencies: 429
--- Data for Name: SurveyQuestions; Type: TABLE DATA; Schema: test; Owner: indaba
---
-
-COPY "SurveyQuestions" (id, "surveyId", type, label, "isRequired", "position", description, skip, size, "minLength", "maxLength", "isWordmml", "incOtherOpt", units, "intOnly", value, qid, links, attachment, "optionNumbering", "langId", "withLinks", "hasComments") FROM stdin;
-2	2	0	Who is your daddy and what does he do?	t	1		0	0	\N	\N	f	f	\N	f	\N		\N	\N	\N	\N	f	\N
-3	2	3	Untitled	t	2		0	0	\N	\N	f	t	\N	f	C		\N	\N	none	\N	f	\N
 \.
 
 
@@ -1375,16 +1269,6 @@ COPY "WorkflowSteps" ("workflowId", id, "startDate", "endDate", title, "provideR
 2	3	2017-04-11 00:00:00-04	2017-04-12 00:00:00-04	Review Test	f	\N	\N	\N	f	1	t	f	Reviewer	\N
 \.
 
-
---
--- TOC entry 3960 (class 0 OID 1602104)
--- Dependencies: 445
--- Data for Name: SurveyAnswers; Type: TABLE DATA; Schema: test; Owner: indaba
---
-
-COPY "SurveyAnswers" (id, "questionId", "userId", value, created, "productId", "UOAid", "wfStepId", version, "surveyId", "optionId", "langId", "isResponse", "isAgree", comments, attachments, links, updated) FROM stdin;
-2	3	3	\N	2017-04-11 13:19:43.960042-04	2	2	2	\N	2	{}	1	f	\N	\N	\N	\N	2017-04-11 13:22:41.209-04
-\.
 
 
 --
@@ -1424,10 +1308,6 @@ COPY "AttachmentAttempts" (key, filename, mimetype, size, created) FROM stdin;
 
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 23	WorflowSteps	WorflowSteps	worflowSteps	title
-16	Surveys	Surveys	surveys	title
-17	SurveyQuestions	Survey Questions	survey_questions	label
-18	SurveyQuestionOptions	Survey Question Options	survey_question_options	label
-19	SurveyAnswers	Survey Answers	survey_answers	value
 20	Groups	Groups	groups	title
 21	Organizations	Organizations	organizations	name
 22	Tasks	Tasks	tasks	title
@@ -1510,7 +1390,7 @@ COPY "UnitOfAnalysisType" (id, name, description, "langId") FROM stdin;
 -- Data for Name: UnitOfAnalysis; Type: TABLE DATA; Schema: test; Owner: indaba
 --
 
-COPY "UnitOfAnalysis" (id, "gadmId0", "gadmId1", "gadmId2", "gadmId3", "gadmObjectId", "ISO", "ISO2", "nameISO", name, description, "shortName", "HASC", "unitOfAnalysisType", "parentId", "creatorId", "ownerId", visibility, status, created, deleted, "langId", updated) FROM stdin;
+COPY "UnitOfAnalysis" (id, "gadmId0", "gadmId1", "gadmId2", "gadmId3", "gadmObjectId", "ISO", "ISO2", "nameISO", name, description, "shortName", "HASC", "unitOfAnalysisType", "parentId", "creatorId", "ownerId", visibility, status, created, "isDeleted", "langId", updated) FROM stdin;
 2	\N	\N	\N	\N	\N	\N	\N	\N	Subject McSubjectface	This is a subject. Whatever TF that means.	McSubject	\N	1	\N	2	2	1	1	2017-04-11 12:16:05.782	\N	1	\N
 \.
 
@@ -1521,9 +1401,9 @@ COPY "UnitOfAnalysis" (id, "gadmId0", "gadmId1", "gadmId2", "gadmId3", "gadmObje
 -- Data for Name: Tasks; Type: TABLE DATA; Schema: test; Owner: indaba
 --
 
-COPY "Tasks" (id, title, description, "uoaId", "stepId", created, "productId", "startDate", "endDate", "userId", "langId", "userIds", "groupIds") FROM stdin;
-2	\N	\N	2	2	2017-04-11 12:47:03.946322-04	2	2017-04-11 00:00:00-04	2017-04-12 00:00:00-04	\N	\N	{3}	{}
-3	\N	\N	2	3	2017-04-11 12:47:36.170686-04	2	2017-04-11 00:00:00-04	2017-04-12 00:00:00-04	\N	\N	{4}	{}
+COPY "Tasks" (id, description, "uoaId", "stepId", created, "productId", "startDate", "endDate", "userId", "langId", "userIds", "groupIds") FROM stdin;
+2	\N	2	2	2017-04-11 12:47:03.946322-04	2	2017-04-11 00:00:00-04	2017-04-12 00:00:00-04	\N	\N	{3}	{}
+3	\N	2	3	2017-04-11 12:47:36.170686-04	2	2017-04-11 00:00:00-04	2017-04-12 00:00:00-04	\N	\N	{4}	{}
 \.
 
 
@@ -1835,45 +1715,6 @@ SELECT pg_catalog.setval('"Subindex_id_seq"', 1, true);
 
 
 --
--- TOC entry 4039 (class 0 OID 0)
--- Dependencies: 384
--- Name: SurveyAnswerVersions_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indaba
---
-
-SELECT pg_catalog.setval('"SurveyAnswerVersions_id_seq"', 4, true);
-
-
---
--- TOC entry 4040 (class 0 OID 0)
--- Dependencies: 385
--- Name: SurveyAnswers_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indaba
---
-
-SELECT pg_catalog.setval('"SurveyAnswers_id_seq"', 2, true);
-
-
---
--- TOC entry 3948 (class 0 OID 1602000)
--- Dependencies: 433
--- Data for Name: SurveyQuestionOptions; Type: TABLE DATA; Schema: test; Owner: indaba
---
-
-COPY "SurveyQuestionOptions" (id, "questionId", value, label, skip, "isSelected", "langId") FROM stdin;
-2	3	A	This is option A	\N	f	\N
-3	3	B	This is option B	\N	f	\N
-\.
-
-
---
--- TOC entry 4041 (class 0 OID 0)
--- Dependencies: 388
--- Name: SurveyQuestions_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indaba
---
-
-SELECT pg_catalog.setval('"SurveyQuestions_id_seq"', 3, true);
-
-
---
 -- TOC entry 4042 (class 0 OID 0)
 -- Dependencies: 389
 -- Name: Tasks_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indaba
@@ -2082,15 +1923,6 @@ SELECT pg_catalog.setval('order_id_seq', 320, true);
 --
 
 SELECT pg_catalog.setval('role_id_seq', 3, true);
-
-
---
--- TOC entry 4055 (class 0 OID 0)
--- Dependencies: 387
--- Name: surveyQuestionOptions_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indaba
---
-
-SELECT pg_catalog.setval('"surveyQuestionOptions_id_seq"', 3, true);
 
 
 --

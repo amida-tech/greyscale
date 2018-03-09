@@ -1,31 +1,32 @@
 var
     _ = require('underscore'),
     config = require('../../config'),
+    Project = require('../models/projects'),
     Product = require('../models/products'),
     ProductUOA = require('../models/product_uoa'),
-    Project = require('../models/projects'),
-    Workflow = require('../models/workflows'),
     Essence = require('../models/essences'),
-    EssenceRole = require('../models/essence_roles'),
+    Workflow = require('../models/workflows'),
     WorkflowStep = require('../models/workflow_steps'),
     WorkflowStepGroup = require('../models/workflow_step_groups'),
     Group = require('../models/groups'),
     UserGroup = require('../models/user_groups'),
     UOA = require('../models/uoas'),
     Task = require('../models/tasks'),
-    Survey = require('../models/surveys'),
-    SurveyQuestion = require('../models/survey_questions'),
+    messageService = require('../services/messages'),
+    logger = require('../logger'),
     Discussion = require('../models/discussions'),
     Notification = require('../models/notifications'),
     Organization = require('../models/organizations'),
     User = require('../models/users'),
-    co = require('co'),
+    ProjectUser = require('../models/project_users'),
     sql = require('sql'),
     Query = require('../util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
-    thunkQuery = thunkify(query);
+    config = require('../../config'),
+    nodemailer = require('nodemailer'),
+    request = require('request-promise');
 
 var getEntityById = function* (req, id, model, key) {
     var thunkQuery = req.thunkQuery;
@@ -36,6 +37,7 @@ exports.getEntityById = getEntityById;
 var getEntity = function* (req, id, model, key) {
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(model.select().from(model).where(model[key].equals(parseInt(id))));
+
     return (_.first(result)) ? result[0] : null;
 };
 exports.getEntity = getEntity;
@@ -63,7 +65,19 @@ exports.getTaskByStep = getTaskByStep;
 
 var checkDuplicateTask = function* (req, stepId, uoaId, productId) {
     var thunkQuery = req.thunkQuery;
-    var result = yield thunkQuery(Task.select().where(Task.stepId.equals(stepId).and(Task.uoaId.equals(uoaId)).and(Task.productId.equals(productId))));
+    var result = yield thunkQuery(
+        Task.select().where(
+            Task.stepId.equals(
+                stepId
+            ).and(
+                Task.uoaId.equals(uoaId)
+            ).and(
+                Task.productId.equals(productId)
+            ).and(
+                Task.isDeleted.isNull()
+            )
+        )
+    );
     if (_.first(result)) {
         throw new HttpError(403, 'Couldn`t add task with the same uoaId, stepId and productId');
     }
@@ -221,8 +235,7 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
         ProductUOA
         .select(
             WorkflowStep.star(),
-            'row_to_json("Tasks".*) as task',
-            'row_to_json("Surveys".*) as survey'
+            'row_to_json("Tasks".*) as task'
         )
         .from(
             ProductUOA
@@ -235,8 +248,6 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
             )
             .leftJoin(Product)
             .on(ProductUOA.productId.equals(Product.id))
-            .leftJoin(Survey)
-            .on(Product.surveyId.equals(Survey.id))
         )
         .where(
             ProductUOA.productId.equals(productId)
@@ -254,9 +265,10 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
         throw new HttpError(403, 'Task is not defined for this Product and UOA');
     }
 
-    if (!curStep.survey) {
-        throw new HttpError(403, 'Survey is not defined for this Product');
-    }
+    //TODO: Maybe pull survey here and check
+    // if (!curStep.survey) {
+    //     throw new HttpError(403, 'Survey is not defined for this Product');
+    // }
 
     if (req.user.roleID === 3) { // simple user
         if (!_.contains(curStep.task.userIds, req.user.id)) { // ToDo: add groupIds (when frontend will support feature "Assign groups to task")
@@ -280,13 +292,13 @@ var getMinNextStepPositionWithTask = function* (req, curStep, productId, uoaId) 
             sql.functions.MIN(WorkflowStep.position).as('minPosition')
         )
         .from(WorkflowStep
-            .join(Task).on(Task.stepId.equals(WorkflowStep.id))
+            // .join(Task).on(Task.stepId.equals(WorkflowStep.id))
         )
         .where(
             WorkflowStep.workflowId.equals(curStep.workflowId)
             .and(WorkflowStep.position.gt(curStep.position))
-            .and(Task.productId.equals(productId))
-            .and(Task.uoaId.equals(uoaId))
+            // .and(Task.productId.equals(productId))
+            // .and(Task.uoaId.equals(uoaId))
         )
     );
     if (result[0]) {
@@ -331,6 +343,7 @@ var getNextStep = function* (req, minNextStepPosition, curStep) {
         )
         .where(WorkflowStep.workflowId.equals(curStep.workflowId)
             .and(WorkflowStep.position.equals(minNextStepPosition))
+            .and(Task.uoaId.equals(curStep.task.uoaId))
         )
     );
     return result[0];
@@ -363,7 +376,6 @@ var getReturnStep = function* (req, taskId) {
 exports.getReturnStep = getReturnStep;
 
 var prepUsersForTask = function* (req, task) {
-
     if (typeof task.userId === 'undefined' && typeof task.userIds === 'undefined' && typeof task.groupIds === 'undefined') {
         throw new HttpError(403, 'userId or userIds or groupIds fields are required');
     } else if (typeof task.groupIds === 'undefined' && (typeof task.userIds === 'undefined' || !Array.isArray(task.userIds))) {
@@ -387,3 +399,390 @@ var prepUsersForTask = function* (req, task) {
     return task;
 };
 exports.prepUsersForTask = prepUsersForTask;
+
+var getDiscussedTasks = function* (req, tasks, userId) {
+    var thunkQuery = req.thunkQuery;
+    var assignedTaskIds = _.map(tasks, 'id');
+    var sqlDiscussString = 'SELECT DISTINCT "Discussions"."taskId" FROM "Discussions" WHERE';
+    if (assignedTaskIds.length > 1) {
+        sqlDiscussString += ' NOT ("Discussions"."taskId" = ANY(ARRAY[' + assignedTaskIds + '])) AND ';
+    }
+    sqlDiscussString += '"Discussions"."userId" = ' + userId + ' AND "Discussions"."isResolve" = false';
+    var discussedTaskIds = yield thunkQuery(sqlDiscussString);
+    if (!_.first(discussedTaskIds)) {
+        return tasks;
+    }
+    discussedTaskIds = _.map(discussedTaskIds, 'taskId');
+    var discussTasks = yield thunkQuery(
+        'SELECT "Tasks".*, "Products"."projectId", "Products"."surveyId" ' +
+        'FROM "Tasks" LEFT JOIN "Products" on "Products".id = "Tasks"."productId" '+
+        'LEFT JOIN "Projects" ON "Projects".id = "Products".id WHERE "Tasks".id ' +
+        '= ANY(ARRAY[' + discussedTaskIds + ']) AND "Tasks"."isDeleted" is NULL'
+    )
+    return tasks.concat(discussTasks);
+}
+
+exports.getDiscussedTasks = getDiscussedTasks;
+
+var getFlagsForTask = function* (req, tasks) {
+    var thunkQuery = req.thunkQuery;
+    var prefixSql = 'SELECT COUNT(dc."questionId") FROM (SELECT DISTINCT ' +
+    '"Discussions"."questionId" FROM "Discussions" WHERE "Discussions"."taskId" = ';
+    var suffixSql = (req.user.roleID === 2 ? ' AND ' :
+    ' AND ("Discussions"."userId" = ' + req.user.realmUserId + ' OR ' +
+    '"Discussions"."userFromId" = ' + req.user.realmUserId + ') AND ')
+        +'"Discussions"."isResolve" = false GROUP BY "Discussions"."questionId") as dc;';
+    for (var i = 0; i < tasks.length; i++) {
+        var flaggedChat = yield thunkQuery(prefixSql + tasks[i].id + suffixSql);
+        tasks[i].flagCount = parseInt(flaggedChat[0].count);
+    }
+    return tasks;
+};
+
+exports.getFlagsForTask = getFlagsForTask;
+
+var getCompletenessForTask = function* (req, tasks) {
+    var thunkQuery = req.thunkQuery;
+    for (var i = 0; i < tasks.length; i++) {
+        tasks[i].complete = false;
+
+        // Task is complete if the corresponding ProductUOA is at the task's step and is marked isComplete
+        var completeAndCurrent = yield thunkQuery(
+            ProductUOA
+            .select()
+            .where(
+                ProductUOA.UOAid.equals(tasks[i].uoaId)
+                .and(ProductUOA.productId.equals(tasks[i].productId))
+                .and(ProductUOA.currentStepId.equals(tasks[i].stepId))
+                .and(ProductUOA.isComplete.equals(true))
+            )
+        );
+        if (completeAndCurrent.length > 0) {
+            tasks[i].complete = true;
+        } else {
+            // Task is complete if the corresponding ProductUOA is at a step with a higher position than the task's
+            var taskPosition = yield thunkQuery(
+                WorkflowStep.select(WorkflowStep.position)
+                .where(
+                    WorkflowStep.id.equals(tasks[i].stepId)
+                )
+            );
+            var currentPosition = yield thunkQuery(
+                WorkflowStep.select(WorkflowStep.position)
+                .from(WorkflowStep
+                    .leftJoin(Workflow)
+                    .on(WorkflowStep.workflowId.equals(Workflow.id))
+                    .leftJoin(ProductUOA)
+                    .on(ProductUOA.productId.equals(Workflow.productId))
+                )
+                .where(
+                    Workflow.productId.equals(tasks[i].productId)
+                    .and(WorkflowStep.id.equals(ProductUOA.currentStepId))
+                    .and(ProductUOA.UOAid.equals(tasks[i].uoaId))
+                )
+            );
+
+            if (currentPosition.length === 1 && taskPosition.length === 1 &&
+                currentPosition[0].position > taskPosition[0].position) {
+                tasks[i].complete = true;
+            }
+        }
+    }
+    return tasks;
+}
+
+exports.getCompletenessForTask = getCompletenessForTask;
+
+var getActiveForTask = function* (req, tasks) {
+    var thunkQuery = req.thunkQuery;
+    for (var i = 0; i < tasks.length; i++) {
+        // Task is active if the corresponding ProductUOA is at the task's step and is not marked isComplete
+        var current = yield thunkQuery(
+            ProductUOA
+            .select()
+            .where(
+                ProductUOA.UOAid.equals(tasks[i].uoaId)
+                .and(ProductUOA.productId.equals(tasks[i].productId))
+                .and(ProductUOA.currentStepId.equals(tasks[i].stepId))
+                .and(ProductUOA.isComplete.equals(false))
+            )
+        );
+
+        tasks[i].active = current.length > 0;
+    }
+    return tasks;
+}
+
+exports.getActiveForTask = getActiveForTask;
+
+var getAssessmentStatusForTask = function* (req, tasks) {
+    for (var i = 0; i < tasks.length; i++) {
+        let statusRequest = yield getAssessmentStatusAtSurveyService(
+            tasks[i].assessmentId,
+            req.headers.authorization);
+        statusRequest = JSON.parse(statusRequest.body);
+        tasks[i].assessmentStatus = statusRequest.status;
+    }
+    return tasks;
+}
+
+exports.getAssessmentStatusForTask = getAssessmentStatusForTask;
+
+var insertProjectUser = function* (req, userId, projectId) {
+    var thunkQuery = req.thunkQuery;
+    var data = yield thunkQuery(ProjectUser.select().where({ projectId, userId }));
+
+    if (data.length === 0) {
+        var insertedData = yield thunkQuery(ProjectUser.insert({ projectId, userId }));
+        return insertedData;
+    }
+};
+
+exports.insertProjectUser = insertProjectUser;
+
+var checkRecordExistById = function* (req, database, column, requestId, isDeletedCondition) {
+    var thunkQuery = req.thunkQuery;
+
+    if (typeof isDeletedCondition === 'undefined') {
+        var record = yield thunkQuery(
+            '( ' +
+            'SELECT count(1) ' +
+            'FROM "' + database + '" ' +
+            'WHERE "' + database + '"."' + column + '" = ' + requestId +
+            ') '
+        );
+    } else {
+        var record = yield thunkQuery(
+            '( ' +
+            'SELECT count(1) ' +
+            'FROM "' + database + '" ' +
+            'WHERE "' + database + '"."' + column + '" = ' + requestId +
+            'AND "' + database + '"."' + isDeletedCondition + '" is NULL ' +
+            ') '
+        );
+
+    }
+
+    // If record exist it will return a count > 0
+    if (parseInt(record['0'].count) > 0) {
+        return true
+    } else {
+        return false
+    }
+};
+
+exports.checkRecordExistById = checkRecordExistById;
+
+var getSurveyFromSurveyService = function (surveyId, jwt) {
+    const path = 'surveys/';
+
+    const requestOptions = {
+        url: config.surveyService + path + surveyId,
+        method: 'GET',
+        headers: {
+            'authorization': jwt,
+            'origin': config.domain
+        },
+        json: true,
+        resolveWithFullResponse: true,
+    };
+
+    return request(requestOptions)
+        .then((res) => {
+            if (res.statusCode > 299 || res.statusCode < 200) {
+                const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                return Promise.reject(httpErr);
+            }
+            return res
+        })
+        .catch((err) => {
+            const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
+            return Promise.reject(httpErr);
+        });
+};
+
+exports.getSurveyFromSurveyService = getSurveyFromSurveyService;
+
+
+var getUsersWithSurveyAnswers = function (surveyId, jwt) {
+    const path = 'numberUsersBySurvey/';
+
+    const requestOptions = {
+        url: config.surveyService + path + surveyId,
+        method: 'GET',
+        headers: {
+            'authorization': jwt,
+            'origin': config.domain
+        },
+        json: true,
+        resolveWithFullResponse: true,
+    };
+
+    return request(requestOptions)
+            .then((res) => {
+            if (res.statusCode > 299 || res.statusCode < 200) {
+                const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                return Promise.reject(httpErr);
+            }
+            return res
+})
+        .catch((err) => {
+            const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
+            return Promise.reject(httpErr);
+        });
+};
+
+exports.getUsersWithSurveyAnswers = getUsersWithSurveyAnswers;
+
+
+var copyAssessmentAtSurveyService = function (assessmentId, prevAssessmentId, jwt) {
+    const path = 'assessment-answers/';
+    const path2 = '/as-copy';
+
+    const requestOptions = {
+        url: config.surveyService + path + assessmentId + path2,
+        method: 'POST',
+        headers: {
+            'authorization': jwt,
+            'origin': config.domain
+        },
+        json: {
+            prevAssessmentId
+        },
+        resolveWithFullResponse: true,
+    };
+
+    return request(requestOptions)
+        .then((res) => {
+            if (res.statusCode > 299 || res.statusCode < 200) {
+                const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                return Promise.reject(httpErr);
+            }
+            return res
+        })
+        .catch((err) => {
+            const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
+            return Promise.reject(httpErr);
+        });
+};
+
+exports.copyAssessmentAtSurveyService = copyAssessmentAtSurveyService;
+
+var getAssessmentStatusAtSurveyService = function (assessmentId, jwt) {
+    const path = 'assessment-answers/';
+    const path2 = '/status';
+
+    const requestOptions = {
+        url: config.surveyService + path + assessmentId + path2,
+        method: 'GET',
+        headers: {
+            'authorization': jwt,
+            'origin': config.domain
+        },
+        resolveWithFullResponse: true,
+    };
+
+    return request(requestOptions)
+        .then((res) => {
+            if (res.statusCode > 299 || res.statusCode < 200) {
+                const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                return Promise.reject(httpErr);
+            }
+            return res;
+        })
+        .catch((err) => {
+            const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
+            return Promise.reject(httpErr);
+        });
+}
+
+exports.getAssessmentStatusAtSurveyService = getAssessmentStatusAtSurveyService;
+
+var getCompletedTaskByStepId = function* (req, workflowStepId) {
+
+    return yield req.thunkQuery(
+        'SELECT "ProductUOA".* ' +
+        'FROM "ProductUOA" ' +
+        'WHERE "ProductUOA"."currentStepId" = ' + workflowStepId +
+        'AND "ProductUOA"."isComplete" = TRUE '
+    );
+};
+
+exports.getCompletedTaskByStepId = getCompletedTaskByStepId;
+
+var bumpProjectLastUpdatedByProduct = function *(req, productId) {
+
+    const productResult = yield req.thunkQuery(
+        Product.select(Product.projectId)
+        .where(Product.id.equals(productId))
+    );
+
+    if (productResult.length === 1) {
+        yield bumpProjectLastUpdated(req, productResult[0].projectId);
+    }
+};
+
+exports.bumpProjectLastUpdatedByProduct = bumpProjectLastUpdatedByProduct;
+
+var bumpProjectLastUpdated = function *(req, projectId) {
+    return yield req.thunkQuery(
+        Project
+        .update({lastUpdated: new Date()})
+        .where(Project.id.equals(projectId))
+    )
+};
+
+exports.bumpProjectLastUpdated = bumpProjectLastUpdated;
+
+var sendSystemMessageWithMessageService = function (req, to, message) {
+
+    if (to && message) {
+        return messageService.sendSystemMessage(
+            req.app.get(messageService.SYSTEM_MESSAGE_USER_TOKEN_FIELD),
+            to,
+            message,
+            messageService.SYSTEM_MESSAGE_SUBJECT
+        )
+        .then((res) => {
+            res.statusCode = 204;
+            return res;
+        })
+        .catch((err) => {
+            if (err.statusCode === 401) {
+                logger.debug('Attempt to send a system message was unauthorized');
+                logger.debug('Reauthenticating and trying again');
+                return messageService.authAsSystemMessageUser()
+                .then((auth) => {
+                    req.app.set(messageService.SYSTEM_MESSAGE_USER_TOKEN_FIELD, auth.token);
+                })
+                .catch((err) => {
+                    const message = 'Failed to send system message. Could not authenticate as system message user'
+                    logger.error(message)
+                    return Promise.reject(message);
+                })
+                .then(() =>
+                    messageService.sendSystemMessage(
+                        req.app.get(messageService.SYSTEM_MESSAGE_USER_TOKEN_FIELD),
+                        to,
+                        message,
+                        messageService.SYSTEM_MESSAGE_SUBJECT
+                    )
+                    .then((res) => {
+                        logger.debug(res);
+                        res.statusCode = 200;
+                        return res
+                    })
+                    .catch((err) => {
+                        logger.error('Failed to send system message');
+                        logger.error(err);
+                        return Promise.reject(err);
+                    })
+                )
+            }
+            return err;
+        });
+    }
+};
+
+exports.sendSystemMessageWithMessageService = sendSystemMessageWithMessageService;
+
