@@ -1,22 +1,15 @@
-var client = require('../db_bootstrap'),
-    _ = require('underscore'),
-    config = require('../../config'),
+var _ = require('underscore'),
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),
     UnitOfAnalysisTag = require('../models/uoatags'),
     UnitOfAnalysisTagLink = require('../models/uoataglinks'),
-    AccessMatrix = require('../models/access_matrices'),
-    Translation = require('../models/translations'),
-    Language = require('../models/languages'),
-    Essence = require('../models/essences'),
     co = require('co'),
     Query = require('../util').Query,
     getTranslateQuery = require('../util').getTranslateQuery,
     detectLanguage = require('../util').detectLanguage,
     query = new Query(),
     thunkify = require('thunkify'),
-    HttpError = require('../error').HttpError,
-    thunkQuery = thunkify(query);
+    HttpError = require('../error').HttpError;
 
 module.exports = {
 

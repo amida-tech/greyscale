@@ -6,8 +6,7 @@ var _ = require('underscore'),
     Query = require('../util').Query,
     query = new Query(),
     co = require('co'),
-    thunkify = require('thunkify'),
-    thunkQuery = thunkify(query);
+    thunkify = require('thunkify');
 
 module.exports = {
     select: function (req, res, next) {
@@ -87,7 +86,7 @@ module.exports = {
                 )
             );
             return result;
-        }).then(function (data) {
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,

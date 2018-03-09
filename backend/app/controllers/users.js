@@ -1,5 +1,4 @@
-var client = require('../db_bootstrap'),
-    _ = require('underscore'),
+var _ = require('underscore'),
     crypto = require('crypto'),
     config = require('../../config'),
     common = require('../services/common'),
@@ -7,19 +6,15 @@ var client = require('../db_bootstrap'),
     bologger = new BoLogger(),
     User = require('../models/users'),
     Organization = require('../models/organizations'),
-    Rights = require('../models/rights'),
     Token = require('../models/token'),
     vl = require('validator'),
     HttpError = require('../error').HttpError,
-    util = require('util'),
-    async = require('async'),
     UserUOA = require('../models/user_uoa'),
     UserGroup = require('../models/user_groups'),
     ProjectUser = require('../models/project_users'),
     UOA = require('../models/uoas'),
     sql = require('sql'),
     notifications = require('../controllers/notifications'),
-    mailer = require('../../lib/mailer'),
     request = require('request-promise'),
     logger = require('../logger');
 
@@ -52,7 +47,7 @@ module.exports = {
 
             return existToken;
 
-        }).then(function (data) {
+        }).then(function () {
             res.status(200).end();
         }, function (err) {
             next(err);
@@ -122,7 +117,6 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
         co(function* () {
             var user = yield * insertOne(req, res, next);
 
@@ -537,7 +531,7 @@ module.exports = {
                     UOAid: req.params.uoaid
                 })
             );
-        }).then(function (data) {
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -567,7 +561,7 @@ module.exports = {
                     UOAid: req.params.uoaid
                 })
             );
-        }).then(function (data) {
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -824,7 +818,7 @@ module.exports = {
                 'WHERE "id" = ' + req.params.id
             );
 
-        }).then(function (data) {
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -1033,7 +1027,6 @@ module.exports = {
                     }
 
                     if (userInRealm.length > 1) {
-                        var result = [];
                         throw new HttpError(300, userInRealm);
                     }
 
@@ -1105,7 +1098,7 @@ module.exports = {
                     'forgot'
                 );
             }
-        }).then(function (data) {
+        }).then(function () {
             res.status(200).end();
         }, function (err) {
             next(err);
@@ -1196,7 +1189,7 @@ module.exports = {
 
 };
 
-function* insertOne(req, res, next) {
+function* insertOne(req) {
     var thunkQuery = req.thunkQuery;
 
     if (!req.body.email || !req.body.roleID || !req.body.password || !req.body.firstName) {
