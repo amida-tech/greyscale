@@ -17,9 +17,29 @@ var
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
     ProductUOA = require('../models/product_uoa'),
+    notifications = require('../controllers/notifications'),
+    config = require('../../config'),
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_products');
+var error = require('debug')('error');
+
+var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
+    co(function* () {
+        var userTo, note;
+        // notify
+        userTo = yield * common.getUser(req, req.body.userId);
+        note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
+
+        // get the notification email to send out
+        notifications.notify(req, userTo, note, templateName);
+
+    }).then(function (result) {
+        debug('Created notifications `' + note0.action + '`');
+    }, function (err) {
+        error(JSON.stringify(err));
+    });
+};
 
 module.exports = {
 
@@ -346,6 +366,14 @@ module.exports = {
                 log.entitites = null;
                 log.info = 'Error update currentStep for product `' + (req.body.productId || req.params.id) + '` (Not found step ID or min step position)';
             }
+
+            // Send notification to user (Email and Internal)
+            const taskId = _.first(result).id;
+
+            notify(req, {
+                body: 'You have been assigned a new Task',
+                action: 'New Task',
+            }, taskId, taskId, 'Tasks', 'assignTask');
 
             bologger.log(log);
             return result;

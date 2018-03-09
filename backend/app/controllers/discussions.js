@@ -13,7 +13,6 @@ var
     Task = require('../models/tasks'),
     Discussion = require('../models/discussions'),
     notifications = require('../controllers/notifications'),
-    messageService = require('../services/messages'),
     co = require('co'),
     Query = require('../util').Query,
     query = new Query(),
@@ -48,9 +47,6 @@ var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
 
         // get the notification email to send out
         notifications.notify(req, userTo, note, templateName);
-
-        // Send internal notification
-        yield common.sendSystemMessageWithMessageService(req, userTo.email, note.body);
 
     }).then(function (result) {
         debug('Created notifications `' + note0.action + '`');
