@@ -48,8 +48,8 @@ debug.log = console.log.bind(console);
 // Tokens stored only in 'client' schema
 
 passport.use(new BasicStrategy({
-        passReqToCallback: true
-    },
+    passReqToCallback: true
+},
     function (req, email, password, done) {
         //var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -488,7 +488,7 @@ module.exports = {
                     throw new HttpError(401, 'User\'s role has not permission for this action');
                 }
                 return Permissions;
-            }).then(function (data) {
+            }).then(function () {
                 next();
             }, function (err) {
                 next(err);
@@ -528,7 +528,7 @@ module.exports = {
                     return data;
                 }
 
-            }).then(function (data) {
+            }).then(function () {
                 next();
             }, function (err) {
                 next(err);

@@ -1,5 +1,4 @@
 var
-    _ = require('underscore'),
     Attachment = require('../models/attachments'),
     AttachmentAttempts = require('../models/attachment_attempts'),
     AttachmentLink = require('../models/attachment_links'),
@@ -7,7 +6,6 @@ var
     co = require('co'),
     Query = require('../util').Query,
     thunkify = require('thunkify'),
-    HttpError = require('../error').HttpError,
     AWS = require('aws-sdk');
 AWS.config.update(config.aws);
 var s3 = new AWS.S3();
@@ -115,7 +113,7 @@ var exportObject = function (req, realm) {
                 Bucket: config.awsBucket,
                 Key: key
             };
-            s3.deleteObject(params, (err, data) => {
+            s3.deleteObject(params, (err) => {
                 if (err) {
                     reject({
                         error: err
