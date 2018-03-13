@@ -7,9 +7,7 @@
 <p>
     Date: <%= date.toLocaleString() %><br><br>
 
-    <%- product.title %> has been made <%- action %>.
-
-    <a href="<%= config.indabaClientDomain %>/#/survey/<%= survey.id %>/task/<%= task.id %>"><%- body %></a>
+    <a href="<%= config.indabaClientDomain %>/#/survey/<%= survey.id %>/task/<%= task.id %>"> <%- product.title %> <%- body %></a>
 </p>
 <p>
     Organisation: <%= organization.name %><br>

@@ -410,7 +410,6 @@ module.exports = {
                 }
 
                 updateObj.lastUpdated = new Date();
-
                 result = yield thunkQuery(
                     Project
                     .update(updateObj)
