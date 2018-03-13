@@ -100,6 +100,11 @@ var environments = {
                 notificationBody: './views/notifications/activate_task.html',
                 emailBody: './views/emails/activate_task.html'
             },
+            activateProject: {
+                subject: 'Indaba. The <%= product.title %> Project has been made <%= action %>',
+                notificationBody: './views/notifications/activate_project.html',
+                emailBody: './views/emails/activate_project.html'
+            },
             orgInvite: {
                 subject: '<% if (subject !== \'\') { %><%= subject %><% } else { %>Indaba. Organization membership activation<% } %>',
                 notificationBody: './views/notifications/org_invite.html',

@@ -5,7 +5,10 @@
 <p>Hello <%= to.firstName %> <%= to.lastName %>! </p>
 
 <p>
-    Date: <%= date.toLocaleString() %></br>
+    Date: <%= date.toLocaleString() %><br><br>
+
+    <%- product.title %> has been made <%- action %>.
+
     <a href="<%= config.indabaClientDomain %>/#/survey/<%= survey.id %>/task/<%= task.id %>"><%- body %></a>
 </p>
 <p>
