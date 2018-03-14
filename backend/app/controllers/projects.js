@@ -19,10 +19,12 @@ var client = require('../db_bootstrap'),
     Group = require('../models/groups'),
     UserGroup = require('../models/user_groups'),
     User = require('../models/users'),
+    Task = require('../models/tasks'),
     UnitOfAnalysis = require('../models/uoas'),
     ProductUOA = require('../models/product_uoa'),
     ProjectUser = require('../models/project_users'),
     ProjectUserGroup = require('../models/project_user_groups'),
+    notifications = require('../controllers/notifications'),
     co = require('co'),
     Query = require('../util').Query,
     vl = require('validator'),
@@ -30,6 +32,47 @@ var client = require('../db_bootstrap'),
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
     thunkQuery = thunkify(query);
+
+var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
+    co(function* () {
+        var userTo, note;
+        // notify
+        var sentUsersId = []; // array for excluding duplicate sending
+        var task = yield * common.getTask(req, taskId);
+        var i;
+        for (i in task.userIds) {
+            if (sentUsersId.indexOf(task.userIds[i]) === -1) {
+                if (req.user.id !== task.userIds[i]) { // don't send self notification
+                    userTo = yield * common.getUser(req, task.userIds[i]);
+                    note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
+                    notifications.notify(req, userTo, note, templateName);
+                    // Send internal notification
+                    yield common.sendSystemMessageWithMessageService(req, userTo.email, note.body);
+                    sentUsersId.push(task.userIds[i]);
+                }
+            }
+        }
+        for (i in task.groupIds) {
+            var usersFromGroup = yield * common.getUsersFromGroup(req, task.groupIds[i]);
+            for (var j in usersFromGroup) {
+                if (sentUsersId.indexOf(usersFromGroup[j].userId) === -1) {
+                    if (req.user.id !== usersFromGroup[j].userId) { // don't send self notification
+                        userTo = yield * common.getUser(req, usersFromGroup[j].userId);
+                        note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
+                        notifications.notify(req, userTo, note, templateName);
+                        // Send internal notification
+                        yield common.sendSystemMessageWithMessageService(req, userTo.email, note.body);
+                        sentUsersId.push(usersFromGroup[j].userId);
+                    }
+                }
+            }
+        }
+    }).then(function () {
+        debug('Created notifications `' + note0.action + '`');
+    }, function (err) {
+        error(JSON.stringify(err));
+    });
+};
 
 module.exports = {
 
@@ -348,7 +391,6 @@ module.exports = {
                             throw new HttpError(403, 'Stage is missing a property, project cannot be started');
                         }
 
-
                         // Check that the stage has at least one user group
                         const workflowStepGroup = yield thunkQuery(
                             WorkflowStepGroup.select()
@@ -373,6 +415,57 @@ module.exports = {
                     .update(updateObj)
                     .where(Project.id.equals(req.params.id))
                 );
+
+                if (result) { // If the status was changed
+                    console.log(`REACHED HERE ${updateObj.status}`)
+                    if (parseInt(updateObj.status) ===1 || parseInt(updateObj.status) === 0) { // status was changed
+                        console.log(`STATUS WAS CHANGED`)
+                        const product = yield thunkQuery(
+                            Product.select().from(Product).where(Product.projectId.equals(req.params.id))
+                        );
+                        // users with live task
+                        const productUoas = yield thunkQuery(
+                            ProductUOA.select().from(ProductUOA).where(ProductUOA.productId.equals(_.first(product).id)
+                                .and(ProductUOA.currentStepId.isNotNull()))
+                        );
+                        //Get users with LiveTasks
+                        let p;
+                        const usersWithLiveTasks = [];
+                        for (p = 0; p < productUoas.length; p++) {
+                            const tasks = yield thunkQuery(
+                                Task.select().from(Task).where(
+                                    Task.productId.equals(productUoas[p].productId)
+                                        .and(Task.uoaId.equals(productUoas[p].UOAid))
+                                )
+                            );
+                            usersWithLiveTasks.push(_.first(tasks)); // Push user ids to list
+                        }
+
+                        console.log(`STATUS IS: ${updateObj.status}`);
+
+                        // Email users based on active or in-active project
+                        let emailBodyAndAction = {};
+                        if (parseInt(updateObj.status) === 1 ) { // project made Active
+                            emailBodyAndAction = {
+                                action: 'Active',
+                                body: 'Project set to active, please complete your task'
+                            }
+                        } else if (parseInt(updateObj.status) === 0) { // Project made in-active
+                            console.log(`PROJECT WAS SET TO INACTIVE`)
+                            emailBodyAndAction = {
+                                action: 'In-Active',
+                                body: 'Project set to in-active Please verify your task'
+                            }
+                        }
+                        let u;
+                        for (u = 0; u < usersWithLiveTasks.length; u ++) {
+                            notify(req, {
+                                body: emailBodyAndAction.body,
+                                action: emailBodyAndAction.action
+                            }, usersWithLiveTasks[u].id, usersWithLiveTasks[u].id, 'Tasks', 'activateProject')
+                        }
+                    }
+                }
             }
             return result;
         }).then(function () {

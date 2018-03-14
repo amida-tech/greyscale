@@ -5,8 +5,9 @@
 <p>Hello <%= to.firstName %> <%= to.lastName %>! </p>
 
 <p>
-    Date: <%= date.toLocaleString() %></br>
-    <a href="<%= config.indabaClientDomain %>/#/survey/<%= survey.id %>/task/<%= task.id %>"><%- body %></a>
+    Date: <%= date.toLocaleString() %><br><br>
+
+    <a href="<%= config.indabaClientDomain %>/#/survey/<%= survey.id %>/task/<%= task.id %>"> <%- product.title %> <%- body %></a>
 </p>
 <p>
     Organisation: <%= organization.name %><br>
