@@ -22,7 +22,7 @@ var columns = [
     'status',
     'created',
     'updated',
-    'deleted',
+    'isDeleted',
     'langId'
 ];
 

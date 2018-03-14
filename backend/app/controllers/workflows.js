@@ -1,6 +1,4 @@
-var client = require('../db_bootstrap'),
-    _ = require('underscore'),
-    config = require('../../config'),
+var _ = require('underscore'),
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),
     Workflow = require('../models/workflows'),
@@ -9,11 +7,9 @@ var client = require('../db_bootstrap'),
     WorkflowStep = require('../models/workflow_steps'),
     WorkflowStepGroup = require('../models/workflow_step_groups'),
     co = require('co'),
-    Query = require('../util').Query,
-    query = new Query(),
-    thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
-    thunkQuery = thunkify(query);
+    common = require('../services/common');
+
 
 var debug = require('debug')('debug_workflows');
 debug.log = console.log.bind(console);
@@ -54,7 +50,7 @@ module.exports = {
             yield * checkData(req);
             var result = yield thunkQuery(Workflow.update(req.body).where(Workflow.id.equals(req.params.id)));
             return result;
-        }).then(function (data) {
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -73,10 +69,67 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
 
         co(function* () {
-            return yield thunkQuery(
+
+            // Check to make sure workflow exist
+            const workflowExist = yield * common.checkRecordExistById(req, 'Workflows', 'id', req.params.id);
+
+            if (workflowExist === false) {
+                throw new HttpError(403, 'Workflow with id = ' + req.params.id + ' does not exist');
+            }
+
+            //TODO: Maybe make this into a soft delete
+            const deletedWorkflow = yield thunkQuery(
                 Workflow.delete().where(Workflow.id.equals(req.params.id))
             );
-        }).then(function (data) {
+
+            // Delete WorkflowSteps associated with workflow
+            var rels = yield thunkQuery(WorkflowStep.select().where(WorkflowStep.workflowId.equals(req.params.id)));
+            var deleteIds = rels.map(function (value) {
+                return value.id;
+            });
+
+            for (var i in deleteIds) {
+
+                // Check if there are completed tasks before deleting workflowStep
+                const completedTasks = yield  * common.getCompletedTaskByStepId(req, deleteIds[i]);
+
+                if (_.first(completedTasks)) {
+                    throw new HttpError(403, 'Cannot delete Stage with completed Task within workflow');
+                } else {
+                    yield thunkQuery(WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(deleteIds[i])));
+                    bologger.log({
+                        req: req,
+                        user: req.user,
+                        action: 'delete',
+                        object: 'workflowstepgroups',
+                        entities: deleteIds,
+                        quantity: deleteIds.length,
+                        info: 'Delete workflow step group(s)'
+                    });
+
+                    // soft delete stage / workflowStep
+                    yield thunkQuery(
+                        'UPDATE "WorkflowSteps"' +
+                        ' SET "isDeleted" = (to_timestamp('+ Date.now() +
+                        '/ 1000.0)) WHERE "id" = ' + deleteIds[i]
+                    );
+
+                    // yield thunkQuery(WorkflowStep.delete().where(WorkflowStep.id.equals(deleteIds[i])));
+                    bologger.log({
+                        req: req,
+                        user: req.user,
+                        action: 'delete',
+                        object: 'workflowsteps',
+                        entities: deleteIds,
+                        quantity: deleteIds.length,
+                        info: 'Delete workflow step(s)'
+                    });
+                }
+            }
+
+            return deletedWorkflow;
+
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -126,7 +179,10 @@ module.exports = {
                     ') as "usergroupId"'
                 )
                 .from(WorkflowStep)
-                .where(WorkflowStep.workflowId.equals(req.params.id));
+                .where(
+                    WorkflowStep.workflowId.equals(req.params.stepId)
+                    .and(WorkflowStep.isDeleted.isNull())
+                );
             if (!req.query.order) {
                 q = q.order(WorkflowStep.position);
             }
@@ -145,13 +201,18 @@ module.exports = {
                 throw new HttpError(403, 'You should pass an array of workflow steps objects in request body');
             }
 
-            var workflow = yield thunkQuery(Workflow.select().where(Workflow.id.equals(req.params.id)));
+            var workflow = yield thunkQuery(Workflow.select().where(Workflow.id.equals(req.params.stepId)));
             if (!_.first(workflow)) {
-                throw new HttpError(403, 'Workflow with id = ' + req.params.id + ' does not exist');
+                throw new HttpError(403, 'Workflow with id = ' + req.params.stepId + ' does not exist');
             }
             var productId = workflow[0].productId;
 
-            var rels = yield thunkQuery(WorkflowStep.select().where(WorkflowStep.workflowId.equals(req.params.id)));
+            var rels = yield thunkQuery(
+                WorkflowStep.select().where(
+                    WorkflowStep.workflowId.equals(req.params.stepId)
+                    .and(WorkflowStep.isDeleted.isNull())
+                )
+            );
             var relIds = rels.map(function (value) {
                 return value.id;
             });
@@ -192,7 +253,7 @@ module.exports = {
                     }
                 } else {
                     var insertObj = _.pick(req.body[i], WorkflowStep.table._initialConfig.columns);
-                    insertObj.workflowId = req.params.id;
+                    insertObj.workflowId = req.params.stepId;
                     var insertId = yield thunkQuery(WorkflowStep.insert(insertObj).returning(WorkflowStep.id));
                     insertIds.push(insertId[0].id);
                     req.body[i].id = insertId[0].id;
@@ -207,10 +268,10 @@ module.exports = {
                     });
                 }
                 var insertGroupObjs = [];
-                for (var groupIndex in req.body[i].usergroupId) {
+                for (var groupIndex in req.body[i].userGroups) {
                     insertGroupObjs.push({
                         stepId: req.body[i].id,
-                        groupId: req.body[i].usergroupId[groupIndex]
+                        groupId: req.body[i].userGroups[groupIndex]
                     });
                 }
                 debug(insertGroupObjs);
@@ -228,35 +289,9 @@ module.exports = {
                 }
             }
 
-            var deleteIds = _.difference(relIds, passedIds);
-
-            for (i in deleteIds) {
-                yield thunkQuery(WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(deleteIds[i])));
-                bologger.log({
-                    req: req,
-                    user: req.user,
-                    action: 'delete',
-                    object: 'workflowstepgroups',
-                    entities: deleteIds,
-                    quantity: deleteIds.length,
-                    info: 'Delete workflow step group(s)'
-                });
-                yield thunkQuery(WorkflowStep.delete().where(WorkflowStep.id.equals(deleteIds[i])));
-                bologger.log({
-                    req: req,
-                    user: req.user,
-                    action: 'delete',
-                    object: 'workflowsteps',
-                    entities: deleteIds,
-                    quantity: deleteIds.length,
-                    info: 'Delete workflow step(s)'
-                });
-            }
-
-            // var result = yield * setCurrentStepToNull(req, productId); - not required, as User could require to adjust certain Step's permissions for running Project
+            yield common.bumpProjectLastUpdatedByProduct(req, productId);
 
             return {
-                deleted: deleteIds,
                 updated: updatedIds,
                 inserted: insertIds.map(function (value) {
                     return value.id;
@@ -268,9 +303,58 @@ module.exports = {
         }, function (err) {
             next(err);
         });
+    },
 
-    }
+    stepsDelete: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            // Check to make sure workflowStep exists
+            let workflowStepExist = yield thunkQuery(
+                'SELECT "WorkflowSteps"."workflowId", "WorkflowSteps"."position" ' +
+                'FROM "WorkflowSteps" WHERE "WorkflowSteps"."id" = ' + req.params.stepId
+            );
+            workflowStepExist = _.first(workflowStepExist);
 
+            if (!workflowStepExist) {
+                throw new HttpError(403, 'WorkflowStep with id = ' + req.params.stepId + ' does not exist');
+            }
+
+            // Check to make sure that stage doesn't have any completed tasks
+            const completedTasks = yield * common.getCompletedTaskByStepId(req, req.params.stepId);
+
+            if (_.first(completedTasks)) {
+                throw new HttpError(403, 'Cannot delete Stage with completed Task');
+            } else {
+                // Delete entry from work flow group
+                yield thunkQuery(WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(req.params.stepId)));
+
+                yield thunkQuery(
+                    'UPDATE "WorkflowSteps" SET "position" = "position" -1 WHERE ' +
+                    '"workflowId" = ' + workflowStepExist.workflowId + ' AND ' +
+                    '"position" > ' + workflowStepExist.position + ' AND "isDeleted" is NULL'
+                );
+
+                // Soft delete stage / workflowStep
+                return yield thunkQuery(
+                    'UPDATE "WorkflowSteps"' +
+                    ' SET "isDeleted" = (to_timestamp('+ Date.now() +
+                    '/ 1000.0)) WHERE "id" = ' + req.params.stepId
+                );
+            }
+        }).then(function (data) {
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'delete',
+                object: 'workflowSteps',
+                entities: _.first(data),
+                info: 'Delete workflow step(s)'
+            });
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
 };
 
 function* checkData(req) {

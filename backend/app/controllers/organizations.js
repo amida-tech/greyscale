@@ -67,7 +67,6 @@ module.exports = {
     },
 
     select: function (req, res, next) {
-
         co(function* () {
             var thunkQuery, data;
             if (req.user.roleID === 1 && req.params.realm === config.pgConnect.adminSchema) {
@@ -155,7 +154,6 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
-
         if (req.user.roleID !== 1) {
             throw new HttpError(403, 'Only super admin can create organizations');
         }
@@ -390,22 +388,22 @@ module.exports = {
                                     newUser.message = 'Added';
                                     var essenceId = yield * common.getEssenceId(req, 'Users');
                                     var note = yield * notifications.createNotification(req, {
-                                            userFrom: req.user.realmUserId,
-                                            userTo: newUser.id,
-                                            body: 'Invite',
-                                            essenceId: essenceId,
-                                            entityId: newUser.id,
-                                            notifyLevel: (notify ? 2 : 0),
-                                            name: newUser.firstName,
-                                            surname: newUser.lastName,
-                                            company: org[0],
-                                            inviter: req.user,
-                                            token: newUser.activationToken,
-                                            password: pass,
-                                            subject: 'Indaba. Organization membership',
-                                            config: config
-                                        },
-                                        inviteTemplate
+                                        userFrom: req.user.realmUserId,
+                                        userTo: newUser.id,
+                                        body: 'Invite',
+                                        essenceId: essenceId,
+                                        entityId: newUser.id,
+                                        notifyLevel: (notify ? 2 : 0),
+                                        name: newUser.firstName,
+                                        surname: newUser.lastName,
+                                        company: org[0],
+                                        inviter: req.user,
+                                        token: newUser.activationToken,
+                                        password: pass,
+                                        subject: 'Indaba. Organization membership',
+                                        config: config
+                                    },
+                                    inviteTemplate
                                     );
                                 }
                             }

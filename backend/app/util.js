@@ -1,7 +1,6 @@
 var
-    HttpError = require('./error').HttpError,
-    moment = require('moment'),
     _ = require('underscore'),
+    moment = require('moment'),
     pg = require('pg'),
     config = require('../config'),
     pgEscape = require('pg-escape');
@@ -215,7 +214,7 @@ exports.Query = function (realm) {
 
                 var values = queryObject.toQuery().values;
 
-                queryString = queryString.replace(/(\$)([0-9]+)/g, function (str, p1, p2, offset, s) {
+                queryString = queryString.replace(/(\$)([0-9]+)/g, function (str, p1, p2) {
                     return prepareValue(values[p2 - 1]);
                 });
 
@@ -255,7 +254,6 @@ exports.detectLanguage = function* (req) {
         Query = require('./util').Query;
     var query = new Query(),
         thunkify = require('thunkify'),
-        _ = require('underscore'),
         Language = require('./models/languages'),
         thunkQuery = thunkify(query);
 
@@ -268,16 +266,13 @@ exports.detectLanguage = function* (req) {
     acceptLanguage.languages(Object.keys(languages));
 
     var code = acceptLanguage.get(req.headers['accept-language']);
-    var detectedLang = languages[code].id;
 
     debug('Detected language : ' + languages[code].name);
     return languages[code].id;
 };
 
 exports.getTranslateQuery = function (langId, model, condition) {
-
-    var Language = require('./models/languages'),
-        Essence = require('./models/essences'),
+    var Essence = require('./models/essences'),
         Translation = require('./models/translations');
 
     var query = model;

@@ -94,8 +94,11 @@ function* checkString(val, keyName) {
 
 function* createNotification(req, note, template) {
     var thunkQuery = req.thunkQuery;
+
     note = yield * checkInsert(req, note);
+
     var note4insert = _.extend({}, note);
+
     template = (template || 'default');
     if (!config.notificationTemplates[template]) {
         template = 'default';
@@ -103,7 +106,9 @@ function* createNotification(req, note, template) {
 
     note4insert.note = yield * renderFile(config.notificationTemplates[template].notificationBody, note4insert);
     note4insert = _.pick(note4insert, Notification.insertCols); // insert only columns that may be inserted
+
     var noteInserted = yield thunkQuery(Notification.insert(note4insert).returning(Notification.id));
+
     if (parseInt(note.notifyLevel) > 1) { // onsite notification
         socketController.sendNotification(note.userTo);
     }
@@ -572,21 +577,21 @@ module.exports = {
                 }
                 var essenceId = yield * common.getEssenceId(req, 'Users');
                 var note = yield * createNotification(req, {
-                        userFrom: req.user.realmUserId,
-                        userTo: user.id,
-                        body: body,
-                        essenceId: essenceId,
-                        entityId: user.id,
-                        notifyLevel: user.notifyLevel,
-                        name: user.firstName,
-                        surname: user.lastName,
-                        company: org,
-                        inviter: req.user,
-                        token: user.activationToken,
-                        subject: subject,
-                        config: config
-                    },
-                    template
+                    userFrom: req.user.realmUserId,
+                    userTo: user.id,
+                    body: body,
+                    essenceId: essenceId,
+                    entityId: user.id,
+                    notifyLevel: user.notifyLevel,
+                    name: user.firstName,
+                    surname: user.lastName,
+                    company: org,
+                    inviter: req.user,
+                    token: user.activationToken,
+                    subject: subject,
+                    config: config
+                },
+                template
                 );
                 /*
                                 bologger.log({
@@ -698,7 +703,13 @@ function sendEmail(req, emailOptions, note, noteId) {
         var mailer = new Emailer(emailOptions, note);
         //Sync mail send
         var err = false;
-        var sendResult = yield * mailer.sendSync();
+        // var sendResult = yield * mailer.sendSync();
+
+        var sendResult = yield * mailer.sendEmailWithGmail(
+            emailOptions.to.email, emailOptions.to.subject,
+            emailOptions.html, emailOptions.html
+        );
+
         err = sendResult.name === 'Error';
         if (err) {
             debug('EMAIL RESULT ERROR --->>> ' + sendResult.message);
@@ -739,10 +750,12 @@ function notify(req, userTo, note, template) {
 
         note4insert.note = yield * renderFile(config.notificationTemplates[template].notificationBody, note4insert);
         note4insert = _.pick(note4insert, Notification.insertCols); // insert only columns that may be inserted
+
         var noteInserted = yield thunkQuery(Notification.insert(note4insert).returning(Notification.id));
         if (parseInt(note.notifyLevel) > 1) { // onsite notification
             socketController.sendNotification(note.userTo);
         }
+
         var userTo = yield * common.getUser(req, note.userTo);
         if (!vl.isEmail(userTo.email)) {
             throw new HttpError(403, 'Email is not valid: ' + userTo.email); // just in case - I think, it is not possible
@@ -774,8 +787,14 @@ function notify(req, userTo, note, template) {
         // update email's fields before sending
         var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(noteInserted[0].id)));
 
-        if (parseInt(note.notifyLevel) > 1 && !config.email.disable) { // email notification
+        if (parseInt(note.notifyLevel) > 1 && !config.email.disable) { // email and internal notification
             sendEmail(req, emailOptions, note, noteInserted[0].id);
+
+            // Send internal notification
+            yield common.sendSystemMessageWithMessageService(req, userTo.email, note.body)
+
+        } else if (parseInt(note.notifyLevel) === 1 ) { // just internal notification
+            yield common.sendSystemMessageWithMessageService(req, userTo.email, note.body)
         }
 
         bologger.log({
@@ -809,7 +828,8 @@ function* extendNote(req, note, userTo, essenceName, entityId, orgId, taskId) {
     var product = yield * common.getEntity(req, task.productId, Product, 'id');
     var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
     var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-    var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+
+    var survey = yield common.getSurveyFromSurveyService(product.surveyId, req.headers.authorization);
 
     note = _.extend(note, {
         userFrom: req.user.realmUserId,
@@ -818,8 +838,8 @@ function* extendNote(req, note, userTo, essenceName, entityId, orgId, taskId) {
         product: product,
         uoa: uoa,
         step: step,
-        survey: survey,
-        policy: survey,
+        survey: survey.body,
+        policy: survey.body,
         user: userTo,
         organization: organization,
         date: new Date(),

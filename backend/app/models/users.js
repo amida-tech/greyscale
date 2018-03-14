@@ -1,7 +1,4 @@
-var vl = require('validator'),
-    async = require('async'),
-    HttpError = require('../error').HttpError,
-    config = require('../../config'),
+var config = require('../../config'),
     crypto = require('crypto'),
     _ = require('underscore'),
     util = require('util');
@@ -38,7 +35,9 @@ var columns = [
     'lastActive',
     'affiliation',
     'isAnonymous',
-    'langId'
+    'langId',
+    'authId',
+    'isDeleted',
 ];
 
 var viewFields = [
@@ -69,7 +68,9 @@ var viewFields = [
     'notifyLevel',
     'lastActive',
     'affiliation',
-    'isAnonymous'
+    'isAnonymous',
+    'authId',
+    'isDeleted',
 ];
 
 var User = sql.define({
@@ -97,7 +98,8 @@ User.validPassword = function (pas, salt, checkpas) {
 User.editCols = [
     'firstName', 'lastName', 'phone', 'birthday', 'password',
     'updated', 'timezone', 'location', 'cell', 'address',
-    'lang', 'bio', 'notifyLevel', 'affiliation', 'isAnonymous'
+    'lang', 'bio', 'notifyLevel', 'affiliation', 'isAnonymous',
+    'authId', 'isDeleted',
 ];
 
 User.translate = [
@@ -115,7 +117,8 @@ User.view = function (user) {
 User.sesInfo = [
     'id', 'firstName', 'lastName', 'role', 'email',
     'roleID', 'rights', 'organizationId',
-    'projectId', 'password', 'salt', 'realmUserId'
+    'projectId', 'password', 'salt', 'realmUserId',
+    'authId'
 ];
 
 User.whereCol = columns;

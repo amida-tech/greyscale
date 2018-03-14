@@ -1,6 +1,7 @@
 var _ = require('underscore'),
     Group = require('../models/groups'),
     UserGroup = require('../models/user_groups'),
+    ProjectUserGroup = require('../models/project_user_groups'),
     vl = require('validator'),
     HttpError = require('../error').HttpError,
     util = require('util'),
@@ -11,6 +12,7 @@ var _ = require('underscore'),
     query = new Query(),
     co = require('co'),
     thunkify = require('thunkify'),
+    common = require('../services/common'),
     thunkQuery = thunkify(query);
 
 module.exports = {
@@ -55,7 +57,18 @@ module.exports = {
                 organizationId: req.params.organizationId,
                 title: req.body.title
             };
-            return yield thunkQuery(Group.insert(objToInsert).returning(Group.id));
+            var groupResult = yield thunkQuery(Group.insert(objToInsert).returning(Group.id));
+            var groupId = _.first(groupResult).id;
+            if (req.body.users){
+                var insertArr = _.map(req.body.users, (userId) => ({userId, groupId}));
+                yield thunkQuery(UserGroup.insert(insertArr));
+            }
+
+            if (req.body.projectId) {
+                yield thunkQuery(ProjectUserGroup.insert({projectId: req.body.projectId, groupId}));
+                yield common.bumpProjectLastUpdated(req, req.body.projectId);
+            }
+            return groupResult;
         }).then(function (data) {
             bologger.log({
                 req: req,
@@ -77,22 +90,60 @@ module.exports = {
             if (req.user.roleID !== 1 && (req.user.organizationId !== req.body.organizationId)) {
                 throw new HttpError(400, 'You cannot update groups from other organizations');
             }
-            if (!req.body.title) {
-                throw new HttpError(400, 'Title is required');
+            if (req.body.title) {
+                var objToUpdate = {
+                    title: req.body.title
+                };
+                yield thunkQuery(Group.update(objToUpdate).where(Group.id.equals(req.params.id)));
+
+                bologger.log({
+                    req: req,
+                    user: req.user,
+                    action: 'update',
+                    object: 'groups',
+                    entity: req.params.id,
+                    info: 'Update group'
+                });
             }
-            var objToUpdate = {
-                title: req.body.title
-            };
-            return yield thunkQuery(Group.update(objToUpdate).where(Group.id.equals(req.params.id)));
+
+            if (req.body.userId) {
+                var userGroups4delete = yield thunkQuery(
+                    UserGroup.delete().where(UserGroup.groupId.equals(req.params.id)).returning('*')
+                );
+                bologger.log({
+                    req: req,
+                    user: req.user,
+                    action: 'delete',
+                    object: 'userGroups',
+                    entities: userGroups4delete,
+                    quantity: userGroups4delete.length,
+                    info: 'Delete group`s users'
+                });
+                var groupObjs = [];
+                for (var i in req.body.userId) {
+                    groupObjs.push({
+                        groupId: req.params.id,
+                        userId: req.body.userId[i],
+                    });
+                }
+                if (groupObjs.length) {
+                    yield thunkQuery(
+                    UserGroup.insert(groupObjs)
+                );
+                    bologger.log({
+                        req: req,
+                        user: req.user,
+                        action: 'insert',
+                        object: 'userGroups',
+                        entities: groupObjs,
+                        quantity: groupObjs.length,
+                        info: 'Add new users for group'
+                    });
+                }
+
+                yield bumpProjectLastUpdatedByGroup(req, req.params.id);
+            }
         }).then(function () {
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'update',
-                object: 'groups',
-                entity: req.params.id,
-                info: 'Update group'
-            });
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -102,9 +153,19 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+
+            // First Remove users from group in UserGroup table in order not to violate the constraint
+            yield thunkQuery(
+                UserGroup.delete().where(UserGroup.groupId.equals(req.params.id))
+            );
+
+
             var result = yield thunkQuery(
                 Group.delete().where(Group.id.equals(req.params.id))
             );
+
+            yield bumpProjectLastUpdatedByGroup(req, req.params.id);
+
             return result;
         }).then(function (data) {
             bologger.log({
@@ -138,3 +199,13 @@ module.exports = {
         });
     }
 };
+
+function * bumpProjectLastUpdatedByGroup(req, groupId) {
+    const projectUserGroupResult = yield req.thunkQuery(ProjectUserGroup
+    .select(ProjectUserGroup.projectId)
+    .where(ProjectUserGroup.groupId.equals(groupId)));
+
+    if (projectUserGroupResult.length > 0) {
+        yield common.bumpProjectLastUpdated(req, projectUserGroupResult[0].projectId);
+    }
+}

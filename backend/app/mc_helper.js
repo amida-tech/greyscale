@@ -1,14 +1,7 @@
 var
-    _ = require('underscore'),
     config = require('../config'),
-    co = require('co'),
-    Query = require('./util').Query,
-    query = new Query(),
-    thunkify = require('thunkify'),
     crypto = require('crypto'),
-    md5 = crypto.createHash('md5'),
-    thunkQuery = thunkify(query);
-
+    md5 = crypto.createHash('md5');
 
 md5.update(config.domain);
 var prefix = md5.digest('hex');

@@ -1,5 +1,4 @@
-var client = require('../db_bootstrap'),
-    _ = require('underscore'),
+var _ = require('underscore'),
     crypto = require('crypto'),
     config = require('../../config'),
     common = require('../services/common'),
@@ -7,30 +6,17 @@ var client = require('../db_bootstrap'),
     bologger = new BoLogger(),
     User = require('../models/users'),
     Organization = require('../models/organizations'),
-    Rights = require('../models/rights'),
-    RoleRights = require('../models/role_rights'),
-    WorkflowStep = require('../models/workflow_steps'),
-    Discussion = require('../models/discussions'),
     Token = require('../models/token'),
-    Task = require('../models/tasks'),
-    Product = require('../models/products'),
-    ProductUOA = require('../models/product_uoa'),
-    Project = require('../models/projects'),
-    Survey = require('../models/surveys'),
-    VError = require('verror'),
     vl = require('validator'),
     HttpError = require('../error').HttpError,
-    util = require('util'),
-    async = require('async'),
-    Emailer = require('../../lib/mailer'),
     UserUOA = require('../models/user_uoa'),
     UserGroup = require('../models/user_groups'),
+    ProjectUser = require('../models/project_users'),
     UOA = require('../models/uoas'),
-    Notification = require('../models/notifications'),
-    Essence = require('../models/essences'),
-    mc = require('../mc_helper'),
     sql = require('sql'),
-    notifications = require('../controllers/notifications');
+    notifications = require('../controllers/notifications'),
+    request = require('request-promise'),
+    logger = require('../logger');
 
 var Role = require('../models/roles');
 var Query = require('../util').Query,
@@ -41,55 +27,6 @@ var Query = require('../util').Query,
     thunkrandomBytes = thunkify(crypto.randomBytes);
 
 module.exports = {
-    token: function (req, res, next) {
-        var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
-        co(function* () {
-            var needNewToken = true; // before false. Always new token
-            var data = yield thunkQuery(Token.select().where({
-                userID: req.user.id,
-                realm: req.params.realm
-            }));
-            if (!data.length) {
-                needNewToken = true;
-            }
-            //if (!needNewToken && new Date(data[0].issuedAt).getTime() + config.authToken.expiresAfterSeconds < Date.now()) {
-            //    needNewToken = true;
-            //}
-            if (needNewToken) {
-                var token = yield thunkrandomBytes(32);
-                token = token.toString('hex');
-                var record = yield thunkQuery(Token.insert({
-                    userID: req.user.id,
-                    body: token,
-                    realm: req.params.realm
-                }).returning(Token.body));
-                bologger.log({
-                    //req: req, Does not use req if you want to use public namespace TODO realm?
-                    user: req.user,
-                    action: 'insert',
-                    object: 'token',
-                    entities: {
-                        userID: req.user.id,
-                        body: token,
-                        realm: req.params.realm
-                    },
-                    quantity: 1,
-                    info: 'Add new token'
-                });
-                return record;
-            } else {
-                return data;
-            }
-        }).then(function (data) {
-            res.json({
-                token: data[0].body,
-                realm: req.params.realm
-            });
-        }, function (err) {
-            next(err);
-        });
-    },
-
     checkToken: function (req, res, next) {
         var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
 
@@ -110,7 +47,7 @@ module.exports = {
 
             return existToken;
 
-        }).then(function (data) {
+        }).then(function () {
             res.status(200).end();
         }, function (err) {
             next(err);
@@ -167,7 +104,7 @@ module.exports = {
                 User.select(
                     User.star(),
                     req.params.realm === config.pgConnect.adminSchema ? 'null' : groupQuery
-                ),
+                ).where(User.isDeleted.isNull()),
                 _.omit(req.query, 'offset', 'limit', 'order')
             );
             return yield [_counter, user];
@@ -180,11 +117,24 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
         co(function* () {
-            return yield * insertOne(req, res, next);
+            var user = yield * insertOne(req, res, next);
+
+            if (req.body.projectId) {
+                yield * common.insertProjectUser(req, user.id, req.body.projectId);
+            }
+            return user;
         }).then(function (data) {
-            res.status(201).json(User.view(_.first(data)));
+            res.status(201).json({
+                id: data.id,
+                firstName: data.firstName,
+                email: data.email,
+                lastName: data.lastName,
+                roleID: data.roleID,
+                organizationId: data.organizationId,
+                isActive: data.isActive,
+                registered: data.registered,
+            });
         }, function (err) {
             next(err);
         });
@@ -235,6 +185,18 @@ module.exports = {
             };
 
             var user = yield thunkQuery(User.insert(newClient).returning(User.id));
+
+            // Create user on the auth service
+            // TODO: https://jira.amida-tech.com/browse/INBA-609
+            var userAuthed = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
+            if (userAuthed.statusCode > 299) {
+                userAuthed = yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID, req.headers.authorization);
+            }
+            var updateObj = {
+                authId: typeof userAuthed.body === 'string' ?
+                    JSON.parse(userAuthed.body).id : userAuthed.body.id,
+            };
+            yield thunkQuery(User.update(updateObj).where(User.id.equals(user.id)));
 
             bologger.log({
                 //req: req, Does not use req if you want to use public namespace TODO realm?
@@ -298,12 +260,16 @@ module.exports = {
             if (!req.body.password) {
                 throw new HttpError(400, 'Password field is required!');
             }
+            const existUser = _.first(isExist);
+            const userAuthed = yield _createUserOnAuthService(existUser.email, req.body.password, existUser.roleID, req.headers.authorization);
+
             var data = {
                 activationToken: null,
                 isActive: true,
-                password: User.hashPassword(_.first(isExist).salt, req.body.password),
+                password: User.hashPassword(existUser.salt, req.body.password),
                 firstName: req.body.firstName,
-                lastName: req.body.lastName
+                lastName: req.body.lastName,
+                authId: userAuthed.body.id,
             };
             var updated = yield thunkQuery(User.update(data).where(User.activationToken.equals(req.params.token)).returning(User.id));
             bologger.log({
@@ -371,7 +337,7 @@ module.exports = {
                 action: 'update',
                 object: 'organizations',
                 entity: _.first(updated).id,
-                info: 'Update organization (self)'
+                info: 'Update organization  (self)'
             });
             return updated;
         }).then(function (data) {
@@ -388,7 +354,6 @@ module.exports = {
         }
 
         co(function* () {
-
             if (req.body.roleID === 1) {
                 throw new HttpError(400, 'You cannot invite super admins');
             }
@@ -401,95 +366,134 @@ module.exports = {
                 throw new HttpError(400, 101);
             }
 
-            var isExistsAdmin = yield * common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
-            var isExistUser = yield * common.isExistsUserInRealm(req, req.params.realm, req.body.email);
+            // Check if user exists on the auth service first.
+            const userExistOnAuth = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
 
-            if ((isExistUser && isExistUser.isActive) || isExistsAdmin) {
-                throw new HttpError(400, 'User with this email has already registered');
-            }
+            // var isExistsAdmin = yield * common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
+            var isExistUser = yield * common.isExistsUserInRealm(req, req.params.realm, req.body.email);
 
             var thunkQuery = thunkify(new Query(req.params.realm));
 
+            // Verify the organization
             var org = yield thunkQuery(
                 Organization.select().where(Organization.realm.equals(req.params.realm))
             );
 
-            if (!org[0]) {
+            if (!_.first(org)) {
                 throw new HttpError(404, 'Organization not found');
             }
 
-            org = org[0];
+            org = _.first(org);
 
-            var firstName = isExistUser ? isExistUser.firstName : req.body.firstName;
-            var lastName = isExistUser ? isExistUser.lastName : req.body.lastName;
-            var activationToken = isExistUser ? isExistUser.activationToken : crypto.randomBytes(32).toString('hex');
-            var salt = crypto.randomBytes(16).toString('hex');
-            var pass = crypto.randomBytes(5).toString('hex');
-
-            var newClient;
-            var newUserId = isExistUser ? isExistUser.id : 0;
-            if (!isExistUser) {
-                newClient = {
-                    'firstName': req.body.firstName,
-                    'lastName': req.body.lastName,
-                    'email': req.body.email,
-                    'roleID': req.body.roleID, //user
-                    'salt': salt,
-                    'password': User.hashPassword(salt, pass),
-                    'isActive': false,
-                    'activationToken': activationToken,
-                    'organizationId': org.id,
-                    'isAnonymous': req.body.isAnonymous ? true : false,
-                    'notifyLevel': req.body.notifyLevel
-                };
-
-                var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
-
-                newUserId = userId[0].id;
-                bologger.log({
-                    req: req,
-                    user: req.user,
-                    action: 'insert',
-                    object: 'users',
-                    entity: newUserId,
-                    info: 'Add new user (org invite)'
-                });
-
-                if (req.body.roleID === 2) { // invite admin
-                    if (!org.adminUserId) {
-                        yield thunkQuery(
-                            Organization.update({
-                                adminUserId: newUserId
-                            }).where(Organization.id.equals(org.id))
-                        );
+            // If a user is found in greyscale we just check to see if it's been marked as deleted and un-mark it
+            if (isExistUser) {
+                isExistUser.registered = true; // Indicate that the user was previously in the DB
+                const updateObj = {};
+                if (userExistOnAuth.statusCode === 200) {
+                    const authId = typeof userExistOnAuth.body === 'string' ? JSON.parse(userExistOnAuth.body).id : userExistOnAuth.body.id;
+                    if (isExistUser.authId !== authId) { // user needs authId update
+                        updateObj.authId = authId;
                     }
+                }
+                if (isExistUser.isDeleted !== null) { // user exist and is deleted
+                    updateObj.isDeleted = null;
+                }
+
+                if (!_.isEmpty(updateObj)) {
+                    yield thunkQuery(User.update(updateObj).where(User.id.equals(isExistUser.id)));
+                }
+
+                // If user is in greyscale and not deleted add to project if needed
+                if (req.body.projectId && isExistUser.isActive) {
+                    yield * common.insertProjectUser(req, isExistUser.id, req.body.projectId);
+                }
+                return isExistUser;
+            }
+
+            // if the user didn't exist, or exists but is not active, send an invitation
+            if (!isExistUser || !isExistUser.isActive) {
+
+                const activationToken = crypto.randomBytes(32).toString('hex');
+                const salt= crypto.randomBytes(16).toString('hex');
+                const pass = crypto.randomBytes(5).toString('hex');
+
+                // create the user if it doesn't exist
+                let userObject = isExistUser;
+                let newClient;
+                if (!isExistUser) {
+
+                    newClient = {
+                        'firstName': req.body.firstName,
+                        'lastName': req.body.lastName,
+                        'email': req.body.email,
+                        'roleID': req.body.roleID, //user
+                        'salt': crypto.randomBytes(16).toString('hex'),
+                        'password': User.hashPassword(salt, pass),
+                        'isActive': false,
+                        activationToken,
+                        'organizationId': org.id,
+                        'isAnonymous': req.body.isAnonymous ? true : false,
+                        'notifyLevel': req.body.notifyLevel,
+                        'authId': 0,
+                    };
+
+                    if (userExistOnAuth.statusCode === 200) {
+                        newClient.authId = typeof userExistOnAuth.body === 'string' ? JSON.parse(userExistOnAuth.body).id : userExistOnAuth.body.id;
+                    }
+
+                    userObject = yield thunkQuery(User.insert(newClient).returning(User.id));
+                    userObject = _.first(userObject);
+                    newClient.id = userObject.id;
+
+                    bologger.log({
+                        req: req,
+                        user: req.user,
+                        action: 'insert',
+                        object: 'users',
+                        entity: userObject.id,
+                        info: 'Add new user (org invite)'
+                    });
+                } else {
+                    // set the activationToken if the user does exist
+                    yield thunkQuery(User.update({activationToken}).where(User.id.equals(isExistUser.id)));
+                }
+
+                if (req.body.projectId) { // insert the user into the projectUserTable
+                    yield * common.insertProjectUser(req, userObject.id, req.body.projectId);
                 }
 
                 var essenceId = yield * common.getEssenceId(req, 'Users');
 
-                var note = yield * notifications.createNotification(req, {
-                        userFrom: newUserId,
-                        userTo: newUserId,
+                if (req.user.realmUserId !== null) {
+
+                    yield * notifications.createNotification( req, {
+                        userFrom: req.user.realmUserId,
+                        userTo: userObject.id,
                         body: 'Invite',
-                        essenceId: essenceId,
-                        entityId: newUserId,
+                        essenceId,
+                        entityId: userObject.id,
                         notifyLevel: req.body.notifyLevel,
-                        name: firstName,
-                        surname: lastName,
+                        name: req.body.firstName,
+                        surname: req.body.lastName,
                         company: org,
                         inviter: req.user,
                         token: activationToken,
                         subject: 'Indaba. Organization membership',
-                        config: config
-                    },
-                    'orgInvite'
-                );
+                        config,
+                    }, 'orgInvite');
+                }
 
-            } else {
-                newClient = isExistUser;
+                if (req.body.roleID === 2) { // invite admin
+                    if (!org.adminUserId) {
+                        yield thunkQuery(
+                                Organization.update({
+                                    adminUserId: userObject.id
+                                }).where(Organization.id.equals(org.id))
+                            );
+                    }
+                }
+                return newClient;
             }
-
-            return newClient;
 
         }).then(function (data) {
             res.json(data);
@@ -527,7 +531,7 @@ module.exports = {
                     UOAid: req.params.uoaid
                 })
             );
-        }).then(function (data) {
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -557,7 +561,7 @@ module.exports = {
                     UOAid: req.params.uoaid
                 })
             );
-        }).then(function (data) {
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -673,7 +677,8 @@ module.exports = {
                     User.star(),
                     req.params.realm === config.pgConnect.adminSchema ? 'null' : groupQuery
                 )
-                .where(User.id.equals(req.params.id))
+                .where(User.id.equals(req.params.id)
+                    .and(User.isDeleted.isNull()))
             );
             if (!_.first(user)) {
                 throw new HttpError(404, 'Not found');
@@ -690,7 +695,21 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var updateObj = _.pick(req.body, User.whereCol);
-            var user = yield thunkQuery(User.select(User.star()).from(User).where(User.id.equals(req.params.id)));
+            var user = yield thunkQuery(
+                User
+                    .select(User.star()
+                    )
+                    .from(
+                        User
+                    )
+                    .where(
+                        User.id.equals(req.params.id)
+                        .and(
+                            User.isDeleted.isNull()
+                        )
+                    )
+            );
+
             if (!_.first(user)) {
                 throw new HttpError(404, 'Not found');
             }
@@ -777,10 +796,29 @@ module.exports = {
                 }
             }
 
-            return yield thunkQuery(
-                User.delete().where(User.id.equals(req.params.id))
+            // Remove User from User Group
+            yield thunkQuery(
+                UserGroup.delete().where(UserGroup.userId.equals(req.params.id))
             );
-        }).then(function (data) {
+
+            // Remove user from ProjectUsers
+            yield thunkQuery(
+                ProjectUser.delete().where(ProjectUser.userId.equals(req.params.id))
+            );
+
+            const user = yield thunkQuery(User.select(User.email).where(User.id.equals(req.params.id)));
+            _deleteUserOnAuthService(user[0].email, req.headers.authorization);
+
+            // Soft delete the user from the Users table
+            return yield thunkQuery(
+                'UPDATE "Users"' +
+                ' SET "isDeleted" = (to_timestamp('+ Date.now() +
+                '/ 1000.0)), ' +
+                ' "isActive" = false ' +
+                'WHERE "id" = ' + req.params.id
+            );
+
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -808,7 +846,7 @@ module.exports = {
                 .from(
                     User
                 )
-                .where(User.id.equals(req.user.id));
+                .where(User.id.equals(req.user.id).and(User.isDeleted.isNull()));
         } else {
             thunkQuery = thunkify(new Query(req.params.realm));
 
@@ -847,7 +885,12 @@ module.exports = {
                     .leftJoin(Organization)
                     .on(User.organizationId.equals(Organization.id))
                 )
-                .where(User.id.equals(req.user.id));
+                .where(
+                    User.id.equals(req.user.id)
+                    .and(
+                        User.isDeleted.isNull()
+                    )
+                );
 
         }
 
@@ -865,7 +908,21 @@ module.exports = {
             thunkQuery = req.thunkQuery;
         }
         co(function* () {
-            var user = yield thunkQuery(User.select(User.star()).from(User).where(User.id.equals(req.user.id)));
+            var user = yield thunkQuery(
+                User
+                    .select(
+                        User.star()
+                    )
+                    .from(
+                        User
+                    )
+                    .where(
+                        User.id.equals(req.user.id)
+                            .and(
+                                User.isDeleted.isNull()
+                            )
+                    )
+            );
             if (!_.first(user)) {
                 throw new HttpError(404, 'Not found');
             }
@@ -882,6 +939,21 @@ module.exports = {
                 };
             } else {
                 updateObj = _.pick(req.body, User.editCols);
+            }
+            var updatedData = _.first(yield thunkQuery(User.update(updateObj).where(User.id.equals(req.user.id)).returning(
+                User.id,
+                User.firstName,
+                User.lastName,
+                User.email,
+                User.notifyLevel,
+                User.isActive,
+                User.bio
+            )));
+            if (updatedData) {
+                return {
+                    'message': 'Successfully inserted data.',
+                    'data': updatedData
+                };
             }
 
             return yield thunkQuery(User.update(updateObj).where(User.id.equals(req.user.id)));
@@ -955,7 +1027,6 @@ module.exports = {
                     }
 
                     if (userInRealm.length > 1) {
-                        var result = [];
                         throw new HttpError(300, userInRealm);
                     }
 
@@ -1027,7 +1098,7 @@ module.exports = {
                     'forgot'
                 );
             }
-        }).then(function (data) {
+        }).then(function () {
             res.status(200).end();
         }, function (err) {
             next(err);
@@ -1040,7 +1111,8 @@ module.exports = {
             var user = yield thunkQuery(
                 User.select().where(
                     User.resetPasswordToken.equals(req.params.token)
-                    .and(User.resetPasswordExpires.gt(Date.now()))
+                    .and(User.resetPasswordExpires.gt(Date.now())
+                    .and(User.isDeleted.isNull()))
                 )
             );
             if (!_.first(user)) {
@@ -1060,7 +1132,8 @@ module.exports = {
             var user = yield thunkQuery(
                 User.select().where(
                     User.resetPasswordToken.equals(req.body.token)
-                    .and(User.resetPasswordExpires.gt(Date.now()))
+                    .and(User.resetPasswordExpires.gt(Date.now())
+                    .and(User.isDeleted.isNull()))
                 )
             );
             if (!_.first(user)) {
@@ -1068,6 +1141,7 @@ module.exports = {
             }
 
             //new salt for old user if password changed
+            // user.registered to check if user already in system. If so, best not to use below.
             var salt = (!_.first(user).salt) ? crypto.randomBytes(16).toString('hex') : _.first(user).salt;
             var data = {
                 'salt': salt,
@@ -1098,101 +1172,14 @@ module.exports = {
     tasks: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            var curStepAlias = 'curStep';
-            var res = yield thunkQuery(
-                Task
-                .select(
-                    Task.id,
-                    Task.title,
-                    Task.description,
-                    Task.created,
-                    Task.startDate,
-                    Task.endDate,
-                    'row_to_json("UnitOfAnalysis".*) as uoa',
-                    'row_to_json("Products".*) as product',
-                    'row_to_json("Projects".*) as project',
-                    'row_to_json("Surveys".*) as survey',
-                    'row_to_json("WorkflowSteps") as step',
-                    'CASE ' +
-                    'WHEN ' +
-                    '(' +
-                    'SELECT ' +
-                    '"Discussions"."id" ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    'LIMIT 1' +
-                    ') IS NULL ' +
-                    'THEN FALSE ' +
-                    'ELSE TRUE ' +
-                    'END as flagged',
-                    '( ' +
-                    'SELECT count("Discussions"."id") ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    ') as flaggedCount',
-                    '(' +
-                    'SELECT ' +
-                    '"Discussions"."taskId" ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    'LIMIT 1' +
-                    ') as flaggedFrom',
-                    'CASE ' +
-                    'WHEN ' +
-                    '("' + curStepAlias + '"."position" > "WorkflowSteps"."position") ' +
-                    'OR ("ProductUOA"."isComplete" = TRUE) ' +
-                    'THEN \'completed\' ' +
-                    'WHEN (' +
-                    '"' + curStepAlias + '"."position" IS NULL ' +
-                    'AND ("WorkflowSteps"."position" = 0) ' +
-                    'AND ("Products"."status" = 1)' +
-                    ')' +
-                    'OR (' +
-                    '"' + curStepAlias + '"."position" = "WorkflowSteps"."position" ' +
-                    'AND ("Products"."status" = 1)' +
-                    ')' +
-                    'THEN \'current\' ' +
-                    'ELSE \'waiting\'' +
-                    'END as status '
-                )
-                .from(
-                    Task
-                    .leftJoin(UOA)
-                    .on(Task.uoaId.equals(UOA.id))
-                    .leftJoin(Product)
-                    .on(Task.productId.equals(Product.id))
-                    .leftJoin(Project)
-                    .on(Product.projectId.equals(Project.id))
-                    .leftJoin(Survey)
-                    .on(Product.surveyId.equals(Survey.id))
-                    .leftJoin(WorkflowStep)
-                    .on(Task.stepId.equals(WorkflowStep.id))
-                    .leftJoin(ProductUOA)
-                    .on(
-                        ProductUOA.productId.equals(Task.productId)
-                        .and(ProductUOA.UOAid.equals(Task.uoaId))
-                    )
-                    .leftJoin(WorkflowStep.as(curStepAlias))
-                    .on(
-                        ProductUOA.currentStepId.equals(WorkflowStep.as(curStepAlias).id)
-                    )
-                )
-                .where(
-                    Task.userIds.contains('{' + req.user.id + '}')
-                    //.and(Project.status.equals(1))
-                    .and(Product.status.equals(1))
-                ), req.query
+            var tasks = yield thunkQuery(
+                'SELECT "Tasks".*, "Products"."projectId", "Products"."surveyId" ' +
+                'FROM "Tasks" LEFT JOIN "Products" ON "Products".id = ' +
+                '"Tasks"."productId" LEFT JOIN "Projects" ON "Projects".id ' +
+                '= "Products".id WHERE ' + req.user.id + ' = ANY("Tasks"."userIds")'
             );
-            return res;
+
+            return tasks;
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -1202,7 +1189,7 @@ module.exports = {
 
 };
 
-function* insertOne(req, res, next) {
+function* insertOne(req) {
     var thunkQuery = req.thunkQuery;
 
     if (!req.body.email || !req.body.roleID || !req.body.password || !req.body.firstName) {
@@ -1215,15 +1202,38 @@ function* insertOne(req, res, next) {
     }
 
     // validate password length
-    if (!vl.isLength(req.body.password, 6, 32)) {
+    if (!vl.isLength(req.body.password, 8, 64)) {
         throw new HttpError(400, 102);
     }
 
     var isExistsAdmin = yield * common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
-    var isExistUser = yield * common.isExistsUserInRealm(req, req.params.realm, req.body.email);
+    if (isExistsAdmin) {
+        throw new HttpError(403, 'User is an admin');
+    }
 
-    if ((isExistUser && isExistUser.isActive) || isExistsAdmin) {
-        throw new HttpError(403, 'User with this email has already registered');
+    var isExistUser = yield * common.isExistsUserInRealm(req, req.params.realm, req.body.email);
+    if (isExistUser) {
+        isExistUser.registered = true;
+        // If user is found in table we check to see if it's been marked as deleted and un-mark it
+        if (isExistUser.isDeleted !== null) {
+
+            // make sure user is on auth before reactivating
+            const userExistOnAuth = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
+
+            if (userExistOnAuth.statusCode === 200) { // User was found on auth service
+
+                const updateObj = {
+                    isDeleted: null
+                };
+
+                yield thunkQuery(
+                    User.update(updateObj).where(User.email.equals(req.body.email))
+                );
+            } else { // User wasn't found on auth but exist in greyscale
+                throw new HttpError(403, 'Couldn\'t reactivate user on greyscale because user not on auth');
+            }
+        }
+        return (isExistUser);
     }
 
     // hash user password
@@ -1237,9 +1247,31 @@ function* insertOne(req, res, next) {
         }
     }
 
-    var user = yield thunkQuery(User.insert(_.extend(req.body, {
+    // create user on auth service
+    const authUser = yield _createUserOnAuthService(req.body.email, req.body.password, req.body.roleID, req.headers.authorization);
+    var userExistOnAuthBodyObject;
+
+    if (authUser.statusCode === 200) { // user was successfully created on the auth service
+        userExistOnAuthBodyObject = authUser.body; // information of newly created user
+
+    } else { // User wasn't created on auth so user probably already exists
+
+        const userExistOnAuth = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
+
+        if (userExistOnAuth.statusCode === 200) { // found the user on the auth service
+            userExistOnAuthBodyObject = JSON.parse(userExistOnAuth.body);
+        } else {
+            throw new HttpError(403, 'Couldn\'t create user on greyscale and user doesn\'t exist on auth');
+        }
+    }
+
+    // Insert new user into greyscale
+    if (userExistOnAuthBodyObject) {
+        req.body.authId = userExistOnAuthBodyObject.id;
+    }
+    var user = yield thunkQuery(User.insert(_.extend(_.omit(req.body, 'projectId'), {
         salt: salt
-    })).returning(User.id));
+    })).returning('*'));
     bologger.log({
         req: req,
         user: req.user,
@@ -1253,6 +1285,7 @@ function* insertOne(req, res, next) {
         user = _.first(user);
 
         var essenceId = yield * common.getEssenceId(req, 'Users');
+
         var note = yield * notifications.createNotification(req, {
                 userFrom: req.user.realmUserId,
                 userTo: user.id,
@@ -1269,4 +1302,91 @@ function* insertOne(req, res, next) {
         );
     }
     return user;
+}
+
+function _getUserOnAuthService(email, jwt) {
+    const path = '/user/byEmail/' + email;
+
+    const requestOptions = {
+        url: config.authService + path,
+        method: 'GET',
+        headers: {
+            'authorization': jwt,
+            'origin': config.domain
+        },
+        resolveWithFullResponse: true,
+    };
+    return request(requestOptions)
+        .then((res) => {
+            if (res.statusCode > 299 || res.statusCode < 200) {
+                const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                return Promise.reject(httpErr);
+            }
+            return res;
+        })
+        .catch((err) => {
+            if (err.statusCode === 404) { // User wasn't found
+                return err;
+            }
+            const httpErr = new HttpError(500, `Unable to use auth service: ${err.message}`);
+            return Promise.reject(httpErr);
+        });
+}
+
+function _createUserOnAuthService(email, password, roleId, jwt) {
+    var scopes = [];
+    // Check if user being created is admin
+    if (roleId == 1 || roleId == 2) {
+        scopes = ['admin'];
+    }
+
+    const path = '/user';
+    const requestOptions = {
+        url: config.authService + path,
+        method: 'POST',
+        headers: {
+            'authorization': jwt,
+            'origin': config.domain
+        },
+        json: {
+            username: email,
+            email: email,
+            password: password,
+            scopes: scopes,
+        },
+        resolveWithFullResponse: true,
+    };
+
+    return request(requestOptions)
+        .then((res) => {
+            if (res.statusCode > 299 || res.statusCode < 200) {
+                const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                return Promise.reject(httpErr);
+            }
+            return res
+        })
+        .catch((err) => {
+            if (err.statusCode === 400) { // User already exists but it's cool, it's cool.
+                return err;
+            }
+            const httpErr = new HttpError(500, `Unable to use auth service: ${err.message}`);
+            return Promise.reject(httpErr);
+        });
+}
+
+function _deleteUserOnAuthService(email, jwt) {
+    return _getUserOnAuthService(email, jwt).then((response) => {
+        if (response.statusCode !== 404) {
+            const requestOptions = {
+                url: `${config.authService}/user/${JSON.parse(response.body).id}`,
+                method: 'DELETE',
+                headers: {
+                    authorization: jwt,
+                    origin: config.domain
+                },
+                resolveWithFullResponse: true,
+            }
+            return request(requestOptions);
+        }
+    }, (error) => logger.debug(`Error deleting user from auth service ${error}`));
 }

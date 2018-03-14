@@ -35,6 +35,7 @@ CREATE SCHEMA test;
 
 ALTER SCHEMA test OWNER TO indaba;
 
+
 SET search_path = public, pg_catalog;
 
 --
@@ -1767,7 +1768,9 @@ CREATE TABLE "Users" (
     affiliation character varying,
     "isAnonymous" boolean DEFAULT false NOT NULL,
     "langId" integer,
-    salt character varying
+    salt character varying,
+    "authId" integer NOT NULL,
+    "isDeleted" timestamp(6) without time zone
 );
 
 
@@ -2396,7 +2399,8 @@ CREATE TABLE "ProductUOA" (
     "productId" integer NOT NULL,
     "UOAid" integer NOT NULL,
     "currentStepId" integer,
-    "isComplete" boolean DEFAULT false NOT NULL
+    "isComplete" boolean DEFAULT false NOT NULL,
+    "isDeleted" timestamp(6) without time zone
 );
 
 
@@ -2467,7 +2471,9 @@ CREATE TABLE "Projects" (
     status smallint DEFAULT 0 NOT NULL,
     "adminUserId" integer,
     "closeTime" timestamp with time zone,
-    "langId" integer
+    "firstActivated" timestamp(6) without time zone,
+    "langId" integer,
+    "lastUpdated" timestamp(0) with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -2591,164 +2597,6 @@ CREATE TABLE "Subindexes" (
 
 ALTER TABLE "Subindexes" OWNER TO indabauser;
 
---
--- TOC entry 246 (class 1259 OID 1599917)
--- Name: SurveyAnswerVersions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
---
-
-CREATE SEQUENCE "SurveyAnswerVersions_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "SurveyAnswerVersions_id_seq" OWNER TO indabauser;
-
---
--- TOC entry 247 (class 1259 OID 1599919)
--- Name: SurveyAnswers_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
---
-
-CREATE SEQUENCE "SurveyAnswers_id_seq"
-    START WITH 1375
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "SurveyAnswers_id_seq" OWNER TO indabauser;
-
---
--- TOC entry 248 (class 1259 OID 1599921)
--- Name: SurveyAnswers; Type: TABLE; Schema: sceleton; Owner: indabauser
---
-
-CREATE TABLE "SurveyAnswers" (
-    id integer DEFAULT nextval('"SurveyAnswers_id_seq"'::regclass) NOT NULL,
-    "questionId" integer,
-    "userId" integer,
-    value text,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    "productId" integer,
-    "UOAid" integer,
-    "wfStepId" integer,
-    version integer,
-    "surveyId" integer,
-    "optionId" integer[],
-    "langId" integer,
-    "isResponse" boolean DEFAULT false NOT NULL,
-    "isAgree" boolean,
-    comments character varying,
-    attachments integer[],
-    links character varying[],
-    updated timestamp with time zone
-);
-
-
-ALTER TABLE "SurveyAnswers" OWNER TO indabauser;
-
---
--- TOC entry 249 (class 1259 OID 1599930)
--- Name: surveyQuestionOptions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
---
-
-CREATE SEQUENCE "surveyQuestionOptions_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "surveyQuestionOptions_id_seq" OWNER TO indabauser;
-
---
--- TOC entry 250 (class 1259 OID 1599932)
--- Name: SurveyQuestionOptions; Type: TABLE; Schema: sceleton; Owner: indabauser
---
-
-CREATE TABLE "SurveyQuestionOptions" (
-    id integer DEFAULT nextval('"surveyQuestionOptions_id_seq"'::regclass) NOT NULL,
-    "questionId" integer,
-    value character varying,
-    label character varying,
-    skip smallint,
-    "isSelected" boolean DEFAULT false NOT NULL,
-    "langId" integer
-);
-
-
-ALTER TABLE "SurveyQuestionOptions" OWNER TO indabauser;
-
---
--- TOC entry 251 (class 1259 OID 1599940)
--- Name: SurveyQuestions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
---
-
-CREATE SEQUENCE "SurveyQuestions_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "SurveyQuestions_id_seq" OWNER TO indabauser;
-
---
--- TOC entry 252 (class 1259 OID 1599942)
--- Name: SurveyQuestions; Type: TABLE; Schema: sceleton; Owner: indabauser
---
-
-CREATE TABLE "SurveyQuestions" (
-    id integer DEFAULT nextval('"SurveyQuestions_id_seq"'::regclass) NOT NULL,
-    "surveyId" integer,
-    type smallint,
-    label character varying,
-    "isRequired" boolean DEFAULT false NOT NULL,
-    "position" integer,
-    description text,
-    skip smallint,
-    size smallint,
-    "minLength" smallint,
-    "maxLength" smallint,
-    "isWordmml" boolean DEFAULT false NOT NULL,
-    "incOtherOpt" boolean DEFAULT false NOT NULL,
-    units character varying,
-    "intOnly" boolean DEFAULT false NOT NULL,
-    value character varying,
-    qid character varying,
-    links text,
-    attachment boolean,
-    "optionNumbering" character varying,
-    "langId" integer,
-    "withLinks" boolean DEFAULT false,
-    "hasComments" boolean
-);
-
-
-ALTER TABLE "SurveyQuestions" OWNER TO indabauser;
-
---
--- TOC entry 253 (class 1259 OID 1599954)
--- Name: Surveys; Type: TABLE; Schema: sceleton; Owner: indabauser
---
-
-CREATE TABLE "Surveys" (
-    id integer DEFAULT nextval('"JSON_id_seq"'::regclass) NOT NULL,
-    title character varying,
-    description text,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    "projectId" integer,
-    "isDraft" boolean DEFAULT false NOT NULL,
-    "langId" integer
-);
-
-
-ALTER TABLE "Surveys" OWNER TO indabauser;
 
 --
 -- TOC entry 254 (class 1259 OID 1599963)
@@ -2772,7 +2620,6 @@ ALTER TABLE "Tasks_id_seq" OWNER TO indabauser;
 
 CREATE TABLE "Tasks" (
     id integer DEFAULT nextval('"Tasks_id_seq"'::regclass) NOT NULL,
-    title character varying,
     description text,
     "uoaId" integer NOT NULL,
     "stepId" integer NOT NULL,
@@ -2781,7 +2628,11 @@ CREATE TABLE "Tasks" (
     "startDate" timestamp with time zone,
     "endDate" timestamp with time zone,
     "userId" integer,
-    "langId" integer
+    "langId" integer,
+    "assessmentId" integer,
+    "userIds" integer[],
+    "groupIds" integer[],
+    "isDeleted" timestamp(6) without time zone
 );
 
 
@@ -2844,13 +2695,35 @@ CREATE TABLE "UnitOfAnalysis" (
     visibility smallint DEFAULT 1 NOT NULL,
     status smallint DEFAULT 1 NOT NULL,
     created timestamp(6) without time zone DEFAULT now() NOT NULL,
-    deleted timestamp(6) without time zone,
+    "isDeleted" timestamp(6) without time zone,
     "langId" smallint DEFAULT 1 NOT NULL,
     updated timestamp(6) without time zone
 );
 
 
 ALTER TABLE "UnitOfAnalysis" OWNER TO indabauser;
+
+--
+-- TOC entry 259 (class 1259 OID 1599882)
+-- Name: ProjectUsers; Type: TABLE; Schema: sceleton; Owner: indabatestuser
+--
+
+CREATE TABLE "ProjectUsers" (
+    "projectId" integer NOT NULL,
+    "userId" integer NOT NULL
+);
+
+
+ALTER TABLE "ProjectUsers" OWNER TO indabauser;
+
+
+CREATE TABLE "ProjectUserGroups" (
+    "projectId" integer NOT NULL,
+    "groupId" integer NOT NULL
+);
+
+
+ALTER TABLE "ProjectUserGroups" OWNER TO indabauser;
 
 --
 -- TOC entry 3789 (class 0 OID 0)
@@ -3239,7 +3112,9 @@ CREATE TABLE "Users" (
     affiliation character varying,
     "isAnonymous" boolean DEFAULT false NOT NULL,
     "langId" integer,
-    salt character varying
+    salt character varying,
+    "authId" integer NOT NULL,
+    "isDeleted" timestamp(6) without time zone
 );
 
 
@@ -3328,7 +3203,8 @@ CREATE TABLE "WorkflowSteps" (
     "writeToAnswers" boolean,
     "allowEdit" boolean DEFAULT false NOT NULL,
     role character varying,
-    "langId" integer
+    "langId" integer,
+    "isDeleted" timestamp(6) without time zone
 );
 
 
@@ -3979,7 +3855,8 @@ CREATE TABLE "ProductUOA" (
     "productId" integer NOT NULL,
     "UOAid" integer NOT NULL,
     "currentStepId" integer,
-    "isComplete" boolean DEFAULT false NOT NULL
+    "isComplete" boolean DEFAULT false NOT NULL,
+    "isDeleted" timestamp(6) without time zone
 );
 
 
@@ -4050,7 +3927,9 @@ CREATE TABLE "Projects" (
     status smallint DEFAULT 0 NOT NULL,
     "adminUserId" integer,
     "closeTime" timestamp with time zone,
-    "langId" integer
+    "firstActivated" timestamp(6) without time zone,
+    "langId" integer,
+    "lastUpdated" timestamp(0) with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -4175,165 +4054,6 @@ CREATE TABLE "Subindexes" (
 ALTER TABLE "Subindexes" OWNER TO indaba;
 
 --
--- TOC entry 384 (class 1259 OID 1601640)
--- Name: SurveyAnswerVersions_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
---
-
-CREATE SEQUENCE "SurveyAnswerVersions_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "SurveyAnswerVersions_id_seq" OWNER TO indaba;
-
---
--- TOC entry 385 (class 1259 OID 1601642)
--- Name: SurveyAnswers_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
---
-
-CREATE SEQUENCE "SurveyAnswers_id_seq"
-    START WITH 1375
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "SurveyAnswers_id_seq" OWNER TO indaba;
-
---
--- TOC entry 445 (class 1259 OID 1602104)
--- Name: SurveyAnswers; Type: TABLE; Schema: test; Owner: indaba
---
-
-CREATE TABLE "SurveyAnswers" (
-    id integer DEFAULT nextval('"SurveyAnswers_id_seq"'::regclass) NOT NULL,
-    "questionId" integer,
-    "userId" integer,
-    value text,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    "productId" integer,
-    "UOAid" integer,
-    "wfStepId" integer,
-    version integer,
-    "surveyId" integer,
-    "optionId" integer[],
-    "langId" integer,
-    "isResponse" boolean DEFAULT false NOT NULL,
-    "isAgree" boolean,
-    comments character varying,
-    attachments integer[],
-    links character varying[],
-    updated timestamp with time zone
-);
-
-
-ALTER TABLE "SurveyAnswers" OWNER TO indaba;
-
---
--- TOC entry 387 (class 1259 OID 1601646)
--- Name: surveyQuestionOptions_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
---
-
-CREATE SEQUENCE "surveyQuestionOptions_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "surveyQuestionOptions_id_seq" OWNER TO indaba;
-
---
--- TOC entry 433 (class 1259 OID 1602000)
--- Name: SurveyQuestionOptions; Type: TABLE; Schema: test; Owner: indaba
---
-
-CREATE TABLE "SurveyQuestionOptions" (
-    id integer DEFAULT nextval('"surveyQuestionOptions_id_seq"'::regclass) NOT NULL,
-    "questionId" integer,
-    value character varying,
-    label character varying,
-    skip smallint,
-    "isSelected" boolean DEFAULT false NOT NULL,
-    "langId" integer
-);
-
-
-ALTER TABLE "SurveyQuestionOptions" OWNER TO indaba;
-
---
--- TOC entry 388 (class 1259 OID 1601648)
--- Name: SurveyQuestions_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
---
-
-CREATE SEQUENCE "SurveyQuestions_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "SurveyQuestions_id_seq" OWNER TO indaba;
-
---
--- TOC entry 429 (class 1259 OID 1601951)
--- Name: SurveyQuestions; Type: TABLE; Schema: test; Owner: indaba
---
-
-CREATE TABLE "SurveyQuestions" (
-    id integer DEFAULT nextval('"SurveyQuestions_id_seq"'::regclass) NOT NULL,
-    "surveyId" integer,
-    type smallint,
-    label character varying,
-    "isRequired" boolean DEFAULT false NOT NULL,
-    "position" integer,
-    description text,
-    skip smallint,
-    size smallint,
-    "minLength" smallint,
-    "maxLength" smallint,
-    "isWordmml" boolean DEFAULT false NOT NULL,
-    "incOtherOpt" boolean DEFAULT false NOT NULL,
-    units character varying,
-    "intOnly" boolean DEFAULT false NOT NULL,
-    value character varying,
-    qid character varying,
-    links text,
-    attachment boolean,
-    "optionNumbering" character varying,
-    "langId" integer,
-    "withLinks" boolean DEFAULT false,
-    "hasComments" boolean
-);
-
-
-ALTER TABLE "SurveyQuestions" OWNER TO indaba;
-
---
--- TOC entry 436 (class 1259 OID 1602021)
--- Name: Surveys; Type: TABLE; Schema: test; Owner: indaba
---
-
-CREATE TABLE "Surveys" (
-    id integer DEFAULT nextval('"JSON_id_seq"'::regclass) NOT NULL,
-    title character varying,
-    description text,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    "projectId" integer,
-    "isDraft" boolean DEFAULT false NOT NULL,
-    "langId" integer
-);
-
-
-ALTER TABLE "Surveys" OWNER TO indaba;
-
---
 -- TOC entry 389 (class 1259 OID 1601650)
 -- Name: Tasks_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
@@ -4355,7 +4075,6 @@ ALTER TABLE "Tasks_id_seq" OWNER TO indaba;
 
 CREATE TABLE "Tasks" (
     id integer DEFAULT nextval('"Tasks_id_seq"'::regclass) NOT NULL,
-    title character varying,
     description text,
     "uoaId" integer NOT NULL,
     "stepId" integer NOT NULL,
@@ -4365,8 +4084,10 @@ CREATE TABLE "Tasks" (
     "endDate" timestamp with time zone,
     "userId" integer,
     "langId" integer,
+    "assessmentId" integer,
     "userIds" integer[],
-    "groupIds" integer[]
+    "groupIds" integer[],
+    "isDeleted" timestamp(6) without time zone
 );
 
 
@@ -4429,7 +4150,7 @@ CREATE TABLE "UnitOfAnalysis" (
     visibility smallint DEFAULT 1 NOT NULL,
     status smallint DEFAULT 1 NOT NULL,
     created timestamp(6) without time zone DEFAULT now() NOT NULL,
-    deleted timestamp(6) without time zone,
+    "isDeleted" timestamp(6) without time zone,
     "langId" smallint DEFAULT 1 NOT NULL,
     updated timestamp(6) without time zone
 );
@@ -4778,6 +4499,28 @@ CREATE TABLE "UserUOA" (
 ALTER TABLE "UserUOA" OWNER TO indaba;
 
 --
+-- TOC entry 436 (class 1259 OID 1602016)
+-- Name: ProjectUsers; Type: TABLE; Schema: test; Owner: indabatestuser
+--
+
+CREATE TABLE "ProjectUsers" (
+    "projectId" integer NOT NULL,
+    "userId" integer NOT NULL
+);
+
+
+ALTER TABLE "ProjectUsers" OWNER TO indabauser;
+
+
+CREATE TABLE "ProjectUserGroups" (
+    "projectId" integer NOT NULL,
+    "groupId" integer NOT NULL
+);
+
+
+ALTER TABLE "ProjectUserGroups" OWNER TO indabauser;
+
+--
 -- TOC entry 394 (class 1259 OID 1601660)
 -- Name: user_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
 --
@@ -4824,7 +4567,9 @@ CREATE TABLE "Users" (
     affiliation character varying,
     "isAnonymous" boolean DEFAULT false NOT NULL,
     "langId" integer,
-    salt character varying
+    salt character varying,
+    "authId" integer NOT NULL,
+    "isDeleted" timestamp(6) without time zone
 );
 
 
@@ -4913,7 +4658,8 @@ CREATE TABLE "WorkflowSteps" (
     "writeToAnswers" boolean,
     "allowEdit" boolean DEFAULT false NOT NULL,
     role character varying,
-    "langId" integer
+    "langId" integer,
+    "isDeleted" timestamp(6) without time zone
 );
 
 
@@ -5461,42 +5207,6 @@ ALTER TABLE ONLY "Subindexes"
 
 
 --
--- TOC entry 3322 (class 2606 OID 1600542)
--- Name: SurveyAnswers_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_pkey" PRIMARY KEY (id);
-
-
---
--- TOC entry 3324 (class 2606 OID 1600544)
--- Name: SurveyQuestionOptions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "SurveyQuestionOptions"
-    ADD CONSTRAINT "SurveyQuestionOptions_pkey" PRIMARY KEY (id);
-
-
---
--- TOC entry 3326 (class 2606 OID 1600546)
--- Name: SurveyQuestions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "SurveyQuestions"
-    ADD CONSTRAINT "SurveyQuestions_pkey" PRIMARY KEY (id);
-
-
---
--- TOC entry 3328 (class 2606 OID 1600548)
--- Name: Surveys_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "Surveys"
-    ADD CONSTRAINT "Surveys_pkey" PRIMARY KEY (id);
-
-
---
 -- TOC entry 3330 (class 2606 OID 1600550)
 -- Name: Tasks_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
@@ -5958,42 +5668,6 @@ ALTER TABLE ONLY "Subindexes"
 
 
 --
--- TOC entry 3487 (class 2606 OID 1602114)
--- Name: SurveyAnswers_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_pkey" PRIMARY KEY (id);
-
-
---
--- TOC entry 3461 (class 2606 OID 1602009)
--- Name: SurveyQuestionOptions_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyQuestionOptions"
-    ADD CONSTRAINT "SurveyQuestionOptions_pkey" PRIMARY KEY (id);
-
-
---
--- TOC entry 3446 (class 2606 OID 1601964)
--- Name: SurveyQuestions_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyQuestions"
-    ADD CONSTRAINT "SurveyQuestions_pkey" PRIMARY KEY (id);
-
-
---
--- TOC entry 3467 (class 2606 OID 1602031)
--- Name: Surveys_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "Surveys"
-    ADD CONSTRAINT "Surveys_pkey" PRIMARY KEY (id);
-
-
---
 -- TOC entry 3469 (class 2606 OID 1602042)
 -- Name: Tasks_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
@@ -6448,14 +6122,6 @@ ALTER TABLE ONLY "RolesRights"
 
 SET search_path = sceleton, pg_catalog;
 
---
--- TOC entry 3499 (class 2606 OID 1600774)
--- Name: AnswerAttachments_answerId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "AnswerAttachments"
-    ADD CONSTRAINT "AnswerAttachments_answerId_fkey" FOREIGN KEY ("answerId") REFERENCES "SurveyAnswers"(id);
-
 
 --
 -- TOC entry 3498 (class 2606 OID 1600779)
@@ -6473,15 +6139,6 @@ ALTER TABLE ONLY "AnswerAttachments"
 
 ALTER TABLE ONLY "AttachmentLinks"
     ADD CONSTRAINT "AttachmentLinks_essenceId_fkey" FOREIGN KEY ("essenceId") REFERENCES "Essences"(id);
-
-
---
--- TOC entry 3506 (class 2606 OID 1600789)
--- Name: Discussions_questionId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "Discussions"
-    ADD CONSTRAINT "Discussions_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
 
 
 --
@@ -6554,15 +6211,6 @@ ALTER TABLE ONLY "Groups"
 
 ALTER TABLE ONLY "IndexQuestionWeights"
     ADD CONSTRAINT "IndexQuestionWeights_indexId_fkey" FOREIGN KEY ("indexId") REFERENCES "Indexes"(id);
-
-
---
--- TOC entry 3509 (class 2606 OID 1600834)
--- Name: IndexQuestionWeights_questionId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "IndexQuestionWeights"
-    ADD CONSTRAINT "IndexQuestionWeights_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
 
 
 --
@@ -6701,15 +6349,6 @@ ALTER TABLE ONLY "Products"
 
 
 --
--- TOC entry 3523 (class 2606 OID 1600914)
--- Name: Products_surveyId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "Products"
-    ADD CONSTRAINT "Products_surveyId_fkey" FOREIGN KEY ("surveyId") REFERENCES "Surveys"(id);
-
-
---
 -- TOC entry 3530 (class 2606 OID 1600919)
 -- Name: Projects_accessMatrixId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
@@ -6764,15 +6403,6 @@ ALTER TABLE ONLY "RolesRights"
 
 
 --
--- TOC entry 3535 (class 2606 OID 1600949)
--- Name: SubindexWeights_questionId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "SubindexWeights"
-    ADD CONSTRAINT "SubindexWeights_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
-
-
---
 -- TOC entry 3534 (class 2606 OID 1600954)
 -- Name: SubindexWeights_subindexId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
@@ -6788,105 +6418,6 @@ ALTER TABLE ONLY "SubindexWeights"
 
 ALTER TABLE ONLY "Subindexes"
     ADD CONSTRAINT "Subindexes_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Products"(id);
-
-
---
--- TOC entry 3542 (class 2606 OID 1600964)
--- Name: SurveyAnswers_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
-
-
---
--- TOC entry 3541 (class 2606 OID 1600969)
--- Name: SurveyAnswers_productId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Products"(id);
-
-
---
--- TOC entry 3540 (class 2606 OID 1600974)
--- Name: SurveyAnswers_questionId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
-
-
---
--- TOC entry 3539 (class 2606 OID 1600979)
--- Name: SurveyAnswers_surveyId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_surveyId_fkey" FOREIGN KEY ("surveyId") REFERENCES "Surveys"(id);
-
-
---
--- TOC entry 3538 (class 2606 OID 1600984)
--- Name: SurveyAnswers_userId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"(id);
-
-
---
--- TOC entry 3537 (class 2606 OID 1600989)
--- Name: SurveyAnswers_wfStepId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_wfStepId_fkey" FOREIGN KEY ("wfStepId") REFERENCES "WorkflowSteps"(id);
-
-
---
--- TOC entry 3544 (class 2606 OID 1600994)
--- Name: SurveyQuestionOptions_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "SurveyQuestionOptions"
-    ADD CONSTRAINT "SurveyQuestionOptions_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
-
-
---
--- TOC entry 3546 (class 2606 OID 1600999)
--- Name: SurveyQuestions_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "SurveyQuestions"
-    ADD CONSTRAINT "SurveyQuestions_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
-
-
---
--- TOC entry 3545 (class 2606 OID 1601004)
--- Name: SurveyQuestions_surveyId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "SurveyQuestions"
-    ADD CONSTRAINT "SurveyQuestions_surveyId_fkey" FOREIGN KEY ("surveyId") REFERENCES "Surveys"(id);
-
-
---
--- TOC entry 3548 (class 2606 OID 1601009)
--- Name: Surveys_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "Surveys"
-    ADD CONSTRAINT "Surveys_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
-
-
---
--- TOC entry 3547 (class 2606 OID 1601014)
--- Name: Surveys_projectId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "Surveys"
-    ADD CONSTRAINT "Surveys_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Projects"(id);
 
 
 --
@@ -7149,16 +6680,6 @@ ALTER TABLE ONLY "WorkflowStepGroups"
 ALTER TABLE ONLY "WorkflowSteps"
     ADD CONSTRAINT "WorkflowSteps_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
 
-
---
--- TOC entry 3577 (class 2606 OID 1601164)
--- Name: WorkflowSteps_worflowId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "WorkflowSteps"
-    ADD CONSTRAINT "WorkflowSteps_worflowId_fkey" FOREIGN KEY ("workflowId") REFERENCES "Workflows"(id);
-
-
 --
 -- TOC entry 3579 (class 2606 OID 1601169)
 -- Name: Workflows_productId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
@@ -7177,24 +6698,8 @@ ALTER TABLE ONLY "RolesRights"
     ADD CONSTRAINT "rolesrights_rightID" FOREIGN KEY ("rightID") REFERENCES "Rights"(id);
 
 
---
--- TOC entry 3543 (class 2606 OID 1601179)
--- Name: surveyQuestionOptions_questionId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "SurveyQuestionOptions"
-    ADD CONSTRAINT "surveyQuestionOptions_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
-
 
 SET search_path = test, pg_catalog;
-
---
--- TOC entry 3581 (class 2606 OID 1602116)
--- Name: AnswerAttachments_answerId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "AnswerAttachments"
-    ADD CONSTRAINT "AnswerAttachments_answerId_fkey" FOREIGN KEY ("answerId") REFERENCES "SurveyAnswers"(id);
 
 
 --
@@ -7213,15 +6718,6 @@ ALTER TABLE ONLY "AnswerAttachments"
 
 ALTER TABLE ONLY "AttachmentLinks"
     ADD CONSTRAINT "AttachmentLinks_essenceId_fkey" FOREIGN KEY ("essenceId") REFERENCES "Essences"(id);
-
-
---
--- TOC entry 3587 (class 2606 OID 1602131)
--- Name: Discussions_questionId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "Discussions"
-    ADD CONSTRAINT "Discussions_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
 
 
 --
@@ -7294,15 +6790,6 @@ ALTER TABLE ONLY "Groups"
 
 ALTER TABLE ONLY "IndexQuestionWeights"
     ADD CONSTRAINT "IndexQuestionWeights_indexId_fkey" FOREIGN KEY ("indexId") REFERENCES "Indexes"(id);
-
-
---
--- TOC entry 3590 (class 2606 OID 1602176)
--- Name: IndexQuestionWeights_questionId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "IndexQuestionWeights"
-    ADD CONSTRAINT "IndexQuestionWeights_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
 
 
 --
@@ -7441,15 +6928,6 @@ ALTER TABLE ONLY "Products"
 
 
 --
--- TOC entry 3602 (class 2606 OID 1602256)
--- Name: Products_surveyId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "Products"
-    ADD CONSTRAINT "Products_surveyId_fkey" FOREIGN KEY ("surveyId") REFERENCES "Surveys"(id);
-
-
---
 -- TOC entry 3598 (class 2606 OID 1602261)
 -- Name: Projects_accessMatrixId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
@@ -7504,15 +6982,6 @@ ALTER TABLE ONLY "RolesRights"
 
 
 --
--- TOC entry 3611 (class 2606 OID 1602291)
--- Name: SubindexWeights_questionId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "SubindexWeights"
-    ADD CONSTRAINT "SubindexWeights_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
-
-
---
 -- TOC entry 3610 (class 2606 OID 1602296)
 -- Name: SubindexWeights_subindexId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
@@ -7528,105 +6997,6 @@ ALTER TABLE ONLY "SubindexWeights"
 
 ALTER TABLE ONLY "Subindexes"
     ADD CONSTRAINT "Subindexes_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Products"(id);
-
-
---
--- TOC entry 3660 (class 2606 OID 1602306)
--- Name: SurveyAnswers_langId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
-
-
---
--- TOC entry 3659 (class 2606 OID 1602311)
--- Name: SurveyAnswers_productId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Products"(id);
-
-
---
--- TOC entry 3658 (class 2606 OID 1602316)
--- Name: SurveyAnswers_questionId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
-
-
---
--- TOC entry 3657 (class 2606 OID 1602321)
--- Name: SurveyAnswers_surveyId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_surveyId_fkey" FOREIGN KEY ("surveyId") REFERENCES "Surveys"(id);
-
-
---
--- TOC entry 3656 (class 2606 OID 1602326)
--- Name: SurveyAnswers_userId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"(id);
-
-
---
--- TOC entry 3655 (class 2606 OID 1602331)
--- Name: SurveyAnswers_wfStepId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_wfStepId_fkey" FOREIGN KEY ("wfStepId") REFERENCES "WorkflowSteps"(id);
-
-
---
--- TOC entry 3634 (class 2606 OID 1602336)
--- Name: SurveyQuestionOptions_langId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyQuestionOptions"
-    ADD CONSTRAINT "SurveyQuestionOptions_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
-
-
---
--- TOC entry 3626 (class 2606 OID 1602341)
--- Name: SurveyQuestions_langId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyQuestions"
-    ADD CONSTRAINT "SurveyQuestions_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
-
-
---
--- TOC entry 3625 (class 2606 OID 1602346)
--- Name: SurveyQuestions_surveyId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyQuestions"
-    ADD CONSTRAINT "SurveyQuestions_surveyId_fkey" FOREIGN KEY ("surveyId") REFERENCES "Surveys"(id);
-
-
---
--- TOC entry 3638 (class 2606 OID 1602351)
--- Name: Surveys_langId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "Surveys"
-    ADD CONSTRAINT "Surveys_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
-
-
---
--- TOC entry 3637 (class 2606 OID 1602356)
--- Name: Surveys_projectId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "Surveys"
-    ADD CONSTRAINT "Surveys_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Projects"(id);
 
 
 --
@@ -7882,15 +7252,6 @@ ALTER TABLE ONLY "WorkflowSteps"
 
 
 --
--- TOC entry 3648 (class 2606 OID 1602506)
--- Name: WorkflowSteps_worflowId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "WorkflowSteps"
-    ADD CONSTRAINT "WorkflowSteps_worflowId_fkey" FOREIGN KEY ("workflowId") REFERENCES "Workflows"(id);
-
-
---
 -- TOC entry 3647 (class 2606 OID 1602511)
 -- Name: Workflows_productId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
 --
@@ -7908,15 +7269,14 @@ ALTER TABLE ONLY "RolesRights"
     ADD CONSTRAINT "rolesrights_rightID" FOREIGN KEY ("rightID") REFERENCES "Rights"(id);
 
 
---
--- TOC entry 3633 (class 2606 OID 1602521)
--- Name: surveyQuestionOptions_questionId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
 
-ALTER TABLE ONLY "SurveyQuestionOptions"
-    ADD CONSTRAINT "surveyQuestionOptions_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
+ALTER TABLE ONLY "ProjectUsers"
+    ADD CONSTRAINT "ProjectUsers_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Projects"(id);
 
 
+
+ALTER TABLE ONLY "ProjectUserGroups"
+    ADD CONSTRAINT "ProjectUserGroups_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Projects"(id);
 --
 -- TOC entry 3777 (class 0 OID 0)
 -- Dependencies: 9
@@ -7935,4 +7295,3 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 --
 -- PostgreSQL database dump complete
 --
-

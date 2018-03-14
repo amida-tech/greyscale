@@ -1,7 +1,6 @@
 var passport = require('passport'),
     BasicStrategy = require('passport-http').BasicStrategy,
-    TokenStrategy = require('../lib/passport_token'),
-    client = require('./db_bootstrap'),
+    passportJWT = require("passport-jwt"),
     User = require('./models/users'),
     Role = require('./models/roles'),
     Token = require('./models/token'),
@@ -14,6 +13,14 @@ var passport = require('passport'),
     util = require('util'),
     config = require('../config');
 
+var ExtractJwt = passportJWT.ExtractJwt,
+    JwtStrategy = passportJWT.Strategy;
+
+var jwtOptions = {};
+jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+jwtOptions.secretOrKey = config.jwtSecret;
+jwtOptions.passReqToCallback = true;
+
 var Query = require('./util').Query,
     query = new Query(),
     sql = require('sql'),
@@ -23,8 +30,7 @@ var Query = require('./util').Query,
 var thunkQuery = thunkify(query);
 
 var Right = require('./models/rights'),
-    RoleRights = require('./models/role_rights'),
-    UserRights = false;
+    RoleRights = require('./models/role_rights');
 
 var requestRights = 'ARRAY(' +
     ' SELECT "Rights"."action" FROM "RolesRights" ' +
@@ -42,8 +48,8 @@ debug.log = console.log.bind(console);
 // Tokens stored only in 'client' schema
 
 passport.use(new BasicStrategy({
-        passReqToCallback: true
-    },
+    passReqToCallback: true
+},
     function (req, email, password, done) {
         //var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -160,20 +166,73 @@ passport.use(new BasicStrategy({
     }
 ));
 
-// Register strategy for Token auth
-passport.use(new TokenStrategy({
-        passReqToCallback: true
-    },
-    function (req, tokenBody, done) {
-
+// JWT strategy for Token auth
+passport.use(new JwtStrategy(jwtOptions,
+    function (req, decodedJWTPayload, done) {
         co(function* () {
 
-            var user;
-            // we are looking for all tokens only in public schema
-            try {
-                user = yield * findToken(req, tokenBody);
-            } catch (err) {
-                throw new HttpError(500, 'Database error ' + err);
+            var tokenBody = req.headers.authorization.split(' ')[1];
+
+            var adminUser;
+
+            // check if a user with the decoded payload exist in the given realm
+            var user = yield thunkQuery(
+                '( ' +
+                'SELECT ' +
+                '"Users".* ' +
+                'FROM ' + req.params.realm + '."Users"' +
+                'WHERE "Users"."email" = \'' + decodedJWTPayload.email  +'\'' +
+                ') '
+            );
+
+            //TODO: Rather than checking the public schema, decide on how scopes from the
+            //TODO: auth service will work with indaba and modify this
+            if (!_.first(user)) { // user doesn't exist in the given realm
+                if (req.params.realm !== config.pgConnect.adminSchema) { //look in the Public realm if the user is a superAdmin
+                    const admThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
+                    adminUser = yield admThunkQuery(
+                        User
+                            .select(
+                                User.star(),
+                                Role.name.as('role')
+                            )
+                            .from(
+                                User
+                                    .leftJoin(Role)
+                                    .on(User.roleID.equals(Role.id))
+                            )
+                            .where(
+                                User.email.equals(decodedJWTPayload.email)
+                            )
+                    );
+                    if (adminUser[0]) { // user is ok
+                        // add projectId from realm
+                        if (req.params.realm !== config.pgConnect.adminSchema) { // only if realm is not public
+                            const clientThunkQuery = thunkify(new Query(req.params.realm));
+                            var project = yield clientThunkQuery(
+                                Project
+                                    .select(
+                                        Project.id.as('projectId')
+                                    )
+                                    .from(
+                                        Project
+                                            .leftJoin(Organization).on(Project.organizationId.equals(Organization.id))
+                                    )
+                            );
+                            if (project[0]) {
+                                adminUser[0].projectId = project[0].projectId;
+                            }
+                        }
+                    }
+                } else {
+                    throw new HttpError(404, 'No user found');
+                }
+            }
+
+            if (user[0]) {
+                user = user[0];
+            } else {
+                user = adminUser[0];
             }
 
             // add realmUserId to user
@@ -197,9 +256,9 @@ passport.use(new TokenStrategy({
 
             debug(util.format('Authentication OK for token: %s', tokenBody));
 
-            var clientThunkQuery = thunkify(new Query(req.params.realm));
+            var clientThunkQuery2 = thunkify(new Query(req.params.realm));
 
-            yield clientThunkQuery(
+            yield clientThunkQuery2(
                 User.update({
                     lastActive: new Date()
                 })
@@ -429,7 +488,7 @@ module.exports = {
                     throw new HttpError(401, 'User\'s role has not permission for this action');
                 }
                 return Permissions;
-            }).then(function (data) {
+            }).then(function () {
                 next();
             }, function (err) {
                 next(err);
@@ -469,7 +528,7 @@ module.exports = {
                     return data;
                 }
 
-            }).then(function (data) {
+            }).then(function () {
                 next();
             }, function (err) {
                 next(err);
