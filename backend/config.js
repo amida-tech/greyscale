@@ -85,6 +85,26 @@ var environments = {
                 notificationBody: './views/notifications/entry.html',
                 emailBody: './views/emails/discussion.html'
             },
+            task: {
+                subject: 'Indaba. <%= action %> assigned',
+                notificationBody: './views/notifications/assign_task.html',
+                emailBody: './views/emails/assign_task.html'
+            },
+            assignTask: {
+                subject: 'Indaba. You are assigned to task: <%= step.title %> for survey: <%= survey.title %> (<%= uoa.name %>, <%= product.title %>)',
+                notificationBody: './views/notifications/assign_task.html',
+                emailBody: './views/emails/assign_task.html'
+            },
+            activateTask: {
+                subject: 'Indaba. Your task: <%= step.title %> for survey: <%= survey.title %> (<%= uoa.name %>, <%= product.title %>) is activated',
+                notificationBody: './views/notifications/activate_task.html',
+                emailBody: './views/emails/activate_task.html'
+            },
+            activateProject: {
+                subject: 'Indaba. The <%= product.title %> Project has been made <%= action %>',
+                notificationBody: './views/notifications/activate_project.html',
+                emailBody: './views/emails/activate_project.html'
+            },
             orgInvite: {
                 subject: '<% if (subject !== \'\') { %><%= subject %><% } else { %>Indaba. Organization membership activation<% } %>',
                 notificationBody: './views/notifications/org_invite.html',
@@ -109,7 +129,7 @@ var environments = {
                 subject: '<% if (subject !== \'\') { %><%= subject %><% } else { %>Thank you for registering at Indaba<% } %>',
                 notificationBody: './views/notifications/welcome.html',
                 emailBody: './views/emails/welcome.html'
-            }
+            },
         },
         messageService: process.env.MESSAGE_SERVICE_URL || 'http://localhost:4002',
         systemMessageUser: process.env.SYS_MESSAGE_USER || 'indaba@example.com',
@@ -224,6 +244,11 @@ var environments = {
                 subject: 'Indaba. <%= from.firstName %> <%= from.lastName %> posted a discussion comment',
                 notificationBody: './views/notifications/entry.html',
                 emailBody: './views/emails/discussion.html'
+            },
+            task: {
+                subject: 'Indaba. <%= action %> assigned',
+                notificationBody: './views/notifications/assign_task.html',
+                emailBody: './views/emails/assign_task.html'
             },
             orgInvite: {
                 subject: '<% if (subject !== \'\') { %><%= subject %><% } else { %>Indaba. Organization membership activation<% } %>',

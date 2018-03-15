@@ -1,5 +1,4 @@
 var _ = require('underscore'),
-    config = require('../../config'),
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),
     Workflow = require('../models/workflows'),
@@ -52,7 +51,7 @@ module.exports = {
             yield * checkData(req);
             var result = yield thunkQuery(Workflow.update(req.body).where(Workflow.id.equals(req.params.id)));
             return result;
-        }).then(function (data) {
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -131,7 +130,7 @@ module.exports = {
 
             return deletedWorkflow;
 
-        }).then(function (data) {
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,

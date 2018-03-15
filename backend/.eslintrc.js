@@ -125,7 +125,7 @@ module.exports = {
         "no-new": "error",
         "no-new-func": "error",
         "no-new-object": "error",
-        "no-new-require": "error",
+        "no-new-require": "off",
         "no-new-wrappers": "error",
         "no-octal-escape": "error",
         "no-param-reassign": "off",

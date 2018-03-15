@@ -27,7 +27,7 @@ exports.init = function (server) {
     ioServer.on('connection', function (socket) {
         debug('Socket connected ' + socket.id);
 
-        socket.on('disconnect', function (reason) {
+        socket.on('disconnect', function () {
             debug('Socker disconnected ' + socket.id);
         });
 

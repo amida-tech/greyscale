@@ -1,7 +1,5 @@
 var
-    _ = require('underscore'),
     Essence = require('../models/attachments'),
-    config = require('../../config'),
     co = require('co'),
     Query = require('../util').Query,
     thunkify = require('thunkify');

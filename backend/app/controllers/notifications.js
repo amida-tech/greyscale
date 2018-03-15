@@ -577,21 +577,21 @@ module.exports = {
                 }
                 var essenceId = yield * common.getEssenceId(req, 'Users');
                 var note = yield * createNotification(req, {
-                        userFrom: req.user.realmUserId,
-                        userTo: user.id,
-                        body: body,
-                        essenceId: essenceId,
-                        entityId: user.id,
-                        notifyLevel: user.notifyLevel,
-                        name: user.firstName,
-                        surname: user.lastName,
-                        company: org,
-                        inviter: req.user,
-                        token: user.activationToken,
-                        subject: subject,
-                        config: config
-                    },
-                    template
+                    userFrom: req.user.realmUserId,
+                    userTo: user.id,
+                    body: body,
+                    essenceId: essenceId,
+                    entityId: user.id,
+                    notifyLevel: user.notifyLevel,
+                    name: user.firstName,
+                    surname: user.lastName,
+                    company: org,
+                    inviter: req.user,
+                    token: user.activationToken,
+                    subject: subject,
+                    config: config
+                },
+                template
                 );
                 /*
                                 bologger.log({
@@ -749,7 +749,6 @@ function notify(req, userTo, note, template) {
         }
 
         note4insert.note = yield * renderFile(config.notificationTemplates[template].notificationBody, note4insert);
-
         note4insert = _.pick(note4insert, Notification.insertCols); // insert only columns that may be inserted
 
         var noteInserted = yield thunkQuery(Notification.insert(note4insert).returning(Notification.id));
@@ -788,8 +787,14 @@ function notify(req, userTo, note, template) {
         // update email's fields before sending
         var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(noteInserted[0].id)));
 
-        if (parseInt(note.notifyLevel) > 1 && !config.email.disable) { // email notification
+        if (parseInt(note.notifyLevel) > 1 && !config.email.disable) { // email and internal notification
             sendEmail(req, emailOptions, note, noteInserted[0].id);
+
+            // Send internal notification
+            yield common.sendSystemMessageWithMessageService(req, userTo.email, note.body)
+
+        } else if (parseInt(note.notifyLevel) === 1 ) { // just internal notification
+            yield common.sendSystemMessageWithMessageService(req, userTo.email, note.body)
         }
 
         bologger.log({
