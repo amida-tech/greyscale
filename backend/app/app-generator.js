@@ -157,7 +157,7 @@ const initExpress = function (app) {
     });
 
     // Setup error handlers
-    app.use(function (err, req, res) {
+    app.use(function (err, req, res, next) {
         if (err) {
             const message = err.message;
             logger.error(err);

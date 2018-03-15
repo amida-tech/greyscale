@@ -417,9 +417,7 @@ module.exports = {
                 );
 
                 if (result) { // If the status was changed
-                    console.log(`REACHED HERE ${updateObj.status}`)
                     if (parseInt(updateObj.status) ===1 || parseInt(updateObj.status) === 0) { // status was changed
-                        console.log(`STATUS WAS CHANGED`)
                         const product = yield thunkQuery(
                             Product.select().from(Product).where(Product.projectId.equals(req.params.id))
                         );
@@ -441,8 +439,6 @@ module.exports = {
                             usersWithLiveTasks.push(_.first(tasks)); // Push user ids to list
                         }
 
-                        console.log(`STATUS IS: ${updateObj.status}`);
-
                         // Email users based on active or in-active project
                         let emailBodyAndAction = {};
                         if (parseInt(updateObj.status) === 1 ) { // project made Active
@@ -451,7 +447,6 @@ module.exports = {
                                 body: 'Project set to active, please complete your task'
                             }
                         } else if (parseInt(updateObj.status) === 0) { // Project made in-active
-                            console.log(`PROJECT WAS SET TO INACTIVE`)
                             emailBodyAndAction = {
                                 action: 'In-Active',
                                 body: 'Project set to in-active Please verify your task'
