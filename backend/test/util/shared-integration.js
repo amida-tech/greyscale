@@ -1,14 +1,9 @@
 'use strict';
 
-const path = require('path');
-const fs = require('fs');
-const childProcess = require('child_process');
-const _ = require('lodash');
 const sinon = require('sinon');
 
 const appGenerator = require('../../app/app-generator');
 
-const pgUtil = require('./pg-util');
 const config = require('../../config');
 const models = require('../../models');
 
@@ -153,35 +148,13 @@ class SharedIntegration {
 
 
     setupFn(options) {
-        const indaSuperTest = this.indaSuperTest;
+        const that = this;
         const mcl = new memcacheMock.Client();
-        return function setUp(done) {
-            const dbname = options.dbname;
-            config.pgConnect.database = dbname;
-            const pgConnect = _.cloneDeep(config.pgConnect);
-            pgConnect.database = 'indaba';
-            pgUtil.resetDatabase(pgConnect, dbname, (err) => {
-                if (err) {
-                    return done(err);
-                }
-                const schemaPath = path.resolve(__dirname, '../../db_setup/schema.indaba.sql');
-                const dataPath = path.resolve(__dirname, '../../db_setup/data.indaba.sql');
-                const schemaSql = fs.readFileSync(schemaPath);
-                const dataSql = fs.readFileSync(dataPath);
-                childProcess.execSync(`psql -h localhost -U indabauser ${dbname}`, {
-                    input: schemaSql
-                })
-                childProcess.execSync(`psql -h localhost -U indabauser ${dbname}`, {
-                    input: dataSql
-                })
-                const app = appGenerator.generate();
-                const mcClient = app.locals.mcClient;
-                sinon.stub(mcClient, 'set').callsFake((key, value, cb) => mcl.set(key, value, cb));
-                sinon.stub(mcClient, 'get').callsFake((key, cb) => mcl.get(key, cb));
-                sinon.stub(mcClient, 'delete').callsFake((key, cb) => mcl.delete(key, cb));
-                indaSuperTest.initialize(app);
-                done();
-            });
+        const dbname = options.dbname;
+        config.pgConnect.database = dbname;
+        const db = models(config.pgConnect, ['sceleton', 'test']);
+        return function setUp() {
+            return that.initialize(db, mcl);
         };
     }
 
