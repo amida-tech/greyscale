@@ -543,7 +543,16 @@ module.exports = {
             result.name = req.body.codeName;
             result.status = 0;
 
+            console.log()
+            console.log(`INSERTING INTO THE PRODUCTS TABLE FROM PROJECTS.JS`)
+
+            const product = yield thunkQuery(Product.select().from(Product).where(Product.projectId.equals(result.id)))
+
+            console.log()
+            // console.log(`PRODUCT FROM THE DB IS: ${_.first(product).id} | ${_.first(product).title}`)
+
             // Having it automatically insert into products and workflows for now.
+            //TODO: Remove this from here. Product insert should be happening in product.js and just retrieved from here
             result.productId = _.first(yield thunkQuery(
                 Product.insert({
                     title: result.name,

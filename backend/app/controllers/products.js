@@ -1109,6 +1109,10 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
 
         co(function* () {
+
+            console.log();
+            console.log(`INSERTING INTO PRODUCTS TABLE FROM PRODUCTS.JS`)
+
             yield * checkProductData(req);
             var result = yield thunkQuery(
                 Product.insert(_.pick(req.body, Product.table._initialConfig.columns)).returning(Product.id)
@@ -1320,7 +1324,12 @@ function* checkProductData(req) {
         }
     }
 
+    console.log()
+    console.log(`CHECKING SURVEY SERVICE WITH ID: ${req.body.surveyId}`);
+
     var surveyCheck = yield common.getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization);
+
+    console.log(`SURVEY STATUS CHECK IS: ${surveyCheck.statusCode}`)
 
     if (surveyCheck.statusCode !== 200) {
         throw new HttpError( surveyCheck.statusCode, surveyCheck.error);

@@ -28,7 +28,7 @@ const examples = require('./fixtures/example/surveys');
 const legacy = _.cloneDeep(examples.legacy);
 
 describe('discussion integration', function surveyIntegration() {
-    const dbname = 'indabatestdiscussion';
+    const dbname = 'indabatestuser';
 
     const authService = new AuthService();
     const hxUser = new History();
