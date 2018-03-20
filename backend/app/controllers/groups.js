@@ -2,7 +2,8 @@ var _ = require('underscore'),
     Group = require('../models/groups'),
     UserGroup = require('../models/user_groups'),
     ProjectUserGroup = require('../models/project_user_groups'),
-    vl = require('validator'),
+    Project = require('../models/projects'),
+    WorkflowStepGroup = require('../models/workflow_step_groups'),
     HttpError = require('../error').HttpError,
     util = require('util'),
     async = require('async'),
@@ -154,20 +155,40 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
 
-            // First Remove users from group in UserGroup table in order not to violate the constraint
-            yield thunkQuery(
-                UserGroup.delete().where(UserGroup.groupId.equals(req.params.id))
+            // Check if the project is active
+            const project = yield thunkQuery(
+                Project.select(
+                    Project.star()
+                )
+                .from(
+                    Project
+                        .leftJoin(ProjectUserGroup)
+                        .on(ProjectUserGroup.projectId.equals(Project.id))
+                )
+                .where(ProjectUserGroup.groupId.equals(req.params.id))
             );
 
+            if (parseInt(_.first(project).status) === 1) {
+                throw new HttpError(400, 'Cannot delete group from an active project');
+            } else {
+                // Remove from workflowStepGroup in table in order not to violate the constraint
+                yield thunkQuery(
+                    WorkflowStepGroup.delete().where(WorkflowStepGroup.groupId.equals(req.params.id))
+                );
 
-            var result = yield thunkQuery(
-                Group.delete().where(Group.id.equals(req.params.id))
-            );
+                // Remove users from group in UserGroup table in order not to violate the constraint
+                yield thunkQuery(
+                    UserGroup.delete().where(UserGroup.groupId.equals(req.params.id))
+                );
 
-            yield bumpProjectLastUpdatedByGroup(req, req.params.id);
+                // Remove from group table
+                yield thunkQuery(
+                    Group.delete().where(Group.id.equals(req.params.id))
+                );
 
-            return result;
-        }).then(function (data) {
+                yield bumpProjectLastUpdatedByGroup(req, req.params.id);
+            }
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,

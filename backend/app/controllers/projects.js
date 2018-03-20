@@ -379,7 +379,8 @@ module.exports = {
                                     .leftJoin(Workflow)
                                     .on(WorkflowSteps.workflowId.equals(Workflow.id))
                             )
-                            .where(Workflow.productId.equals(product[0].id))
+                            .where(Workflow.productId.equals(product[0].id)
+                            .and(WorkflowSteps.isDeleted.isNull()))
                     );
 
                     if (!_.first(stages)) {
