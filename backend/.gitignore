@@ -4,4 +4,5 @@ npm-debug.log
 .env
 package-lock.json
 /artifacts
+dump.sql
 /report
