@@ -1,13 +1,7 @@
 'use strict';
 
-process.env.NODE_ENV = 'test';
-
 const _ = require('lodash');
 const mock = require('mock-require');
-
-mock('request-promise', function mockRequest() {
-    return Promise.resolve({ statusCode: 200, body: { id: Math.floor(Math.random() * 100) + 1   } });
-});
 
 const config = require('./config');
 
@@ -53,7 +47,7 @@ shared.setupForSeedFn()()
             .then(() => authService.addUser(admin))
             .then(shared.loginFn(admin))
             .then(userTests.checkActivitabilityFn(0))
-            .then(userTests.selfActivateFn(0))
+            .then(userTests.selfActiv   ateFn(0))
             .then(() => {
                 let px = Promise.resolve();
                 users.forEach((user) => {

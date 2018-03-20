@@ -472,7 +472,6 @@ function* updateCurrentStepId(req, insertedTaskId) {
                 .and(ProductUOA.UOAid.equals(req.body.uoaId))
             )
         );
-        // TODO: Notify user, INBA-529.
     }
 
     return {

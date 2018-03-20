@@ -543,8 +543,8 @@ module.exports = {
             result.name = req.body.codeName;
             result.status = 0;
 
-            console.log()
-            console.log(`INSERTING INTO THE PRODUCTS TABLE FROM PROJECTS.JS`)
+            // console.log()
+            // console.log(`INSERTING INTO THE PRODUCTS TABLE FROM PROJECTS.JS`)
 
             const product = yield thunkQuery(Product.select().from(Product).where(Product.projectId.equals(result.id)))
 

@@ -319,7 +319,16 @@ module.exports = {
                 .where(Task.productId.equals(req.params.id)
                 .and(Task.isDeleted.isNull()))
             );
+
+            console.log()
+            console.log(`RETURNING ASSESSMENT FOR TASKS`)
+
             return yield * common.getAssessmentStatusForTask(req, projectTasks);
+
+            console.log(`RETURNED ASSESSMENT FOR TASKS`)
+
+
+
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -1110,8 +1119,8 @@ module.exports = {
 
         co(function* () {
 
-            console.log();
-            console.log(`INSERTING INTO PRODUCTS TABLE FROM PRODUCTS.JS`)
+            // console.log();
+            // console.log(`INSERTING INTO PRODUCTS TABLE FROM PRODUCTS.JS`)
 
             yield * checkProductData(req);
             var result = yield thunkQuery(
@@ -1324,12 +1333,12 @@ function* checkProductData(req) {
         }
     }
 
-    console.log()
-    console.log(`CHECKING SURVEY SERVICE WITH ID: ${req.body.surveyId}`);
+    // console.log()
+    // console.log(`CHECKING SURVEY SERVICE WITH ID: ${req.body.surveyId}`);
 
     var surveyCheck = yield common.getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization);
 
-    console.log(`SURVEY STATUS CHECK IS: ${surveyCheck.statusCode}`)
+    // console.log(`SURVEY STATUS CHECK IS: ${surveyCheck.statusCode}`)
 
     if (surveyCheck.statusCode !== 200) {
         throw new HttpError( surveyCheck.statusCode, surveyCheck.error);
