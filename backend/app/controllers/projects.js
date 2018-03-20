@@ -540,10 +540,8 @@ module.exports = {
                 .insert(_.pick(req.body, Project.table._initialConfig.columns))
                 .returning(Project.id)
             ));
-
             result.name = req.body.codeName;
             result.status = 0;
-            
             // Having it automatically insert into products and workflows for now.
             //TODO: Remove this from here. Product insert should be happening in product.js and just retrieved from here INBA-849
             result.productId = _.first(yield thunkQuery(
