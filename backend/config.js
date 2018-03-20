@@ -184,7 +184,6 @@ var environments = {
         systemMessageUser: process.env.SYS_MESSAGE_USER || 'indaba@example.com',
         systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD || 'password'
     },
-
     test: {
         port: 3005,
         encoding: 'utf8',

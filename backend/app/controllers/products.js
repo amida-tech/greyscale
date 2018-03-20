@@ -319,16 +319,7 @@ module.exports = {
                 .where(Task.productId.equals(req.params.id)
                 .and(Task.isDeleted.isNull()))
             );
-
-            console.log()
-            console.log(`RETURNING ASSESSMENT FOR TASKS`)
-
             return yield * common.getAssessmentStatusForTask(req, projectTasks);
-
-            console.log(`RETURNED ASSESSMENT FOR TASKS`)
-
-
-
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -1118,10 +1109,6 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
 
         co(function* () {
-
-            // console.log();
-            // console.log(`INSERTING INTO PRODUCTS TABLE FROM PRODUCTS.JS`)
-
             yield * checkProductData(req);
             var result = yield thunkQuery(
                 Product.insert(_.pick(req.body, Product.table._initialConfig.columns)).returning(Product.id)
@@ -1332,14 +1319,7 @@ function* checkProductData(req) {
             );
         }
     }
-
-    // console.log()
-    // console.log(`CHECKING SURVEY SERVICE WITH ID: ${req.body.surveyId}`);
-
     var surveyCheck = yield common.getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization);
-
-    // console.log(`SURVEY STATUS CHECK IS: ${surveyCheck.statusCode}`)
-
     if (surveyCheck.statusCode !== 200) {
         throw new HttpError( surveyCheck.statusCode, surveyCheck.error);
     }
@@ -1358,7 +1338,7 @@ function* updateCurrentStepId(req) {
     var essenceId = yield * common.getEssenceId(req, 'Tasks');
     var product = yield * common.getEntity(req, req.params.id, Product, 'id');
 
-    //TODO: Get survey from survery service if needed
+    //TODO: Get survey from survery service if needed INBA-848
     // var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
 
     // start-restart project -> set isComplete flag to false for all subjects

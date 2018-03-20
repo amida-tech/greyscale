@@ -511,9 +511,6 @@ exports.getActiveForTask = getActiveForTask;
 
 var getAssessmentStatusForTask = function* (req, tasks) {
     for (var i = 0; i < tasks.length; i++) {
-
-        console.log(`ASSESSMENT ID: ${tasks[i].assessmentId}`)
-
         let statusRequest = yield getAssessmentStatusAtSurveyService(
             tasks[i].assessmentId,
             req.headers.authorization);

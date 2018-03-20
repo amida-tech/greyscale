@@ -187,7 +187,6 @@ module.exports = {
                 );
             }
             req.body = _.pick(req.body, Discussion.insertCols); // insert only columns that may be inserted
-
             var result = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
 
             yield * notifyHelper(req, _.first(result).id);
