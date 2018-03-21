@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-const mock = require('mock-require');
 
 const config = require('./config');
 
@@ -47,7 +46,7 @@ shared.setupForSeedFn()()
             .then(() => authService.addUser(admin))
             .then(shared.loginFn(admin))
             .then(userTests.checkActivitabilityFn(0))
-            .then(userTests.selfActiv   ateFn(0))
+            .then(userTests.selfActivateFn(0))
             .then(() => {
                 let px = Promise.resolve();
                 users.forEach((user) => {

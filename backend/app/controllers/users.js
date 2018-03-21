@@ -261,6 +261,15 @@ module.exports = {
                 throw new HttpError(400, 'Password field is required!');
             }
             const existUser = _.first(isExist);
+
+            // TODO: This is the way we want to do it- check if user exist before creating.
+            // TODO: But we can't because of restriction from auth. INBA-850
+
+            // const userExistOnAuth = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
+            // if (userExistOnAuth.statusCode !== 200) {
+            //     const userAuthed = yield _createUserOnAuthService(existUser.email, req.body.password, existUser.roleID, req.headers.authorization);
+            // }
+
             const userAuthed = yield _createUserOnAuthService(existUser.email, req.body.password, existUser.roleID, req.headers.authorization);
 
             var data = {
