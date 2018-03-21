@@ -139,7 +139,7 @@ const initExpress = function (app) {
         };
         res.header('Access-Control-Allow-Origin', config.allowedDomains);
         res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Content-Type,Content-Length,Authorization,token');
+        res.header('Access-Control-Allow-Headers', 'Content-Type,Content-Length,Authorization,token,Cache-Control,Pragma');
         res.header('Access-Control-Expose-Headers', 'X-Total-Count');
         next();
     });
