@@ -31,7 +31,7 @@ const IntegrationTests = class IntegrationTests {
         const supertest = this.supertest;
         const hxProduct = this.hxProduct;
         return function createProduct() {
-            const surveyId = Math.random() * (Math.floor(5) - Math.ceil(1)) + Math.ceil(1); //TODO: Mock the survey service here
+            const surveyId = Math.random() * (Math.floor(5) - Math.ceil(1)) + Math.ceil(1);
             const product = generate(surveyId);
             return supertest.post('products', product, 201)
                 .then((res) => {

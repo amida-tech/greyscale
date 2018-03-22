@@ -45,7 +45,7 @@ const IntegrationTests = class IntegrationTests {
             const product = that.hxProduct.client(0);
             const steps = that.hxWorkflowStep.get(workflowIndex);
             const discussion = Object.assign(that.generator.generate(), {
-                questionId: that.hxQuestion.id(questionIndex),
+                questionId: 1,
                 taskId,
                 stepId: steps.id(stepIndex),
             });
@@ -99,8 +99,6 @@ const IntegrationTests = class IntegrationTests {
             return that.supertest.get('discussions', 200, { taskId })
                 .then((res) => {
                     const list = that.hxDiscussion.listServers();
-                    //Since we now handle log-in differently, we have to explicitly set this here if not it'll be undefined.
-                    list[0].userFromId = res.body[0].userFromId;
                     comparator.discussions(list, res.body);
                 });
         };

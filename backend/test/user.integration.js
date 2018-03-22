@@ -5,6 +5,11 @@
 process.env.NODE_ENV = 'test';
 
 const _ = require('lodash');
+const mock = require('mock-require');
+
+mock('request-promise', function mockRequest() {
+    return Promise.resolve({ statusCode: 200, body: { id: Math.floor(Math.random() * 100) + 1   } });
+});
 
 const config = require('../config');
 
@@ -17,8 +22,6 @@ const History = require('./util/History');
 const AuthService = require('./util/mock_auth_service');
 
 describe('user integration', function userIntegration() {
-    const dbname = 'indabatestuser';
-
     const authService = new AuthService();
     const superTest = new IndaSuperTest(authService);
     const shared = new SharedIntegration(superTest);
@@ -36,7 +39,7 @@ describe('user integration', function userIntegration() {
     const users = config.testEntities.users;
 
 
-    before(shared.setupFn({ dbname }));
+    before(shared.setupFn());
 
     it('add super admin user and sign JWT',  function() { authService.addUser(superAdmin) });
 

@@ -1319,9 +1319,7 @@ function* checkProductData(req) {
             );
         }
     }
-
     var surveyCheck = yield common.getSurveyFromSurveyService(req.body.surveyId, req.headers.authorization);
-
     if (surveyCheck.statusCode !== 200) {
         throw new HttpError( surveyCheck.statusCode, surveyCheck.error);
     }
@@ -1340,7 +1338,7 @@ function* updateCurrentStepId(req) {
     var essenceId = yield * common.getEssenceId(req, 'Tasks');
     var product = yield * common.getEntity(req, req.params.id, Product, 'id');
 
-    //TODO: Get survey from survery service if needed
+    //TODO: Get survey from survery service if needed INBA-848
     // var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
 
     // start-restart project -> set isComplete flag to false for all subjects

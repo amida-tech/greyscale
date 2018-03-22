@@ -1,13 +1,6 @@
 'use strict';
 
-process.env.NODE_ENV = 'test';
-
 const _ = require('lodash');
-const mock = require('mock-require');
-
-mock('request-promise', function mockRequest() {
-    return Promise.resolve({ statusCode: 200, body: { id: Math.floor(Math.random() * 100) + 1   } });
-});
 
 const config = require('./config');
 

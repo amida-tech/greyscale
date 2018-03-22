@@ -15,7 +15,7 @@ const Generator = class {
     generate({ uoaId, stepId, productId, userId }) {
         this.index += 1;
         return {
-            title: `task_title_${this.index}`,
+            description: `task_title_${this.index}`,
             uoaId, stepId, productId, userId,
         }
     }

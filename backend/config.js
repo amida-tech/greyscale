@@ -36,7 +36,7 @@ var environments = {
             user: process.env.RDS_USERNAME || process.env.INDABA_PG_USERNAME || 'indabauser',
             testuser: process.env.RDS_TESTUSER || process.env.INDABA_PG_TESTUSER || 'test', // make trust method for this user in PostgreSQL Client Authentication Configuration File (pg_hba.conf)
             password: process.env.RDS_PASSWORD || process.env.INDABA_PG_PASSWORD || 'password',
-            database: process.env.INDABA_PG_DB || 'indaba',
+            database: process.env.INDABA_PG_DB || 'indaba_dev',
             host: process.env.RDS_HOSTNAME || process.env.INDABA_PG_HOSTNAME || 'localhost',
             port: 5432,
             adminSchema: 'public',
@@ -73,6 +73,55 @@ var environments = {
                 email: "mail_sender@email.com"
             }
         },
+
+        testEntities: {
+            superAdmin: {
+                email: 'su@mail.net',
+                firstName: 'SuperAdmin',
+                lastName: 'Test',
+                roleID: 1,
+                scopes: 'admin',
+                password: 'Testadmin12345',
+            },
+            admin: {
+                email: process.env.ADMIN_USER_EMAIL,
+                firstName: process.env.ADMIN_USER_FIRST_NAME,
+                lastName: process.env.ADMIN_USER_LAST_NAME,
+                roleID: 2,
+                password: 'Adminuser1',
+            },
+            users: [
+                {
+                    firstName: 'User1',
+                    lastName: 'Test',
+                    email: 'user1@mail.net',
+                    roleID: 3,
+                    password: 'Testuser12345',
+                    authId: 1,
+                },
+                {
+                    firstName: 'User2',
+                    lastName: 'Test',
+                    email: 'user2@mail.net',
+                    roleID: 3,
+                    password: 'Testuser12345',
+                    authId: 2,
+                },
+                {
+                    firstName: 'User3',
+                    lastName: 'Test',
+                    email: 'user3@mail.net',
+                    roleID: 3,
+                    password: 'Testuser12345',
+                    authId: 3,
+                }
+            ],
+            organization : {
+                name: 'Test organization',
+                realm: 'testorg'
+            },
+        },
+
         //templates for notifications for EJS render
         notificationTemplates: {
             default: {
@@ -135,7 +184,6 @@ var environments = {
         systemMessageUser: process.env.SYS_MESSAGE_USER || 'indaba@example.com',
         systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD || 'password'
     },
-
     test: {
         port: 3005,
         encoding: 'utf8',
@@ -148,7 +196,7 @@ var environments = {
             // make trust method for this user in PostgreSQL Client Authentication Configuration File (pg_hba.conf)
             testuser: process.env.RDS_TESTUSER || process.env.INDABA_PG_TESTUSER || 'test',
             password: process.env.RDS_PASSWORD || process.env.INDABA_PG_PASSWORD || 'password',
-            database: process.env.INDABA_PG_DB || 'indaba',
+            database: process.env.INDABA_TEST_PG_DB || 'indaba_test',
             host: process.env.RDS_HOSTNAME || process.env.INDABA_PG_HOSTNAME || 'localhost',
             port: 5432,
             adminSchema: 'public',
@@ -196,11 +244,11 @@ var environments = {
                 password: 'Testadmin12345',
             },
             admin: {
-                email: process.env.ADMIN_USER_EMAIL,
-                firstName: process.env.ADMIN_USER_FIRST_NAME,
-                lastName: process.env.ADMIN_USER_LAST_NAME,
+                email: 'test-admin@mail.net',
+                firstName: 'Test',
+                lastName: 'Admin',
                 roleID: 2,
-                password: 'Adminuser1',
+                password: 'Testadmin1',
             },
             users: [
                 {

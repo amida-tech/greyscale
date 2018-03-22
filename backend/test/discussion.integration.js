@@ -5,6 +5,11 @@
 process.env.NODE_ENV = 'test';
 
 const _ = require('lodash');
+const mock = require('mock-require');
+
+mock('request-promise', function mockRequest() {
+    return Promise.resolve({ statusCode: 200, body: { id: Math.floor(Math.random() * 100) + 1   } });
+});
 
 const config = require('../config');
 
@@ -28,8 +33,6 @@ const examples = require('./fixtures/example/surveys');
 const legacy = _.cloneDeep(examples.legacy);
 
 describe('discussion integration', function surveyIntegration() {
-    const dbname = 'indabatestdiscussion';
-
     const authService = new AuthService();
     const hxUser = new History();
     const superTest = new IndaSuperTest(authService);
@@ -88,7 +91,7 @@ describe('discussion integration', function surveyIntegration() {
     const admin = config.testEntities.admin;
     const users = config.testEntities.users;
 
-    before(shared.setupFn({ dbname }));
+    before(shared.setupFn());
 
     it('add super admin user and sign JWT',  function() { authService.addUser(superAdmin) });
 
@@ -162,18 +165,17 @@ describe('discussion integration', function surveyIntegration() {
 
     it('login as admin', shared.loginFn(admin));
 
-    //TODO: Get this to work with the new survey service then delete comment
-    // it('create discussion 0 from admin to task 0 step 1', tests.createDiscussionFn({
-    //     questionIndex: 0,
-    //     taskIndex: 0,
-    //     workflowIndex: 0,
-    //     stepIndex: 1,
-    // }));
+    it('create discussion 0 from admin to task 0 step 1', tests.createDiscussionFn({
+        questionIndex: 0,
+        taskIndex: 0,
+        workflowIndex: 0,
+        stepIndex: 1,
+    }));
 
-    // it('get discussion 0 entry scope', tests.getDiscussionEntryScopeFn(0, { canUpdate: false }));
-    // it('update discussion 0', tests.updateDiscussionFn(0))
-    // it('get discussion 0 entry scope', tests.getDiscussionEntryScopeFn(0, { canUpdate: false }));
-    //
+    it('get discussion 0 entry scope', tests.getDiscussionEntryScopeFn(0, { canUpdate: false }));
+    it('update discussion 0', tests.updateDiscussionFn(0))
+    it('get discussion 0 entry scope', tests.getDiscussionEntryScopeFn(0, { canUpdate: false }));
+
     // it('list discussions', tests.listDiscussionsFn({ taskIndex: 0 }));
 
     after(shared.unsetupFn());

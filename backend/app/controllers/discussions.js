@@ -230,12 +230,11 @@ module.exports = {
                 user: req.user,
                 action: 'update',
                 object: 'discussions',
-                entity: entry.id,
+                entity: result.id,
                 info: 'Update body of discussion`s entry'
             });
-            return entry;
-
-        }).then(function (data) {
+            return result;
+        }).then(function () {
             res.status(202).end();
         }, function (err) {
             next(err);

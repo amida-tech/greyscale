@@ -147,11 +147,9 @@ class SharedIntegration {
     }
 
 
-    setupFn(options) {
+    setupFn() {
         const that = this;
         const mcl = new memcacheMock.Client();
-        const dbname = options.dbname;
-        config.pgConnect.database = dbname;
         const db = models(config.pgConnect, ['sceleton', 'test']);
         return function setUp() {
             return that.initialize(db, mcl);
