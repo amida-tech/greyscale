@@ -6,7 +6,6 @@ function HttpError(status, err) {
     Error.apply(this, arguments);
     Error.captureStackTrace(this, HttpError);
     var errNumber = (err && typeof err === 'number' ? true : false);
-
     this.status = status;
     this.message = {
         '!': 0,
