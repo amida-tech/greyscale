@@ -140,12 +140,12 @@ var environments = {
                 emailBody: './views/emails/assign_task.html'
             },
             assignTask: {
-                subject: 'Indaba. You are assigned to task: <%= step.title %> for survey: <%= survey.title %> (<%= uoa.name %>, <%= product.title %>)',
+                subject: 'Indaba. You are assigned to task: <%= step.title %> for survey: <%= survey.name %> (<%= uoa.name %>, <%= product.title %>)',
                 notificationBody: './views/notifications/assign_task.html',
                 emailBody: './views/emails/assign_task.html'
             },
             activateTask: {
-                subject: 'Indaba. Your task: <%= step.title %> for survey: <%= survey.title %> (<%= uoa.name %>, <%= product.title %>) is activated',
+                subject: 'Indaba. Your task: <%= step.title %> for survey: <%= survey.name %> (<%= uoa.name %>, <%= product.title %>) is activated',
                 notificationBody: './views/notifications/activate_task.html',
                 emailBody: './views/emails/activate_task.html'
             },
@@ -324,12 +324,12 @@ var environments = {
                 emailBody: './views/emails/welcome.html'
             },
             assignTask: {
-                subject: 'Indaba. You are assigned to task `<%= step.title %>` for survey `<%= survey.title %>` (<%= uoa.name %>, <%= product.title %>)',
+                subject: 'Indaba. You are assigned to task `<%= step.title %>` for survey `<%= survey.name %>` (<%= uoa.name %>, <%= product.title %>)',
                 notificationBody: './views/notifications/assign_task.html',
                 emailBody: './views/emails/assign_task.html'
             },
             activateTask: {
-                subject: 'Indaba. Your task `<%= step.title %>` for survey `<%= survey.title %>` (<%= uoa.name %>, <%= product.title %>) is activated',
+                subject: 'Indaba. Your task `<%= step.title %>` for survey `<%= survey.name %>` (<%= uoa.name %>, <%= product.title %>) is activated',
                 notificationBody: './views/notifications/activate_task.html',
                 emailBody: './views/emails/activate_task.html'
             },
