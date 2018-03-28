@@ -418,7 +418,7 @@ module.exports = {
                 );
 
                 if (result) { // If the status was changed
-                    if (parseInt(updateObj.status) ===1 || parseInt(updateObj.status) === 0) { // status was changed
+                    if (parseInt(updateObj.status) === 1 || parseInt(updateObj.status) === 0) { // status was changed
                         const product = yield thunkQuery(
                             Product.select().from(Product).where(Product.projectId.equals(req.params.id))
                         );
@@ -437,9 +437,14 @@ module.exports = {
                                         .and(Task.uoaId.equals(productUoas[p].UOAid))
                                 )
                             );
-                            usersWithLiveTasks.push(_.first(tasks)); // Push user ids to list
-                        }
+                            // Append only users with live tasks
+                            const taskStartDate = _.first(tasks).startDate;
+                            const currentDate = new Date();
 
+                            if (currentDate > taskStartDate) {
+                                usersWithLiveTasks.push(_.first(tasks)); //Push user ids to list
+                            }
+                        }
                         // Email users based on active or in-active project
                         let emailBodyAndAction = {};
                         if (parseInt(updateObj.status) === 1 ) { // project made Active
