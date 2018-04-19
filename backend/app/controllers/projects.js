@@ -96,7 +96,7 @@ module.exports = {
             var projects = yield thunkQuery(Project.select().from(Project), req.query);
 
             if (!_.first(projects)) {
-                throw new HttpError(404, 'No projects found');
+                return projectList;
             } else {
                 for (var i = 0; i < projects.length; i++) {
                     var product = yield thunkQuery(
@@ -454,7 +454,7 @@ module.exports = {
                             }
                         }
                         let u;
-                        for (u = 0; u < usersWithLiveTasks.length; u ++) {
+                        for (u = 0; u < usersWithLiveTasks.length; u++) {
                             notify(req, {
                                 body: emailBodyAndAction.body,
                                 action: emailBodyAndAction.action
