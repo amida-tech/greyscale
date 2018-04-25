@@ -357,14 +357,11 @@ module.exports = {
     },
 
     selfOrganizationInvite: function (req, res, next) {
-        console.log('@@@@@@@@@@@@@@@@@@@selfOrgInvite');
-
         if (req.params.realm === config.pgConnect.adminSchema) {
             throw new HttpError(400, 'Incorrect realm');
         }
 
         co(function* () {
-            console.log(req.body);
             if (req.body.roleID === 1) {
                 throw new HttpError(400, 'You cannot invite super admins');
             }
