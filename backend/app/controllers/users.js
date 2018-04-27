@@ -357,7 +357,6 @@ module.exports = {
     },
 
     selfOrganizationInvite: function (req, res, next) {
-
         if (req.params.realm === config.pgConnect.adminSchema) {
             throw new HttpError(400, 'Incorrect realm');
         }
@@ -413,7 +412,7 @@ module.exports = {
                 }
 
                 // If user is in greyscale and not deleted add to project if needed
-                if (req.body.projectId && isExistUser.isActive) {
+                if (req.body.projectId) {
                     yield * common.insertProjectUser(req, isExistUser.id, req.body.projectId);
                 }
                 return isExistUser;
