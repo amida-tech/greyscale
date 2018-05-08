@@ -496,14 +496,15 @@ module.exports = {
                 const rowUoa = yield * common.getEntity(req, parseInt(uoaId), UOA, 'id');
                 const rowStage = yield * common.getEntity(req, parseInt(exportData.body[i].stage), WorkflowStep, 'id');
 
+                // TODO: needs to be user from 'Complete Survey' stage
                 const user = yield * common.getEntity(req, exportData.body[i].userId, User, 'authId');
 
                 const formattedExportRow = {};
 
                 formattedExportRow.subject = rowUoa.name;
-                formattedExportRow.user = user.firstName + ' ' + user.lastName;
+                formattedExportRow.originalRespondent = user.firstName + ' ' + user.lastName;
                 formattedExportRow.surveyName = exportData.body[i].surveyName;
-                formattedExportRow.stage = rowStage.title;
+                formattedExportRow.lastCompletedStage = rowStage.title;
                 formattedExportRow.question = exportData.body[i].questionText;
                 formattedExportRow.questionType = exportData.body[i].questionType;
                 formattedExportRow.questionIndex = exportData.body[i].questionIndex;
@@ -526,7 +527,7 @@ module.exports = {
                     formattedExportRow.commenter = commenter.firstName + ' ' + commenter.lastName;
                     formattedExportRow.commentReason = exportData.body[i].comment.reason;
                     formattedExportRow.comment = exportData.body[i].comment.text;
-                    formattedExportRow.date = exportData.body[i].date;
+                    formattedExportRow.lastUpdated = exportData.body[i].date;
 
                     if (Array.isArray(exportData.body[i].commentHistory)) {
                         for (var j=0; j < exportData.body[i].commentHistory.length; j++) {
