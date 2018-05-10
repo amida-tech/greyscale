@@ -25,7 +25,7 @@
     "json2csv": "^3.11.5",
     "jsonwebtoken": "^7.4.1",
     "lodash": "^4.17.4",
-    "memcache": "0.3.0",
+    "memcache": "^0.3.0",
     "mocha": "1.20.1",
     "moment": "2.21.0",
     "multer": "0.1.3",

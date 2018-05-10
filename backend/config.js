@@ -182,7 +182,7 @@ var environments = {
         },
         messageService: process.env.MESSAGE_SERVICE_URL || 'http://localhost:4002',
         systemMessageUser: process.env.SYS_MESSAGE_USER || 'indaba@example.com',
-        systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD || 'password'
+        systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD || 'Abadni1!'
     },
     test: {
         port: 3005,
@@ -351,7 +351,7 @@ var environments = {
         },
         messageService: process.env.MESSAGE_SERVICE_URL || 'http://localhost:4002',
         systemMessageUser: process.env.SYS_MESSAGE_USER || 'indaba@example.com',
-        systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD || 'password'
+        systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD || 'Abadni1!'
     }
 };
 
