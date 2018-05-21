@@ -494,10 +494,7 @@ module.exports = {
                 const uoaId = exportData.body[i].group.split('-')[1];
                 const rowUoa = yield * common.getEntity(req, parseInt(uoaId), UOA, 'id');
                 const rowStage = yield * common.getEntity(req, parseInt(exportData.body[i].stage), WorkflowStep, 'id');
-
-                // TODO: needs to be user from 'Complete Survey' stage
                 const user = yield * common.getEntity(req, exportData.body[i].userId, User, 'authId');
-                // const user = yield thunkQuery(User.select().from(User).where(User.id.equals(req.params.productId)));
 
                 const formattedExportRow = {};
 
