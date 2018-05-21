@@ -475,16 +475,15 @@ module.exports = {
 
             // Retrieve the returned data from the survey service and parse it
             const exportData = yield surveyService.getExportData(surveyId, req.params.questionId, req.headers.authorization)
-
             const formattedExportData = [];
             const flagsExportData = [];
             const commentHistoryExportData = [];
 
             const fields = [ // List of CSV columns
-                'subject', 'user', 'surveyName', 'stage', 'question', 'questionType', 'questionIndex', 'response', 'choiceText',
+                'subject', 'originalRespondent', 'surveyName', 'lastCompletedStage', 'question', 'questionType', 'questionIndex', 'response', 'choiceText',
                 'weight', 'filename', 'fileLink', 'fileId',
                 'publicationLink', 'publicationTitle', 'publicationAuthor', 'publicationDate', 'commenter',
-                'commentReason', 'comment', 'date'
+                'commentReason', 'comment', 'lastUpdated'
             ];
 
             const flagFields = ['subject', 'question', 'questionType', 'response', 'responseBy', 'choiceText', 'flagComment', 'flaggedBy'];
@@ -498,6 +497,7 @@ module.exports = {
 
                 // TODO: needs to be user from 'Complete Survey' stage
                 const user = yield * common.getEntity(req, exportData.body[i].userId, User, 'authId');
+                // const user = yield thunkQuery(User.select().from(User).where(User.id.equals(req.params.productId)));
 
                 const formattedExportRow = {};
 
@@ -544,9 +544,7 @@ module.exports = {
                         }
                     }
                 }
-                formattedExportRow.date = exportData.body[i].date;
-
-
+                formattedExportRow.lastUpdated = exportData.body[i].date;
                 formattedExportData.push(formattedExportRow);
 
                 // Get flags for each question and create a new csv
