@@ -14,7 +14,7 @@ const base = {
     },
     awsBucket : process.env.S3_BUCKET,
     indabaClientDomain: process.env.INDABA_CLIENT_URL || 'http://localhost:3000',
-    authService: process.env.AUTH_SERVICE_URL || 'http://localhost:4000/api/v0',
+    authService: process.env.AUTH_SERVICE_URL || 'http://localhost:4000/api/v1',
     surveyService: process.env.SURVEY_SERVICE_URL || 'http://localhost:9005/api/v1.0/',
     messageService: process.env.MESSAGE_SERVICE_URL,
     systemMessageUser: process.env.SYS_MESSAGE_USER,
