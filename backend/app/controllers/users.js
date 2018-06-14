@@ -262,14 +262,6 @@ module.exports = {
             }
             const existUser = _.first(isExist);
 
-            // TODO: This is the way we want to do it- check if user exist before creating.
-            // TODO: But we can't because of restriction from auth. INBA-850
-
-            // const userExistOnAuth = yield _getUserOnAuthService(req.body.email, req.headers.authorization);
-            // if (userExistOnAuth.statusCode !== 200) {
-            //     const userAuthed = yield _createUserOnAuthService(existUser.email, req.body.password, existUser.roleID, req.headers.authorization);
-            // }
-
             const userAuthed = yield _createUserOnAuthService(existUser.email, req.body.password, existUser.roleID, req.headers.authorization);
 
             var data = {
@@ -277,9 +269,13 @@ module.exports = {
                 isActive: true,
                 password: User.hashPassword(existUser.salt, req.body.password),
                 firstName: req.body.firstName,
-                lastName: req.body.lastName,
-                authId: userAuthed.body.id,
+                lastName: req.body.lastName
             };
+
+            if (_.has(userAuthed, 'body.id')) { // Incase the user never exists. Code may go away.
+                data.authId = userAuthed.body.id;
+            }
+
             var updated = yield thunkQuery(User.update(data).where(User.activationToken.equals(req.params.token)).returning(User.id));
             bologger.log({
                 req: req,
@@ -1374,7 +1370,10 @@ function _createUserOnAuthService(email, password, roleId, jwt) {
             return res
         })
         .catch((err) => {
-            if (err.statusCode === 400) { // User already exists but it's cool, it's cool.
+            if (err.statusCode === 409) { // A 409 means a duplicate entry, so the user already exists.
+                return Promise.resolve();
+            }
+            if (err.statusCode === 400) {
                 return err;
             }
             const httpErr = new HttpError(500, `Unable to use auth service: ${err.message}`);
