@@ -147,7 +147,7 @@ module.exports = {
             );
 
             if (!_.first(tasks)) {
-                res.status(204).end();
+                tasks = [];
             }
 
             return tasks;
