@@ -76,7 +76,7 @@
     "sinon": "^2.3.6"
   },
   "engines": {
-    "node": "~5.0.0"
+    "node": "^6.10.0"
   },
   "scripts": {
     "start": "node --harmony app.js",
