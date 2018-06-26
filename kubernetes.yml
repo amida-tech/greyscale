@@ -23,8 +23,6 @@ spec:
           value: kubernetes-indaba.host_url.us-west-2.rds.amazonaws.com
         - name: INDABA_PG_TESTUSER
           value: indaba
-        - name: MEMCACHED_HOST
-          value: amida-kubernetes.host_url.cfg.usw2.cache.amazonaws.com
         - name: INDABA_PG_DB
           value: amida_indaba
         - name: AUTH_SALT

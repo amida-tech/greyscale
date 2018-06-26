@@ -97,6 +97,4 @@ describe('uoa tag link integration', function uoaTypeIntegration() {
     it('list analysis tag links', tests.listUOATagLinksFn());
 
     it('logout as admin', shared.logoutFn());
-
-    after(shared.unsetupFn());
 });

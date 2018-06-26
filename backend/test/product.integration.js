@@ -60,6 +60,4 @@ describe('product integration', function surveyIntegration() {
     it('list products', tests.listProductsFn());
 
     it('logout as admin', shared.logoutFn());
-
-    after(shared.unsetupFn());
 });
