@@ -72,15 +72,15 @@ describe('product integration', function surveyIntegration() {
 
     it('organization admin activates', userTests.selfActivateFn(0));
 
-    it('create survey', surveyTests.createSurveyFn(legacy));
+    it('create survey', surveyTests.createSurveyFn(legacy)); // INBA-889
 
-    it('list products', tests.listProductsFn());
+    it('list products', tests.listProductsFn()); // INBA-889
 
     it('create product', tests.createProductFn(0));
 
-    it('get product', tests.getProductFn(0));
+    it('get product', tests.getProductFn(0)); // INBA-889
 
-    it('list products', tests.listProductsFn());
+    it('list products', tests.listProductsFn()); // INBA-889
 
     it('logout as admin', shared.logoutFn());
 });

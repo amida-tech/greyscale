@@ -4,6 +4,12 @@
 
 process.env.NODE_ENV = 'test';
 
+const mock = require('mock-require');
+
+mock('request-promise', function mockRequest() {
+    return Promise.resolve({ statusCode: 200, body: { id: Math.floor(Math.random() * 100) + 1   } });
+});
+
 const config = require('../config');
 
 const SharedIntegration = require('./util/shared-integration')
@@ -17,9 +23,6 @@ const AuthService = require('./util/mock_auth_service');
 describe('group integration', function uoaTypeIntegration() {
     const dbname = 'indabatestgroup'
 
-    const superAdmin = config.testEntities.superAdmin;
-    const organization = config.testEntities.organization;
-
     const authService = new AuthService();
     const superTest = new IndaSuperTest(authService);
     const shared = new SharedIntegration(superTest);
@@ -29,8 +32,12 @@ describe('group integration', function uoaTypeIntegration() {
     const userTests = new userCommon.IntegrationTests(superTest, { hxGroup });
 
     const groupOptions = { hxOrganization: orgTests.hxOrganization, hxGroup };
+    const groupTests = new groupCommon.IntegrationTests(superTest, groupOptions);
+
     const tests = new groupCommon.IntegrationTests(superTest, groupOptions);
 
+    const superAdmin = config.testEntities.superAdmin;
+    const organization = config.testEntities.organization;
     const admin = config.testEntities.admin;
     const users = config.testEntities.users;
 
@@ -40,22 +47,29 @@ describe('group integration', function uoaTypeIntegration() {
         authService.addUser(superAdmin)
     });
 
+    it('create organization without JWT', orgTests.createOrganizationWithNoJWTFn(organization));
+
     it('login as super user', shared.loginFn(superAdmin));
 
     it('create organization', orgTests.createOrganizationFn(organization));
 
     it('set realm', orgTests.setRealmFn(0));
 
+    it('get organization', orgTests.getOrganizationFn(0));
+
     it('invite organization admin', userTests.inviteUserFn(admin));
 
     it('logout as super user', shared.logoutFn());
 
-    it('organization admin checks activation token', userTests.checkActivitabilityFn(0));
-
-    it('organization admin activates', userTests.selfActivateFn(0));
+    it('add admin user and sign JWT',  function() {
+        authService.addUser(admin);
+    });
 
     it('login as admin', shared.loginFn(admin));
 
+    it('organization admin checks activation token', userTests.checkActivitabilityFn(0));
+
+    it('organization admin activates', userTests.selfActivateFn(0));
     users.forEach((user, index) => {
         it(`invite user ${index}`, userTests.inviteUserFn(user));
     });
@@ -65,10 +79,16 @@ describe('group integration', function uoaTypeIntegration() {
     users.forEach((user, index) => {
         it(`user ${index} activates`, userTests.selfActivateFn(index + 1));
 
+        it(`add user and sign JWT ${index}`, function() {
+            authService.addUser(user);
+        });
+
         it(`login as user ${index}`, shared.loginFn(user));
 
         it(`logout as user ${index}`, shared.logoutFn());
     });
+
+    it('create group without JWT', groupTests.createGroupWithOutJWTFn());
 
     it('login as admin', shared.loginFn(admin));
 
