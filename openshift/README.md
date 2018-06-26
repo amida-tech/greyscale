@@ -9,7 +9,7 @@ cluster running on your local machine.
 You are more than welcome to set up the individual Indaba services from scratch. However, this repository provides a template for
 a functioning Indaba application. It contains the following components:
 - An empty Postgres database
-- An Indaba backend instance, networked to Postgres and memcached.
+- An Indaba backend instance, networked to Postgres.
 - An Indaba frontend instance, networked to the backend, and with a load balancer mapping from port 80 to port 8080, running HTTP.
 
 To initialize the template, simply run:
