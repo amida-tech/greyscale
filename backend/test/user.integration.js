@@ -63,7 +63,7 @@ describe('user integration', function userIntegration() {
         authService.addUser(admin);
     });
 
-    it('login as super user', shared.loginFn(admin));
+    it('login as admin', shared.loginFn(admin));
 
     it('organization admin checks activation token', userTests.checkActivitabilityFn(0));
 
@@ -78,7 +78,9 @@ describe('user integration', function userIntegration() {
     users.forEach((user, index) => {
         it(`user ${index} activates`, userTests.selfActivateFn(index + 1));
 
-        it(`add user and sign JWT ${index}`, function() { authService.addUser(user) });
+        it(`add user and sign JWT ${index}`, function() {
+            authService.addUser(user);
+        });
 
         it(`login as user ${index}`, shared.loginFn(user));
 

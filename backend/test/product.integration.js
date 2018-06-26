@@ -62,9 +62,15 @@ describe('product integration', function surveyIntegration() {
 
     it('logout as super user', shared.logoutFn());
 
-    it('organization admin activates', userTests.selfActivateFn(0));
+    it('add admin user and sign JWT',  function() {
+        authService.addUser(admin);
+    });
 
     it('login as admin', shared.loginFn(admin));
+
+    it('organization admin checks activation token', userTests.checkActivitabilityFn(0));
+
+    it('organization admin activates', userTests.selfActivateFn(0));
 
     it('create survey', surveyTests.createSurveyFn(legacy));
 
