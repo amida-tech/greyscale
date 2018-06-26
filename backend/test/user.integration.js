@@ -96,6 +96,4 @@ describe('user integration', function userIntegration() {
     it('verify user 2', userTests.getUserFn(2));
 
     it('logout as admin', shared.logoutFn());
-
-    after(shared.unsetupFn());
 });

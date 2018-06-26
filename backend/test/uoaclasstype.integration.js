@@ -76,6 +76,4 @@ describe('uoa class type integration', function uoaTypeIntegration() {
     it('list unit of analysis class type', tests.listUOAClassTypesFn());
 
     it('logout as admin', shared.logoutFn());
-
-    after(shared.unsetupFn());
 });

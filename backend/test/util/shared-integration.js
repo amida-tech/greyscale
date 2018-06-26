@@ -187,16 +187,6 @@ class SharedIntegration {
         };
     }
 
-    unsetupFn() {
-        const indaSuperTest = this.indaSuperTest;
-        return function unsetup() {
-            const mcClient = indaSuperTest.app.locals.mcClient;
-            mcClient.set.restore();
-            mcClient.get.restore();
-            mcClient.delete.restore();
-        }
-    }
-
     setupDb() {
         const db = models(config.pgConnect, ['sceleton', 'test']);
         return syncAndSeed(db);

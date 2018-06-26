@@ -80,6 +80,4 @@ describe('uoa class type integration', function uoaTypeIntegration() {
     it('list unit of analysis tag', tests.listUOATagsFn());
 
     it('logout as admin', shared.logoutFn());
-
-    after(shared.unsetupFn());
 });

@@ -136,6 +136,4 @@ describe('task integration with config authentication', function surveyIntegrati
     it('reset config', function resetConfig() {
         config.devUserToken  = null;
     });
-
-    after(shared.unsetupFn());
 });
