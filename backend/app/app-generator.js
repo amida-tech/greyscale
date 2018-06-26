@@ -24,8 +24,7 @@ const newExpress = function () {
 const messageService = require('./services/messages');
 
 const initExpress = function (app) {
-    const startServer = function () {
-        return messageService.authAsSystemMessageUser()
+    messageService.authAsSystemMessageUser()
         .then((response) => {
             app.set(messageService.SYSTEM_MESSAGE_USER_TOKEN_FIELD, response.token)
             logger.debug('Authenticated as system message user');
@@ -42,15 +41,6 @@ const initExpress = function (app) {
 
             require('./socket/socket-controller.server').init(server);
         });
-    };
-    console.log('Starting service at app-generator...');
-    startServer();
-
-    // app.use(function (req, res, next) {
-    //     logger.debug('Request URL:', req.url);
-    //     req.mcClient = mcClient;
-    //     next();
-    // });
 
     app.use('/:realm', function (req, res, next) {
         // realm not set
