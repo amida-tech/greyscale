@@ -177,6 +177,4 @@ describe('discussion integration', function surveyIntegration() {
     it('get discussion 0 entry scope', tests.getDiscussionEntryScopeFn(0, { canUpdate: false }));
 
     // it('list discussions', tests.listDiscussionsFn({ taskIndex: 0 }));
-
-    after(shared.unsetupFn());
 });

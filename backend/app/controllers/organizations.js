@@ -20,7 +20,6 @@ var _ = require('underscore'),
     thunkify = require('thunkify'),
     Emailer = require('../../lib/mailer'),
     thunkQuery = thunkify(query),
-    mc = require('../mc_helper'),
     notifications = require('../controllers/notifications');
 
 var debug = require('debug')('debug_organizations');
@@ -170,16 +169,6 @@ module.exports = {
             ));
 
             var clientThunkQuery = thunkify(new Query(req.body.realm));
-
-            if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
-                try { // reset schemas cache
-                    var schemas = yield mc.delete(req.mcClient, 'schemas');
-                } catch (e) {
-                    debug(JSON.stringify(e));
-                    throw new HttpError(500, e);
-                }
-            }
-
             req.thunkQuery = clientThunkQuery; // Do this because of bologger
 
             var org = yield clientThunkQuery(
@@ -437,7 +426,7 @@ function* checkOrgData(req) {
             throw new HttpError(400, 'name and realm fields are required');
         }
 
-        var schemas = yield adminThunkQuery(pgEscape( // better to select from db instead of memcache
+        var schemas = yield adminThunkQuery(pgEscape(
             'SELECT pg_catalog.pg_namespace.nspname ' +
             'FROM pg_catalog.pg_namespace ' +
             'INNER JOIN pg_catalog.pg_user ' +

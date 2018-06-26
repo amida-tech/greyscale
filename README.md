@@ -29,7 +29,6 @@ Indaba puts your stakeholder and expert network at your fingertips. It converts 
 - Node.js (v5 - we recommend using [node version manager](https://github.com/creationix/nvm))
 - PostgreSQL
 - pgAdmin (optional)
-- memcached
 - nginx (for server deployment)
 - Docker
 
@@ -200,7 +199,7 @@ See the [paper](https://paper.dropbox.com/doc/Amida-Microservices-Kubernetes-Dep
 ### A Few Things to Note
 - The  `.pgpass` file is needed by the `Dockerfile` to run the `seed.js` script upon startup. This is only necessary when seeding password protected databases. You will need to ensure that the file is configured with the correct database parameters in this format `hostname:port:database:username:password`.
 
-- If using AWS' Elasticache and RDS to deploy memcached and postgres respectively, make sure the instance is configured with the appropriate security groups to allow traffic from the cluster's instance. The paper doc referenced above describes how this can be done.
+- If using AWS' Elasticache and RDS to deploy postgres, make sure the instance is configured with the appropriate security groups to allow traffic from the cluster's instance. The paper doc referenced above describes how this can be done.
 
 ## Deployment with Google Cloud (Kubernetes)
 NOTE: Container Engine SQL support in Google Cloud is bad right now and will probably change.
@@ -230,7 +229,7 @@ kompose convert
 # you may need to authenticate first
 gcloud auth application-default login
 # create the pods
-kubectl create -f indaba-frontend-service.yaml,memcached-service.yaml,indaba-backend-service.yaml,indaba-frontend-deployment.yaml,memcached-deployment.yaml,indaba-backend-deployment.yaml
+kubectl create -f indaba-frontend-service.yaml,indaba-backend-service.yaml,indaba-frontend-deployment.yaml,indaba-backend-deployment.yaml
 # to verify in the kubernetes dashboard:
 kubectl proxy
 # then navigate to localhost:8001/ui

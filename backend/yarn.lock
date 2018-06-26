@@ -3169,10 +3169,6 @@ media-typer@0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/media-typer/-/media-typer-0.3.0.tgz#8710d7af0aa626f8fffa1ce00168545263255748"
 
-memcache@0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/memcache/-/memcache-0.3.0.tgz#bdbb978ea4bee0fdd3166997b1883d297e0859dc"
-
 meow@^3.3.0:
   version "3.7.0"
   resolved "https://registry.yarnpkg.com/meow/-/meow-3.7.0.tgz#72cb668b425228290abbfa856892587308a801fb"
