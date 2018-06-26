@@ -5,6 +5,11 @@
 process.env.NODE_ENV = 'test';
 
 const _ = require('lodash');
+const mock = require('mock-require');
+
+mock('request-promise', function mockRequest() {
+    return Promise.resolve({ statusCode: 200, body: { id: Math.floor(Math.random() * 100) + 1   } });
+});
 
 const config = require('../config');
 
@@ -15,6 +20,7 @@ const organizationCommon = require('./util/organization-common');
 const surveyCommon = require('./util/survey-common');
 const productCommon = require('./util/product-common');
 const examples = require('./fixtures/example/surveys');
+const History = require('./util/History');
 const AuthService = require('./util/mock_auth_service');
 
 const legacy = _.cloneDeep(examples.legacy);
@@ -22,10 +28,11 @@ const legacy = _.cloneDeep(examples.legacy);
 describe('product integration', function surveyIntegration() {
     const dbname = 'indabatestproduct'
     const authService = new AuthService();
+    const hxGroup = new History();
     const superTest = new IndaSuperTest(authService);
     const shared = new SharedIntegration(superTest);
     const orgTests = new organizationCommon.IntegrationTests(superTest);
-    const userTests = new userCommon.IntegrationTests(superTest);
+    const userTests = new userCommon.IntegrationTests(superTest, { hxGroup });
     const surveyTests = new surveyCommon.IntegrationTests(superTest);
     const tests = new productCommon.IntegrationTests(superTest, {
         hxSurvey: surveyTests.hxSurvey
@@ -38,14 +45,18 @@ describe('product integration', function surveyIntegration() {
     before(shared.setupFn({ dbname }));
 
     it('add super admin user and sign JWT',  function() {
-        authService.addUser(superAdmin)
+        authService.addUser(superAdmin);
     });
-    
+
+    it('create organization without JWT', orgTests.createOrganizationWithNoJWTFn(organization));
+
     it('login as super user', shared.loginFn(superAdmin));
 
     it('create organization', orgTests.createOrganizationFn(organization));
 
     it('set realm', orgTests.setRealmFn(0));
+
+    it('get organization', orgTests.getOrganizationFn(0));
 
     it('invite organization admin', userTests.inviteUserFn(admin));
 

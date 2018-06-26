@@ -41,7 +41,9 @@ describe('user integration', function userIntegration() {
 
     before(shared.setupFn());
 
-    it('add super admin user and sign JWT',  function() { authService.addUser(superAdmin) });
+    it('add super admin user and sign JWT',  function() {
+        authService.addUser(superAdmin);
+    });
 
     it('create organization without JWT', orgTests.createOrganizationWithNoJWTFn(organization));
 
@@ -57,7 +59,9 @@ describe('user integration', function userIntegration() {
 
     it('logout as super user', shared.logoutFn());
 
-    it('add admin user and sign JWT',  function() { authService.addUser(admin) });
+    it('add admin user and sign JWT',  function() {
+        authService.addUser(admin);
+    });
 
     it('login as super user', shared.loginFn(admin));
 

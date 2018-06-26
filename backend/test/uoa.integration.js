@@ -12,10 +12,12 @@ const organizationCommon = require('./util/organization-common');
 const userCommon = require('./util/user-common');
 const uoaCommon = require('./util/uoa-common');
 const uoatypeCommon = require('./util/uoatype-common');
+const AuthService = require('./util/mock_auth_service');
 
 describe('uoa integration', function uoaTypeIntegration() {
     const dbname = 'indabatestuoa'
-    const superTest = new IndaSuperTest();
+    const authService = new AuthService();
+    const superTest = new IndaSuperTest(authService);
     const shared = new SharedIntegration(superTest);
     const orgTests = new organizationCommon.IntegrationTests(superTest);
     const userTests = new userCommon.IntegrationTests(superTest);
@@ -32,7 +34,11 @@ describe('uoa integration', function uoaTypeIntegration() {
 
     before(shared.setupFn({ dbname }));
 
-    it('login as super user', shared.loginAdminFn(superAdmin));
+    it('add super admin user and sign JWT',  function() {
+        authService.addUser(superAdmin)
+    });
+
+    it('login as super user', shared.loginFn(superAdmin));
 
     it('create organization', orgTests.createOrganizationFn(organization));
 
