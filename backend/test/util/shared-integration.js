@@ -1,7 +1,5 @@
 'use strict';
 
-// const sinon = require('sinon');
-
 const appGenerator = require('../../app/app-generator');
 
 const config = require('../../config');
