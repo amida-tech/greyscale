@@ -255,7 +255,7 @@ module.exports = {
         co(function* () {
             var isExist = yield thunkQuery(User.select(User.star()).from(User).where(User.activationToken.equals(req.params.token)));
             if (!_.first(isExist)) {
-                throw new HttpError(400, 'Token is not valid');
+                throw new HttpError(401, 'Token is not valid');
             }
             if (!req.body.password) {
                 throw new HttpError(400, 'Password field is required!');
