@@ -779,4 +779,3 @@ var sendSystemMessageWithMessageService = function (req, to, message) {
 };
 
 exports.sendSystemMessageWithMessageService = sendSystemMessageWithMessageService;
-
