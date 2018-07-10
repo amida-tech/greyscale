@@ -30,12 +30,12 @@ node --harmony app.js (since 4.0.0 version --harmony is not necessary)
 
 # Set up environment variables
 ```
-# Copy the environment variables 
+# Copy the environment variables
 cp .env.example .env
 
-# Insert values for the following 
-GMAIL_PASS=enter-password
-MESSAGE_SERVICE_URL=http://localhost:4002
+# Insert values for the following
+MAILER_PASSWORD=enter-password
+MESSAGING_SERVICE_URI=http://localhost:4002/api
 SYS_MESSAGE_USER=indaba@example.com
 SYS_MESSAGE_PASSWORD=insert-pwd
 S3_BUCKET=insert-aws-bucket
