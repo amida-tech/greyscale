@@ -14,9 +14,9 @@ const base = {
     },
     awsBucket : process.env.S3_BUCKET,
     indabaClientDomain: process.env.INDABA_CLIENT_URL || 'http://localhost:3000',
-    authService: process.env.AUTH_MICROSERVICE_URL + '/v1' || 'http://localhost:4000/api/v1',
-    surveyService: process.env.SURVEY_MICROSERVICE_URL + '/v1.0/' || 'http://localhost:9005/api/v1.0/',
-    messageService: process.env.MESSAGING_MICROSERVICE_URL + '/v1',
+    authService: process.env.AUTH_MICROSERVICE_URL || 'http://localhost:4000/api/v1',
+    surveyService: process.env.SURVEY_MICROSERVICE_URL || 'http://localhost:9005/api/v1.0',
+    messageService: process.env.MESSAGING_MICROSERVICE_URL || 'http://localhost:4001/api/v1',
     systemMessageUser: process.env.SYS_MESSAGE_USER,
     systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD,
     mailerPassword: process.env.MAILER_PASSWORD,
@@ -180,7 +180,7 @@ var environments = {
                 emailBody: './views/emails/welcome.html'
             },
         },
-        messageService: process.env.MESSAGING_MICROSERVICE_URL +'/v1'|| 'http://localhost:4001/api/v1',
+        messageService: process.env.MESSAGING_MICROSERVICE_URL || 'http://localhost:4001/api/v1',
         systemMessageUser: process.env.SYS_MESSAGE_USER || 'indaba@example.com',
         systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD || 'Abadni1!'
     },
@@ -349,7 +349,7 @@ var environments = {
                 emailBody: './views/emails/comment.html'
             }
         },
-        messageService: process.env.MESSAGING_MICROSERVICE_URL + '/v1' || 'http://localhost:4001/',
+        messageService: process.env.MESSAGING_MICROSERVICE_URL || 'http://localhost:4001/api/v1',
         systemMessageUser: process.env.SYS_MESSAGE_USER || 'indaba@example.com',
         systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD || 'Abadni1!'
     }
