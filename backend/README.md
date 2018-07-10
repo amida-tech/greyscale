@@ -35,7 +35,7 @@ cp .env.example .env
 
 # Insert values for the following
 MAILER_PASSWORD=enter-password
-MESSAGING_SERVICE_URI=http://localhost:4002/api
+MESSAGING_SERVICE_URI=http://localhost:4001/api/v1
 SYS_MESSAGE_USER=indaba@example.com
 SYS_MESSAGE_PASSWORD=insert-pwd
 S3_BUCKET=insert-aws-bucket
