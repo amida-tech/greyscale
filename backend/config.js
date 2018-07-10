@@ -13,10 +13,10 @@ const base = {
         region: 'us-east-1'
     },
     awsBucket : process.env.S3_BUCKET,
-    indabaClientDomain: process.env.INDABA_CLIENT_URI || 'http://localhost:3000',
-    authService: process.env.AUTH_MICROSERVICE_URI + '/v1' || 'http://localhost:4000/api/v1',
-    surveyService: process.env.SURVEY_MICROSERVICE_URI + '/v1.0/' || 'http://localhost:9005/api/v1.0/',
-    messageService: process.env.MESSAGING_MICROSERVICE_URI,
+    indabaClientDomain: process.env.INDABA_CLIENT_URL || 'http://localhost:3000',
+    authService: process.env.AUTH_MICROSERVICE_URL + '/v1' || 'http://localhost:4000/api/v1',
+    surveyService: process.env.SURVEY_MICROSERVICE_URL + '/v1.0/' || 'http://localhost:9005/api/v1.0/',
+    messageService: process.env.MESSAGING_MICROSERVICE_URL + '/v1',
     systemMessageUser: process.env.SYS_MESSAGE_USER,
     systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD,
     mailerPassword: process.env.MAILER_PASSWORD,
@@ -28,7 +28,7 @@ var environments = {
     development: {
         port: 3005,
         encoding: 'utf8',
-        domain: process.env.GREYSCALE_URI || 'http://localhost:3005',
+        domain: process.env.GREYSCALE_URL || 'http://localhost:3005',
         authToken: {
             expiresAfterSeconds: 360000 * 24 // 24 hour
         },
@@ -180,14 +180,14 @@ var environments = {
                 emailBody: './views/emails/welcome.html'
             },
         },
-        messageService: process.env.MESSAGING_MICROSERVICE_URI|| 'http://localhost:4001',
+        messageService: process.env.MESSAGING_MICROSERVICE_URL +'/v1'|| 'http://localhost:4001/api/v1',
         systemMessageUser: process.env.SYS_MESSAGE_USER || 'indaba@example.com',
         systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD || 'Abadni1!'
     },
     test: {
         port: 3005,
         encoding: 'utf8',
-        domain: process.env.GREYSCALE_URI || 'http://localhost:3005',
+        domain: process.env.GREYSCALE_URL|| 'http://localhost:3005',
         authToken: {
             expiresAfterSeconds: 360000 * 24 // 24 hour
         },
@@ -349,7 +349,7 @@ var environments = {
                 emailBody: './views/emails/comment.html'
             }
         },
-        messageService: process.env.MESSAGING_MICROSERVICE_URI || 'http://localhost:4001/',
+        messageService: process.env.MESSAGING_MICROSERVICE_URL + '/v1' || 'http://localhost:4001/',
         systemMessageUser: process.env.SYS_MESSAGE_USER || 'indaba@example.com',
         systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD || 'Abadni1!'
     }
