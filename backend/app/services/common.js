@@ -568,7 +568,7 @@ var checkRecordExistById = function* (req, database, column, requestId, isDelete
 exports.checkRecordExistById = checkRecordExistById;
 
 var getSurveyFromSurveyService = function (surveyId, jwt) {
-    const path = 'surveys/';
+    const path = '/surveys/';
 
     const requestOptions = {
         url: config.surveyService + path + surveyId,
@@ -599,7 +599,7 @@ exports.getSurveyFromSurveyService = getSurveyFromSurveyService;
 
 
 var getUsersWithSurveyAnswers = function (surveyId, jwt) {
-    const path = 'numberUsersBySurvey/';
+    const path = '/numberUsersBySurvey/';
 
     const requestOptions = {
         url: config.surveyService + path + surveyId,
@@ -630,7 +630,7 @@ exports.getUsersWithSurveyAnswers = getUsersWithSurveyAnswers;
 
 
 var copyAssessmentAtSurveyService = function (assessmentId, prevAssessmentId, jwt) {
-    const path = 'assessment-answers/';
+    const path = '/assessment-answers/';
     const path2 = '/as-copy';
 
     const requestOptions = {
@@ -663,7 +663,7 @@ var copyAssessmentAtSurveyService = function (assessmentId, prevAssessmentId, jw
 exports.copyAssessmentAtSurveyService = copyAssessmentAtSurveyService;
 
 var getAssessmentStatusAtSurveyService = function (assessmentId, jwt) {
-    const path = 'assessment-answers/';
+    const path = '/assessment-answers/';
     const path2 = '/status';
 
     const requestOptions = {
