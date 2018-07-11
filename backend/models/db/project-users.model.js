@@ -7,6 +7,7 @@ module.exports = function projectUsers(sequelize, Sequelize, schema = 'public') 
         projectId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            primaryKey: true,
             references: {
                 model: {
                     schema,
@@ -18,6 +19,14 @@ module.exports = function projectUsers(sequelize, Sequelize, schema = 'public') 
         userId: {
             type: Sequelize.INTEGER,
             allowNull: false,
+            primaryKey: true,
+            references: {
+                model: {
+                    schema,
+                    tableName: 'Users',
+                },
+                key: 'id',
+            },
         },
     }, {
         freezeTableName: true,
