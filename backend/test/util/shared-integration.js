@@ -1,13 +1,9 @@
 'use strict';
 
-const sinon = require('sinon');
-
 const appGenerator = require('../../app/app-generator');
 
 const config = require('../../config');
 const models = require('../../models');
-
-const memcacheMock = require('./memcache-mock')
 
 const essences = require('../fixtures/seed/essences_0');
 const languages = require('../fixtures/seed/languages_0');
@@ -134,14 +130,10 @@ class SharedIntegration {
         this.hxUser = hxUser;
     }
 
-    initialize(db, mcl) {
+    initialize(db) {
         return syncAndSeed(db)
             .then(() => {
                 const app = appGenerator.generate();
-                const mcClient = app.locals.mcClient;
-                sinon.stub(mcClient, 'set').callsFake((key, value, cb) => mcl.set(key, value, cb));
-                sinon.stub(mcClient, 'get').callsFake((key, cb) => mcl.get(key, cb));
-                sinon.stub(mcClient, 'delete').callsFake((key, cb) => mcl.delete(key, cb));
                 this.indaSuperTest.initialize(app);
             });
     }
@@ -149,16 +141,14 @@ class SharedIntegration {
 
     setupFn() {
         const that = this;
-        const mcl = new memcacheMock.Client();
         const db = models(config.pgConnect, ['sceleton', 'test']);
         return function setUp() {
-            return that.initialize(db, mcl);
+            return that.initialize(db);
         };
     }
 
     setupForSeedFn() {
         const that = this;
-        const mcl = new memcacheMock.Client();
         const db = models(config.pgConnect, ['sceleton', 'test']);
         return function setUp() {
             const query = `SELECT COUNT(*) AS count FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'Users'`;
@@ -166,7 +156,7 @@ class SharedIntegration {
                 .then((result) => {
                     const count = result[0].count;
                     if ((count === 0) || (count === '0')) {
-                        return that.initialize(db, mcl).then(() => true);
+                        return that.initialize(db).then(() => true);
                     }
                     return false;
                 });
@@ -185,16 +175,6 @@ class SharedIntegration {
         return function logout() {
             indaSuperTest.resetAuth();
         };
-    }
-
-    unsetupFn() {
-        const indaSuperTest = this.indaSuperTest;
-        return function unsetup() {
-            const mcClient = indaSuperTest.app.locals.mcClient;
-            mcClient.set.restore();
-            mcClient.get.restore();
-            mcClient.delete.restore();
-        }
     }
 
     setupDb() {

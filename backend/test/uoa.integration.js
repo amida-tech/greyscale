@@ -4,6 +4,12 @@
 
 process.env.NODE_ENV = 'test';
 
+const mock = require('mock-require');
+
+mock('request-promise', function mockRequest() {
+    return Promise.resolve({ statusCode: 200, body: { id: Math.floor(Math.random() * 100) + 1   } });
+});
+
 const config = require('../config');
 
 const SharedIntegration = require('./util/shared-integration')
@@ -12,10 +18,12 @@ const organizationCommon = require('./util/organization-common');
 const userCommon = require('./util/user-common');
 const uoaCommon = require('./util/uoa-common');
 const uoatypeCommon = require('./util/uoatype-common');
+const AuthService = require('./util/mock_auth_service');
 
 describe('uoa integration', function uoaTypeIntegration() {
     const dbname = 'indabatestuoa'
-    const superTest = new IndaSuperTest();
+    const authService = new AuthService();
+    const superTest = new IndaSuperTest(authService);
     const shared = new SharedIntegration(superTest);
     const orgTests = new organizationCommon.IntegrationTests(superTest);
     const userTests = new userCommon.IntegrationTests(superTest);
@@ -32,21 +40,33 @@ describe('uoa integration', function uoaTypeIntegration() {
 
     before(shared.setupFn({ dbname }));
 
-    it('login as super user', shared.loginAdminFn(superAdmin));
+    it('add super admin user and sign JWT',  function() {
+        authService.addUser(superAdmin)
+    });
+
+    it('create organization without JWT', orgTests.createOrganizationWithNoJWTFn(organization));
+
+    it('login as super user', shared.loginFn(superAdmin));
 
     it('create organization', orgTests.createOrganizationFn(organization));
 
     it('set realm', orgTests.setRealmFn(0));
 
+    it('get organization', orgTests.getOrganizationFn(0));
+
     it('invite organization admin', userTests.inviteUserFn(admin));
 
     it('logout as super user', shared.logoutFn());
 
+    it('add admin user and sign JWT',  function() {
+        authService.addUser(admin);
+    });
+
+    it('login as admin', shared.loginFn(admin));
+
     it('organization admin checks activation token', userTests.checkActivitabilityFn(0));
 
     it('organization admin activates', userTests.selfActivateFn(0));
-
-    it('login as admin', shared.loginFn(admin));
 
     users.forEach((user, index) => {
         it(`invite user ${index}`, userTests.inviteUserFn(user));
@@ -56,6 +76,10 @@ describe('uoa integration', function uoaTypeIntegration() {
 
     users.forEach((user, index) => {
         it(`user ${index} activates`, userTests.selfActivateFn(index + 1));
+
+        it(`add user and sign JWT ${index}`, function() {
+            authService.addUser(user);
+        });
 
         it(`login as user ${index}`, shared.loginFn(user));
 
@@ -70,8 +94,6 @@ describe('uoa integration', function uoaTypeIntegration() {
             langId: 1
         }, { id: 1});
     });
-
-    it('login as admin', shared.loginFn(admin));
 
     it('create unit of analysis type', uoaTypeTests.createUOATypeFn());
 
@@ -92,6 +114,4 @@ describe('uoa integration', function uoaTypeIntegration() {
     it('list unit of analysis', tests.listUOAsFn());
 
     it('logout as admin', shared.logoutFn());
-
-    after(shared.unsetupFn());
 });
