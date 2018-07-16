@@ -255,7 +255,7 @@ module.exports = {
         co(function* () {
             var isExist = yield thunkQuery(User.select(User.star()).from(User).where(User.activationToken.equals(req.params.token)));
             if (!_.first(isExist)) {
-                throw new HttpError(400, 'Token is not valid');
+                throw new HttpError(401, 'Token is not valid');
             }
             if (!req.body.password) {
                 throw new HttpError(400, 'Password field is required!');
@@ -263,7 +263,6 @@ module.exports = {
             const existUser = _.first(isExist);
 
             const userAuthed = yield _createUserOnAuthService(existUser.email, req.body.password, existUser.roleID, req.headers.authorization);
-
             var data = {
                 activationToken: null,
                 isActive: true,
@@ -1373,10 +1372,7 @@ function _createUserOnAuthService(email, password, roleId, jwt) {
             if (err.statusCode === 409) { // A 409 means a duplicate entry, so the user already exists.
                 return Promise.resolve();
             }
-            if (err.statusCode === 400) {
-                return err;
-            }
-            const httpErr = new HttpError(500, `Unable to use auth service: ${err.message}`);
+            const httpErr = new HttpError(err.statusCode === 400 ? 400 : 500, `Unable to use auth service: ${err.message}`);
             return Promise.reject(httpErr);
         });
 }

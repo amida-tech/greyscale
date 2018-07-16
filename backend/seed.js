@@ -78,7 +78,6 @@ shared.setupForSeedFn()()
             .then(userTests.getUserFn(1))
             .then(userTests.getUserFn(2))
             .then(shared.logoutFn())
-            .then(shared.unsetupFn())
             .then(() => {
                 console.log('success');
                 process.exit(0);

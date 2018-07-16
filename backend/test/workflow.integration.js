@@ -96,6 +96,4 @@ describe('workflow integration', function surveyIntegration() {
     it('get workflow (no step information)', tests.getWorkflowFn(0));
 
     it('logout as admin', shared.logoutFn());
-
-    after(shared.unsetupFn());
 });
