@@ -1,5 +1,4 @@
 FROM node:6.10.0
-RUN npm i -g yarn
 RUN apt-get update && apt-get install -y postgresql
 
 COPY ./ /indaba
