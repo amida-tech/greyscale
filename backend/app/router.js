@@ -76,7 +76,7 @@ router.route('/:realm/v0.2/projects/:projectId/users/:userId')
     .delete(authenticate('jwt').always, projects.userRemoval);
 
 router.route('/:realm/v0.2/projects/:id')
-    .get(authenticate('jwt').always, projects.selectOne)
+    .get(authenticate('jwt').always, checkRight('rights_view_all'), projects.selectOne)
     .delete(authenticate('jwt').always, projects.delete)
     .put(authenticate('jwt').always, jsonParser, projects.editOne);
 
@@ -465,7 +465,7 @@ router.route('/:realm/v0.2/notifications/delete')
 var UnitOfAnalysis = require('./controllers/uoas');
 
 router.route('/:realm/v0.2/uoas')
-    .get(authenticate('jwt').always, UnitOfAnalysis.select)
+    .get(authenticate('jwt').always, checkRight('rights_view_all'), UnitOfAnalysis.select)
     .post(authenticate('jwt').always, jsonParser, checkRight('unitofanalysis_insert_one'), UnitOfAnalysis.insert);
 
 router.route('/:realm/v0.2/uoas/:id')
