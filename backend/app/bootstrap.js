@@ -8,10 +8,6 @@ const appGenerator = require('./app-generator');
 
 const app = appGenerator.generate();
 
-app.on('start', function () {
-    app.locals.mcClient.connect();
-});
-
 app.emit('start');
 
 module.exports = app;

@@ -79,7 +79,9 @@ describe('task integration', function surveyIntegration() {
 
     before(shared.setupFn());
 
-    it('add super admin user and sign JWT',  function() { authService.addUser(superAdmin) });
+    it('add super admin user and sign JWT',  function() {
+        authService.addUser(superAdmin);
+    });
 
     it('login as super admin user', shared.loginFn(superAdmin));
 
@@ -93,7 +95,9 @@ describe('task integration', function surveyIntegration() {
 
     it('organization admin activates', userTests.selfActivateFn(0));
 
-    it('add admin user and sign JWT',  function() { authService.addUser(admin) });
+    it('add admin user and sign JWT',  function() {
+        authService.addUser(admin)
+    });
 
     it('login as admin', shared.loginFn(admin));
 
@@ -157,6 +161,4 @@ describe('task integration', function surveyIntegration() {
     // });
 
     it('logout as admin', shared.logoutFn());
-
-    after(shared.unsetupFn());
 });

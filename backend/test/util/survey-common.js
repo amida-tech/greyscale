@@ -14,7 +14,7 @@ const IntegrationTests = class IntegrationTests {
         this.hxQuestion = hxQuestion || new History();
     }
 
-    createSurveyFn(survey) {
+    createSurveyFn(survey) { // TODO: Replace with a mock service.
         const that = this;
         return function createSurvey() {
             return that.supertest.post('surveys', survey, 201)

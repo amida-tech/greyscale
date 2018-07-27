@@ -42,11 +42,6 @@ var environments = {
             adminSchema: 'public',
             sceletonSchema: 'sceleton'
         },
-        mc: { // memcache
-            host: process.env.MEMCACHED_HOST || 'localhost',
-            port: 11211,
-            lifetime: 300 // seconds
-        },
         max_upload_filesize: 10 * 1024 * 1024, // 10 MB
         defaultLang: 'en',
         adminRole: 'admin',
@@ -201,11 +196,6 @@ var environments = {
             port: 5432,
             adminSchema: 'public',
             sceletonSchema: 'sceleton'
-        },
-        mc: { // memcache
-            host: process.env.MEMCACHED_PORT_11211_TCP_ADDR || 'localhost',
-            port: 11211,
-            lifetime: 300 // seconds
         },
         max_upload_filesize: 10 * 1024 * 1024, // 10 MB
         defaultLang: 'en',
