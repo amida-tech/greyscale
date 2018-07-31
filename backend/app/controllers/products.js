@@ -24,7 +24,6 @@ var
     SubindexWeight = require('../models/subindex_weights.js'),
     co = require('co'),
     sql = require('sql'),
-    mc = require('../mc_helper'),
     HttpError = require('../error').HttpError,
     pgEscape = require('pg-escape'),
     surveyService = require('../services/survey'),
@@ -605,14 +604,7 @@ module.exports = {
             }
 
             var ticket = crypto.randomBytes(10).toString('hex');
-
-            try {
-                var r = yield mc.set(req.mcClient, ticket, product[0].id);
-                return ticket;
-            } catch (e) {
-                throw new HttpError(500, e);
-            }
-
+            return ticket;
         }).then(function (data) {
             res.status(201).json({
                 ticket: data

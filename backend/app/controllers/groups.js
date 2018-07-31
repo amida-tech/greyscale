@@ -154,7 +154,6 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-
             // Check if the project is active
             const project = yield thunkQuery(
                 Project.select(
@@ -168,7 +167,7 @@ module.exports = {
                 .where(ProjectUserGroup.groupId.equals(req.params.id))
             );
 
-            if (parseInt(_.first(project).status) === 1) {
+            if (!_.isEmpty(project) && parseInt(_.first(project).status) === 1) {
                 throw new HttpError(400, 'Cannot delete group from an active project');
             } else {
                 // Remove from workflowStepGroup in table in order not to violate the constraint

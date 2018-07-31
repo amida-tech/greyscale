@@ -85,6 +85,4 @@ describe('uoa type integration', function uoaTypeIntegration() {
     it('list unit of analysis type', tests.listUOATypesFn());
 
     it('logout as admin', shared.logoutFn());
-
-    after(shared.unsetupFn());
 });

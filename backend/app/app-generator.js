@@ -6,12 +6,10 @@ const thunkify = require('thunkify');
 const multer = require('multer');
 const passport = require('passport');
 const pg = require('pg');
-const memcache = require('memcache');
 
 const config = require('../config');
 const logger = require('./logger');
 const router = require('./router');
-const mc = require('./mc_helper');
 const HttpError = require('./error').HttpError;
 const Query = require('./util').Query;
 
@@ -26,8 +24,7 @@ const newExpress = function () {
 const messageService = require('./services/messages');
 
 const initExpress = function (app) {
-    const startServer = function () {
-        return messageService.authAsSystemMessageUser()
+    messageService.authAsSystemMessageUser()
         .then((response) => {
             app.set(messageService.SYSTEM_MESSAGE_USER_TOKEN_FIELD, response.token)
             logger.debug('Authenticated as system message user');
@@ -44,31 +41,6 @@ const initExpress = function (app) {
 
             require('./socket/socket-controller.server').init(server);
         });
-    };
-
-    // MEMCHACHE
-    var mcClient = new memcache.Client(
-        config.mc.port,
-        config.mc.host
-    );
-
-    mcClient.on('connect', function () {
-        logger.debug('mc connected');
-        startServer();
-    });
-
-    mcClient.on('error', function (e) {
-        logger.error('MEMCACHE ERROR');
-        logger.debug(e);
-    });
-
-    app.locals.mcClient = mcClient; // eslint-disable-line no-param-reassign
-
-    app.use(function (req, res, next) {
-        logger.debug('Request URL:', req.url);
-        req.mcClient = mcClient;
-        next();
-    });
 
     app.use('/:realm', function (req, res, next) {
         // realm not set
@@ -76,36 +48,17 @@ const initExpress = function (app) {
 
         var schemas;
         co(function* () {
-            if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
-                try {
-                    schemas = yield mc.get(req.mcClient, 'schemas');
-                } catch (e) {
-                    throw new HttpError(500, e);
-                }
-            }
-
-            if (schemas) {
-                req.schemas = schemas.split(',');
-            } else {
-                schemas = yield thunkQuery(
-                    'SELECT pg_catalog.pg_namespace.nspname ' +
-                    'FROM pg_catalog.pg_namespace ' +
-                    'INNER JOIN pg_catalog.pg_user ' +
-                    'ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) ' +
-                    'AND (pg_catalog.pg_user.usename = \'' + cpg.user + '\')'
-                );
-                req.schemas = [];
-                for (var i in schemas) {
-                    if ([cpg.sceletonSchema, cpg.adminSchema].indexOf(schemas[i].nspname) === -1) {
-                        req.schemas.push(schemas[i].nspname);
-                    }
-                }
-                if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
-                    try {
-                        schemas = yield mc.set(req.mcClient, 'schemas', req.schemas, 60);
-                    } catch (e) {
-                        throw new HttpError(500, e);
-                    }
+            schemas = yield thunkQuery(
+                'SELECT pg_catalog.pg_namespace.nspname ' +
+                'FROM pg_catalog.pg_namespace ' +
+                'INNER JOIN pg_catalog.pg_user ' +
+                'ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) ' +
+                'AND (pg_catalog.pg_user.usename = \'' + cpg.user + '\')'
+            );
+            req.schemas = [];
+            for (var i in schemas) {
+                if ([cpg.sceletonSchema, cpg.adminSchema].indexOf(schemas[i].nspname) === -1) {
+                    req.schemas.push(schemas[i].nspname);
                 }
             }
 

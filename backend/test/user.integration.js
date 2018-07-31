@@ -41,7 +41,9 @@ describe('user integration', function userIntegration() {
 
     before(shared.setupFn());
 
-    it('add super admin user and sign JWT',  function() { authService.addUser(superAdmin) });
+    it('add super admin user and sign JWT',  function() {
+        authService.addUser(superAdmin);
+    });
 
     it('create organization without JWT', orgTests.createOrganizationWithNoJWTFn(organization));
 
@@ -57,9 +59,11 @@ describe('user integration', function userIntegration() {
 
     it('logout as super user', shared.logoutFn());
 
-    it('add admin user and sign JWT',  function() { authService.addUser(admin) });
+    it('add admin user and sign JWT',  function() {
+        authService.addUser(admin);
+    });
 
-    it('login as super user', shared.loginFn(admin));
+    it('login as admin', shared.loginFn(admin));
 
     it('organization admin checks activation token', userTests.checkActivitabilityFn(0));
 
@@ -74,7 +78,9 @@ describe('user integration', function userIntegration() {
     users.forEach((user, index) => {
         it(`user ${index} activates`, userTests.selfActivateFn(index + 1));
 
-        it(`add user and sign JWT ${index}`, function() { authService.addUser(user) });
+        it(`add user and sign JWT ${index}`, function() {
+            authService.addUser(user);
+        });
 
         it(`login as user ${index}`, shared.loginFn(user));
 
@@ -96,6 +102,4 @@ describe('user integration', function userIntegration() {
     it('verify user 2', userTests.getUserFn(2));
 
     it('logout as admin', shared.logoutFn());
-
-    after(shared.unsetupFn());
 });

@@ -11,7 +11,6 @@ services:
       INDABA_PG_HOSTNAME: ${INDABA_PG_HOSTNAME}
       INDABA_PG_TESTUSER: ${INDABA_PG_TESTUSER}
       AUTH_SALT:          ${AUTH_SALT}
-      MEMCACHED_HOST:     memcached
       JWT_SECRET:         veryverysecret
       AUTH_SERVICE_URL:   auth-service
       SURVEY_SERVICE_URL: survey-service
@@ -28,11 +27,6 @@ services:
     - POSTGRES_USER=amida
     - POSTGRES_PASSWORD=amida
     - POSTGRES_DB=indaba
-
-  memcached:
-    image: "memcached:1.5.4"
-    ports:
-    - "11211:11211"
 
   auth-db:
     image: "postgres:10.1"
