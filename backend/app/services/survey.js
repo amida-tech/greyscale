@@ -6,7 +6,7 @@ const HttpError = require('../error').HttpError
 module.exports = {
     getExportData: function(surveyId, questionId, jwt) {
 
-        const path = 'assessment-answers/answers/export?survey-id='+surveyId+'&include-comments=true';
+        const path = '/assessment-answers/answers/export?survey-id='+surveyId+'&include-comments=true';
 
         const requestOptions = {
             url: config.surveyService + path,
