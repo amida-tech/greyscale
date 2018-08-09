@@ -20,7 +20,7 @@ module.exports = {
     },
 
     sendSystemMessage: function(token, recipient, message, subject) {
-        const path = '/api/message/send';
+        const path = '/message/send';
 
         const requestOptions = {
             url: config.messageService + path,
