@@ -14,9 +14,9 @@ const base = {
     },
     awsBucket : process.env.S3_BUCKET,
     indabaClientDomain: process.env.INDABA_CLIENT_URL || 'http://localhost:3000',
-    authService: process.env.AUTH_SERVICE_URL || 'http://localhost:4000/api/v1',
-    surveyService: process.env.SURVEY_SERVICE_URL || 'http://localhost:9005/api/v1.0/',
-    messageService: process.env.MESSAGE_SERVICE_URL,
+    authService: process.env.AUTH_MICROSERVICE_URL || 'http://localhost:4000/api/v1',
+    surveyService: process.env.SURVEY_MICROSERVICE_URL || 'http://localhost:9005/api/v1.0',
+    messageService: process.env.MESSAGING_MICROSERVICE_URL || 'http://localhost:4001/api/v1',
     systemMessageUser: process.env.SYS_MESSAGE_USER,
     systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD,
     mailerPassword: process.env.MAILER_PASSWORD,
@@ -28,17 +28,17 @@ var environments = {
     development: {
         port: 3005,
         encoding: 'utf8',
-        domain: process.env.DOMAIN || 'http://localhost:3005',
+        domain: process.env.GREYSCALE_URL || 'http://localhost:3005',
         authToken: {
             expiresAfterSeconds: 360000 * 24 // 24 hour
         },
         pgConnect: {
-            user: process.env.RDS_USERNAME || process.env.INDABA_PG_USERNAME || 'indabauser',
-            testuser: process.env.RDS_TESTUSER || process.env.INDABA_PG_TESTUSER || 'test', // make trust method for this user in PostgreSQL Client Authentication Configuration File (pg_hba.conf)
-            password: process.env.RDS_PASSWORD || process.env.INDABA_PG_PASSWORD || 'password',
-            database: process.env.INDABA_PG_DB || 'indaba_dev',
-            host: process.env.RDS_HOSTNAME || process.env.INDABA_PG_HOSTNAME || 'localhost',
-            port: 5432,
+            user: process.env.RDS_USERNAME || process.env.GREYSCALE_PG_USER || 'indabauser',
+            testuser: process.env.RDS_TESTUSER || process.env.GREYSCALE_PG_TESTUSER || 'test', // make trust method for this user in PostgreSQL Client Authentication Configuration File (pg_hba.conf)
+            password: process.env.RDS_PASSWORD || process.env.GREYSCALE_PG_PASSWORD || 'password',
+            database: process.env.GREYSCALE_PG_DB || 'indaba_dev',
+            host: process.env.RDS_HOSTNAME || process.env.GREYSCALE_PG_HOST || 'localhost',
+            port: process.env.GREYSCALE_PG_PORT || 5432,
             adminSchema: 'public',
             sceletonSchema: 'sceleton'
         },
@@ -175,24 +175,24 @@ var environments = {
                 emailBody: './views/emails/welcome.html'
             },
         },
-        messageService: process.env.MESSAGE_SERVICE_URL || 'http://localhost:4002',
+        messageService: process.env.MESSAGING_MICROSERVICE_URL || 'http://localhost:4001/api/v1',
         systemMessageUser: process.env.SYS_MESSAGE_USER || 'indaba@example.com',
         systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD || 'Abadni1!'
     },
     test: {
         port: 3005,
         encoding: 'utf8',
-        domain: process.env.DOMAIN || 'http://localhost:3005',
+        domain: process.env.GREYSCALE_URL|| 'http://localhost:3005',
         authToken: {
             expiresAfterSeconds: 360000 * 24 // 24 hour
         },
         pgConnect: {
-            user: process.env.RDS_USERNAME || process.env.INDABA_PG_USERNAME || 'indabauser',
+            user: process.env.RDS_USERNAME || process.env.GREYSCALE_PG_USER || 'indabauser',
             // make trust method for this user in PostgreSQL Client Authentication Configuration File (pg_hba.conf)
-            testuser: process.env.RDS_TESTUSER || process.env.INDABA_PG_TESTUSER || 'test',
-            password: process.env.RDS_PASSWORD || process.env.INDABA_PG_PASSWORD || 'password',
-            database: process.env.INDABA_TEST_PG_DB || 'indaba_test',
-            host: process.env.RDS_HOSTNAME || process.env.INDABA_PG_HOSTNAME || 'localhost',
+            testuser: process.env.RDS_TESTUSER || process.env.GREYSCALE_PG_TESTUSER || 'test',
+            password: process.env.RDS_PASSWORD || process.env.GREYSCALE_PG_PASSWORD || 'password',
+            database: process.env.GREYSCALE_TEST_PG_DB || 'indaba_test',
+            host: process.env.RDS_HOSTNAME || process.env.GREYSCALE_PG_HOST || 'localhost',
             port: 5432,
             adminSchema: 'public',
             sceletonSchema: 'sceleton'
@@ -339,7 +339,7 @@ var environments = {
                 emailBody: './views/emails/comment.html'
             }
         },
-        messageService: process.env.MESSAGE_SERVICE_URL || 'http://localhost:4002',
+        messageService: process.env.MESSAGING_MICROSERVICE_URL || 'http://localhost:4001/api/v1',
         systemMessageUser: process.env.SYS_MESSAGE_USER || 'indaba@example.com',
         systemMessagePassword: process.env.SYS_MESSAGE_PASSWORD || 'Abadni1!'
     }

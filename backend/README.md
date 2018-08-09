@@ -34,8 +34,7 @@ node --harmony app.js (since 4.0.0 version --harmony is not necessary)
 cp .env.example .env
 
 # Insert values for the following
-GMAIL_PASS=enter-password
-MESSAGE_SERVICE_URL=http://localhost:4002
+MESSAGING_MICROSERVICE_URL=http://localhost:4001/api/v1
 SYS_MESSAGE_USER=indaba@example.com
 SYS_MESSAGE_PASSWORD=insert-pwd
 S3_BUCKET=insert-aws-bucket

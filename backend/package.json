@@ -1,6 +1,6 @@
 {
-  "name": "indaba-backend",
-  "version": "0.2.0",
+  "name": "greyscale",
+  "version": "0.2.1",
   "description": "Backend code for Indaba app",
   "license": "Apache-2.0",
   "repository": {
