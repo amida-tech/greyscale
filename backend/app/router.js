@@ -76,7 +76,7 @@ router.route('/:realm/v0.2/projects/:projectId/users/:userId')
     .delete(authenticate('jwt').always, projects.userRemoval);
 
 router.route('/:realm/v0.2/projects/:id')
-    .get(authenticate('jwt').always, checkRight('rights_view_all'), projects.selectOne)
+    .get(authenticate('jwt').always, projects.selectOne)
     .delete(authenticate('jwt').always, projects.delete)
     .put(authenticate('jwt').always, jsonParser, projects.editOne);
 
