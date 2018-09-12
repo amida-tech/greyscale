@@ -400,6 +400,8 @@ module.exports = {
                 }
                 if (isExistUser.isDeleted !== null) { // user exist and is deleted
                     updateObj.isDeleted = null;
+                } else if (!req.body.projectId) { // The user exists, isn't deleted and isn't being assigned.
+                    throw new HttpError(409, 'The user is already in the system.');
                 }
 
                 if (!_.isEmpty(updateObj)) {
@@ -408,7 +410,10 @@ module.exports = {
 
                 // If user is in greyscale and not deleted add to project if needed
                 if (req.body.projectId) {
-                    yield * common.insertProjectUser(req, isExistUser.id, req.body.projectId);
+                    const inserted = yield * common.insertProjectUser(req, isExistUser.id, req.body.projectId);
+                    if (!inserted) {
+                        throw new HttpError(409, 'The user is already assigned to this project.');
+                    }
                 }
                 return isExistUser;
             }
