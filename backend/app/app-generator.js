@@ -5,7 +5,7 @@ const co = require('co');
 const thunkify = require('thunkify');
 const multer = require('multer');
 const passport = require('passport');
-const { Pool } = require('pg');
+const { Client } = require('pg');
 
 const config = require('../config/config');
 const logger = require('./logger');
@@ -15,7 +15,7 @@ const Query = require('./util').Query;
 
 const query = new Query();
 const thunkQuery = thunkify(query);
-const pool = new Pool(config.pgConnect);
+const client = new Client(config.pgConnect);
 
 const newExpress = function () {
     const app = express();
@@ -148,15 +148,15 @@ const initExpress = function (app) {
     /*
      * Bootstrap the Postgres DB
      */
-    pool.connect((err, client, release) => {
+    client.connect((err) => {
         if (err) {
             return logger.debug('Could not connect to the database.');
         }
         client.query('SELECT NOW()', (queryErr, result) => {
-            release();
             if (queryErr) {
                 return logger.debug('Error running query on database.');
             }
+            client.end();
         });
         logger.debug('Successfully connected to the database.');
     });

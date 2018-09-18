@@ -129,7 +129,6 @@ exports.Query = function (realm) {
                 client.query(queryString, options, function (err, result) {
                     done();
                     result = result[1]; // Remove SET command return.
-                    console.log(result);
                     var cbfunc = (typeof cb === 'function');
                     if (options.fields) {
                         result.rows = doFields(result.rows, (options.fields).split(','));
@@ -214,11 +213,10 @@ exports.Query = function (realm) {
                 queryString = queryString.replace(/(\$)([0-9]+)/g, function (str, p1, p2) {
                     return prepareValue(values[p2 - 1]);
                 });
-
                 debug(queryString);
 
                 client.query(queryString, function (err, result) {
-
+                    result = result[1]; // Remove SET command return.
                     done();
                     var cbfunc = (typeof cb === 'function');
 
