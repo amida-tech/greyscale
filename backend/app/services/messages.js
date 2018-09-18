@@ -1,5 +1,5 @@
 const request = require('request-promise');
-const config = require('../../config');
+const config = require('../../config/config');
 
 module.exports = {
     SYSTEM_MESSAGE_USER_TOKEN_FIELD: 'SYSTEM_MESSAGE_USER_TOKEN',

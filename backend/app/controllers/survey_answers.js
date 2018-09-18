@@ -18,7 +18,7 @@ var
     co = require('co'),
     Query = require('../util').Query,
     HttpError = require('../error').HttpError,
-    config = require('../../config'),
+    config = require('../../config/config'),
     pgEscape = require('pg-escape');
 
 var AWS = require('aws-sdk');

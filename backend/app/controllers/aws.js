@@ -1,5 +1,5 @@
 var _ = require('underscore'),
-    config = require('../../config'),
+    config = require('../../config/config'),
     crypto = require('crypto'),
     co = require('co'),
     aws = require('aws-sdk');

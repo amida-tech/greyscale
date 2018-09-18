@@ -1,6 +1,6 @@
 var client = require('../db_bootstrap'),
     _ = require('underscore'),
-    config = require('../../config'),
+    config = require('../../config/config'),
     Essence = require('../models/essences'),
     co = require('co'),
     Query = require('../util').Query,

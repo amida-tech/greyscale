@@ -7,7 +7,7 @@ const multer = require('multer');
 const passport = require('passport');
 const pg = require('pg');
 
-const config = require('../config');
+const config = require('../config/config');
 const logger = require('./logger');
 const router = require('./router');
 const HttpError = require('./error').HttpError;

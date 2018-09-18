@@ -2,7 +2,7 @@ var
     Attachment = require('../models/attachments'),
     AttachmentAttempts = require('../models/attachment_attempts'),
     AttachmentLink = require('../models/attachment_links'),
-    config = require('../../config'),
+    config = require('../../config/config'),
     co = require('co'),
     Query = require('../util').Query,
     thunkify = require('thunkify'),

@@ -5,7 +5,7 @@ const util = require('util');
 
 const debug = require('debug')('passport_token');
 
-const config = require('../config');
+const config = require('../config/config');
 
 function Strategy(options, verify) {
     if (typeof options === 'function') {

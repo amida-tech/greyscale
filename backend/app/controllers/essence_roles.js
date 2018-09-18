@@ -1,6 +1,6 @@
 var client = require('../db_bootstrap'),
     _ = require('underscore'),
-    config = require('../../config'),
+    config = require('../../config/config'),
     EssenceRole = require('../models/essence_roles'),
     Essence = require('../models/essences'),
     Role = require('../models/roles'),

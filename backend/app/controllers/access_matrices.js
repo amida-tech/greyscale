@@ -1,6 +1,6 @@
 var client = require('../db_bootstrap'),
     _ = require('underscore'),
-    config = require('../../config'),
+    config = require('../../config/config'),
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),
     AccessMatrix = require('../models/access_matrices'),

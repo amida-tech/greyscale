@@ -1,6 +1,6 @@
 var
     _ = require('underscore'),
-    config = require('../../config'),
+    config = require('../../config/config'),
     Project = require('../models/projects'),
     Product = require('../models/products'),
     ProductUOA = require('../models/product_uoa'),

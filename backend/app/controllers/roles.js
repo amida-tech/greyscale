@@ -1,7 +1,7 @@
 var client = require('../db_bootstrap'),
     _ = require('underscore'),
     HttpError = require('../error').HttpError,
-    config = require('../../config'),
+    config = require('../../config/config'),
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),
     // tables

@@ -1,5 +1,5 @@
 var _ = require('underscore'),
-    config = require('../../config'),
+    config = require('../../config/config'),
     common = require('../services/common'),
     User = require('../models/users'),
     Organization = require('../models/organizations'),

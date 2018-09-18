@@ -2,7 +2,7 @@ var
     _ = require('underscore'),
     moment = require('moment'),
     pg = require('pg'),
-    config = require('../config'),
+    config = require('../config/config'),
     pgEscape = require('pg-escape');
 
 var debug = require('debug')('debug_util');
