@@ -1,5 +1,5 @@
 var chai = require('chai');
-var config = require('../../config');
+var config = require('../../config/config');
 var ithelper = require('./itHelper');
 var request = require('supertest');
 var _ = require('underscore');

@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 
-const config = require('./config');
+const config = require('./config/config');
 
 const SharedIntegration = require('./test/util/shared-integration');
 const IndaSuperTest = require('./test/util/inda-supertest');

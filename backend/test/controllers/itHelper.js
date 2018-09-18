@@ -4,7 +4,7 @@
 
 var chai = require('chai');
 var expect = chai.expect;
-var config = require('../../config');
+var config = require('../../config/config');
 var _ = require('underscore');
 var request = require('superagent');
 var exec = require('child_process').exec;
