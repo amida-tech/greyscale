@@ -128,6 +128,10 @@ exports.Query = function (realm) {
                 debug(queryString);
                 client.query(queryString, options, function (err, result) {
                     done();
+                    result.splice(0, 1); // Remove SET command return.
+                    if (result.length === 1) {
+                        result = result[0];
+                    }
                     var cbfunc = (typeof cb === 'function');
                     if (options.fields) {
                         result.rows = doFields(result.rows, (options.fields).split(','));
