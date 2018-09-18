@@ -1,12 +1,13 @@
 var
     _ = require('underscore'),
     moment = require('moment'),
-    pg = require('pg'),
+    { Pool } = require('pg'),
     config = require('../config/config'),
     pgEscape = require('pg-escape');
 
 var debug = require('debug')('debug_util');
 debug.log = console.log.bind(console);
+const pool = new Pool(config.pgConnect);
 
 var prepareValue = function (val, seen) {
     //debug(val);
@@ -97,15 +98,13 @@ exports.Query = function (realm) {
     }
 
     return function (queryObject, options, cb) {
-       // var client = new ClientPG();
-
         if (arguments.length === 2) {
             cb = options;
         }
 
         var arlen = arguments.length;
 
-        pg.connect(config.pgConnect, function (err, client, done) {
+        pool.connect((err, client, done) => {
             if (err) {
                 return console.error('Could not fetch client from pool: ', err);
             }
@@ -123,16 +122,13 @@ exports.Query = function (realm) {
         function doQuery(queryObject, client, done, options, cb) {
             var queryString;
             if (typeof queryObject === 'string') {
-
                 queryString =
                     (typeof realm !== 'undefined') ?
                     ('SET search_path TO ' + realm + '; ' + queryObject) : queryObject;
                 debug(queryString);
-
                 client.query(queryString, options, function (err, result) {
                     done();
                     var cbfunc = (typeof cb === 'function');
-
                     if (options.fields) {
                         result.rows = doFields(result.rows, (options.fields).split(','));
                     }
@@ -144,7 +140,6 @@ exports.Query = function (realm) {
                     return cbfunc ? cb(null, result.rows) : result.rows;
                 });
             } else {
-
                 if (arlen === 3) {
                     var optWhere = _.pick(options, queryObject.table.whereCol);
 

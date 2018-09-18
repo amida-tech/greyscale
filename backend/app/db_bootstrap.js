@@ -7,7 +7,7 @@ debug.log = console.log.bind(console);
 
 var ClientPG = function () {
 
-    var client = new Client(config.pgConnect);
+    var client = new pg.Client(config.pgConnect);
 
     client.on('error', function (err) {
         debug(util.format('Connection error: %s', err));
@@ -22,11 +22,5 @@ var ClientPG = function () {
 
     return client;
 };
-
-// const pool = pg.connect(config.pgConnect, function(err, client, done) {
-//   if (err) {
-//       return debug("Could not instantiate a connection pool to the PostgreSQL server. Error: ", err)
-//   }
-// });
 
 module.exports = pg;

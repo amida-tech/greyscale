@@ -1,11 +1,11 @@
 'use strict';
 
 const Sequelize = require('sequelize');
-const pg = require('pg');
+const types = require('pg').types;
 
 const functions = require('./functions');
 
-pg.types.setTypeParser(1184, value => value);
+types.setTypeParser(1184, value => value);
 
 const enums = [{
     name: 'event_status',

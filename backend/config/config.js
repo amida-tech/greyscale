@@ -39,6 +39,7 @@ var environments = {
             database: process.env.GREYSCALE_PG_DB || 'indaba_dev',
             host: process.env.RDS_HOSTNAME || process.env.GREYSCALE_PG_HOST || 'localhost',
             port: process.env.GREYSCALE_PG_PORT || 5432,
+            totalCount: 100,
             adminSchema: 'public',
             sceletonSchema: 'sceleton'
         },
@@ -194,6 +195,7 @@ var environments = {
             database: process.env.GREYSCALE_TEST_PG_DB || 'indaba_test',
             host: process.env.RDS_HOSTNAME || process.env.GREYSCALE_PG_HOST || 'localhost',
             port: 5432,
+            totalCount: 100,
             adminSchema: 'public',
             sceletonSchema: 'sceleton'
         },
