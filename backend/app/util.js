@@ -1,17 +1,16 @@
-var
-    _ = require('underscore'),
+var _ = require('underscore'),
     moment = require('moment'),
     { Pool } = require('pg'),
-    config = require('../config'),
-    pgEscape = require('pg-escape');
+    pgEscape = require('pg-escape'),
+    config = require('../config');
+
+const logger = require('./logger');
 
 var debug = require('debug')('debug_util');
 debug.log = console.log.bind(console);
 const pool = new Pool(config.pgConnect);
 
 var prepareValue = function (val, seen) {
-    //debug(val);
-
     if (val instanceof Buffer) {
         return val;
     }
@@ -90,6 +89,21 @@ function arrayString(val) {
     }
     result = result + '}';
     return result;
+}
+
+exports.PoolTest = function() {
+    pool.connect((err, client, done) => {
+        if (err) {
+            console.error('Could not fetch client from pool: ', err);
+        }
+        client.query('SELECT NOW()', (queryErr, result) => {
+            done();
+            if (queryErr) {
+                logger.debug('Error running query on database.');
+            }
+        });
+        logger.debug('Successfully connected to the database.');
+    });
 }
 
 exports.Query = function (realm) {
@@ -237,9 +251,6 @@ exports.Query = function (realm) {
                             return _.omit(i, queryObject.table.hideCol);
                         });
                     }
-
-                    //client.removeListener('error', errorListener);
-
                     return cbfunc ? cb(null, result.rows) : result.rows;
                 });
             }

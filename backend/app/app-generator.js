@@ -12,6 +12,7 @@ const logger = require('./logger');
 const router = require('./router');
 const HttpError = require('./error').HttpError;
 const Query = require('./util').Query;
+const PoolTest = require('./util').PoolTest;
 
 const query = new Query();
 const thunkQuery = thunkify(query);
@@ -145,21 +146,8 @@ const initExpress = function (app) {
         res.sendStatus(500);
     });
 
-    /*
-     * Bootstrap the Postgres DB
-     */
-    client.connect((err) => {
-        if (err) {
-            return logger.debug('Could not connect to the database.');
-        }
-        client.query('SELECT NOW()', (queryErr, result) => {
-            if (queryErr) {
-                return logger.debug('Error running query on database.');
-            }
-            client.end();
-        });
-        logger.debug('Successfully connected to the database.');
-    });
+    // Test connection to DB.
+    PoolTest();
 };
 
 const generate = function () {
