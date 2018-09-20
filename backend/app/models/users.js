@@ -1,4 +1,4 @@
-var config = require('../../config/config'),
+var config = require('../../config'),
     crypto = require('crypto'),
     _ = require('underscore'),
     util = require('util');

@@ -1,5 +1,5 @@
 var _ = require('underscore'),
-    config = require('../../config/config'),
+    config = require('../../config'),
     common = require('../services/common'),
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),

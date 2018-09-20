@@ -2,7 +2,7 @@ var
     _ = require('underscore'),
     ejs = require('ejs'),
     fs = require('fs'),
-    config = require('../../config/config'),
+    config = require('../../config'),
     common = require('../services/common'),
     auth = require('../auth'),
     BoLogger = require('../bologger'),

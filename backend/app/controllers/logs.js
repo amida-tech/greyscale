@@ -1,7 +1,7 @@
 var
     _ = require('underscore'),
     auth = require('../auth'),
-    config = require('../../config/config'),
+    config = require('../../config'),
     common = require('../services/common'),
     Log = require('../models/logs'),
 

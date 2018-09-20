@@ -1,6 +1,6 @@
 'use strict';
 
-const config = require('../../config/config');
+const config = require('../../config');
 const jwt = require('jsonwebtoken');
 
 const jwtOptions = {};

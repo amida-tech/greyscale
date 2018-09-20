@@ -2,7 +2,7 @@
 
 const appGenerator = require('../../app/app-generator');
 
-const config = require('../../config/config');
+const config = require('../../config');
 const models = require('../../models');
 
 const essences = require('../fixtures/seed/essences_0');

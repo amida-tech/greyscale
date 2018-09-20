@@ -11,7 +11,7 @@ var passport = require('passport'),
     Essences = require('./models/essences'),
     HttpError = require('./error').HttpError,
     util = require('util'),
-    config = require('../config/config');
+    config = require('../config');
 
 var ExtractJwt = passportJWT.ExtractJwt,
     JwtStrategy = passportJWT.Strategy;

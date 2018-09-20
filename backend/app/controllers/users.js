@@ -1,6 +1,6 @@
 var _ = require('underscore'),
     crypto = require('crypto'),
-    config = require('../../config/config'),
+    config = require('../../config'),
     common = require('../services/common'),
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),

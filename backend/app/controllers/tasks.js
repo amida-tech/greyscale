@@ -18,7 +18,7 @@ var
     HttpError = require('../error').HttpError,
     ProductUOA = require('../models/product_uoa'),
     notifications = require('../controllers/notifications'),
-    config = require('../../config/config'),
+    config = require('../../config'),
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_products');

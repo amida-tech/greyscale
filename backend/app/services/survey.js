@@ -1,5 +1,5 @@
 const request = require('request-promise');
-const config = require('../../config/config');
+const config = require('../../config');
 const HttpError = require('../error').HttpError
 
 

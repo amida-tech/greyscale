@@ -1,8 +1,7 @@
 'use strict';
 
-var client = require('../db_bootstrap'),
-    _ = require('underscore'),
-    config = require('../../config/config'),
+var _ = require('underscore'),
+    config = require('../../config'),
     common = require('../services/common'),
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),

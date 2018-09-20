@@ -2,7 +2,7 @@ var emailer = require('nodemailer'),
     fs = require('fs'),
     util = require('util'),
     _ = require('underscore'),
-    config = require('../config/config'),
+    config = require('../config'),
     smtpTransport = require('nodemailer-smtp-transport');
 
 

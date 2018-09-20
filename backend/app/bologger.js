@@ -1,6 +1,6 @@
 var
     _ = require('underscore'),
-    config = require('../config/config'),
+    config = require('../config'),
     common = require('./services/common'),
     debug = require('debug')('bologger'),
     vl = require('validator'),

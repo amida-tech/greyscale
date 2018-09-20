@@ -1,7 +1,7 @@
 var express = require('express'),
     authenticate = require('./auth').authenticate,
     checkRight = require('./auth').checkRight,
-    config = require('../config/config'),
+    config = require('../config'),
     router = express.Router(),
     bodyParser = require('body-parser'),
     jsonParser = bodyParser.json({

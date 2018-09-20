@@ -4,7 +4,7 @@ const chai = require('chai');
 const session = require('supertest-session');
 const _ = require('lodash');
 
-const config = require('../../config/config');
+const config = require('../../config');
 const AuthService = require('../util/mock_auth_service');
 
 module.exports = class IndaSupertest {

@@ -1,6 +1,5 @@
-var client = require('../db_bootstrap'),
-    _ = require('underscore'),
-    config = require('../../config/config'),
+var _ = require('underscore'),
+    config = require('../../config'),
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),
     Translations = require('../models/translations'),
