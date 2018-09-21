@@ -92,17 +92,12 @@ function arrayString(val) {
 }
 
 exports.PoolTest = function() {
-    pool.connect((err, client, done) => {
+    pool.query('SELECT NOW()', (err, res) => {
         if (err) {
             console.error('Could not fetch client from pool: ', err);
+        } else {
+            logger.debug('Successfully connected to the database.');
         }
-        client.query('SELECT NOW()', (queryErr, result) => {
-            done();
-            if (queryErr) {
-                logger.debug('Error running query on database.');
-            }
-        });
-        logger.debug('Successfully connected to the database.');
     });
 }
 
@@ -118,12 +113,7 @@ exports.Query = function (realm) {
 
         var arlen = arguments.length;
 
-        pool.connect((err, client, done) => {
-            if (err) {
-                return console.error('Could not fetch client from pool: ', err);
-            }
-            doQuery(queryObject, client, done, options, cb);
-        });
+        doQuery(queryObject, options, cb);
 
         function doFields(rows, fieldsArray) {
             rows = _.map(rows, function (i) {
@@ -132,28 +122,27 @@ exports.Query = function (realm) {
             return rows;
         }
 
-        function doQuery(queryObject, client, done, options, cb) {
-            var queryString;
+        function doQuery(queryObject, options, cb) {
             if (typeof queryObject === 'string') {
-                queryString =
-                    (typeof realm !== 'undefined') ?
-                    ('SET search_path TO ' + realm + '; ' + queryObject) : queryObject;
-                debug(queryString);
-                client.query(queryString, options, function (err, result) {
-                    done();
-                    if (result) {
-                        result = result[1]; // Remove SET command return.
-                    }
-                    var cbfunc = (typeof cb === 'function');
+                if (typeof realm !== 'undefined') {
+                    debug('SET search_path TO ' + realm);
+                    pool.query('SET search_path TO ' + realm)
+                        .catch(setErr => {
+                            throw new Error('Unable to set namespace to realm: ' + realm);
+                        });
+                }
+                debug(queryObject);
+                var cbfunc = (typeof cb === 'function');
+                pool.query(queryObject, (queryErr, queryRes) => {
+                    debug(queryRes);
                     if (options.fields) {
-                        result.rows = doFields(result.rows, (options.fields).split(','));
+                        queryRes.rows = doFields(queryRes.rows, (options.fields).split(','));
                     }
 
-                    if (err) {
-                        return cbfunc ? cb(err) : err;
+                    if (queryErr) {
+                        return cbfunc ? cb(queryErr) : queryErr;
                     }
-
-                    return cbfunc ? cb(null, result.rows) : result.rows;
+                    return cbfunc ? cb(null, queryRes.rows) : queryRes.rows;
                 });
             } else {
                 if (arlen === 3) {
@@ -218,10 +207,15 @@ exports.Query = function (realm) {
 
                 }
 
-                queryString =
-                    (typeof realm === 'undefined') ?
-                    queryObject.toQuery().text :
-                    'SET search_path TO ' + realm + '; ' + queryObject.toQuery().text;
+                if (typeof realm !== 'undefined') {
+                    debug('SET search_path TO ' + realm);
+                    pool.query('SET search_path TO ' + realm)
+                        .catch(setErr => {
+                            throw new Error('Unable to set namespace to realm: ' + realm);
+                        });
+                }
+
+                var queryString = queryObject.toQuery().text;
 
                 var values = queryObject.toQuery().values;
 
@@ -229,28 +223,21 @@ exports.Query = function (realm) {
                     return prepareValue(values[p2 - 1]);
                 });
                 debug(queryString);
-
-                client.query(queryString, function (err, result) {
-                    if (result) {
-                        result = result[1]; // Remove SET command return.
-                    }
-                    done();
+                pool.query(queryString, (queryErr, queryRes) => {
                     var cbfunc = (typeof cb === 'function');
-
-                    if (err) {
-                        return cbfunc ? cb(err) : err;
+                    if (queryErr) {
+                        return cbfunc ? cb(queryErr) : queryErr;
                     }
-
                     if (options.fields) {
-                        result.rows = doFields(result.rows, (options.fields).split(','));
+                        queryRes.rows = doFields(queryRes.rows, (options.fields).split(','));
                     }
 
                     if (queryObject.table.hideCol) {
-                        result.rows = _.map(result.rows, function (i) {
+                        queryRes.rows = _.map(queryRes.rows, function (i) {
                             return _.omit(i, queryObject.table.hideCol);
                         });
                     }
-                    return cbfunc ? cb(null, result.rows) : result.rows;
+                    return cbfunc ? cb(null, queryRes.rows) : queryRes.rows;
                 });
             }
         }
