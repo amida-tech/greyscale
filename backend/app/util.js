@@ -122,7 +122,6 @@ exports.Query = function (realm) {
             if (err) {
                 return console.error('Could not fetch client from pool: ', err);
             }
-
             doQuery(queryObject, client, done, options, cb);
         });
 
