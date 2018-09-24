@@ -130,6 +130,7 @@ exports.Query = function (realm) {
                     queryObject;
                 debug(queryString);
                 var cbfunc = (typeof cb === 'function');
+                // Transition to promises later.
                 pool.query(queryString, (queryErr, queryRes) => {
                     var result = (queryRes && Array.isArray(queryRes)
                         ? queryRes[1] : queryRes);
@@ -213,7 +214,7 @@ exports.Query = function (realm) {
                 queryString = queryString.replace(/(\$)([0-9]+)/g, function (str, p1, p2) {
                     return prepareValue(values[p2 - 1]);
                 });
-                debug(queryString);
+                debug(queryString); // Transition to promises later.
                 pool.query(queryString, (queryErr, queryRes) => {
                     var result = (queryRes && Array.isArray(queryRes)
                         ? queryRes[1] : queryRes);
