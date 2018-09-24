@@ -94,7 +94,7 @@ function arrayString(val) {
 exports.PoolTest = function() {
     pool.query('SELECT NOW()', (err, res) => {
         if (err) {
-            console.error('Could not fetch client from pool: ', err);
+            logger.error('Could not fetch client from pool: ', err);
         } else {
             logger.debug('Successfully connected to the database.');
         }

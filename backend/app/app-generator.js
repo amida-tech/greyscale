@@ -5,7 +5,6 @@ const co = require('co');
 const thunkify = require('thunkify');
 const multer = require('multer');
 const passport = require('passport');
-const { Client } = require('pg');
 
 const config = require('../config');
 const logger = require('./logger');
@@ -16,7 +15,6 @@ const PoolTest = require('./util').PoolTest;
 
 const query = new Query();
 const thunkQuery = thunkify(query);
-const client = new Client(config.pgConnect);
 
 const newExpress = function () {
     const app = express();
