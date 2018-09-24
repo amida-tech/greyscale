@@ -123,26 +123,23 @@ exports.Query = function (realm) {
         }
 
         function doQuery(queryObject, options, cb) {
+            var queryString;
             if (typeof queryObject === 'string') {
-                if (typeof realm !== 'undefined') {
-                    debug('SET search_path TO ' + realm);
-                    pool.query('SET search_path TO ' + realm)
-                        .catch(setErr => {
-                            throw new Error('Unable to set namespace to realm: ' + realm);
-                        });
-                }
-                debug(queryObject);
+                queryString = typeof realm !== 'undefined' ?
+                    'SET search_path TO ' + realm + ';' + queryObject :
+                    queryObject;
+                debug(queryString);
                 var cbfunc = (typeof cb === 'function');
-                pool.query(queryObject, (queryErr, queryRes) => {
-                    debug(queryRes);
+                pool.query(queryString, (queryErr, queryRes) => {
+                    var result = (queryRes && Array.isArray(queryRes)
+                        ? queryRes[1] : queryRes);
                     if (options.fields) {
-                        queryRes.rows = doFields(queryRes.rows, (options.fields).split(','));
+                        result.rows = doFields(result.rows, (options.fields).split(','));
                     }
-
                     if (queryErr) {
                         return cbfunc ? cb(queryErr) : queryErr;
                     }
-                    return cbfunc ? cb(null, queryRes.rows) : queryRes.rows;
+                    return cbfunc ? cb(null, result.rows) : result.rows;
                 });
             } else {
                 if (arlen === 3) {
@@ -207,15 +204,9 @@ exports.Query = function (realm) {
 
                 }
 
-                if (typeof realm !== 'undefined') {
-                    debug('SET search_path TO ' + realm);
-                    pool.query('SET search_path TO ' + realm)
-                        .catch(setErr => {
-                            throw new Error('Unable to set namespace to realm: ' + realm);
-                        });
-                }
-
-                var queryString = queryObject.toQuery().text;
+                queryString = typeof realm !== 'undefined' ?
+                    'SET search_path TO ' + realm + ';' + queryObject.toQuery().text :
+                    queryObject.toQuery().text;
 
                 var values = queryObject.toQuery().values;
 
@@ -224,20 +215,22 @@ exports.Query = function (realm) {
                 });
                 debug(queryString);
                 pool.query(queryString, (queryErr, queryRes) => {
+                    var result = (queryRes && Array.isArray(queryRes)
+                        ? queryRes[1] : queryRes);
                     var cbfunc = (typeof cb === 'function');
                     if (queryErr) {
                         return cbfunc ? cb(queryErr) : queryErr;
                     }
                     if (options.fields) {
-                        queryRes.rows = doFields(queryRes.rows, (options.fields).split(','));
+                        result.rows = doFields(result.rows, (options.fields).split(','));
                     }
 
                     if (queryObject.table.hideCol) {
-                        queryRes.rows = _.map(queryRes.rows, function (i) {
+                        result.rows = _.map(result.rows, function (i) {
                             return _.omit(i, queryObject.table.hideCol);
                         });
                     }
-                    return cbfunc ? cb(null, queryRes.rows) : queryRes.rows;
+                    return cbfunc ? cb(null, result.rows) : result.rows;
                 });
             }
         }
