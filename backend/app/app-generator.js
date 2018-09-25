@@ -5,13 +5,13 @@ const co = require('co');
 const thunkify = require('thunkify');
 const multer = require('multer');
 const passport = require('passport');
-const pg = require('pg');
 
 const config = require('../config');
 const logger = require('./logger');
 const router = require('./router');
 const HttpError = require('./error').HttpError;
 const Query = require('./util').Query;
+const PoolTest = require('./util').PoolTest;
 
 const query = new Query();
 const thunkQuery = thunkify(query);
@@ -144,25 +144,8 @@ const initExpress = function (app) {
         res.sendStatus(500);
     });
 
-    /*
-     * Bootstrap the Postgres DB
-     */
-    var pgUser = config.pgConnect.user,
-        pgPassword = config.pgConnect.password,
-        pgHost = config.pgConnect.host,
-        pgPort = config.pgConnect.port,
-        pgDbName = config.pgConnect.database;
-
-    var pgConString = 'postgres://' + pgUser + ':' + pgPassword + '@' + pgHost + ':' + pgPort;
-    logger.debug(`pg connec string: ${pgConString}`);
-    pg.defaults.poolSize = 100;
-    pg.connect(pgConString + '/' + pgDbName, function (err, client, done) {
-        if (err) {
-            return logger.debug('Could not connect to the database.');
-        }
-        logger.debug('Was able to connect to the database.');
-        done();
-    });
+    // Test connection to DB.
+    PoolTest();
 };
 
 const generate = function () {

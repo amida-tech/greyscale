@@ -1,16 +1,16 @@
-var
-    _ = require('underscore'),
+var _ = require('underscore'),
     moment = require('moment'),
-    pg = require('pg'),
-    config = require('../config'),
-    pgEscape = require('pg-escape');
+    { Pool } = require('pg'),
+    pgEscape = require('pg-escape'),
+    config = require('../config');
+
+const logger = require('./logger');
 
 var debug = require('debug')('debug_util');
 debug.log = console.log.bind(console);
+const pool = new Pool(config.pgConnect);
 
 var prepareValue = function (val, seen) {
-    //debug(val);
-
     if (val instanceof Buffer) {
         return val;
     }
@@ -91,27 +91,29 @@ function arrayString(val) {
     return result;
 }
 
+exports.PoolTest = function() {
+    pool.query('SELECT NOW()', (err, res) => {
+        if (err) {
+            logger.error('Could not fetch client from pool: ', err);
+        } else {
+            logger.debug('Successfully connected to the database.');
+        }
+    });
+}
+
 exports.Query = function (realm) {
     if (typeof realm === 'undefined') {
         realm = config.pgConnect.adminSchema;
     }
 
     return function (queryObject, options, cb) {
-       // var client = new ClientPG();
-
         if (arguments.length === 2) {
             cb = options;
         }
 
         var arlen = arguments.length;
 
-        pg.connect(config.pgConnect, function (err, client, done) {
-            if (err) {
-                return console.error('Could not fetch client from pool: ', err);
-            }
-
-            doQuery(queryObject, client, done, options, cb);
-        });
+        doQuery(queryObject, options, cb);
 
         function doFields(rows, fieldsArray) {
             rows = _.map(rows, function (i) {
@@ -120,31 +122,27 @@ exports.Query = function (realm) {
             return rows;
         }
 
-        function doQuery(queryObject, client, done, options, cb) {
+        function doQuery(queryObject, options, cb) {
             var queryString;
             if (typeof queryObject === 'string') {
-
-                queryString =
-                    (typeof realm !== 'undefined') ?
-                    ('SET search_path TO ' + realm + '; ' + queryObject) : queryObject;
+                queryString = typeof realm !== 'undefined' ?
+                    'SET search_path TO ' + realm + ';' + queryObject :
+                    queryObject;
                 debug(queryString);
-
-                client.query(queryString, options, function (err, result) {
-                    done();
-                    var cbfunc = (typeof cb === 'function');
-
+                var cbfunc = (typeof cb === 'function');
+                // Transition to promises later.
+                pool.query(queryString, (queryErr, queryRes) => {
+                    var result = (queryRes && Array.isArray(queryRes)
+                        ? queryRes[1] : queryRes);
                     if (options.fields) {
                         result.rows = doFields(result.rows, (options.fields).split(','));
                     }
-
-                    if (err) {
-                        return cbfunc ? cb(err) : err;
+                    if (queryErr) {
+                        return cbfunc ? cb(queryErr) : queryErr;
                     }
-
                     return cbfunc ? cb(null, result.rows) : result.rows;
                 });
             } else {
-
                 if (arlen === 3) {
                     var optWhere = _.pick(options, queryObject.table.whereCol);
 
@@ -207,28 +205,23 @@ exports.Query = function (realm) {
 
                 }
 
-                queryString =
-                    (typeof realm === 'undefined') ?
-                    queryObject.toQuery().text :
-                    'SET search_path TO ' + realm + '; ' + queryObject.toQuery().text;
+                queryString = typeof realm !== 'undefined' ?
+                    'SET search_path TO ' + realm + ';' + queryObject.toQuery().text :
+                    queryObject.toQuery().text;
 
                 var values = queryObject.toQuery().values;
 
                 queryString = queryString.replace(/(\$)([0-9]+)/g, function (str, p1, p2) {
                     return prepareValue(values[p2 - 1]);
                 });
-
-                debug(queryString);
-
-                client.query(queryString, function (err, result) {
-
-                    done();
+                debug(queryString); // Transition to promises later.
+                pool.query(queryString, (queryErr, queryRes) => {
+                    var result = (queryRes && Array.isArray(queryRes)
+                        ? queryRes[1] : queryRes);
                     var cbfunc = (typeof cb === 'function');
-
-                    if (err) {
-                        return cbfunc ? cb(err) : err;
+                    if (queryErr) {
+                        return cbfunc ? cb(queryErr) : queryErr;
                     }
-
                     if (options.fields) {
                         result.rows = doFields(result.rows, (options.fields).split(','));
                     }
@@ -238,9 +231,6 @@ exports.Query = function (realm) {
                             return _.omit(i, queryObject.table.hideCol);
                         });
                     }
-
-                    //client.removeListener('error', errorListener);
-
                     return cbfunc ? cb(null, result.rows) : result.rows;
                 });
             }
