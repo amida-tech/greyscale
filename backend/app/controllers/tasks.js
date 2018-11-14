@@ -184,6 +184,7 @@ module.exports = {
                 '= "Products".id ' +
                 'WHERE ' + req.user.id + ' = ANY("Tasks"."userIds")' +
                 'AND "Tasks"."isDeleted" is NULL ' +
+                'ORDER BY "Tasks"."endDate" ASC ' +
                 ') '
             );
             tasks = yield * common.getDiscussedTasks(req, tasks, req.user.id);
