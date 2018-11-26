@@ -182,7 +182,8 @@ module.exports = {
                 'LEFT JOIN "Projects" ' +
                 'ON "Projects".id ' +
                 '= "Products".id ' +
-                'WHERE ' + req.user.id + ' = ANY("Tasks"."userIds")' +
+                'WHERE ' + req.user.id + ' = ANY("Tasks"."userIds") ' +
+                'AND "Tasks"."startDate" <= now() ' +
                 'AND "Tasks"."isDeleted" is NULL ' +
                 'ORDER BY "Tasks"."endDate" ASC ' +
                 ') '
