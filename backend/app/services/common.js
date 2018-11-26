@@ -426,14 +426,13 @@ var getFlagsForTask = function* (req, tasks) {
     ' AND ("Discussions"."userId" = ' + req.user.realmUserId + ' OR ' +
     '"Discussions"."userFromId" = ' + req.user.realmUserId + ') AND ')
         +'"Discussions"."isResolve" = false GROUP BY "Discussions"."questionId") as dc;';
-    var historySql = ' AND ("Discussions"."userId" = ' + req.user.realmUserId + ' OR ' +
-        '"Discussions"."userFromId" = ' + req.user.realmUserId + ') '
-        + 'GROUP BY "Discussions"."questionId") as dc;'
+    var historySql = 'SELECT COUNT("Discussions"."questionId") FROM "Discussions" JOIN "Tasks" '
+        + 'on "Discussions"."taskId" = "Tasks"."id" WHERE "Tasks"."id" ='
     for (var i = 0; i < tasks.length; i++) {
         var flaggedChat = yield thunkQuery(prefixSql + tasks[i].id + suffixSql);
-        var flagHistory = yield thunkQuery(prefixSql + tasks[i].id + historySql);
+        var flaggedHistory = yield thunkQuery(historySql + tasks[i].id );
         tasks[i].flagCount = parseInt(flaggedChat[0].count);
-        tasks[i].flagHistory = parseInt(flaggedChat[0].count) > 0;
+        tasks[i].flagHistory = parseInt(flaggedHistory[0].count) > 0;
     }
     return tasks;
 };
