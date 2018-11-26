@@ -120,7 +120,7 @@ module.exports = {
                         );
                         flags = flags.length;
                         flagHistory = yield thunkQuery(
-                            'SELECT DISTINCT "Discussions"."questionId" FROM "Discussions" ' +
+                            'SELECT COUNT("Discussions"."questionId") FROM "Discussions" ' +
                             'JOIN "Tasks" on "Discussions"."taskId" = "Tasks"."id" WHERE ' +
                             '"Tasks"."productId" = ' + productId
                         );
