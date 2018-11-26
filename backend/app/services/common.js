@@ -426,9 +426,14 @@ var getFlagsForTask = function* (req, tasks) {
     ' AND ("Discussions"."userId" = ' + req.user.realmUserId + ' OR ' +
     '"Discussions"."userFromId" = ' + req.user.realmUserId + ') AND ')
         +'"Discussions"."isResolve" = false GROUP BY "Discussions"."questionId") as dc;';
+    var historySql = ' AND ("Discussions"."userId" = ' + req.user.realmUserId + ' OR ' +
+        '"Discussions"."userFromId" = ' + req.user.realmUserId + ') '
+        + 'GROUP BY "Discussions"."questionId") as dc;'
     for (var i = 0; i < tasks.length; i++) {
         var flaggedChat = yield thunkQuery(prefixSql + tasks[i].id + suffixSql);
+        var flagHistory = yield thunkQuery(prefixSql + tasks[i].id + historySql);
         tasks[i].flagCount = parseInt(flaggedChat[0].count);
+        tasks[i].flagHistory = parseInt(flaggedChat[0].count) > 0;
     }
     return tasks;
 };
