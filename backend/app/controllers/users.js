@@ -1371,7 +1371,7 @@ function _createUserOnAuthService(email, password, roleId, jwt) {
                 const httpErr = new HttpError(res.statusCode, res.statusMessage);
                 return Promise.reject(httpErr);
             }
-            return res
+            return res;
         })
         .catch((err) => {
             if (err.statusCode === 409) { // A 409 means a duplicate entry, so the user already exists.

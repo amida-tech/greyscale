@@ -1,0 +1,18 @@
+version: '3.5'
+services:
+  amida-messaging-microservice:
+    image: amidatech/messaging-service:dev
+    container_name: amida-messaging-microservice
+    volumes:
+    - /app/
+    ports:
+    - ${MESSAGE_SERVICE_PORT:-4001}:${MESSAGE_SERVICE_PORT:-4001}
+    env_file:
+    - .env
+    environment:
+    - DEBUG=amida-messaging-microservice:*
+
+networks:
+  default:
+    external:
+      name: ${DOCKER_NETWORK:-indaba-network}

@@ -80,6 +80,7 @@
   },
   "scripts": {
     "start": "node --harmony app.js",
+    "seed": "node newseed.js",
     "test": "grunt test",
     "lint": "./node_modules/.bin/eslint --ext .js app"
   }
