@@ -1314,7 +1314,6 @@ function* insertOne(req) {
 
 function _getUserOnAuthService(email, jwt) {
     const path = '/user/byEmail/' + email;
-
     const requestOptions = {
         url: config.authService + path,
         method: 'GET',

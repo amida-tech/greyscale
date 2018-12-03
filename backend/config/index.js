@@ -83,6 +83,7 @@ var environments = {
                 firstName: process.env.ADMIN_USER_FIRST_NAME,
                 lastName: process.env.ADMIN_USER_LAST_NAME,
                 roleID: 2,
+                scopes: 'admin',
                 password: 'Adminuser1',
             },
             users: [
@@ -112,8 +113,8 @@ var environments = {
                 }
             ],
             organization : {
-                name: 'Test organization',
-                realm: 'testorg'
+                name: 'Development',
+                realm: 'develop'
             },
         },
 
