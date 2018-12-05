@@ -24,7 +24,6 @@ const organizations = require('./test/fixtures/seed/organizations_0');
 const notifications = require('./test/fixtures/seed/notifications_0');
 const productUoas = require('./test/fixtures/seed/product-uoas_0');
 const products = require('./test/fixtures/seed/products_0');
-const projects = require('./test/fixtures/seed/projects_0');
 const unitOfAnalysis = require('./test/fixtures/seed/unit-of-analysis_0');
 const workflows = require('./test/fixtures/seed/workflows_0');
 const workflowSteps = require('./test/fixtures/seed/workflow-steps_0');
@@ -39,6 +38,7 @@ const organization = config.testEntities.organization;
 let activeToken = null;
 let addToAuth = true;
 let adminActivationToken = null;
+let app = null;
 const userActivationTokens = [];
 
 // Add '--blank' to create database without test users.
@@ -213,7 +213,8 @@ db.sequelize.query(`SELECT COUNT(*) AS count FROM information_schema.tables WHER
         return null;
     })
     .then(() => { // Start the application.
-        return appGenerator.generate();
+        app = appGenerator.generate();
+        return null;
     })
     .then(() => { // Create organization.
         mockAuth(testSuperAdmin.email, testSuperAdmin.scopes);
@@ -262,8 +263,6 @@ db.sequelize.query(`SELECT COUNT(*) AS count FROM information_schema.tables WHER
     })
     .then(() => { // Activate users.
         const promiseChain = [];
-        console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
-        console.log(userActivationTokens);
         testUsers.forEach((user, index) => {
             const requestOptions = requestGenerator();
             requestOptions.url = config.domain + '/' + organization.realm
