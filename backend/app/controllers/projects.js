@@ -92,7 +92,9 @@ module.exports = {
         var projectList = [];
 
         co(function* () {
-            var projects = yield thunkQuery(Project.select().from(Project), req.query);
+            var projects = yield thunkQuery(
+                'SELECT * FROM "Projects" ORDER BY "Projects"."lastUpdated" DESC'
+            );
 
             if (!_.first(projects)) {
                 return projectList;
