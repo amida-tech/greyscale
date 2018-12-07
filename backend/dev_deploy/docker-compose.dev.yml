@@ -28,19 +28,21 @@ services:
   #   environment:
   #   - DEBUG=amida-survey-microservice:*
   #
-  # amida-auth-microservice:
-  #   image: amidatech/auth-service:dev
-  #   depends_on:
-  #     - indaba-db
-  #   container_name: amida-auth-microservice
-  #   volumes:
-  #   - /app/
-  #   ports:
-  #   - ${AUTH_SERVICE_PORT:-4000}:${AUTH_SERVICE_PORT:-4000}
-  #   env_file:
-  #   - .env
-  #   environment:
-  #   - DEBUG=amida-auth-microservice:*
+  amida-auth-microservice:
+    image: amidatech/auth-service:dev
+    depends_on:
+      - indaba-db
+    container_name: amida-auth-microservice
+    command:
+      - yarn migrate && yarn serve
+    volumes:
+    - /app/
+    ports:
+    - ${AUTH_SERVICE_PORT:-4000}:${AUTH_SERVICE_PORT:-4000}
+    env_file:
+    - .env
+    environment:
+    - DEBUG=amida-auth-microservice:*
 
   indaba-db:
     image: postgres:9.6
