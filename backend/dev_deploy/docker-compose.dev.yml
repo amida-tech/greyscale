@@ -1,66 +1,87 @@
 version: '3.5'
 services:
-  # amida-messaging-microservice:
-  #   image: amidatech/messaging-service:dev
-  #   depends_on:
-  #     - indaba-db
-  #   container_name: amida-messaging-microservice
-  #   volumes:
-  #   - /app/
-  #   ports:
-  #   - ${MESSAGE_SERVICE_PORT:-4001}:${MESSAGE_SERVICE_PORT:-4001}
-  #   env_file:
-  #   - .env
-  #   environment:
-  #   - DEBUG=amida-messaging-microservice:*
-  #
-  # amida-survey-microservice:
-  #   image: amidatech/survey-service:dev
-  #   depends_on:
-  #     - indaba-db
-  #   container_name: amida-survey-microservice
-  #   volumes:
-  #   - /app/
-  #   ports:
-  #   - ${SURVEY_SERVICE_PORT:-9005}:${SURVEY_SERVICE_PORT:-9005}
-  #   env_file:
-  #   - .env
-  #   environment:
-  #   - DEBUG=amida-survey-microservice:*
-  #
+  amida-messaging-microservice:
+    image: amida-messaging-microservice
+    # image: amidatech/messaging-service:dev
+    depends_on:
+      - indaba-db
+      - amida-auth-microservice
+    container_name: amida-messaging-microservice
+    command: sh -c "yarn migrate && yarn serve"
+    volumes:
+    - /app/
+    ports:
+    - ${MESSAGE_SERVICE_PORT:-4001}:${MESSAGE_SERVICE_PORT:-4001}
+    env_file:
+    - .env.docker
+    environment:
+    - DEBUG=amida-messaging-microservice:*
+    - MESSAGING_SERVICE_PG_HOST=indaba-db
+    - MESSAGING_SERVICE_PG_USER=${MESSAGING_SERVICE_PG_USER:-amida}
+    - MESSAGING_SERVICE_PG_PASSWORD=${MESSAGING_SERVICE_PG_PASSWORD:-amida}
+
+  amida-survey-microservice:
+    image: amida-survey-microservice
+    # image: amidatech/survey-service:dev
+    depends_on:
+      - indaba-db
+      - amida-auth-microservice
+      - amida-messaging-microservice
+    container_name: amida-survey-microservice
+    command: sh -c "yarn seed && yarn serve"
+    volumes:
+    - /app/
+    ports:
+    - ${SURVEY_SERVICE_PORT:-9005}:${SURVEY_SERVICE_PORT:-9005}
+    env_file:
+    - .env.docker
+    environment:
+    - DEBUG=amida-survey-microservice:*
+    - SURVEY_SERVICE_PG_HOST=indaba-db
+    - SURVEY_SERVICE_PG_USER=${SURVEY_SERVICE_PG_USER:-amida}
+    - SURVEY_SERVICE_PG_PASSWORD=${SURVEY_SERVICE_PG_PASSWORD:-amida}
+
   amida-auth-microservice:
-    image: amidatech/auth-service:dev
+    image: amida-auth-microservice
+    # image: amidatech/auth-service:dev
     depends_on:
       - indaba-db
     container_name: amida-auth-microservice
-    command:
-      - yarn migrate && yarn serve
+    command: sh -c "yarn migrate && yarn serve"
     volumes:
     - /app/
     ports:
     - ${AUTH_SERVICE_PORT:-4000}:${AUTH_SERVICE_PORT:-4000}
     env_file:
-    - .env
+    - .env.docker
     environment:
     - DEBUG=amida-auth-microservice:*
+    - AUTH_SERVICE_PG_HOST=indaba-db
+    - AUTH_SERVICE_PG_USER=${AUTH_SERVICE_PG_USER:-amida}
+    - AUTH_SERVICE_PG_PASSWORD=${AUTH_SERVICE_PG_PASSWORD:-amida}
+    - AUTH_SERVICE_SEED_ADMIN_USERNAME=${AUTH_SERVICE_SEED_ADMIN_USERNAME:-admin}
+    - AUTH_SERVICE_SEED_ADMIN_EMAIL=${AUTH_SERVICE_SEED_ADMIN_EMAIL:-admin@default.com}
+    - AUTH_SERVICE_SEED_ADMIN_PASSWORD=example
 
   indaba-db:
     image: postgres:9.6
+    container_name: indaba-db
     volumes:
       - ./10-create_users.sh:/docker-entrypoint-initdb.d/10-create_users.sh
       - ./20-create_db.sh:/docker-entrypoint-initdb.d/20-create_db.sh
+    ports:
+      - ${INDABA_COMPOSE_DB_PORT:-5433}:5432
     environment:
     - POSTGRES_USER=${POSTGRES_USER:-amida}
     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-amida}
     - GREYSCALE_PG_USER=${GREYSCALE_PG_USER:-indaba}
     - GREYSCALE_PG_PASSWORD=${GREYSCALE_PG_PASSWORD:-abadnI1!}
-    - AUTH_SERVICE_PG_DB=${AUTH_SERVICE_PG_DB:-amida-auth-microservice}
     - SURVEY_SERVICE_PG_DB=${SURVEY_SERVICE_PG_DB:-amida-survey-microservice}
-    - MESSAGING_SERVICE_PG_DB=${AUTH_SERVICE_PG_DB:-amida-messaging-microservice}
+    - MESSAGING_SERVICE_PG_DB=${MESSAGING_SERVICE_PG_DB:-amida-messaging-microservice}
+    - AUTH_SERVICE_PG_DB=${AUTH_SERVICE_PG_DB:-amida-auth-microservice}
     - GREYSCALE_PG_DB=${GREYSCALE_PG_DB:-indaba}
-
 
 networks:
   default:
     external:
-      name: ${DOCKER_NETWORK:-indaba-network}
+      name: ${INDABA_DOCKER_NETWORK_NAME:-indaba-network}
