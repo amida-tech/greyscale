@@ -11,6 +11,7 @@ RUN yarn --pure-lockfile
 
 FROM node:6.10.0
 
+WORKDIR /app/
 COPY --from=builder /app/ /app/
 
 # expose port 3005
