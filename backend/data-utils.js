@@ -105,14 +105,7 @@ var requestGenerator = function() {
 var requestCall = function (requestOptions, operation) {
     return request(requestOptions)
         .then((res) => {
-            if (operation === 'login') {
-                return 'Bearer ' + res.body.token;
-            } else if (operation === 'create admin') {
-                return res.body.activationToken;
-            } else if (operation === 'create user') {
-                return res.body.activationToken;
-            }
-            return Promise.resolve();
+            return res.body;
         })
         .catch((err) => {
             if (err.statusCode === 409 && operation === 'create authuser') {
@@ -123,21 +116,53 @@ var requestCall = function (requestOptions, operation) {
             return Promise.reject(err);
         });
 }
-var createUserOnAuth = function (email, password, scopes, activeToken) {
+
+var loginAuth = function (email, password) {
     const requestOptions = requestGenerator();
-    requestOptions.url = config.authService + '/user';
+    requestOptions.url = config.authService + '/auth/login';
     requestOptions.json = {
         username: email,
         email,
         password,
     };
-    if (scopes) {
-        requestOptions.json.scopes = [scopes];
+    return requestCall(requestOptions, 'login');
+}
+
+var createUserOnAuth = function (user, activeToken) {
+    const requestOptions = requestGenerator();
+    requestOptions.url = config.authService + '/user';
+
+    requestOptions.json = {
+        username: user.email,
+        email: user.email,
+        password: user.password,
+    };
+    if (user.scopes) {
+        requestOptions.json.scopes = [user.scopes];
     }
     if (activeToken) {
         requestOptions.headers.authorization = activeToken;
     }
     return requestCall(requestOptions, 'create authuser');
+}
+
+var getUserInfo = function (email, activeToken) {
+    const requestOptions = requestGenerator();
+    requestOptions.method = 'GET';
+    requestOptions.url = config.authService + '/user/byEmail/' + email;
+    requestOptions.headers.authorization = activeToken;
+    return requestCall(requestOptions, 'get user');
+}
+
+var updateScope = function(user, authid, activeToken) {
+    const requestOptions = requestGenerator();
+    requestOptions.url = config.authService + '/user/scopes/' + authid;
+    requestOptions.method = 'PUT'
+    requestOptions.headers.authorization = activeToken;
+    requestOptions.json = {
+        scopes: [user.scopes],
+    };
+    return requestCall(requestOptions, 'update scopes');
 }
 
 module.exports = {
@@ -147,5 +172,8 @@ module.exports = {
     seedSchema0,
     requestGenerator,
     requestCall,
-    createUserOnAuth
+    loginAuth,
+    createUserOnAuth,
+    getUserInfo,
+    updateScope
 }

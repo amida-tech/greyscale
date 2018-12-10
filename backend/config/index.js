@@ -75,7 +75,7 @@ var environments = {
                 firstName: 'SuperAdmin',
                 lastName: 'Test',
                 roleID: 1,
-                scopes: 'admin',
+                scopes: 'registrar',
                 password: 'Testadmin12345',
             },
             admin: {
@@ -83,7 +83,7 @@ var environments = {
                 firstName: process.env.ADMIN_USER_FIRST_NAME,
                 lastName: process.env.ADMIN_USER_LAST_NAME,
                 roleID: 2,
-                scopes: 'admin',
+                scopes: 'registrar',
                 password: 'Adminuser1',
             },
             users: [

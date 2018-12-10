@@ -6,7 +6,8 @@ const util = require('./data-utils');
 const models = require('./models');
 const db = models(config.pgConnect, ['sceleton']);
 
-const superAdmin = config.testEntities.superAdmin;
+let activeToken = null;
+let authid = null;
 
 Promise.resolve()
     .then(() => {
@@ -30,7 +31,23 @@ Promise.resolve()
             process.exit(0);
         }))
     .then(() => util.seedSchemaPublic(db))
-    .then(() => util.createUserOnAuth(superAdmin.email, superAdmin.password, superAdmin.scopes))
+    .then(() => util.loginAuth(process.env.AUTH_SERVICE_SEED_ADMIN_USERNAME, process.env.AUTH_SERVICE_SEED_ADMIN_PASSWORD)
+        .then((result) => {
+            activeToken = 'Bearer ' + result.token;
+            return null;
+        }))
+    .then(() => util.createUserOnAuth(config.testEntities.superAdmin, activeToken))
+    .then(() => util.getUserInfo(config.testEntities.superAdmin.email, activeToken)
+        .then((result) => {
+            if (typeof result === 'string') {
+                let jsonResult = JSON.parse(result);
+                authid = jsonResult.id;
+            } else {
+                authid = result.id;
+            }
+            return null;
+        }))
+    .then(() => util.updateScope(config.testEntities.superAdmin, authid, activeToken))
     .then(() => {
         console.log('*********\nSeeding process complete.');
         process.exit(0);
