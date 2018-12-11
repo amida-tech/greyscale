@@ -61,8 +61,7 @@ services:
     - amida-auth-microservice
 
   amida-survey-microservice:
-    image: amida-survey-microservice
-    # image: amidatech/survey-service:dev
+    image: amidatech/survey-service:dev
     command: sh -c "yarn seed && yarn serve"
     container_name: amida-survey-microservice
     ports:
@@ -86,43 +85,6 @@ services:
     - SURVEY_SERVICE_PORT=${SURVEY_SERVICE_PORT:-9005}
     depends_on:
     - amida-auth-microservice
-    - amida-messaging-microservice
-
-  indaba-backend:
-    image: indaba-backend
-    # image: "amidatech/indaba-backend:${ENV}"
-    command: sh -c "yarn seed && yarn test-seed && yarn serve"
-    container_name: indaba-backend
-    ports:
-    - 3005:3005
-    environment:
-    - ADMIN_USER_EMAIL=${ADMIN_USER_EMAIL:-test-adm@mail.net}
-    - ADMIN_USER_FIRST_NAME=${ADMIN_USER_FIRST_NAME:-Mister}
-    - ADMIN_USER_LAST_NAME=${ADMIN_USER_LAST_NAME:-Admin}
-    - AUTH_MICROSERVICE_URL=${AUTH_MICROSERVICE_URL:-http://localhost:4000/api/v1}
-    - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-AKIAJ77E5GRYMFKWBD7Q}
-    - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-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}
-    - DEBUG=${DEBUG:-*}
-    - GREYSCALE_PG_DB=${GREYSCALE_PG_DB:-indaba}
-    - GREYSCALE_PG_HOST=${GREYSCALE_PG_HOST:-indaba-db}
-    - GREYSCALE_PG_PASSWORD=${GREYSCALE_PG_PASSWORD:-indaba}
-    - GREYSCALE_PG_PORT=${GREYSCALE_PG_PORT:-5432}
-    - GREYSCALE_PG_TESTUSER=${GREYSCALE_PG_TESTUSER:-indaba}
-    - GREYSCALE_PG_TEST_DB=${GREYSCALE_PG_TEST_DB:-indaba_test}
-    - GREYSCALE_PG_USER=${GREYSCALE_PG_USER:-indaba}
-    - GREYSCALE_URL=${GREYSCALE_URL:-http://localhost:3005}
-    - INDABA_CLIENT_URL=${INDABA_CLIENT_URL:-http://localhost:3000}
-    - JWT_SECRET=${JWT_SECRET:-0a6b944d-d2fb-46fc-a85e-0295c986cd9f}
-    - MESSAGING_MICROSERVICE_URL=${MESSAGING_MICROSERVICE_URL:-http://localhost:4001/api/v1}
-    - NODE_ENV=${NODE_ENV:-development}
-    - NOTIFICATION_MICROSERVICE_URL=${NOTIFICATION_MICROSERVICE_URL:-http://localhost:4003/api/v1}
-    - S3_BUCKET=${S3_BUCKET:-indaba-test-bucket}
-    - SURVEY_MICROSERVICE_URL=${SURVEY_MICROSERVICE_URL:-http://localhost:9005/api/v1.0}
-    - SYS_MESSAGE_PASSWORD=${SYS_MESSAGE_PASSWORD:-Abadni1!}
-    - SYS_MESSAGE_USER=${SYS_MESSAGE_USER:-indaba@example.com}
-    depends_on:
-    - amida-auth-microservice
-    - amida-survey-microservice
     - amida-messaging-microservice
 
 networks:

@@ -45,10 +45,10 @@ Promise.resolve()
             activeToken = 'Bearer ' + result.token;
             return null;
         }))
-    .then(() => { // Start the application.
-        app = appGenerator.generate();
-        return null;
-    })
+    // .then(() => { // Start the application.
+    //     app = appGenerator.generate();
+    //     return null;
+    // })
     .then(() => { // Create organization.
         const requestOptions = util.requestGenerator();
         requestOptions.url = config.domain + '/public/v0.2/organizations';

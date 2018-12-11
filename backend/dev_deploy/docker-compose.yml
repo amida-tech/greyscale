@@ -1,9 +1,8 @@
 version: '3.5'
 services:
   indaba-backend:
-    image: indaba-backend
-    # image: "amidatech/indaba-backend:${ENV}"
-    command: sh -c "yarn seed && yarn test-seed && yarn serve"
+    image: "amidatech/indaba-backend:dev"
+    command: sh -c "yarn seed && yarn serve"
     container_name: indaba-backend
     ports:
     - 3005:3005
