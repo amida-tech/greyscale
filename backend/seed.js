@@ -37,6 +37,19 @@ Promise.resolve()
             return null;
         }))
     .then(() => util.createUserOnAuth(config.testEntities.superAdmin, activeToken))
+    .then(() => {
+        const sysMessageUser = {
+            email: config.systemMessageUser,
+            password: config.systemMessagePassword
+        };
+        return util.createUserOnAuth(sysMessageUser, activeToken);
+    })
+    .then(() => {
+        if(!process.env.AUTH_SERVICE_PUBLIC_REGISTRATION) {
+            console.log('*********\nPublic registration disabled, so no need to insert scopes. Seeding process complete.');
+            process.exit(0);
+        }
+    })
     .then(() => util.getUserInfo(config.testEntities.superAdmin.email, activeToken)
         .then((result) => {
             if (typeof result === 'string') {

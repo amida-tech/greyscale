@@ -1,8 +1,7 @@
 version: '3.5'
 services:
   amida-auth-microservice:
-    image: amida-auth-microservice
-    # image: amidatech/auth-service:dev
+    image: amidatech/auth-service:dev
     command: sh -c "yarn migrate && yarn serve"
     container_name: amida-auth-microservice
     ports:
@@ -15,8 +14,7 @@ services:
     - AUTH_SERVICE_PG_SSL=${AUTH_SERVICE_PG_SSL:-false}
     - AUTH_SERVICE_PG_USER=${AUTH_SERVICE_PG_USER:-amida}
     - AUTH_SERVICE_PORT=${AUTH_SERVICE_PORT:-4000}
-    - AUTH_SERVICE_PUBLIC_REGISTRATION=${AUTH_SERVICE_PUBLIC_REGISTRATION:-false}
-    - AUTH_SERVICE_REGISTRAR_SCOPES=${AUTH_SERVICE_REGISTRAR_SCOPES:-["registrar"]}
+    - AUTH_SERVICE_PUBLIC_REGISTRATION=${AUTH_SERVICE_PUBLIC_REGISTRATION:-true}
     - AUTH_SERVICE_SEED_ADMIN_EMAIL=${AUTH_SERVICE_SEED_ADMIN_EMAIL:-admin@default.com}
     - AUTH_SERVICE_SEED_ADMIN_PASSWORD=${AUTH_SERVICE_SEED_ADMIN_PASSWORD:-example}
     - AUTH_SERVICE_SEED_ADMIN_USERNAME=${AUTH_SERVICE_SEED_ADMIN_USERNAME:-admin}
@@ -35,8 +33,7 @@ services:
       # - AUTH_SERVICE_CERT_CA=''
 
   amida-messaging-microservice:
-    image: amida-messaging-microservice
-    # image: amidatech/messaging-service:dev
+    image: amidatech/messaging-service:dev
     command: sh -c "yarn migrate && yarn serve"
     container_name: amida-messaging-microservice
     ports:
@@ -64,8 +61,7 @@ services:
     - amida-auth-microservice
 
   amida-survey-microservice:
-    image: amida-survey-microservice
-    # image: amidatech/survey-service:dev
+    image: amidatech/survey-service:dev
     command: sh -c "yarn seed && yarn serve"
     container_name: amida-survey-microservice
     ports:

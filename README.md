@@ -26,16 +26,16 @@ Indaba puts your stakeholder and expert network at your fingertips. It converts 
 
 ## Prerequisites
 ### Backend
-- Node.js (v6 - we recommend using [node version manager](https://github.com/creationix/nvm))
+- Node.js (v6.10 - we recommend using [node version manager](https://github.com/creationix/nvm))
 - PostgreSQL
 - pgAdmin (optional)
 - nginx (for server deployment)
 - Docker
 
-### Frontend
-- Ruby
-- Compass
-- Node.js and npm
+## Seed Scripts
+Indaba has two seed scripts, `seed.js` and `test-seed.js`. The first only creates the superuser and system messaging user, both on Indaba and on the Auth service. The second will create a slew of test users and a test organization, again on both services.
+
+You will need a completed `.env` to run the script, including the `AUTH_SERVICE_SEED_ADMIN_*` set. Run `seed.js` first to create the super user, then run `test-seed.js` after to populate the test users, if needed.
 
 ## Deployment with Docker
 NOTE: when using a Docker image with dependencies and minified files, it is a good idea
@@ -44,7 +44,7 @@ to rebuild with the `--no-cache` option.
 
 1. Set up a Docker Postgres container:
 
-`docker run --name indaba-postgres -ti -e POSTGRES_PASSWORD=indabapassword -p 5432:5432 -v /Amida/greyscale/backend/db_setup:/shared-volume -d postgres:9.6.5-alpine`
+`docker run --name indaba-postgres -it -e POSTGRES_PASSWORD=indaba -p 5432:5432 -v /Amida/greyscale/backend/db_setup:/shared-volume -d postgres:9.6.5-alpine`
 
 ***
 `--name indaba-postgres`
@@ -57,9 +57,9 @@ to rebuild with the `--no-cache` option.
 `("terminal interactive" mode; properly formats output when you are using an interactive shell inside)`
 
 ***
-`-e POSTGRES_PASSWORD=indabapassword`
+`-e POSTGRES_PASSWORD=indaba`
 
-`-e <environment variable assignment. This is the same as running 'export POSTGRES_PASSWORD=indabapassword'> from inside the docker image`
+`-e <environment variable assignment. This is the same as running 'export POSTGRES_PASSWORD=indaba'> from inside the docker image`
 
 ***
 `-p 5432:5432`
@@ -184,7 +184,7 @@ Most people will not want to re-run the above commands every time they start a n
 
 A list of full environment variable settings is below.  They can be either manually set in the shell or can be included in the `.env` file.  Defaults indicated in paranthesis.
 
-- INDABA_PG_USERNAME: Database user (db_user)
+- GREYSCALE_PG_USER: Database user (db_user)
 - INDABA_PG_DB: Database name (database)
 - AUTH_SALT: Authorization salt (saltForHash)
 - INDABA_PG_TESTUSER: Dtabase user for test (indabauser)
@@ -229,7 +229,7 @@ kompose convert
 # you may need to authenticate first
 gcloud auth application-default login
 # create the pods
-kubectl create -f indaba-frontend-service.yaml,indaba-backend-service.yaml,indaba-frontend-deployment.yaml,indaba-backend-deployment.yaml
+kubectl create -f indaba-backend-service.yaml,indaba-backend-deployment.yaml
 # to verify in the kubernetes dashboard:
 kubectl proxy
 # then navigate to localhost:8001/ui

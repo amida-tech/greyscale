@@ -16,50 +16,32 @@ const testSuperAdmin = config.testEntities.superAdmin;
 const testAdmin = config.testEntities.admin;
 const testUsers = config.testEntities.users;
 const organization = config.testEntities.organization;
+
+let authAdminToken = null;
 let activeToken = null;
-let addToAuth = true;
 let adminActivationToken = null;
 let app = null;
 const userActivationTokens = [];
-
-// Add '--blank' to create database without test users.
-function mockAuth(email, scopes) {
-    const payload = {
-        username: email,
-        email,
-        scopes: [scopes],
-    };
-    activeToken = 'Bearer ' + jwt.sign(payload, config.jwtSecret);
-}
 
 Promise.resolve()
     .then(() => {
         if (process.env.AUTH_SERVICE_SEED_ADMIN_PASSWORD) {
             console.log('*********\nAdmin password provided. Using to create users on auth service.\n');
-            return loginAuth(process.env.AUTH_SERVICE_SEED_ADMIN_USERNAME, process.env.AUTH_SERVICE_SEED_ADMIN_PASSWORD);
+            return util.loginAuth(process.env.AUTH_SERVICE_SEED_ADMIN_USERNAME, process.env.AUTH_SERVICE_SEED_ADMIN_PASSWORD)
+                .then((result) => {
+                    authAdminToken = 'Bearer ' + result.token;
+                    return null;
+                });
         } else if (process.env.AUTH_SERVICE_PUBLIC_REGISTRATION) {
             console.log('*********\nPublic registration true. Creating users on auth service.\n');
         } else {
-            console.log('*********\nNo means to create users on auth service detected. Only creating them in Indaba.\n');
+            console.log('*********\nNo means to create users on auth service detected. Exiting.\n');
             process.exit(0);
         }
     })
-    .then(() => { // Add users to auth if available.
-        const promiseChain = [];
-        promiseChain.push(util.createUserOnAuth(testAdmin));
-        testUsers.forEach((user) => {
-            promiseChain.push(util.createUserOnAuth(user));
-        });
-        const sysMessageUser = {
-            email: config.systemMessageUser,
-            password: config.systemMessagePassword
-        };
-        promiseChain.push(util.createUserOnAuth(sysMessageUser));
-        return Promise.all(promiseChain);
-    })
-    .then(() => loginAuth(testSuperAdmin.email, testSuperAdmin.password)
+    .then(() => util.loginAuth(testSuperAdmin.email, testSuperAdmin.password)
         .then((result) => {
-            activeToken = result;
+            activeToken = 'Bearer ' + result.token;
             return null;
         }))
     .then(() => { // Start the application.
@@ -67,7 +49,6 @@ Promise.resolve()
         return null;
     })
     .then(() => { // Create organization.
-        mockAuth(testSuperAdmin.email, testSuperAdmin.scopes);
         const requestOptions = util.requestGenerator();
         requestOptions.url = config.domain + '/public/v0.2/organizations';
         requestOptions.headers.authorization = activeToken;
@@ -87,9 +68,7 @@ Promise.resolve()
         requestOptions.json = testAdmin;
         return util.requestCall(requestOptions, 'create admin')
             .then((result) => {
-                console.log('JAMES2');
-                console.log(result);
-                adminActivationToken = result;
+                adminActivationToken = result.activationToken;
             });
     })
     .then(() => { // Activate admin.
@@ -98,11 +77,9 @@ Promise.resolve()
         requestOptions.json = testAdmin;
         return util.requestCall(requestOptions, 'activate admin');
     })
-    .then(() => loginAuth(testAdmin.email, testAdmin.password)
+    .then(() => util.loginAuth(testAdmin.email, testAdmin.password)
         .then((result) => {
-            console.log('JAMES3');
-            console.log(result);
-            activeToken = result;
+            activeToken = 'Bearer ' + result.token;
             return null;
     }))
     .then(() => { // Invite users.
@@ -112,16 +89,19 @@ Promise.resolve()
             requestOptions.url = config.domain + '/' + organization.realm + '/v0.2/users/self/organization/invite';
             requestOptions.headers.authorization = activeToken;
             requestOptions.json = user;
-            promiseChain.push(util.requestCall(requestOptions, 'create user'));
+            promiseChain.push(util.requestCall(requestOptions, 'create user')
+                .then((result) => {
+                    userActivationTokens.push(result);
+                }));
         });
         return Promise.all(promiseChain);
     })
     .then(() => { // Activate users.
         const promiseChain = [];
-        testUsers.forEach((user, index) => {
+        userActivationTokens.forEach((user, index) => {
             const requestOptions = util.requestGenerator();
             requestOptions.url = config.domain + '/' + organization.realm
-                + '/v0.2/users/activate/' + userActivationTokens[index];
+                + '/v0.2/users/activate/' + user.activationToken;
             requestOptions.json = user;
             promiseChain.push(util.requestCall(requestOptions, 'activate user'));
         });
