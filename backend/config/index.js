@@ -83,8 +83,8 @@ var environments = {
                 firstName: process.env.ADMIN_USER_FIRST_NAME,
                 lastName: process.env.ADMIN_USER_LAST_NAME,
                 roleID: 2,
-                scopes: 'admin',
-                password: 'Adminuser1',
+                scopes: 'registrar',
+                password: 'Testadmin1!',
             },
             users: [
                 {
@@ -92,7 +92,7 @@ var environments = {
                     lastName: 'Test',
                     email: 'user1@mail.net',
                     roleID: 3,
-                    password: 'Testuser12345',
+                    password: 'Testuser1!',
                     authId: 1,
                 },
                 {
@@ -100,7 +100,7 @@ var environments = {
                     lastName: 'Test',
                     email: 'user2@mail.net',
                     roleID: 3,
-                    password: 'Testuser12345',
+                    password: 'Testuser1!',
                     authId: 2,
                 },
                 {
@@ -108,7 +108,7 @@ var environments = {
                     lastName: 'Test',
                     email: 'user3@mail.net',
                     roleID: 3,
-                    password: 'Testuser12345',
+                    password: 'Testuser1!',
                     authId: 3,
                 }
             ],
@@ -239,7 +239,8 @@ var environments = {
                 firstName: 'Test',
                 lastName: 'Admin',
                 roleID: 2,
-                password: 'Testadmin1',
+                scopes: 'registrar',
+                password: 'Testadmin1!',
             },
             users: [
                 {
@@ -247,7 +248,7 @@ var environments = {
                     lastName: 'Test',
                     email: 'user1@mail.net',
                     roleID: 3,
-                    password: 'Testuser12345',
+                    password: 'Testuser1!',
                     authId: 1,
                 },
                 {
@@ -255,7 +256,7 @@ var environments = {
                     lastName: 'Test',
                     email: 'user2@mail.net',
                     roleID: 3,
-                    password: 'Testuser12345',
+                    password: 'Testuser1!',
                     authId: 2,
                 },
                 {
@@ -263,7 +264,7 @@ var environments = {
                     lastName: 'Test',
                     email: 'user3@mail.net',
                     roleID: 3,
-                    password: 'Testuser12345',
+                    password: 'Testuser1!',
                     authId: 3,
                 }
             ],

@@ -103,7 +103,6 @@ var requestGenerator = function() {
     });
 }
 var requestCall = function (requestOptions, operation) {
-    console.log(operation);
     return request(requestOptions)
         .then((res) => {
             return res.body;

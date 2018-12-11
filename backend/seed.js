@@ -11,7 +11,7 @@ let authid = null;
 
 Promise.resolve()
     .then(() => {
-        if (process.env.AUTH_SERVICE_SEED_ADMIN_PASSWORD) {
+        if (process.env.AUTH_SERVICE_SEED_ADMIN_PASSWORD && process.env.AUTH_SERVICE_SEED_ADMIN_USERNAME) {
             console.log('*********\nAdmin password provided. Using to create users on auth service.\n');
         } else if (process.env.AUTH_SERVICE_PUBLIC_REGISTRATION) {
             console.log('*********\nPublic registration true. Creating users on auth service.\n');

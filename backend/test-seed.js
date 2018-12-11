@@ -20,6 +20,7 @@ const organization = config.testEntities.organization;
 let authAdminToken = null;
 let activeToken = null;
 let adminActivationToken = null;
+let authid = null;
 let app = null;
 const userActivationTokens = [];
 
@@ -77,6 +78,17 @@ Promise.resolve()
         requestOptions.json = testAdmin;
         return util.requestCall(requestOptions, 'activate admin');
     })
+    .then(() => util.getUserInfo(testAdmin.email, authAdminToken) // Get admin id and update scope
+        .then((result) => {
+            if (typeof result === 'string') {
+                let jsonResult = JSON.parse(result);
+                authid = jsonResult.id;
+            } else {
+                authid = result.id;
+            }
+            return null;
+        }))
+    .then(() => util.updateScope(testAdmin, authid, activeToken))
     .then(() => util.loginAuth(testAdmin.email, testAdmin.password)
         .then((result) => {
             activeToken = 'Bearer ' + result.token;
