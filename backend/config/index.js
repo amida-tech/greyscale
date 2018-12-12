@@ -93,7 +93,6 @@ var environments = {
                     email: 'user1@mail.net',
                     roleID: 3,
                     password: 'Testuser1!',
-                    authId: 1,
                 },
                 {
                     firstName: 'User2',
@@ -101,7 +100,6 @@ var environments = {
                     email: 'user2@mail.net',
                     roleID: 3,
                     password: 'Testuser1!',
-                    authId: 2,
                 },
                 {
                     firstName: 'User3',
@@ -109,7 +107,6 @@ var environments = {
                     email: 'user3@mail.net',
                     roleID: 3,
                     password: 'Testuser1!',
-                    authId: 3,
                 }
             ],
             organization : {
@@ -249,7 +246,6 @@ var environments = {
                     email: 'user1@mail.net',
                     roleID: 3,
                     password: 'Testuser1!',
-                    authId: 1,
                 },
                 {
                     firstName: 'User2',
@@ -257,7 +253,6 @@ var environments = {
                     email: 'user2@mail.net',
                     roleID: 3,
                     password: 'Testuser1!',
-                    authId: 2,
                 },
                 {
                     firstName: 'User3',
@@ -265,7 +260,6 @@ var environments = {
                     email: 'user3@mail.net',
                     roleID: 3,
                     password: 'Testuser1!',
-                    authId: 3,
                 }
             ],
             organization : {

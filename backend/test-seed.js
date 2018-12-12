@@ -114,7 +114,8 @@ Promise.resolve()
             const requestOptions = util.requestGenerator();
             requestOptions.url = config.domain + '/' + organization.realm
                 + '/v0.2/users/activate/' + user.activationToken;
-            requestOptions.json = user;
+            requestOptions.json = testUsers.find((testUser) => testUser.email === user.email);
+            requestOptions.json.authId = user.id;
             promiseChain.push(util.requestCall(requestOptions, 'activate user'));
         });
         return Promise.all(promiseChain);
