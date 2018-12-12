@@ -567,6 +567,22 @@ var checkRecordExistById = function* (req, database, column, requestId, isDelete
 
 exports.checkRecordExistById = checkRecordExistById;
 
+var requestSurveyService = function (requestOptions) {
+    return request(requestOptions)
+        .then((res) => {
+            if (res.statusCode > 299 || res.statusCode < 200) {
+                const httpErr = new HttpError(res.statusCode, res.statusMessage);
+                return Promise.reject(httpErr);
+            }
+            return res;
+        })
+        .catch((err) => {
+            const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
+            return Promise.reject(httpErr);
+        });
+};
+exports.requestSurveyService = requestSurveyService;
+
 var getSurveyFromSurveyService = function (surveyId, jwt) {
     const path = '/surveys/';
 
@@ -581,18 +597,7 @@ var getSurveyFromSurveyService = function (surveyId, jwt) {
         resolveWithFullResponse: true,
     };
 
-    return request(requestOptions)
-        .then((res) => {
-            if (res.statusCode > 299 || res.statusCode < 200) {
-                const httpErr = new HttpError(res.statusCode, res.statusMessage);
-                return Promise.reject(httpErr);
-            }
-            return res
-        })
-        .catch((err) => {
-            const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
-            return Promise.reject(httpErr);
-        });
+    return requestSurveyService(requestOptions);
 };
 
 exports.getSurveyFromSurveyService = getSurveyFromSurveyService;
@@ -612,18 +617,7 @@ var getUsersWithSurveyAnswers = function (surveyId, jwt) {
         resolveWithFullResponse: true,
     };
 
-    return request(requestOptions)
-            .then((res) => {
-                if (res.statusCode > 299 || res.statusCode < 200) {
-                    const httpErr = new HttpError(res.statusCode, res.statusMessage);
-                    return Promise.reject(httpErr);
-                }
-                return res
-            })
-            .catch((err) => {
-                const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
-                return Promise.reject(httpErr);
-            });
+    return requestSurveyService(requestOptions);
 };
 
 exports.getUsersWithSurveyAnswers = getUsersWithSurveyAnswers;
@@ -646,18 +640,7 @@ var copyAssessmentAtSurveyService = function (assessmentId, prevAssessmentId, jw
         resolveWithFullResponse: true,
     };
 
-    return request(requestOptions)
-        .then((res) => {
-            if (res.statusCode > 299 || res.statusCode < 200) {
-                const httpErr = new HttpError(res.statusCode, res.statusMessage);
-                return Promise.reject(httpErr);
-            }
-            return res
-        })
-        .catch((err) => {
-            const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
-            return Promise.reject(httpErr);
-        });
+    return requestSurveyService(requestOptions);
 };
 
 exports.copyAssessmentAtSurveyService = copyAssessmentAtSurveyService;
@@ -676,18 +659,7 @@ var getAssessmentStatusAtSurveyService = function (assessmentId, jwt) {
         resolveWithFullResponse: true,
     };
 
-    return request(requestOptions)
-        .then((res) => {
-            if (res.statusCode > 299 || res.statusCode < 200) {
-                const httpErr = new HttpError(res.statusCode, res.statusMessage);
-                return Promise.reject(httpErr);
-            }
-            return res;
-        })
-        .catch((err) => {
-            const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
-            return Promise.reject(httpErr);
-        });
+    return requestSurveyService(requestOptions);
 }
 
 exports.getAssessmentStatusAtSurveyService = getAssessmentStatusAtSurveyService;
