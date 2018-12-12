@@ -574,13 +574,14 @@ var requestSurveyService = function (requestOptions) {
                 const httpErr = new HttpError(res.statusCode, res.statusMessage);
                 return Promise.reject(httpErr);
             }
-            return res
+            return res;
         })
         .catch((err) => {
             const httpErr = new HttpError(500, `Unable to use survey service: ${err.message}`);
             return Promise.reject(httpErr);
         });
 };
+exports.requestSurveyService = requestSurveyService;
 
 var getSurveyFromSurveyService = function (surveyId, jwt) {
     const path = '/surveys/';
