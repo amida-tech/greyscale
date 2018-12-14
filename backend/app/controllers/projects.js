@@ -219,6 +219,7 @@ module.exports = {
                         )
                         .where(Product.projectId.equals(project.id).and(WorkflowSteps.isDeleted.isNull()))
                         .group(WorkflowSteps.id)
+                        .order(WorkflowSteps.position)
                 );
 
                 // Add unique workflowID's to a new list
