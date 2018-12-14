@@ -134,6 +134,7 @@ module.exports = {
                                 .from(WorkflowSteps)
                                 .where(WorkflowSteps.workflowId.equals(workflowId))
                                 .and(WorkflowSteps.isDeleted.isNull())
+                                .order(WorkflowSteps.position)
                         );
                         for (var index = 0; index < stages.length; index++) {
                             stages[index].userGroups = [];
