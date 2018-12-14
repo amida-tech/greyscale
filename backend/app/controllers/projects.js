@@ -106,6 +106,7 @@ module.exports = {
 
                     var productId = _.first(_.map(product, 'id'));
                     var flags = 0;
+                    var flagHistory = false;
                     var workflowId = null;
                     var stages = [];
                     if (productId) {
@@ -120,6 +121,12 @@ module.exports = {
                             '"isResolve" = false GROUP BY "Discussions"."questionId"'
                         );
                         flags = flags.length;
+                        flagHistory = yield thunkQuery(
+                            'SELECT COUNT("Discussions"."questionId") FROM "Discussions" ' +
+                            'JOIN "Tasks" on "Discussions"."taskId" = "Tasks"."id" WHERE ' +
+                            '"Tasks"."productId" = ' + productId
+                        );
+                        flagHistory = flagHistory.length > 0;
                         stages = yield thunkQuery(
                             WorkflowSteps
                                 .select(
@@ -163,6 +170,7 @@ module.exports = {
                         userGroups: [],
                         subjects,
                         flags,
+                        flagHistory,
                         firstActivated: projects[i].firstActivated,
                     });
                 }
