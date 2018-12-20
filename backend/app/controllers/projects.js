@@ -92,7 +92,9 @@ module.exports = {
         var projectList = [];
 
         co(function* () {
-            var projects = yield thunkQuery(Project.select().from(Project), req.query);
+            var projects = yield thunkQuery(
+                'SELECT * FROM "Projects" ORDER BY "Projects"."lastUpdated" DESC'
+            );
 
             if (!_.first(projects)) {
                 return projectList;
@@ -132,6 +134,7 @@ module.exports = {
                                 .from(WorkflowSteps)
                                 .where(WorkflowSteps.workflowId.equals(workflowId))
                                 .and(WorkflowSteps.isDeleted.isNull())
+                                .order(WorkflowSteps.position)
                         );
                         for (var index = 0; index < stages.length; index++) {
                             stages[index].userGroups = [];
@@ -216,6 +219,7 @@ module.exports = {
                         )
                         .where(Product.projectId.equals(project.id).and(WorkflowSteps.isDeleted.isNull()))
                         .group(WorkflowSteps.id)
+                        .order(WorkflowSteps.position)
                 );
 
                 // Add unique workflowID's to a new list
