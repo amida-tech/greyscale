@@ -39,7 +39,7 @@ services:
     ports:
     - ${MESSAGE_SERVICE_PORT:-4001}:${MESSAGE_SERVICE_PORT:-4001}
     environment:
-    - AUTH_MICROSERVICE_URL=${AUTH_MICROSERVICE_URL:-http://amida-auth-microservice:4000/api/v1}
+    - AUTH_MICROSERVICE_URL=${AUTH_MICROSERVICE_URL:-http://amida-auth-microservice:4000/api/v2}
     - DEBUG=amida-messaging-microservice:*
     - JWT_SECRET=${JWT_SECRET:-0a6b944d-d2fb-46fc-a85e-0295c986cd9f}
     - MESSAGE_SERVICE_PORT=${MESSAGE_SERVICE_PORT:-4001}
@@ -67,7 +67,7 @@ services:
     ports:
     - ${SURVEY_SERVICE_PORT:-9005}:${SURVEY_SERVICE_PORT:-9005}
     environment:
-    - AUTH_MICROSERVICE_URL=${AUTH_MICROSERVICE_URL:-http://amida-auth-microservice:4000/api/v1}
+    - AUTH_MICROSERVICE_URL=${AUTH_MICROSERVICE_URL:-http://amida-auth-microservice:4000/api/v2}
     - DEBUG=amida-survey-microservice:*
     - JWT_SECRET=${JWT_SECRET:-0a6b944d-d2fb-46fc-a85e-0295c986cd9f}
     - NODE_ENV=${NODE_ENV:-development}

@@ -10,7 +10,7 @@ services:
     - ADMIN_USER_EMAIL=${ADMIN_USER_EMAIL:-test-adm@mail.net}
     - ADMIN_USER_FIRST_NAME=${ADMIN_USER_FIRST_NAME:-Mister}
     - ADMIN_USER_LAST_NAME=${ADMIN_USER_LAST_NAME:-Admin}
-    - AUTH_MICROSERVICE_URL=${AUTH_MICROSERVICE_URL:-http://amida-auth-microservice:4000/api/v1}
+    - AUTH_MICROSERVICE_URL=${AUTH_MICROSERVICE_URL:-http://amida-auth-microservice:4000/api/v2}
     - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-AKIAJ77E5GRYMFKWBD7Q}
     - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-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}
     - DEBUG=${DEBUG:-*}
@@ -24,7 +24,7 @@ services:
     - GREYSCALE_URL=${GREYSCALE_URL:-http://indaba-backend:3005}
     - INDABA_CLIENT_URL=${INDABA_CLIENT_URL:-http://localhost:3000}
     - JWT_SECRET=${JWT_SECRET:-0a6b944d-d2fb-46fc-a85e-0295c986cd9f}
-    - MESSAGING_MICROSERVICE_URL=${MESSAGING_MICROSERVICE_URL:-http://amida-messaging-microservice:4001/api/v1}
+    - MESSAGING_MICROSERVICE_URL=${MESSAGING_MICROSERVICE_URL:-http://amida-messaging-microservice:4001/api/v2}
     - NODE_ENV=${NODE_ENV:-development}
     - S3_BUCKET=${S3_BUCKET:-indaba-test-bucket}
     - AUTH_SERVICE_SEED_ADMIN_PASSWORD=${AUTH_SERVICE_SEED_ADMIN_PASSWORD:-example}
