@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   amida-auth-microservice:
-    image: amidatech/auth-service:dev
+    image: amidatech/auth-service:indaba
     command: sh -c "yarn migrate && yarn serve"
     container_name: amida-auth-microservice
     ports:
@@ -33,7 +33,7 @@ services:
       # - AUTH_SERVICE_CERT_CA=''
 
   amida-messaging-microservice:
-    image: amidatech/messaging-service:dev
+    image: amidatech/messaging-service:indaba
     command: sh -c "yarn migrate && yarn serve"
     container_name: amida-messaging-microservice
     ports:
@@ -54,14 +54,12 @@ services:
     - PUSH_NOTIFICATIONS_ENABLED=${PUSH_NOTIFICATIONS_ENABLED:-false}
     - PUSH_NOTIFICATIONS_SERVICE_USER_PASSWORD=${AUTH_SERVICE_SEED_ADMIN_PASSWORD:-example}
     - PUSH_NOTIFICATIONS_SERVICE_USER_USERNAME=${AUTH_SERVICE_SEED_ADMIN_USERNAME:-admin}
-    - AUTH_MICROSERVICE_SERVICE_USER_PASSWORD=${AUTH_MICROSERVICE_SERVICE_USER_PASSWORD:-@TestTest1}
-    - AUTH_MICROSERVICE_SERVICE_USER_USERNAME=${AUTH_MICROSERVICE_SERVICE_USER_USERNAME:-oucuYaiN6pha3ahphiiT}
     # - MESSAGING_SERVICE_PG_CA_CERT=''
     depends_on:
     - amida-auth-microservice
 
   amida-survey-microservice:
-    image: amidatech/survey-service:dev
+    image: amidatech/survey-service:indaba
     command: sh -c "yarn seed && yarn serve"
     container_name: amida-survey-microservice
     ports:
