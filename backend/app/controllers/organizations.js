@@ -188,24 +188,6 @@ module.exports = {
                 entity: org[0].id,
                 info: 'Add organization'
             });
-
-            // TODO creates project in background, may be need to disable in future
-
-            var project = yield clientThunkQuery(
-                Project.insert({
-                    organizationId: org[0].id,
-                    codeName: 'Org_' + org[0].id + '_project'
-                })
-                .returning(Project.id)
-            );
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'insert',
-                object: 'projects',
-                entity: project[0].id,
-                info: 'Add project to organization `' + org[0].id + '`'
-            });
             return org;
         }).then(function (data) {
             res.status(201).json(_.first(data));

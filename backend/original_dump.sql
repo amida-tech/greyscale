@@ -33,14 +33,14 @@ CREATE SCHEMA test;
 ALTER SCHEMA test OWNER TO indabauser;
 
 --
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner:
 --
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
@@ -4933,7 +4933,7 @@ COPY "ProjectUsers" ("projectId", "userId") FROM stdin;
 --
 
 COPY "Projects" (id, "organizationId", "codeName", description, created, "matrixId", "startTime", status, "adminUserId", "closeTime", "firstActivated", "langId") FROM stdin;
-2	2	Org_2_project	\N	2017-04-11 11:59:50-04	\N	\N	0	\N	\N	\N	\N
+-- 2	2	Org_2_project	\N	2017-04-11 11:59:50-04	\N	\N	0	\N	\N	\N	\N
 \.
 
 
@@ -7477,4 +7477,3 @@ GRANT ALL ON SCHEMA public TO indabauser;
 --
 -- PostgreSQL database dump complete
 --
-

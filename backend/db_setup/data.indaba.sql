@@ -1232,7 +1232,7 @@ COPY "Users" ("roleID", id, email, "firstName", "lastName", password, cell, birt
 --
 
 COPY "Projects" (id, "organizationId", "codeName", description, created, "matrixId", "startTime", status, "adminUserId", "closeTime", "langId") FROM stdin;
-2	2	Org_2_project	\N	2017-04-11 11:59:50-04	\N	\N	0	\N	\N	\N
+-- 2	2	Org_2_project	\N	2017-04-11 11:59:50-04	\N	\N	0	\N	\N	\N
 \.
 
 

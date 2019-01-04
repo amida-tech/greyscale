@@ -1,5 +1,20 @@
 ![logo](../images/Indaba_logo.png)
 
+# Indaba Backend Developer Setup:
+
+Indaba requires three microservices in order to run: auth, messaging and survey. If the user has Docker however, they can take advantage of the compose files in `backend/dev_deploy` in order to quickly setup their environments.
+
+1. Create a network with `docker create network indaba-network`.
+2. Go into `/backend/dev_deploy`
+3. Run `docker-compose -f docker-compose.db.yml up -d`. This creates a database container that can be access from localhost:5433. This container will neatly contain all the databases for your local Indaba instance. While 5433 may sound confusing, the docker containers will access the service on 5432. 5433 is available for your personal access.
+4. Run `docker-compose -f docker-compose.dev.yml up -d`. This creates the services, migrates and instantiates them.
+5. If you are going to do development against Greyscale, you probably don't want it deployed on Docker. Instead, run `yarn seed` to generate a superuser and prepare the databases. Then run `yarn start` to start the database. Once begun, run `yarn test-seed` to generate some basic users and a develop namespace you can create projects against.
+
+Keep in mind that you will have to update your local Greyscale's `.env` value at:
+`GREYSCALE_PG_PORT=5433`
+
+6. If you are going to develop exclusively against the frontend (`indaba-client`), you can also run `docker-compose up -d` from `/backend/dev_deploy`. Once it's up, run `yarn test-seed` to generate these users.
+
 # Indaba Backend Installation
 ------------
 1. Install Node.js v0.11+ (on Debian/Ubuntu: ```apt-get install nodejs```).

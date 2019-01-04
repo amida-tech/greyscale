@@ -1,0 +1,23 @@
+version: '3.5'
+services:
+  indaba-db:
+    image: postgres:9.6
+    container_name: indaba-db
+    volumes:
+      - ./10-create_users.sh:/docker-entrypoint-initdb.d/10-create_users.sh
+      - ./20-create_db.sh:/docker-entrypoint-initdb.d/20-create_db.sh
+    ports:
+      - ${INDABA_COMPOSE_DB_PORT:-5433}:5432
+    environment:
+    - POSTGRES_USER=${POSTGRES_USER:-amida}
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-amida}
+    - GREYSCALE_PG_USER=${GREYSCALE_PG_USER:-indaba}
+    - GREYSCALE_PG_PASSWORD=${GREYSCALE_PG_PASSWORD:-indaba}
+    - SURVEY_SERVICE_PG_DB=${SURVEY_SERVICE_PG_DB:-amida-survey-microservice}
+    - MESSAGING_SERVICE_PG_DB=${MESSAGING_SERVICE_PG_DB:-amida-messaging-microservice}
+    - AUTH_SERVICE_PG_DB=${AUTH_SERVICE_PG_DB:-amida-auth-microservice}
+    - GREYSCALE_PG_DB=${GREYSCALE_PG_DB:-indaba}
+networks:
+  default:
+    external:
+      name: ${INDABA_DOCKER_NETWORK_NAME:-indaba-network}

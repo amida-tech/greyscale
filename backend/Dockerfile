@@ -1,14 +1,20 @@
-FROM node:6.10.0
+# node image - Using a slimmer version is risky right now.
+FROM node:6.10.0 as builder
+
 RUN apt-get update && apt-get install -y postgresql
 
-COPY ./ /indaba
+WORKDIR /app/
+COPY . /app/
 
-RUN chmod -R 600 /indaba/.pgpass
+RUN chmod -R 600 /app/.pgpass
+RUN yarn --pure-lockfile
 
-WORKDIR /indaba
+FROM node:6.10.0
 
-RUN yarn
+WORKDIR /app/
+COPY --from=builder /app/ /app/
 
+# expose port 3005
 EXPOSE 3005
 
-CMD node seed.js && node --harmony app.js
+CMD ["yarn", "serve"]
