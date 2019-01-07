@@ -23,7 +23,7 @@ const base = {
     mailerPassword: process.env.MAILER_PASSWORD,
     mailerEmailId: process.env.MAILER_EMAIL_ID,
     mailerServiceProvider: process.env.MAILER_SERVICE_PROVIDER,
-    version: packageJson.version.split('.').shift(),
+    version: packageJson.version.substring(0, packageJson.version.lastIndexOf('.')),
 };
 
 var environments = {
