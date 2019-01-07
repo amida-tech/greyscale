@@ -1,6 +1,7 @@
 'use strict';
 
 const dotenv = require('dotenv');
+const packageJson = require('../package.json');
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ const base = {
     mailerPassword: process.env.MAILER_PASSWORD,
     mailerEmailId: process.env.MAILER_EMAIL_ID,
     mailerServiceProvider: process.env.MAILER_SERVICE_PROVIDER,
+    version: packageJson.version.split('.').shift(),
 };
 
 var environments = {
