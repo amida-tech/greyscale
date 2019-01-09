@@ -175,13 +175,14 @@ module.exports = {
                 yield thunkQuery(
                     WorkflowStepGroup.delete().where(WorkflowStepGroup.groupId.equals(req.params.id))
                 );
-
-                // Remove from project association.
-                yield thunkQuery(
-                    ProjectUserGroup.delete()
-                        .where(ProjectUserGroup.projectId.equals(_.first(project).id)
-                        .and(ProjectUserGroup.groupId.equals(req.params.id)))
-                );
+                // Remove from project association. Still want to clean up groups if project is empty.
+                if (!_.isEmpty(project)) {
+                    yield thunkQuery(
+                        ProjectUserGroup.delete()
+                            .where(ProjectUserGroup.projectId.equals(_.first(project).id)
+                            .and(ProjectUserGroup.groupId.equals(req.params.id)))
+                    );
+                }
 
                 // Remove users from group in UserGroup table in order not to violate the constraint
                 yield thunkQuery(
