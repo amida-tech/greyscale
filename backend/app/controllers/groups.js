@@ -25,17 +25,19 @@ module.exports = {
             }
             var result = yield thunkQuery(
                 Group.select(
+                    '"Projects"."id" as "projectId"',
+                    Project.codeName,
                     Group.star(),
                     'array_agg("UserGroups"."userId") as "userIds"'
                 )
                 .from(
                     Group
-                    .leftJoin(UserGroup)
-                    .on(Group.id.equals(UserGroup.groupId))
+                    .leftJoin(ProjectUserGroup).on(Group.id.equals(ProjectUserGroup.groupId))
+                    .leftJoin(Project).on(Project.id.equals(ProjectUserGroup.projectId))
+                    .leftJoin(UserGroup).on(Group.id.equals(UserGroup.groupId))
                 )
                 .where(Group.organizationId.equals(req.params.organizationId))
-                .group(Group.id)
-            );
+                .group([Group.id, Project.id]));
             return result;
         }).then(function (data) {
             res.json(data);
@@ -218,57 +220,6 @@ module.exports = {
                 throw new HttpError(404, 'Not found');
             }
             return result[0];
-        }).then(function (data) {
-            res.json(data);
-        }, function (err) {
-            next(err);
-        });
-    },
-
-    select: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-        var groupsList = [];
-        co(function* () {
-            var groups = yield thunkQuery(
-                Group.select(
-                    Group.star(),
-                    ProjectUserGroup.projectId,
-                    Project.codeName)
-                .from(
-                    Group
-                        .leftJoin(ProjectUserGroup)
-                        .on(Group.id.equals(ProjectUserGroup.groupId))
-                        .leftJoin(Project)
-                        .on(Project.id.equals(ProjectUserGroup.projectId))
-                ));
-
-            if (!_.first(groups)) {
-                return groupsList;
-            }
-
-            var searchIn = [];
-            groups.map((group) => searchIn.push(group.id));
-
-            var userGroups = yield thunkQuery(
-                UserGroup.select(
-                    UserGroup.groupId,
-                    'array_agg("userId") as users',
-                )
-                .where(UserGroup.groupId.in(searchIn))
-                .group(UserGroup.groupId));
-
-            for (var i = 0; i < groups.length; i++) {
-                var userGroup = _.find(userGroups, (userGroup) => userGroup.groupId === groups[i].id);
-                groupsList.push({
-                    id: groups[i].id,
-                    title: groups[i].title,
-                    organizationId: groups[i].organizationId,
-                    langId: groups[i].langId,
-                    projectName: groups[i].codeName,
-                    users: userGroup.users,
-                });
-            }
-            return groupsList;
         }).then(function (data) {
             res.json(data);
         }, function (err) {

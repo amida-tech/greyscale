@@ -377,9 +377,6 @@ router.route(`${baseURL}/organizations/:organizationId/groups`)
     .get(authenticate('jwt').always, groups.selectByOrg)
     .post(authenticate('jwt').always, jsonParser, groups.insertOne);
 
-router.route(`${baseURL}/groups`)
-    .get(authenticate('jwt').always, groups.select);
-
 router.route(`${baseURL}/groups/:id`)
     .get(authenticate('jwt').always, groups.selectOne)
     .put(authenticate('jwt').always, jsonParser, groups.updateOne)
