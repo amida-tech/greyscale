@@ -26,7 +26,7 @@ module.exports = {
             var result = yield thunkQuery(
                 Group.select(
                     '"Projects"."id" as "projectId"',
-                    Project.codeName,
+                    '"Projects"."codeName" as "projectName"',
                     Group.star(),
                     'array_agg("UserGroups"."userId") as "userIds"'
                 )
