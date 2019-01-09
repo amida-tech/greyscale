@@ -28,7 +28,7 @@ module.exports = {
                     '"Projects"."id" as "projectId"',
                     '"Projects"."codeName" as "projectName"',
                     Group.star(),
-                    'array_agg("UserGroups"."userId") as "userIds"'
+                    'array_agg("UserGroups"."userId") as "users"'
                 )
                 .from(
                     Group
