@@ -1,0 +1,91 @@
+version: '3.5'
+services:
+  amida-auth-microservice:
+    image: amidatech/auth-service:indaba
+    command: sh -c "yarn migrate && yarn serve"
+    container_name: amida-auth-microservice
+    ports:
+      - ${AUTH_SERVICE_PORT:-4000}:${AUTH_SERVICE_PORT:-4000}
+    environment:
+    - AUTH_SERVICE_PG_DB=${AUTH_SERVICE_PG_DB:-amida-auth-microservice}
+    - AUTH_SERVICE_PG_HOST=${AUTH_SERVICE_PG_HOST:-indaba-db}
+    - AUTH_SERVICE_PG_PASSWORD=${AUTH_SERVICE_PG_PASSWORD:-amida}
+    - AUTH_SERVICE_PG_PORT=${AUTH_SERVICE_PG_PORT:-5432}
+    - AUTH_SERVICE_PG_SSL=${AUTH_SERVICE_PG_SSL:-false}
+    - AUTH_SERVICE_PG_USER=${AUTH_SERVICE_PG_USER:-amida}
+    - AUTH_SERVICE_PORT=${AUTH_SERVICE_PORT:-4000}
+    - AUTH_SERVICE_PUBLIC_REGISTRATION=${AUTH_SERVICE_PUBLIC_REGISTRATION:-true}
+    - AUTH_SERVICE_SEED_ADMIN_EMAIL=${AUTH_SERVICE_SEED_ADMIN_EMAIL:-admin@default.com}
+    - AUTH_SERVICE_SEED_ADMIN_PASSWORD=${AUTH_SERVICE_SEED_ADMIN_PASSWORD:-example}
+    - AUTH_SERVICE_SEED_ADMIN_USERNAME=${AUTH_SERVICE_SEED_ADMIN_USERNAME:-admin}
+    - DEBUG=amida-auth-microservice:*
+    - FACEBOOK_CALLBACK_URL=${FACEBOOK_CALLBACK_URL:-http://localhost:4000/api/v0/auth/facebook/callback}
+    - FACEBOOK_CLIENT_ID=${FACEBOOK_CLIENT_ID:-12345}
+    - FACEBOOK_CLIENT_SECRET=${FACEBOOK_CLIENT_SECRET:-6789A}
+    - JWT_MODE=${JWT_MODE:-hmac}
+    - JWT_PRIVATE_KEY_PATH=${JWT_PRIVATE_KEY_PATH:-private.key}
+    - JWT_PUBLIC_KEY_PATH=${JWT_PUBLIC_KEY_PATH:-private.key.pub}
+    - JWT_SECRET=${JWT_SECRET:-0a6b944d-d2fb-46fc-a85e-0295c986cd9f}
+    - JWT_TTL=${JWT_TTL:-240}
+    - NODE_ENV=${NODE_ENV:-development}
+    - REFRESH_TOKEN_ENABLED=${REFRESH_TOKEN_ENABLED:-true}
+    - REFRESH_TOKEN_MULTIPLE_DEVICES=${REFRESH_TOKEN_MULTIPLE_DEVICES:-false}
+      # - AUTH_SERVICE_CERT_CA=''
+
+  amida-messaging-microservice:
+    image: amidatech/messaging-service:indaba
+    command: sh -c "yarn migrate && yarn serve"
+    container_name: amida-messaging-microservice
+    ports:
+    - ${MESSAGE_SERVICE_PORT:-4001}:${MESSAGE_SERVICE_PORT:-4001}
+    environment:
+    - AUTH_MICROSERVICE_URL=${AUTH_MICROSERVICE_URL:-http://amida-auth-microservice:4000/api/v2}
+    - DEBUG=amida-messaging-microservice:*
+    - JWT_SECRET=${JWT_SECRET:-0a6b944d-d2fb-46fc-a85e-0295c986cd9f}
+    - MESSAGE_SERVICE_PORT=${MESSAGE_SERVICE_PORT:-4001}
+    - MESSAGING_SERVICE_AUTOMATED_TEST_JWT = ${MESSAGING_SERVICE_AUTOMATED_TEST_JWT:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDUsInVzZXJuYW1lIjoidXNlcjAiLCJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJhZG1pbiI6dHJ1ZSwic2NvcGVzIjpbImNsaW5pY2lhbiIsImFkbWluIl0sImlhdCI6MTU0MjIwODIwMiwiZXhwIjozNjAwMDAwMDAwMDE1NDIyMDAwMDB9.e0sfocRLlARNT95R3P4rfS440t_r9K-QHQxDOlqYkB4}
+    - MESSAGING_SERVICE_PG_DB=${MESSAGING_SERVICE_PG_DB:-amida-messaging-microservice}
+    - MESSAGING_SERVICE_PG_HOST=${MESSAGING_SERVICE_PG_HOST:-indaba-db}
+    - MESSAGING_SERVICE_PG_PASSWORD=${MESSAGING_SERVICE_PG_PASSWORD:-amida}
+    - MESSAGING_SERVICE_PG_PORT=${MESSAGING_SERVICE_PG_PORT:-5432}
+    - MESSAGING_SERVICE_PG_USER=${MESSAGING_SERVICE_PG_USER:-amida}
+    - MESSAGING_SERVICE_THREAD_SCOPES=${MESSAGING_SERVICE_THREAD_SCOPES:-["admin", "clinician"]}
+    - NODE_ENV=${NODE_ENV:-development}
+    - PUSH_NOTIFICATIONS_ENABLED=${PUSH_NOTIFICATIONS_ENABLED:-false}
+    - PUSH_NOTIFICATIONS_SERVICE_USER_PASSWORD=${AUTH_SERVICE_SEED_ADMIN_PASSWORD:-example}
+    - PUSH_NOTIFICATIONS_SERVICE_USER_USERNAME=${AUTH_SERVICE_SEED_ADMIN_USERNAME:-admin}
+    # - MESSAGING_SERVICE_PG_CA_CERT=''
+    depends_on:
+    - amida-auth-microservice
+
+  amida-survey-microservice:
+    image: amidatech/survey-service:indaba
+    command: sh -c "yarn seed && yarn serve"
+    container_name: amida-survey-microservice
+    ports:
+    - ${SURVEY_SERVICE_PORT:-9005}:${SURVEY_SERVICE_PORT:-9005}
+    environment:
+    - AUTH_MICROSERVICE_URL=${AUTH_MICROSERVICE_URL:-http://amida-auth-microservice:4000/api/v2}
+    - DEBUG=amida-survey-microservice:*
+    - JWT_SECRET=${JWT_SECRET:-0a6b944d-d2fb-46fc-a85e-0295c986cd9f}
+    - NODE_ENV=${NODE_ENV:-development}
+    - SURVEY_SERVICE_CORS_ORIGIN=${SURVEY_SERVICE_CORS_ORIGIN:-*}
+    - SURVEY_SERVICE_DB_DIALECT=${SURVEY_SERVICE_DB_DIALECT:-postgres}
+    - SURVEY_SERVICE_LOGGING_LEVEL=${SURVEY_SERVICE_LOGGING_LEVEL:-debug}
+    - SURVEY_SERVICE_PG_DB=${SURVEY_SERVICE_PG_DB:-amida-survey-microservice}
+    - SURVEY_SERVICE_PG_HOST=${SURVEY_SERVICE_PG_HOST:-indaba-db}
+    - SURVEY_SERVICE_PG_PASSWORD=${SURVEY_SERVICE_PG_PASSWORD:-amida}
+    - SURVEY_SERVICE_PG_POOL_IDLE=${SURVEY_SERVICE_PG_POOL_IDLE:-10000}
+    - SURVEY_SERVICE_PG_POOL_MAX=${SURVEY_SERVICE_PG_POOL_MAX:-5}
+    - SURVEY_SERVICE_PG_POOL_MIN=${SURVEY_SERVICE_PG_POOL_MIN:-0}
+    - SURVEY_SERVICE_PG_PORT=${SURVEY_SERVICE_PG_PORT:-5432}
+    - SURVEY_SERVICE_PG_USER=${SURVEY_SERVICE_PG_USER:-amida}
+    - SURVEY_SERVICE_PORT=${SURVEY_SERVICE_PORT:-9005}
+    depends_on:
+    - amida-auth-microservice
+    - amida-messaging-microservice
+
+networks:
+  default:
+    external:
+      name: ${INDABA_DOCKER_NETWORK_NAME:-indaba-network}

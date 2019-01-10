@@ -83,7 +83,8 @@ var environments = {
                 firstName: process.env.ADMIN_USER_FIRST_NAME,
                 lastName: process.env.ADMIN_USER_LAST_NAME,
                 roleID: 2,
-                password: 'Adminuser1',
+                scopes: 'admin',
+                password: 'Testadmin1!',
             },
             users: [
                 {
@@ -91,29 +92,26 @@ var environments = {
                     lastName: 'Test',
                     email: 'user1@mail.net',
                     roleID: 3,
-                    password: 'Testuser12345',
-                    authId: 1,
+                    password: 'Testuser1!',
                 },
                 {
                     firstName: 'User2',
                     lastName: 'Test',
                     email: 'user2@mail.net',
                     roleID: 3,
-                    password: 'Testuser12345',
-                    authId: 2,
+                    password: 'Testuser1!',
                 },
                 {
                     firstName: 'User3',
                     lastName: 'Test',
                     email: 'user3@mail.net',
                     roleID: 3,
-                    password: 'Testuser12345',
-                    authId: 3,
+                    password: 'Testuser1!',
                 }
             ],
             organization : {
-                name: 'Test organization',
-                realm: 'testorg'
+                name: 'Development',
+                realm: 'develop'
             },
         },
 
@@ -238,7 +236,8 @@ var environments = {
                 firstName: 'Test',
                 lastName: 'Admin',
                 roleID: 2,
-                password: 'Testadmin1',
+                scopes: 'admin',
+                password: 'Testadmin1!',
             },
             users: [
                 {
@@ -246,24 +245,21 @@ var environments = {
                     lastName: 'Test',
                     email: 'user1@mail.net',
                     roleID: 3,
-                    password: 'Testuser12345',
-                    authId: 1,
+                    password: 'Testuser1!',
                 },
                 {
                     firstName: 'User2',
                     lastName: 'Test',
                     email: 'user2@mail.net',
                     roleID: 3,
-                    password: 'Testuser12345',
-                    authId: 2,
+                    password: 'Testuser1!',
                 },
                 {
                     firstName: 'User3',
                     lastName: 'Test',
                     email: 'user3@mail.net',
                     roleID: 3,
-                    password: 'Testuser12345',
-                    authId: 3,
+                    password: 'Testuser1!',
                 }
             ],
             organization : {
