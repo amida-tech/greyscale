@@ -1,6 +1,7 @@
 var _ = require('underscore'),
     Group = require('../models/groups'),
     UserGroup = require('../models/user_groups'),
+    ProjectUser = require('../models/project_users'),
     ProjectUserGroup = require('../models/project_user_groups'),
     Project = require('../models/projects'),
     WorkflowStepGroup = require('../models/workflow_step_groups'),
@@ -62,12 +63,26 @@ module.exports = {
             var groupResult = yield thunkQuery(Group.insert(objToInsert).returning(Group.id));
             var groupId = _.first(groupResult).id;
             if (req.body.users){
-                var insertArr = _.map(req.body.users, (userId) => ({userId, groupId}));
-                yield thunkQuery(UserGroup.insert(insertArr));
+                var insertUserGroupArr = _.map(req.body.users, (userId) => ({userId, groupId}));
+                yield thunkQuery(UserGroup.insert(insertUserGroupArr));
             }
 
             if (req.body.projectId) {
                 yield thunkQuery(ProjectUserGroup.insert({projectId: req.body.projectId, groupId}));
+                if (req.body.users) {
+                    var duplicateCheck = yield thunkQuery(
+                        ProjectUser.select(ProjectUser.userId)
+                        .from(ProjectUser)
+                        .where(ProjectUser.projectId.equals(req.body.projectId)
+                    ));
+                    var usersToInsert = _.difference(
+                        req.body.users,
+                        _.map(duplicateCheck, (record) => record.userId)
+                    );
+                    var insertProjectUserArr = _.map(usersToInsert, (userId) =>
+                        ({ projectId: req.body.projectId, userId }));
+                    yield thunkQuery(ProjectUser.insert(insertProjectUserArr));
+                }
                 yield common.bumpProjectLastUpdated(req, req.body.projectId);
             }
             return groupResult;
