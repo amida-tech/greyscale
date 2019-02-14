@@ -1,40 +1,22 @@
+# Can be repurposed for other deployments and services by modifying names and image deifinitions
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: amida-indaba-backend-deployment
+  name: indaba-sandbox-5-greyscale
 spec:
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
-        app: amida-indaba-backend
+        app: indaba-sandbox-5-greyscale
     spec:
-      imagePullSecrets:
-      - name: elijahsecret3
       containers:
-      - name: amida-indaba-backend
-        image: elijahgeorge1/indaba-backend
-        env:
-        - name: INDABA_PG_USERNAME
-          value: indabauser
-        - name: INDABA_PG_PASSWORD
-          value: amida-indaba
-        - name: INDABA_PG_HOSTNAME
-          value: kubernetes-indaba.host_url.us-west-2.rds.amazonaws.com
-        - name: INDABA_PG_TESTUSER
-          value: indaba
-        - name: INDABA_PG_DB
-          value: amida_indaba
-        - name: AUTH_SALT
-          value: nMsDo)_1fh
-        - name: JWT_SECRET
-          value: 0a6b944d-d2fb-46fc-a85e-0295c986cd9f
-        - name: SURVEY_SERVICE_URL
-          value: http://a51eab6f4f0e511e7b4a1060c5163e47-1629568428.us-west-2.elb.amazonaws.com:9005/api/v1.0/
-        - name: AUTH_SERVICE_URL
-          value: http://aa7e54a82ede111e7b4a1060c5163e47-61384471.us-west-2.elb.amazonaws.com:4000/api/v0
-        - name: DOMAIN
-          value: http://a93777759f18511e7b4a1060c5163e47-2052654379.us-west-2.elb.amazonaws.com:3005
+      - name: indaba-sandbox-5-greyscale
+        image: amidatech/indaba-backend:dev
+        imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: indaba-sandbox-5-configmap
         ports:
         - name: nodejs-port
           containerPort: 3005
