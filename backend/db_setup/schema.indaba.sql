@@ -1883,41 +1883,6 @@ CREATE TABLE "AccessPermissions" (
 ALTER TABLE "AccessPermissions" OWNER TO indabauser;
 
 --
--- TOC entry 207 (class 1259 OID 1599728)
--- Name: AnswerAttachments_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
---
-
-CREATE SEQUENCE "AnswerAttachments_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "AnswerAttachments_id_seq" OWNER TO indabauser;
-
---
--- TOC entry 208 (class 1259 OID 1599730)
--- Name: AnswerAttachments; Type: TABLE; Schema: sceleton; Owner: indabauser
---
-
-CREATE TABLE "AnswerAttachments" (
-    id integer DEFAULT nextval('"AnswerAttachments_id_seq"'::regclass) NOT NULL,
-    "answerId" integer,
-    filename character varying,
-    size integer,
-    mimetype character varying,
-    body bytea,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    owner integer,
-    "amazonKey" character varying
-);
-
-
-ALTER TABLE "AnswerAttachments" OWNER TO indabauser;
-
---
 -- TOC entry 209 (class 1259 OID 1599738)
 -- Name: AttachmentAttempts; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
@@ -3309,46 +3274,6 @@ CREATE TABLE "AccessPermissions" (
 
 
 ALTER TABLE "AccessPermissions" OWNER TO indabauser;
-
---
--- TOC entry 367 (class 1259 OID 1601606)
--- Name: AnswerAttachments_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
---
-
-CREATE SEQUENCE "AnswerAttachments_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "AnswerAttachments_id_seq" OWNER TO indabauser;
-
---
--- TOC entry 404 (class 1259 OID 1601687)
--- Name: AnswerAttachments; Type: TABLE; Schema: test; Owner: indaba
---
-
-CREATE TABLE "AnswerAttachments" (
-    id integer DEFAULT nextval('"AnswerAttachments_id_seq"'::regclass) NOT NULL,
-    "answerId" integer,
-    filename character varying,
-    size integer,
-    mimetype character varying,
-    body bytea,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    owner integer,
-    "amazonKey" character varying
-);
-
-
-ALTER TABLE "AnswerAttachments" OWNER TO indabauser;
-
---
--- TOC entry 405 (class 1259 OID 1601698)
--- Name: AttachmentAttempts; Type: TABLE; Schema: test; Owner: indaba
---
 
 CREATE TABLE "AttachmentAttempts" (
     key character varying NOT NULL,
@@ -4883,16 +4808,6 @@ ALTER TABLE ONLY "AccessPermissions"
 ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
 
-
---
--- TOC entry 3263 (class 2606 OID 1600488)
--- Name: AnswerAttachments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "AnswerAttachments"
-    ADD CONSTRAINT "AnswerAttachments_pkey" PRIMARY KEY (id);
-
-
 --
 -- TOC entry 3265 (class 2606 OID 1600490)
 -- Name: AttachmentAttempts_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
@@ -5334,16 +5249,6 @@ ALTER TABLE ONLY "AccessPermissions"
 
 ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
-
-
---
--- TOC entry 3379 (class 2606 OID 1601696)
--- Name: AnswerAttachments_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "AnswerAttachments"
-    ADD CONSTRAINT "AnswerAttachments_pkey" PRIMARY KEY (id);
-
 
 --
 -- TOC entry 3381 (class 2606 OID 1601706)
@@ -6036,15 +5941,6 @@ SET search_path = sceleton, pg_catalog;
 
 
 --
--- TOC entry 3498 (class 2606 OID 1600779)
--- Name: AnswerAttachments_owner_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "AnswerAttachments"
-    ADD CONSTRAINT "AnswerAttachments_owner_fkey" FOREIGN KEY (owner) REFERENCES "Users"(id);
-
-
---
 -- TOC entry 3500 (class 2606 OID 1600784)
 -- Name: AttachmentLinks_essenceId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
@@ -6603,15 +6499,6 @@ ALTER TABLE ONLY "RolesRights"
 
 
 SET search_path = test, pg_catalog;
-
-
---
--- TOC entry 3580 (class 2606 OID 1602121)
--- Name: AnswerAttachments_owner_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "AnswerAttachments"
-    ADD CONSTRAINT "AnswerAttachments_owner_fkey" FOREIGN KEY (owner) REFERENCES "Users"(id);
 
 
 --

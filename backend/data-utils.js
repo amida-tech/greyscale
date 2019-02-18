@@ -53,7 +53,6 @@ var seedSchemaPublic = function (db) {
 var seedSchemaCommon = function (db, schema) {
     return Promise.resolve()
         .then(() => setSequenceValue(db, 'AccessPermissions_id_seq', 1, schema))
-        .then(() => setSequenceValue(db, 'AnswerAttachments_id_seq', 1, schema))
         .then(() => setSequenceValue(db, 'Discussions_id_seq', 1, schema))
         .then(() => db[schema].Essences.bulkCreate(essences))
         .then(() => setSequenceValue(db, 'Essences_id_seq', 45, schema))

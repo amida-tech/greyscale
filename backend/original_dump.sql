@@ -1641,39 +1641,6 @@ CREATE TABLE "AccessPermissions" (
 ALTER TABLE "AccessPermissions" OWNER TO indabauser;
 
 --
--- Name: AnswerAttachments_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
---
-
-CREATE SEQUENCE "AnswerAttachments_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "AnswerAttachments_id_seq" OWNER TO indabauser;
-
---
--- Name: AnswerAttachments; Type: TABLE; Schema: sceleton; Owner: indabauser
---
-
-CREATE TABLE "AnswerAttachments" (
-    id integer DEFAULT nextval('"AnswerAttachments_id_seq"'::regclass) NOT NULL,
-    "answerId" integer,
-    filename character varying,
-    size integer,
-    mimetype character varying,
-    body bytea,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    owner integer,
-    "amazonKey" character varying
-);
-
-
-ALTER TABLE "AnswerAttachments" OWNER TO indabauser;
-
---
 -- Name: AttachmentAttempts; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2695,39 +2662,6 @@ CREATE TABLE "AccessPermissions" (
 
 
 ALTER TABLE "AccessPermissions" OWNER TO indabauser;
-
---
--- Name: AnswerAttachments_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
---
-
-CREATE SEQUENCE "AnswerAttachments_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "AnswerAttachments_id_seq" OWNER TO indabauser;
-
---
--- Name: AnswerAttachments; Type: TABLE; Schema: test; Owner: indabauser
---
-
-CREATE TABLE "AnswerAttachments" (
-    id integer DEFAULT nextval('"AnswerAttachments_id_seq"'::regclass) NOT NULL,
-    "answerId" integer,
-    filename character varying,
-    size integer,
-    mimetype character varying,
-    body bytea,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    owner integer,
-    "amazonKey" character varying
-);
-
-
-ALTER TABLE "AnswerAttachments" OWNER TO indabauser;
 
 --
 -- Name: AttachmentAttempts; Type: TABLE; Schema: test; Owner: indabauser
@@ -3790,10 +3724,9 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 35	RoleRights	RoleRights	role_rights	roleId
 39	Visualizations	Visualizations	visualizations	title
 40	AccessPermissions	AccessPermissions	access_permissions	id
-41	AnswerAttachments	AnswerAttachments	answer_attachments	filename
-42	Token	Token	token	realm
-43	UserUOA	UserUOA	user_uoa	UserId
-44	UserGroups	UserGroups	user_groups	UserId
+41	Token	Token	token	realm
+42	UserUOA	UserUOA	user_uoa	UserId
+43	UserGroups	UserGroups	user_groups	UserId
 \.
 
 
@@ -3960,22 +3893,6 @@ COPY "AccessPermissions" (id, "roleId", "rightId", permission) FROM stdin;
 
 SELECT pg_catalog.setval('"AccessPermissions_id_seq"', 1, true);
 
-
---
--- Data for Name: AnswerAttachments; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "AnswerAttachments" (id, "answerId", filename, size, mimetype, body, created, owner, "amazonKey") FROM stdin;
-\.
-
-
---
--- Name: AnswerAttachments_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"AnswerAttachments_id_seq"', 1, true);
-
-
 --
 -- Data for Name: AttachmentAttempts; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
 --
@@ -4056,10 +3973,9 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 35	RoleRights	RoleRights	role_rights	roleId
 39	Visualizations	Visualizations	visualizations	title
 40	AccessPermissions	AccessPermissions	access_permissions	id
-41	AnswerAttachments	AnswerAttachments	answer_attachments	filename
-42	Token	Token	token	realm
-43	UserUOA	UserUOA	user_uoa	UserId
-44	UserGroups	UserGroups	user_groups	UserId
+41	Token	Token	token	realm
+42	UserUOA	UserUOA	user_uoa	UserId
+43	UserGroups	UserGroups	user_groups	UserId
 \.
 
 
@@ -4558,22 +4474,6 @@ COPY "AccessPermissions" (id, "roleId", "rightId", permission) FROM stdin;
 
 SELECT pg_catalog.setval('"AccessPermissions_id_seq"', 1, true);
 
-
---
--- Data for Name: AnswerAttachments; Type: TABLE DATA; Schema: test; Owner: indabauser
---
-
-COPY "AnswerAttachments" (id, "answerId", filename, size, mimetype, body, created, owner, "amazonKey") FROM stdin;
-\.
-
-
---
--- Name: AnswerAttachments_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"AnswerAttachments_id_seq"', 1, true);
-
-
 --
 -- Data for Name: AttachmentAttempts; Type: TABLE DATA; Schema: test; Owner: indabauser
 --
@@ -4654,10 +4554,9 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 35	RoleRights	RoleRights	role_rights	roleId
 39	Visualizations	Visualizations	visualizations	title
 40	AccessPermissions	AccessPermissions	access_permissions	id
-41	AnswerAttachments	AnswerAttachments	answer_attachments	filename
-42	Token	Token	token	realm
-43	UserUOA	UserUOA	user_uoa	UserId
-44	UserGroups	UserGroups	user_groups	UserId
+41	Token	Token	token	realm
+42	UserUOA	UserUOA	user_uoa	UserId
+43	UserGroups	UserGroups	user_groups	UserId
 \.
 
 
@@ -5288,23 +5187,6 @@ ALTER TABLE ONLY "AccessPermissions"
 ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
 
-
---
--- Name: AnswerAttachments AnswerAttachments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "AnswerAttachments"
-    ADD CONSTRAINT "AnswerAttachments_pkey" PRIMARY KEY (id);
-
-
---
--- Name: AttachmentAttempts AttachmentAttempts_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "AttachmentAttempts"
-    ADD CONSTRAINT "AttachmentAttempts_pkey" PRIMARY KEY (key);
-
-
 --
 -- Name: AttachmentLinks AttachmentLinks_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
@@ -5673,14 +5555,6 @@ ALTER TABLE ONLY "AccessPermissions"
 
 ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
-
-
---
--- Name: AnswerAttachments AnswerAttachments_pkey; Type: CONSTRAINT; Schema: test; Owner: indabauser
---
-
-ALTER TABLE ONLY "AnswerAttachments"
-    ADD CONSTRAINT "AnswerAttachments_pkey" PRIMARY KEY (id);
 
 
 --
@@ -6295,14 +6169,6 @@ ALTER TABLE ONLY "Users"
 SET search_path = sceleton, pg_catalog;
 
 --
--- Name: AnswerAttachments AnswerAttachments_owner_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "AnswerAttachments"
-    ADD CONSTRAINT "AnswerAttachments_owner_fkey" FOREIGN KEY (owner) REFERENCES "Users"(id);
-
-
---
 -- Name: AttachmentLinks AttachmentLinks_essenceId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6814,13 +6680,6 @@ ALTER TABLE ONLY "Workflows"
 
 
 SET search_path = test, pg_catalog;
-
---
--- Name: AnswerAttachments AnswerAttachments_owner_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indabauser
---
-
-ALTER TABLE ONLY "AnswerAttachments"
-    ADD CONSTRAINT "AnswerAttachments_owner_fkey" FOREIGN KEY (owner) REFERENCES "Users"(id);
 
 
 --

@@ -194,11 +194,6 @@ var essencesContent = [{
     fileName: 'access_permissions',
     nameField: 'id'
 }, {
-    tableName: 'AnswerAttachments',
-    name: 'AnswerAttachments',
-    fileName: 'answer_attachments',
-    nameField: 'filename'
-}, {
     tableName: 'Token',
     name: 'Token',
     fileName: 'token',

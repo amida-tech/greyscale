@@ -62,10 +62,9 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 35	RoleRights	RoleRights	role_rights	roleId
 39	Visualizations	Visualizations	visualizations	title
 40	AccessPermissions	AccessPermissions	access_permissions	id
-41	AnswerAttachments	AnswerAttachments	answer_attachments	filename
-42	Token	Token	token	realm
-43	UserUOA	UserUOA	user_uoa	UserId
-44	UserGroups	UserGroups	user_groups	UserId
+41	Token	Token	token	realm
+42	UserUOA	UserUOA	user_uoa	UserId
+43	UserGroups	UserGroups	user_groups	UserId
 \.
 
 
@@ -445,26 +444,6 @@ COPY "Workflows" (id, name, description, created, "productId") FROM stdin;
 COPY "WorkflowSteps" ("workflowId", id, "startDate", "endDate", title, "provideResponses", "discussionParticipation", "blindReview", "seeOthersResponses", "allowTranslate", "position", "writeToAnswers", "allowEdit", role, "langId") FROM stdin;
 \.
 
-
---
--- TOC entry 3804 (class 0 OID 1599730)
--- Dependencies: 208
--- Data for Name: AnswerAttachments; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "AnswerAttachments" (id, "answerId", filename, size, mimetype, body, created, owner, "amazonKey") FROM stdin;
-\.
-
-
---
--- TOC entry 3985 (class 0 OID 0)
--- Dependencies: 207
--- Name: AnswerAttachments_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"AnswerAttachments_id_seq"', 1, true);
-
-
 --
 -- TOC entry 3805 (class 0 OID 1599738)
 -- Dependencies: 209
@@ -511,10 +490,9 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 35	RoleRights	RoleRights	role_rights	roleId
 39	Visualizations	Visualizations	visualizations	title
 40	AccessPermissions	AccessPermissions	access_permissions	id
-41	AnswerAttachments	AnswerAttachments	answer_attachments	filename
-42	Token	Token	token	realm
-43	UserUOA	UserUOA	user_uoa	UserId
-44	UserGroups	UserGroups	user_groups	UserId
+41	Token	Token	token	realm
+42	UserUOA	UserUOA	user_uoa	UserId
+43	UserGroups	UserGroups	user_groups	UserId
 \.
 
 
@@ -1227,27 +1205,6 @@ COPY "WorkflowSteps" ("workflowId", id, "startDate", "endDate", title, "provideR
 2	3	2017-04-11 00:00:00-04	2017-04-12 00:00:00-04	Review Test	f	\N	\N	\N	f	1	t	f	Reviewer	\N
 \.
 
-
-
---
--- TOC entry 3919 (class 0 OID 1601687)
--- Dependencies: 404
--- Data for Name: AnswerAttachments; Type: TABLE DATA; Schema: test; Owner: indaba
---
-
-COPY "AnswerAttachments" (id, "answerId", filename, size, mimetype, body, created, owner, "amazonKey") FROM stdin;
-\.
-
-
---
--- TOC entry 4023 (class 0 OID 0)
--- Dependencies: 367
--- Name: AnswerAttachments_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indaba
---
-
-SELECT pg_catalog.setval('"AnswerAttachments_id_seq"', 1, true);
-
-
 --
 -- TOC entry 3920 (class 0 OID 1601698)
 -- Dependencies: 405
@@ -1294,10 +1251,9 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 35	RoleRights	RoleRights	role_rights	roleId
 39	Visualizations	Visualizations	visualizations	title
 40	AccessPermissions	AccessPermissions	access_permissions	id
-41	AnswerAttachments	AnswerAttachments	answer_attachments	filename
-42	Token	Token	token	realm
-43	UserUOA	UserUOA	user_uoa	UserId
-44	UserGroups	UserGroups	user_groups	UserId
+41	Token	Token	token	realm
+42	UserUOA	UserUOA	user_uoa	UserId
+43	UserGroups	UserGroups	user_groups	UserId
 \.
 
 

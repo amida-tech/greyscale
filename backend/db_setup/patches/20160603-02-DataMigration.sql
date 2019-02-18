@@ -42,49 +42,6 @@ CREATE OR REPLACE FUNCTION public.patch_dataMigration() RETURNS void AS
                         array_agg("id")
                     FROM "Attachments"
                     GROUP BY "essenceId","entityId";
-
-                ALTER TABLE "Attachments" DROP COLUMN "essenceId", DROP COLUMN "entityId"; -- DROP "essenceId" and "entityId" columns, now they are in "AttachmentLinks"
-
-                FOR old_id, filename, size, mimetype, body, created, owner, amazonKey IN
-                    SELECT
-                        aa."id", aa."filename",aa."size",aa."mimetype",aa."body",
-                        aa."created",aa."owner",aa."amazonKey"
-                    FROM "AnswerAttachments" aa
-                LOOP
-                    FOR new_id IN
-                        INSERT INTO "Attachments" (
-                            "filename",
-                            "size",
-                            "mimetype",
-                            "body",
-                            "created",
-                            "owner",
-                            "amazonKey"
-                        )
-                        VALUES (
-
-                            filename,
-                            size,
-                            mimetype,
-                            body,
-                            created,
-                            owner,
-                            amazonKey
-
-                        ) RETURNING id
-                    LOOP
-                    RAISE NOTICE 'SELECT sa."id" FROM "SurveyAnswers" sa WHERE sa.attachments @> ARRAY[%]', old_id;
-                        FOR answer_id IN
-                            SELECT sa."id" FROM "SurveyAnswers" sa WHERE sa.attachments @> ARRAY[old_id]
-                        LOOP
-                        UPDATE "AttachmentLinks" SET attachments = array_append(attachments, new_id) WHERE "entityId" = answer_id AND "essenceId" IN
-                            (SELECT "id" FROM "Essences" WHERE "tableName" = 'SurveyAnswers');
-                            RAISE NOTICE 'UPDATE "AttachmentLinks" SET attachments = array_append(attachments, new_id) WHERE "entityId" = % AND "essenceId" IN
-                            (SELECT "id" FROM "Essences" WHERE "tableName" =''SurveyAnswers'')', answer_id;
-                        END LOOP;
-
-                    END LOOP;
-                END LOOP;
             END LOOP;
     END
     $BODY$

@@ -175,24 +175,18 @@ module.exports = [{
     nameField: 'id',
 }, {
     id: 41,
-    tableName: 'AnswerAttachments',
-    name: 'AnswerAttachments',
-    fileName: 'answer_attachments',
-    nameField: 'filename',
-}, {
-    id: 42,
     tableName: 'Token',
     name: 'Token',
     fileName: 'token',
     nameField: 'realm',
 }, {
-    id: 43,
+    id: 42,
     tableName: 'UserUOA',
     name: 'UserUOA',
     fileName: 'user_uoa',
     nameField: 'UserId',
 }, {
-    id: 44,
+    id: 43,
     tableName: 'UserGroups',
     name: 'UserGroups',
     fileName: 'user_groups',

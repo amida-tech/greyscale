@@ -23,9 +23,6 @@ BEGIN
 	DELETE FROM "Discussions" WHERE "questionId" IN (SELECT "id" FROM "SurveyQuestions" WHERE "surveyId" IN (SELECT "id" FROM "Surveys" WHERE "projectId" IN (SELECT "id" FROM "Projects" WHERE "organizationId" <> org_id)));
 	DELETE FROM "Discussions" WHERE "taskId" IN (SELECT "id" FROM "Tasks" WHERE "stepId" IN (SELECT "id" FROM "WorkflowSteps" WHERE "workflowId" IN (SELECT "id" FROM "Workflows" WHERE "productId" IN (SELECT "id" FROM "Products" WHERE "projectId" IN (SELECT "id" FROM "Projects" WHERE "organizationId" <> org_id)))));
 
-	DELETE FROM "AnswerAttachments" WHERE "answerId" IN (SELECT "id" FROM "SurveyAnswers" WHERE "questionId" IN (SELECT "id" FROM "SurveyQuestions" WHERE "surveyId" IN (SELECT "id" FROM "Surveys" WHERE "projectId" IN (SELECT "id" FROM "Projects" WHERE "organizationId" <> org_id))));
-	DELETE FROM "AnswerAttachments" WHERE "answerId" IN (SELECT "id" FROM "SurveyAnswers" WHERE "wfStepId" IN (SELECT "id" FROM "WorkflowSteps" WHERE "workflowId" IN (SELECT "id" FROM "Workflows" WHERE "productId" IN (SELECT "id" FROM "Products" WHERE "projectId" IN (SELECT "id" FROM "Projects" WHERE "organizationId" <> org_id)))));
-
 	DELETE FROM "SurveyAnswers" WHERE "wfStepId" IN (SELECT "id" FROM "WorkflowSteps" WHERE "workflowId" IN (SELECT "id" FROM "Workflows" WHERE "productId" IN (SELECT "id" FROM "Products" WHERE "projectId" IN (SELECT "id" FROM "Projects" WHERE "organizationId" <> org_id))));
 	DELETE FROM "SurveyAnswers" WHERE "questionId" IN (SELECT "id" FROM "SurveyQuestions" WHERE "surveyId" IN (SELECT "id" FROM "Surveys" WHERE "projectId" IN (SELECT "id" FROM "Projects" WHERE "organizationId" <> org_id)));
 
