@@ -10,7 +10,6 @@ const roles = require('./roles.model');
 const rolesRights = require('./roles-rights.model');
 const token = require('./token.model');
 const accessPermissions = require('./access-permissions.model');
-const attachmentAttempts = require('./attachment-attempts.model');
 const attachmentLinks = require('./attachment-links.model');
 const attachments = require('./attachments.model');
 const discussions = require('./discussions.model');
@@ -67,7 +66,6 @@ const definePublicTables = function (sequelize, Sequelize) {
 
 const defineSchemaTables = function (sequelize, Sequelize, schema) {
     const AccessPermissions = accessPermissions(sequelize, Sequelize, schema);
-    const AttachmentAttempts = attachmentAttempts(sequelize, Sequelize, schema);
     const AttachmentLinks = attachmentLinks(sequelize, Sequelize, schema);
     const Attachments = attachments(sequelize, Sequelize, schema);
     const Discussions = discussions(sequelize, Sequelize, schema);
@@ -111,7 +109,6 @@ const defineSchemaTables = function (sequelize, Sequelize, schema) {
 
     return {
         AccessPermissions,
-        AttachmentAttempts,
         AttachmentLinks,
         Attachments,
         Discussions,

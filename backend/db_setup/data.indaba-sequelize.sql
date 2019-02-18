@@ -348,16 +348,6 @@ COPY "WorkflowSteps" ("workflowId", id, "startDate", "endDate", title, "provideR
 \.
 
 --
--- TOC entry 3805 (class 0 OID 1599738)
--- Dependencies: 209
--- Data for Name: AttachmentAttempts; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "AttachmentAttempts" (key, filename, mimetype, size, created) FROM stdin;
-\.
-
-
---
 -- TOC entry 3813 (class 0 OID 1599777)
 -- Dependencies: 217
 -- Data for Name: Essences; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
@@ -1044,16 +1034,6 @@ COPY "WorkflowSteps" ("workflowId", id, "startDate", "endDate", title, "provideR
 2	2	2017-04-11 00:00:00-04	2017-04-12 00:00:00-04	Take Test	f	\N	\N	\N	f	0	t	f	Taker	\N
 2	3	2017-04-11 00:00:00-04	2017-04-12 00:00:00-04	Review Test	f	\N	\N	\N	f	1	t	f	Reviewer	\N
 \.
-
---
--- TOC entry 3920 (class 0 OID 1601698)
--- Dependencies: 405
--- Data for Name: AttachmentAttempts; Type: TABLE DATA; Schema: test; Owner: indaba
---
-
-COPY "AttachmentAttempts" (key, filename, mimetype, size, created) FROM stdin;
-\.
-
 
 --
 -- TOC entry 3926 (class 0 OID 1601760)

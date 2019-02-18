@@ -1641,21 +1641,6 @@ CREATE TABLE "AccessPermissions" (
 ALTER TABLE "AccessPermissions" OWNER TO indabauser;
 
 --
--- Name: AttachmentAttempts; Type: TABLE; Schema: sceleton; Owner: indabauser
---
-
-CREATE TABLE "AttachmentAttempts" (
-    key character varying NOT NULL,
-    filename character varying,
-    mimetype character varying,
-    size integer,
-    created timestamp with time zone DEFAULT now() NOT NULL
-);
-
-
-ALTER TABLE "AttachmentAttempts" OWNER TO indabauser;
-
---
 -- Name: AttachmentLinks; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2662,21 +2647,6 @@ CREATE TABLE "AccessPermissions" (
 
 
 ALTER TABLE "AccessPermissions" OWNER TO indabauser;
-
---
--- Name: AttachmentAttempts; Type: TABLE; Schema: test; Owner: indabauser
---
-
-CREATE TABLE "AttachmentAttempts" (
-    key character varying NOT NULL,
-    filename character varying,
-    mimetype character varying,
-    size integer,
-    created timestamp with time zone DEFAULT now() NOT NULL
-);
-
-
-ALTER TABLE "AttachmentAttempts" OWNER TO indabauser;
 
 --
 -- Name: AttachmentLinks; Type: TABLE; Schema: test; Owner: indabauser
@@ -3894,14 +3864,6 @@ COPY "AccessPermissions" (id, "roleId", "rightId", permission) FROM stdin;
 SELECT pg_catalog.setval('"AccessPermissions_id_seq"', 1, true);
 
 --
--- Data for Name: AttachmentAttempts; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "AttachmentAttempts" (key, filename, mimetype, size, created) FROM stdin;
-\.
-
-
---
 -- Data for Name: AttachmentLinks; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
 --
 
@@ -4473,14 +4435,6 @@ COPY "AccessPermissions" (id, "roleId", "rightId", permission) FROM stdin;
 --
 
 SELECT pg_catalog.setval('"AccessPermissions_id_seq"', 1, true);
-
---
--- Data for Name: AttachmentAttempts; Type: TABLE DATA; Schema: test; Owner: indabauser
---
-
-COPY "AttachmentAttempts" (key, filename, mimetype, size, created) FROM stdin;
-\.
-
 
 --
 -- Data for Name: AttachmentLinks; Type: TABLE DATA; Schema: test; Owner: indabauser
@@ -5555,15 +5509,6 @@ ALTER TABLE ONLY "AccessPermissions"
 
 ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
-
-
---
--- Name: AttachmentAttempts AttachmentAttempts_pkey; Type: CONSTRAINT; Schema: test; Owner: indabauser
---
-
-ALTER TABLE ONLY "AttachmentAttempts"
-    ADD CONSTRAINT "AttachmentAttempts_pkey" PRIMARY KEY (key);
-
 
 --
 -- Name: AttachmentLinks AttachmentLinks_pkey; Type: CONSTRAINT; Schema: test; Owner: indabauser

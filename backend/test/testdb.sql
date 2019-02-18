@@ -1388,21 +1388,6 @@ CREATE TABLE "AccessPermissions" (
 ALTER TABLE sceleton."AccessPermissions" OWNER TO indaba;
 
 --
--- Name: AttachmentAttempts; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-CREATE TABLE "AttachmentAttempts" (
-    key character varying NOT NULL,
-    filename character varying,
-    mimetype character varying,
-    size integer,
-    created timestamp without time zone DEFAULT now() NOT NULL
-);
-
-
-ALTER TABLE sceleton."AttachmentAttempts" OWNER TO indaba;
-
---
 -- Name: AttachmentLinks; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
@@ -3172,14 +3157,6 @@ COPY "AccessPermissions" ("roleId", "rightId", permission, id) FROM stdin;
 SELECT pg_catalog.setval('"AccessPermissions_id_seq"', 1, true);
 
 --
--- Data for Name: AttachmentAttempts; Type: TABLE DATA; Schema: sceleton; Owner: indaba
---
-
-COPY "AttachmentAttempts" (key, filename, mimetype, size, created) FROM stdin;
-\.
-
-
---
 -- Data for Name: AttachmentLinks; Type: TABLE DATA; Schema: sceleton; Owner: indaba
 --
 
@@ -3988,15 +3965,6 @@ ALTER TABLE ONLY "AccessPermissions"
 
 ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
-
-
---
--- Name: AttachmentAttempts_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-ALTER TABLE ONLY "AttachmentAttempts"
-    ADD CONSTRAINT "AttachmentAttempts_pkey" PRIMARY KEY (key);
-
 
 --
 -- Name: AttachmentLinks_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:

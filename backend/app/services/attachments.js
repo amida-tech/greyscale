@@ -1,6 +1,5 @@
 var
     Attachment = require('../models/attachments'),
-    AttachmentAttempts = require('../models/attachment_attempts'),
     AttachmentLink = require('../models/attachment_links'),
     config = require('../../config'),
     co = require('co'),
@@ -144,24 +143,6 @@ var exportObject = function (req, realm) {
             Key: key
         };
         return s3.getSignedUrl('getObject', params);
-    };
-
-    this.addAttempt = function (oAttempt) {
-        return co(function* () {
-            return yield thunkQuery(AttachmentAttempts.insert(oAttempt).returning(AttachmentAttempts.key));
-        });
-    };
-
-    this.getAttemptByKey = function (key) {
-        return co(function* () {
-            return yield thunkQuery(AttachmentAttempts.select().where(AttachmentAttempts.key.equals(key)));
-        });
-    };
-
-    this.removeAttempt = function (key) {
-        return co(function* () {
-            return yield thunkQuery(AttachmentAttempts.delete().where(AttachmentAttempts.key.equals(key)));
-        });
     };
 };
 

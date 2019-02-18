@@ -1883,22 +1883,6 @@ CREATE TABLE "AccessPermissions" (
 ALTER TABLE "AccessPermissions" OWNER TO indabauser;
 
 --
--- TOC entry 209 (class 1259 OID 1599738)
--- Name: AttachmentAttempts; Type: TABLE; Schema: sceleton; Owner: indabauser
---
-
-CREATE TABLE "AttachmentAttempts" (
-    key character varying NOT NULL,
-    filename character varying,
-    mimetype character varying,
-    size integer,
-    created timestamp without time zone DEFAULT now() NOT NULL
-);
-
-
-ALTER TABLE "AttachmentAttempts" OWNER TO indabauser;
-
---
 -- TOC entry 210 (class 1259 OID 1599745)
 -- Name: AttachmentLinks; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
@@ -3274,17 +3258,6 @@ CREATE TABLE "AccessPermissions" (
 
 
 ALTER TABLE "AccessPermissions" OWNER TO indabauser;
-
-CREATE TABLE "AttachmentAttempts" (
-    key character varying NOT NULL,
-    filename character varying,
-    mimetype character varying,
-    size integer,
-    created timestamp without time zone DEFAULT now() NOT NULL
-);
-
-
-ALTER TABLE "AttachmentAttempts" OWNER TO indabauser;
 
 --
 -- TOC entry 442 (class 1259 OID 1602083)
@@ -4809,15 +4782,6 @@ ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
 
 --
--- TOC entry 3265 (class 2606 OID 1600490)
--- Name: AttachmentAttempts_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "AttachmentAttempts"
-    ADD CONSTRAINT "AttachmentAttempts_pkey" PRIMARY KEY (key);
-
-
---
 -- TOC entry 3267 (class 2606 OID 1600492)
 -- Name: AttachmentLinks_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
@@ -5249,15 +5213,6 @@ ALTER TABLE ONLY "AccessPermissions"
 
 ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
-
---
--- TOC entry 3381 (class 2606 OID 1601706)
--- Name: AttachmentAttempts_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "AttachmentAttempts"
-    ADD CONSTRAINT "AttachmentAttempts_pkey" PRIMARY KEY (key);
-
 
 --
 -- TOC entry 3481 (class 2606 OID 1602090)
