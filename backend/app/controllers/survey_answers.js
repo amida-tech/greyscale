@@ -4,7 +4,6 @@ var
     bologger = new BoLogger(),
     Essence = require('../models/essences'),
     SurveyAnswer = require('../models/survey_answers'),
-    AttachmentLink = require('../models/attachment_links'),
     SurveyQuestion = require('../models/survey_questions'),
     SurveyQuestionOption = require('../models/survey_question_options'),
     WorkflowStep = require('../models/workflow_steps'),
@@ -568,36 +567,5 @@ function* addAnswer(req, dataObject) {
     }
 
     var essence = yield thunkQuery(Essence.select().where(Essence.tableName.equals('SurveyAnswers')));
-
-    if (Array.isArray(dataObject.attachments)) {
-
-        var link = yield thunkQuery(AttachmentLink.select().where({
-            essenceId: essence[0].id,
-            entityId: answer.id
-        }));
-
-        if (link.length) {
-            yield thunkQuery(
-                AttachmentLink
-                .update({
-                    attachments: dataObject.attachments
-                })
-                .where({
-                    essenceId: essence[0].id,
-                    entityId: answer.id
-                })
-            );
-        } else {
-            yield thunkQuery(
-                AttachmentLink.insert({
-                    essenceId: essence[0].id,
-                    entityId: answer.id,
-                    attachments: dataObject.attachments
-                })
-            );
-        }
-
-    }
-
     return answer;
 }

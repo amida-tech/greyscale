@@ -1388,19 +1388,6 @@ CREATE TABLE "AccessPermissions" (
 ALTER TABLE sceleton."AccessPermissions" OWNER TO indaba;
 
 --
--- Name: AttachmentLinks; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-CREATE TABLE "AttachmentLinks" (
-    "essenceId" integer NOT NULL,
-    "entityId" integer NOT NULL,
-    attachments integer[]
-);
-
-
-ALTER TABLE sceleton."AttachmentLinks" OWNER TO indaba;
-
---
 -- Name: Attachments; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
@@ -3157,14 +3144,6 @@ COPY "AccessPermissions" ("roleId", "rightId", permission, id) FROM stdin;
 SELECT pg_catalog.setval('"AccessPermissions_id_seq"', 1, true);
 
 --
--- Data for Name: AttachmentLinks; Type: TABLE DATA; Schema: sceleton; Owner: indaba
---
-
-COPY "AttachmentLinks" ("essenceId", "entityId", attachments) FROM stdin;
-\.
-
-
---
 -- Data for Name: Attachments; Type: TABLE DATA; Schema: sceleton; Owner: indaba
 --
 
@@ -3967,14 +3946,6 @@ ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
 
 --
--- Name: AttachmentLinks_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-ALTER TABLE ONLY "AttachmentLinks"
-    ADD CONSTRAINT "AttachmentLinks_pkey" PRIMARY KEY ("essenceId", "entityId");
-
-
---
 -- Name: Attachments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
@@ -4542,14 +4513,6 @@ ALTER TABLE ONLY "RolesRights"
 
 
 SET search_path = sceleton, pg_catalog;
-
---
--- Name: AttachmentLinks_essenceId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "AttachmentLinks"
-    ADD CONSTRAINT "AttachmentLinks_essenceId_fkey" FOREIGN KEY ("essenceId") REFERENCES "Essences"(id);
-
 
 --
 -- Name: Comments_questionId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba

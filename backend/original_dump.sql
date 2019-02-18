@@ -1641,19 +1641,6 @@ CREATE TABLE "AccessPermissions" (
 ALTER TABLE "AccessPermissions" OWNER TO indabauser;
 
 --
--- Name: AttachmentLinks; Type: TABLE; Schema: sceleton; Owner: indabauser
---
-
-CREATE TABLE "AttachmentLinks" (
-    "essenceId" integer NOT NULL,
-    "entityId" integer NOT NULL,
-    attachments integer[]
-);
-
-
-ALTER TABLE "AttachmentLinks" OWNER TO indabauser;
-
---
 -- Name: Attachments; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2647,19 +2634,6 @@ CREATE TABLE "AccessPermissions" (
 
 
 ALTER TABLE "AccessPermissions" OWNER TO indabauser;
-
---
--- Name: AttachmentLinks; Type: TABLE; Schema: test; Owner: indabauser
---
-
-CREATE TABLE "AttachmentLinks" (
-    "essenceId" integer NOT NULL,
-    "entityId" integer NOT NULL,
-    attachments integer[]
-);
-
-
-ALTER TABLE "AttachmentLinks" OWNER TO indabauser;
 
 --
 -- Name: Attachments_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
@@ -3864,14 +3838,6 @@ COPY "AccessPermissions" (id, "roleId", "rightId", permission) FROM stdin;
 SELECT pg_catalog.setval('"AccessPermissions_id_seq"', 1, true);
 
 --
--- Data for Name: AttachmentLinks; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "AttachmentLinks" ("essenceId", "entityId", attachments) FROM stdin;
-\.
-
-
---
 -- Data for Name: Attachments; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
 --
 
@@ -4435,14 +4401,6 @@ COPY "AccessPermissions" (id, "roleId", "rightId", permission) FROM stdin;
 --
 
 SELECT pg_catalog.setval('"AccessPermissions_id_seq"', 1, true);
-
---
--- Data for Name: AttachmentLinks; Type: TABLE DATA; Schema: test; Owner: indabauser
---
-
-COPY "AttachmentLinks" ("essenceId", "entityId", attachments) FROM stdin;
-\.
-
 
 --
 -- Data for Name: Attachments; Type: TABLE DATA; Schema: test; Owner: indabauser
@@ -5142,14 +5100,6 @@ ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
 
 --
--- Name: AttachmentLinks AttachmentLinks_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "AttachmentLinks"
-    ADD CONSTRAINT "AttachmentLinks_pkey" PRIMARY KEY ("essenceId", "entityId");
-
-
---
 -- Name: Attachments Attachments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5509,14 +5459,6 @@ ALTER TABLE ONLY "AccessPermissions"
 
 ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
-
---
--- Name: AttachmentLinks AttachmentLinks_pkey; Type: CONSTRAINT; Schema: test; Owner: indabauser
---
-
-ALTER TABLE ONLY "AttachmentLinks"
-    ADD CONSTRAINT "AttachmentLinks_pkey" PRIMARY KEY ("essenceId", "entityId");
-
 
 --
 -- Name: Attachments Attachments_pkey; Type: CONSTRAINT; Schema: test; Owner: indabauser
@@ -6114,14 +6056,6 @@ ALTER TABLE ONLY "Users"
 SET search_path = sceleton, pg_catalog;
 
 --
--- Name: AttachmentLinks AttachmentLinks_essenceId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "AttachmentLinks"
-    ADD CONSTRAINT "AttachmentLinks_essenceId_fkey" FOREIGN KEY ("essenceId") REFERENCES "Essences"(id);
-
-
---
 -- Name: Discussions Discussions_returnTaskId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -6625,14 +6559,6 @@ ALTER TABLE ONLY "Workflows"
 
 
 SET search_path = test, pg_catalog;
-
-
---
--- Name: AttachmentLinks AttachmentLinks_essenceId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indabauser
---
-
-ALTER TABLE ONLY "AttachmentLinks"
-    ADD CONSTRAINT "AttachmentLinks_essenceId_fkey" FOREIGN KEY ("essenceId") REFERENCES "Essences"(id);
 
 
 --

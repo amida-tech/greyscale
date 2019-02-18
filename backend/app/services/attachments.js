@@ -1,6 +1,5 @@
 var
     Attachment = require('../models/attachments'),
-    AttachmentLink = require('../models/attachment_links'),
     config = require('../../config'),
     co = require('co'),
     Query = require('../util').Query,
@@ -22,63 +21,6 @@ var exportObject = function (req, realm) {
     this.getList = function () {
         return co(function* () {
             return thunkQuery(Attachment.select().from(Attachment), req.query);
-        });
-    };
-
-    this.getLinksContainAttachment = function (attachmentId) {
-        return co(function* () {
-            return yield thunkQuery(
-                'SELECT * FROM "AttachmentLinks" WHERE "attachments" @> ARRAY[' + parseInt(attachmentId) + ']'
-            );
-        });
-    };
-
-    this.updateLinkArray = function (essenceId, entityId, attArr) {
-        return co(function* () {
-            if (!Array.isArray(attArr)) {
-                throw new Error('You should provide an array of attachment ids');
-            }
-
-            yield thunkQuery(
-                AttachmentLink
-                .update({
-                    attachments: attArr
-                }).where(
-                    AttachmentLink.essenceId.equals(essenceId)
-                    .and(AttachmentLink.entityId.equals(entityId))
-                )
-            );
-        });
-    };
-
-    this.removeLink = function (essenceId, entityId) {
-        return co(function* () {
-            yield thunkQuery(
-                AttachmentLink.delete().where(
-                    AttachmentLink.essenceId.equals(essenceId)
-                    .and(AttachmentLink.entityId.equals(entityId))
-                )
-            );
-        });
-    };
-
-    this.addLink = function (oLink) {
-        return co(function* () {
-            yield thunkQuery(AttachmentLink.insert(oLink));
-        });
-
-    };
-
-    this.getLink = function (essenceId, entityId) {
-        return co(function* () {
-            return yield thunkQuery(
-                AttachmentLink
-                .select()
-                .where(
-                    AttachmentLink.essenceId.equals(essenceId)
-                    .and(AttachmentLink.entityId.equals(entityId))
-                )
-            );
         });
     };
 

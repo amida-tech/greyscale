@@ -485,17 +485,6 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 43	UserGroups	UserGroups	user_groups	UserId
 \.
 
-
---
--- TOC entry 3806 (class 0 OID 1599745)
--- Dependencies: 210
--- Data for Name: AttachmentLinks; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "AttachmentLinks" ("essenceId", "entityId", attachments) FROM stdin;
-\.
-
-
 --
 -- TOC entry 3807 (class 0 OID 1599751)
 -- Dependencies: 211
@@ -1235,17 +1224,6 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 42	UserUOA	UserUOA	user_uoa	UserId
 43	UserGroups	UserGroups	user_groups	UserId
 \.
-
-
---
--- TOC entry 3957 (class 0 OID 1602083)
--- Dependencies: 442
--- Data for Name: AttachmentLinks; Type: TABLE DATA; Schema: test; Owner: indaba
---
-
-COPY "AttachmentLinks" ("essenceId", "entityId", attachments) FROM stdin;
-\.
-
 
 --
 -- TOC entry 3924 (class 0 OID 1601742)

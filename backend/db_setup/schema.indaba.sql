@@ -1883,20 +1883,6 @@ CREATE TABLE "AccessPermissions" (
 ALTER TABLE "AccessPermissions" OWNER TO indabauser;
 
 --
--- TOC entry 210 (class 1259 OID 1599745)
--- Name: AttachmentLinks; Type: TABLE; Schema: sceleton; Owner: indabauser
---
-
-CREATE TABLE "AttachmentLinks" (
-    "essenceId" integer NOT NULL,
-    "entityId" integer NOT NULL,
-    attachments integer[]
-);
-
-
-ALTER TABLE "AttachmentLinks" OWNER TO indabauser;
-
---
 -- TOC entry 211 (class 1259 OID 1599751)
 -- Name: Attachments; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
@@ -3258,20 +3244,6 @@ CREATE TABLE "AccessPermissions" (
 
 
 ALTER TABLE "AccessPermissions" OWNER TO indabauser;
-
---
--- TOC entry 442 (class 1259 OID 1602083)
--- Name: AttachmentLinks; Type: TABLE; Schema: test; Owner: indaba
---
-
-CREATE TABLE "AttachmentLinks" (
-    "essenceId" integer NOT NULL,
-    "entityId" integer NOT NULL,
-    attachments integer[]
-);
-
-
-ALTER TABLE "AttachmentLinks" OWNER TO indabauser;
 
 --
 -- TOC entry 368 (class 1259 OID 1601608)
@@ -4782,15 +4754,6 @@ ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
 
 --
--- TOC entry 3267 (class 2606 OID 1600492)
--- Name: AttachmentLinks_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "AttachmentLinks"
-    ADD CONSTRAINT "AttachmentLinks_pkey" PRIMARY KEY ("essenceId", "entityId");
-
-
---
 -- TOC entry 3269 (class 2606 OID 1600494)
 -- Name: Attachments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
@@ -5213,15 +5176,6 @@ ALTER TABLE ONLY "AccessPermissions"
 
 ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
-
---
--- TOC entry 3481 (class 2606 OID 1602090)
--- Name: AttachmentLinks_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "AttachmentLinks"
-    ADD CONSTRAINT "AttachmentLinks_pkey" PRIMARY KEY ("essenceId", "entityId");
-
 
 --
 -- TOC entry 3389 (class 2606 OID 1601750)
@@ -5894,16 +5848,6 @@ ALTER TABLE ONLY "RolesRights"
 
 SET search_path = sceleton, pg_catalog;
 
-
---
--- TOC entry 3500 (class 2606 OID 1600784)
--- Name: AttachmentLinks_essenceId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "AttachmentLinks"
-    ADD CONSTRAINT "AttachmentLinks_essenceId_fkey" FOREIGN KEY ("essenceId") REFERENCES "Essences"(id);
-
-
 --
 -- TOC entry 3505 (class 2606 OID 1600794)
 -- Name: Discussions_returnTaskId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
@@ -6454,16 +6398,6 @@ ALTER TABLE ONLY "RolesRights"
 
 
 SET search_path = test, pg_catalog;
-
-
---
--- TOC entry 3650 (class 2606 OID 1602126)
--- Name: AttachmentLinks_essenceId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "AttachmentLinks"
-    ADD CONSTRAINT "AttachmentLinks_essenceId_fkey" FOREIGN KEY ("essenceId") REFERENCES "Essences"(id);
-
 
 --
 -- TOC entry 3586 (class 2606 OID 1602136)
