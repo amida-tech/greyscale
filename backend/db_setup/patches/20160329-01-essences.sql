@@ -1,5 +1,5 @@
 WITH new_values ("tableName","name","fileName","nameField") as (
-  values 
+  values
 ('Surveys', 'Surveys', 'surveys', 'title'),
 ('SurveyQuestions', 'Survey Questions', 'survey_questions', 'label'),
 ('SurveyQuestionOptions', 'Survey Question Options', 'survey_question_options', 'label'),
@@ -32,15 +32,14 @@ WITH new_values ("tableName","name","fileName","nameField") as (
 ('Rights', 'Rights', 'rights', 'action'),
 ('RoleRights', 'RoleRights', 'role_rights', 'roleId'),
 ('Visualizations', 'Visualizations', 'visualizations', 'title'),
-('AccessMatrices', 'AccessMatrices', 'access_matrices', 'name'),
 ('AccessPermissions', 'AccessPermissions', 'access_permissions', 'id'),
 ('Token', 'Token', 'token', 'realm'),
 ('UserUOA', 'UserUOA', 'user_uoa', 'UserId'),
 ('UserGroups', 'UserGroups', 'user_groups', 'UserId')
 ),
 upsert as
-( 
-    update "Essences" m 
+(
+    update "Essences" m
         set "name" = nv."name",
             "fileName" = nv."fileName",
             "nameField" = nv."nameField"
@@ -52,6 +51,6 @@ upsert as
 INSERT INTO "Essences" ("tableName","name","fileName","nameField")
 SELECT "tableName","name","fileName","nameField"
 FROM new_values
-WHERE NOT EXISTS (SELECT 1 
-                  FROM upsert up 
+WHERE NOT EXISTS (SELECT 1
+                  FROM upsert up
                   WHERE upper(up."tableName") = upper(new_values."tableName"))

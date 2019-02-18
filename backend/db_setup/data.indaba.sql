@@ -61,12 +61,11 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 34	Rights	Rights	rights	action
 35	RoleRights	RoleRights	role_rights	roleId
 39	Visualizations	Visualizations	visualizations	title
-40	AccessMatrices	AccessMatrices	access_matrices	name
-41	AccessPermissions	AccessPermissions	access_permissions	id
-42	AnswerAttachments	AnswerAttachments	answer_attachments	filename
-43	Token	Token	token	realm
-44	UserUOA	UserUOA	user_uoa	UserId
-45	UserGroups	UserGroups	user_groups	UserId
+40	AccessPermissions	AccessPermissions	access_permissions	id
+41	AnswerAttachments	AnswerAttachments	answer_attachments	filename
+42	Token	Token	token	realm
+43	UserUOA	UserUOA	user_uoa	UserId
+44	UserGroups	UserGroups	user_groups	UserId
 \.
 
 
@@ -340,32 +339,12 @@ SELECT pg_catalog.setval('user_id_seq', 357, true);
 SET search_path = sceleton, pg_catalog;
 
 --
--- TOC entry 3983 (class 0 OID 0)
--- Dependencies: 203
--- Name: AccessMatix_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"AccessMatix_id_seq"', 8, true);
-
-
---
--- TOC entry 3800 (class 0 OID 1599715)
--- Dependencies: 204
--- Data for Name: AccessMatrices; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "AccessMatrices" (id, name, description, default_value) FROM stdin;
-8	Default	Default access matrix	0
-\.
-
-
---
 -- TOC entry 3802 (class 0 OID 1599724)
 -- Dependencies: 206
 -- Data for Name: AccessPermissions; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
 --
 
-COPY "AccessPermissions" ("matrixId", "roleId", "rightId", permission, id) FROM stdin;
+COPY "AccessPermissions" ("roleId", "rightId", permission, id) FROM stdin;
 \.
 
 
@@ -432,7 +411,7 @@ COPY "Users" ("roleID", id, email, "firstName", "lastName", password, cell, birt
 -- Data for Name: Projects; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
 --
 
-COPY "Projects" (id, "organizationId", "codeName", description, created, "matrixId", "startTime", status, "adminUserId", "closeTime", "langId") FROM stdin;
+COPY "Projects" (id, "organizationId", "codeName", description, created, "startTime", status, "adminUserId", "closeTime", "langId") FROM stdin;
 \.
 
 
@@ -531,12 +510,11 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 34	Rights	Rights	rights	action
 35	RoleRights	RoleRights	role_rights	roleId
 39	Visualizations	Visualizations	visualizations	title
-40	AccessMatrices	AccessMatrices	access_matrices	name
-41	AccessPermissions	AccessPermissions	access_permissions	id
-42	AnswerAttachments	AnswerAttachments	answer_attachments	filename
-43	Token	Token	token	realm
-44	UserUOA	UserUOA	user_uoa	UserId
-45	UserGroups	UserGroups	user_groups	UserId
+40	AccessPermissions	AccessPermissions	access_permissions	id
+41	AnswerAttachments	AnswerAttachments	answer_attachments	filename
+42	Token	Token	token	realm
+43	UserUOA	UserUOA	user_uoa	UserId
+44	UserGroups	UserGroups	user_groups	UserId
 \.
 
 
@@ -1135,32 +1113,12 @@ SELECT pg_catalog.setval('user_id_seq', 1, true);
 SET search_path = test, pg_catalog;
 
 --
--- TOC entry 4021 (class 0 OID 0)
--- Dependencies: 365
--- Name: AccessMatix_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indaba
---
-
-SELECT pg_catalog.setval('"AccessMatix_id_seq"', 8, true);
-
-
---
--- TOC entry 3921 (class 0 OID 1601707)
--- Dependencies: 406
--- Data for Name: AccessMatrices; Type: TABLE DATA; Schema: test; Owner: indaba
---
-
-COPY "AccessMatrices" (id, name, description, default_value) FROM stdin;
-8	Default	Default access matrix	0
-\.
-
-
---
 -- TOC entry 3918 (class 0 OID 1601678)
 -- Dependencies: 403
 -- Data for Name: AccessPermissions; Type: TABLE DATA; Schema: test; Owner: indaba
 --
 
-COPY "AccessPermissions" ("matrixId", "roleId", "rightId", permission, id) FROM stdin;
+COPY "AccessPermissions" ("roleId", "rightId", permission, id) FROM stdin;
 \.
 
 
@@ -1231,7 +1189,7 @@ COPY "Users" ("roleID", id, email, "firstName", "lastName", password, cell, birt
 -- Data for Name: Projects; Type: TABLE DATA; Schema: test; Owner: indaba
 --
 
-COPY "Projects" (id, "organizationId", "codeName", description, created, "matrixId", "startTime", status, "adminUserId", "closeTime", "langId") FROM stdin;
+COPY "Projects" (id, "organizationId", "codeName", description, created, "startTime", status, "adminUserId", "closeTime", "langId") FROM stdin;
 -- 2	2	Org_2_project	\N	2017-04-11 11:59:50-04	\N	\N	0	\N	\N	\N
 \.
 
@@ -1335,12 +1293,11 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 34	Rights	Rights	rights	action
 35	RoleRights	RoleRights	role_rights	roleId
 39	Visualizations	Visualizations	visualizations	title
-40	AccessMatrices	AccessMatrices	access_matrices	name
-41	AccessPermissions	AccessPermissions	access_permissions	id
-42	AnswerAttachments	AnswerAttachments	answer_attachments	filename
-43	Token	Token	token	realm
-44	UserUOA	UserUOA	user_uoa	UserId
-45	UserGroups	UserGroups	user_groups	UserId
+40	AccessPermissions	AccessPermissions	access_permissions	id
+41	AnswerAttachments	AnswerAttachments	answer_attachments	filename
+42	Token	Token	token	realm
+43	UserUOA	UserUOA	user_uoa	UserId
+44	UserGroups	UserGroups	user_groups	UserId
 \.
 
 

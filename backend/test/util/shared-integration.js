@@ -13,7 +13,6 @@ const roles1 = require('../fixtures/seed/roles_1');
 const tokens = require('../fixtures/seed/tokens_0');
 const users = require('../fixtures/seed/users_0');
 const users1 = require('../fixtures/seed/users_1');
-const accessMatrices = require('../fixtures/seed/access-matrices_0');
 const rolesRights = require('../fixtures/seed/roles-rights_0');
 const unitOfAnalysisTypes = require('../fixtures/seed/unit-of-analysis-type_0');
 const groups = require('../fixtures/seed/groups_0');
@@ -36,8 +35,6 @@ const setSequenceValue = function (db, key, value, schema) {
 
 const seedSchemaCommon = function (db, schema) {
     return Promise.resolve()
-        .then(() => db[schema].AccessMatrices.bulkCreate(accessMatrices))
-        .then(() => setSequenceValue(db, 'AccessMatrices_id_seq', 8, schema))
         .then(() => setSequenceValue(db, 'AccessPermissions_id_seq', 1, schema))
         .then(() => setSequenceValue(db, 'AnswerAttachments_id_seq', 1, schema))
         .then(() => setSequenceValue(db, 'Discussions_id_seq', 1, schema))

@@ -5,7 +5,6 @@
 5) Following sequence names are replaced by what is the standard based on the table it is used:
    role_id_seq -> Roles_id_seq
    user_id_seq -> Users_id_seq
-   AccessMatix_id_seq -> AccessMatrices_id_seq
    Index_id_seq -> Indexes_id_seq
    role_id_seq -> Roles_id_seq
    Subindex_id_seq -> Subindexes_id_seq

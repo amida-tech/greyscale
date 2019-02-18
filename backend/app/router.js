@@ -164,27 +164,6 @@ router.route('/:realm/v0.2/essence_roles/:id')
     .delete(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ essenceRoles.delete);
 
 //----------------------------------------------------------------------------------------------------------------------
-//    ACCESS_MATRICES
-//-----------------------------------------------s-----------------------------------------------------------------------
-var accessMatrices = require('./controllers/access_matrices');
-
-router.route('/:realm/v0.2/access_matrices')
-    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ accessMatrices.select)
-    .post(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ accessMatrices.insertOne);
-
-router.route('/:realm/v0.2/access_matrices/:id/permissions')
-    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ accessMatrices.permissionsSelect);
-
-//----------------------------------------------------------------------------------------------------------------------
-//    ACCESS_PERMISSIONS
-//----------------------------------------------------------------------------------------------------------------------
-router.route('/:realm/v0.2/access_permissions')
-    .post(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ accessMatrices.permissionsInsertOne);
-
-router.route('/:realm/v0.2/access_permissions/:id')
-    .delete(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ accessMatrices.permissionsDeleteOne);
-
-//----------------------------------------------------------------------------------------------------------------------
 //    LANGUAGES
 //----------------------------------------------------------------------------------------------------------------------
 var languages = require('./controllers/languages');

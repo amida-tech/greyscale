@@ -189,11 +189,6 @@ var essencesContent = [{
     fileName: 'visualizations',
     nameField: 'title'
 }, {
-    tableName: 'AccessMatrices',
-    name: 'AccessMatrices',
-    fileName: 'access_matrices',
-    nameField: 'name'
-}, {
     tableName: 'AccessPermissions',
     name: 'AccessPermissions',
     fileName: 'access_permissions',

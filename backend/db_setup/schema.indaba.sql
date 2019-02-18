@@ -1853,36 +1853,6 @@ ALTER TABLE transportmodel_id_seq OWNER TO indabauser;
 SET search_path = sceleton, pg_catalog;
 
 --
--- TOC entry 203 (class 1259 OID 1599713)
--- Name: AccessMatix_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
---
-
-CREATE SEQUENCE "AccessMatix_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "AccessMatix_id_seq" OWNER TO indabauser;
-
---
--- TOC entry 204 (class 1259 OID 1599715)
--- Name: AccessMatrices; Type: TABLE; Schema: sceleton; Owner: indabauser
---
-
-CREATE TABLE "AccessMatrices" (
-    id integer DEFAULT nextval('"AccessMatix_id_seq"'::regclass) NOT NULL,
-    name character varying(100),
-    description text,
-    default_value smallint
-);
-
-
-ALTER TABLE "AccessMatrices" OWNER TO indabauser;
-
---
 -- TOC entry 205 (class 1259 OID 1599722)
 -- Name: AccessPermissions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
@@ -1903,7 +1873,6 @@ ALTER TABLE "AccessPermissions_id_seq" OWNER TO indabauser;
 --
 
 CREATE TABLE "AccessPermissions" (
-    "matrixId" integer NOT NULL,
     "roleId" integer NOT NULL,
     "rightId" integer NOT NULL,
     permission smallint,
@@ -2465,7 +2434,6 @@ CREATE TABLE "Projects" (
     "codeName" character varying(100),
     description text,
     created timestamp(0) with time zone DEFAULT now() NOT NULL,
-    "matrixId" integer,
     "startTime" timestamp with time zone,
     status smallint DEFAULT 0 NOT NULL,
     "adminUserId" integer,
@@ -3317,41 +3285,6 @@ ALTER TABLE transportmodel_id_seq OWNER TO indabauser;
 
 SET search_path = test, pg_catalog;
 
---
--- TOC entry 365 (class 1259 OID 1601602)
--- Name: AccessMatix_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
---
-
-CREATE SEQUENCE "AccessMatix_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "AccessMatix_id_seq" OWNER TO indabauser;
-
---
--- TOC entry 406 (class 1259 OID 1601707)
--- Name: AccessMatrices; Type: TABLE; Schema: test; Owner: indaba
---
-
-CREATE TABLE "AccessMatrices" (
-    id integer DEFAULT nextval('"AccessMatix_id_seq"'::regclass) NOT NULL,
-    name character varying(100),
-    description text,
-    default_value smallint
-);
-
-
-ALTER TABLE "AccessMatrices" OWNER TO indabauser;
-
---
--- TOC entry 366 (class 1259 OID 1601604)
--- Name: AccessPermissions_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
---
-
 CREATE SEQUENCE "AccessPermissions_id_seq"
     START WITH 1
     INCREMENT BY 1
@@ -3368,7 +3301,6 @@ ALTER TABLE "AccessPermissions_id_seq" OWNER TO indabauser;
 --
 
 CREATE TABLE "AccessPermissions" (
-    "matrixId" integer NOT NULL,
     "roleId" integer NOT NULL,
     "rightId" integer NOT NULL,
     permission smallint,
@@ -3921,7 +3853,6 @@ CREATE TABLE "Projects" (
     "codeName" character varying(100),
     description text,
     created timestamp(0) with time zone DEFAULT now() NOT NULL,
-    "matrixId" integer,
     "startTime" timestamp with time zone,
     status smallint DEFAULT 0 NOT NULL,
     "adminUserId" integer,
@@ -4936,21 +4867,12 @@ ALTER TABLE ONLY "Users"
 SET search_path = sceleton, pg_catalog;
 
 --
--- TOC entry 3257 (class 2606 OID 1600482)
--- Name: AccessMatrices_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "AccessMatrices"
-    ADD CONSTRAINT "AccessMatrices_pkey" PRIMARY KEY (id);
-
-
---
 -- TOC entry 3259 (class 2606 OID 1600484)
--- Name: AccessPermissions_matrixId_roleId_rightId_key; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
+-- Name: AccessPermissions_roleId_rightId_key; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
 ALTER TABLE ONLY "AccessPermissions"
-    ADD CONSTRAINT "AccessPermissions_matrixId_roleId_rightId_key" UNIQUE ("matrixId", "roleId", "rightId");
+    ADD CONSTRAINT "AccessPermissions_roleId_rightId_key" UNIQUE ("roleId", "rightId");
 
 
 --
@@ -5397,21 +5319,12 @@ ALTER TABLE ONLY "Workflows"
 SET search_path = test, pg_catalog;
 
 --
--- TOC entry 3383 (class 2606 OID 1601715)
--- Name: AccessMatrices_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "AccessMatrices"
-    ADD CONSTRAINT "AccessMatrices_pkey" PRIMARY KEY (id);
-
-
---
 -- TOC entry 3375 (class 2606 OID 1601685)
--- Name: AccessPermissions_matrixId_roleId_rightId_key; Type: CONSTRAINT; Schema: test; Owner: indaba
+-- Name: AccessPermissions_roleId_rightId_key; Type: CONSTRAINT; Schema: test; Owner: indaba
 --
 
 ALTER TABLE ONLY "AccessPermissions"
-    ADD CONSTRAINT "AccessPermissions_matrixId_roleId_rightId_key" UNIQUE ("matrixId", "roleId", "rightId");
+    ADD CONSTRAINT "AccessPermissions_roleId_rightId_key" UNIQUE ("roleId", "rightId");
 
 
 --
@@ -6348,15 +6261,6 @@ ALTER TABLE ONLY "Products"
 
 
 --
--- TOC entry 3530 (class 2606 OID 1600919)
--- Name: Projects_accessMatrixId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "Projects"
-    ADD CONSTRAINT "Projects_accessMatrixId_fkey" FOREIGN KEY ("matrixId") REFERENCES "AccessMatrices"(id);
-
-
---
 -- TOC entry 3529 (class 2606 OID 1600924)
 -- Name: Projects_adminUserId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
@@ -6924,16 +6828,6 @@ ALTER TABLE ONLY "Products"
 
 ALTER TABLE ONLY "Products"
     ADD CONSTRAINT "Products_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Projects"(id);
-
-
---
--- TOC entry 3598 (class 2606 OID 1602261)
--- Name: Projects_accessMatrixId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "Projects"
-    ADD CONSTRAINT "Projects_accessMatrixId_fkey" FOREIGN KEY ("matrixId") REFERENCES "AccessMatrices"(id);
-
 
 --
 -- TOC entry 3597 (class 2606 OID 1602266)

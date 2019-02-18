@@ -9,7 +9,6 @@ const rights = require('./rights.model');
 const roles = require('./roles.model');
 const rolesRights = require('./roles-rights.model');
 const token = require('./token.model');
-const accessMatrices = require('./access-matrices.model');
 const accessPermissions = require('./access-permissions.model');
 const answerAttachments = require('./answer-attachments.model');
 const attachmentAttempts = require('./attachment-attempts.model');
@@ -68,7 +67,6 @@ const definePublicTables = function (sequelize, Sequelize) {
 };
 
 const defineSchemaTables = function (sequelize, Sequelize, schema) {
-    const AccessMatrices = accessMatrices(sequelize, Sequelize, schema);
     const AccessPermissions = accessPermissions(sequelize, Sequelize, schema);
     const AnswerAttachments = answerAttachments(sequelize, Sequelize, schema);
     const AttachmentAttempts = attachmentAttempts(sequelize, Sequelize, schema);
@@ -114,7 +112,6 @@ const defineSchemaTables = function (sequelize, Sequelize, schema) {
     ProjectUsers.removeAttribute('id');
 
     return {
-        AccessMatrices,
         AccessPermissions,
         AnswerAttachments,
         AttachmentAttempts,

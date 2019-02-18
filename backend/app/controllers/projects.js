@@ -13,7 +13,6 @@ var _ = require('underscore'),
     WorkflowStepGroup = require('../models/workflow_step_groups'),
     Survey = require('../models/surveys'),
     SurveyQuestion = require('../models/survey_questions'),
-    AccessMatrix = require('../models/access_matrices'),
     Organization = require('../models/organizations'),
     Group = require('../models/groups'),
     UserGroup = require('../models/user_groups'),
@@ -711,13 +710,6 @@ function* checkProjectData(req) {
     if (typeof req.body.status !== 'undefined') {
         if (Project.statuses.indexOf(parseInt(req.body.status)) === -1) {
             throw new HttpError(403, 'Status can be only 1 (active) and 0 (inactive)');
-        }
-    }
-
-    if (req.body.matrixId) {
-        var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
-        if (!_.first(isExistMatrix)) {
-            throw new HttpError(403, 'Matrix with this id does not exist');
         }
     }
 

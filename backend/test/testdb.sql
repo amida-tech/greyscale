@@ -19,14 +19,14 @@ CREATE SCHEMA sceleton;
 ALTER SCHEMA sceleton OWNER TO indaba;
 
 --
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner:
 --
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
@@ -142,17 +142,17 @@ BEGIN
     FROM pg_namespace
    WHERE nspname = quote_ident(source_schema);
   IF NOT FOUND
-    THEN 
+    THEN
     RAISE NOTICE 'source schema % does not exist!', source_schema;
     RETURN ;
   END IF;
 
   -- Check that dest_schema does not yet exist
-  PERFORM nspname 
+  PERFORM nspname
     FROM pg_namespace
    WHERE nspname = quote_ident(dest_schema);
   IF FOUND
-    THEN 
+    THEN
     RAISE NOTICE 'dest schema % already exists!', dest_schema;
     RETURN ;
   END IF;
@@ -162,67 +162,67 @@ BEGIN
   -- Create sequences
   -- TODO: Find a way to make this sequence's owner is the correct table.
   FOR object IN
-    SELECT sequence_name::text 
+    SELECT sequence_name::text
       FROM information_schema.sequences
      WHERE sequence_schema = quote_ident(source_schema)
   LOOP
     EXECUTE 'CREATE SEQUENCE ' || quote_ident(dest_schema) || '.' || quote_ident(object);
     srctbl := quote_ident(source_schema) || '.' || quote_ident(object);
 
-    EXECUTE 'SELECT last_value, max_value, start_value, increment_by, min_value, cache_value, log_cnt, is_cycled, is_called 
-              FROM ' || quote_ident(source_schema) || '.' || quote_ident(object) || ';' 
-              INTO sq_last_value, sq_max_value, sq_start_value, sq_increment_by, sq_min_value, sq_cache_value, sq_log_cnt, sq_is_cycled, sq_is_called ; 
+    EXECUTE 'SELECT last_value, max_value, start_value, increment_by, min_value, cache_value, log_cnt, is_cycled, is_called
+              FROM ' || quote_ident(source_schema) || '.' || quote_ident(object) || ';'
+              INTO sq_last_value, sq_max_value, sq_start_value, sq_increment_by, sq_min_value, sq_cache_value, sq_log_cnt, sq_is_cycled, sq_is_called ;
 
-    IF sq_is_cycled 
-      THEN 
+    IF sq_is_cycled
+      THEN
         sq_cycled := 'CYCLE';
     ELSE
         sq_cycled := 'NO CYCLE';
     END IF;
 
-    EXECUTE 'ALTER SEQUENCE '   || quote_ident(dest_schema) || '.' || quote_ident(object) 
+    EXECUTE 'ALTER SEQUENCE '   || quote_ident(dest_schema) || '.' || quote_ident(object)
             || ' INCREMENT BY ' || sq_increment_by
-            || ' MINVALUE '     || sq_min_value 
+            || ' MINVALUE '     || sq_min_value
             || ' MAXVALUE '     || sq_max_value
             || ' START WITH '   || sq_start_value
-            || ' RESTART '      || sq_min_value 
-            || ' CACHE '        || sq_cache_value 
+            || ' RESTART '      || sq_min_value
+            || ' CACHE '        || sq_cache_value
             || sq_cycled || ' ;' ;
 
     buffer := quote_ident(dest_schema) || '.' || quote_ident(object);
-    IF include_recs 
+    IF include_recs
         THEN
-            EXECUTE 'SELECT setval( ''' || buffer || ''', ' || sq_last_value || ', ' || sq_is_called || ');' ; 
+            EXECUTE 'SELECT setval( ''' || buffer || ''', ' || sq_last_value || ', ' || sq_is_called || ');' ;
     ELSE
             EXECUTE 'SELECT setval( ''' || buffer || ''', ' || sq_start_value || ', ' || sq_is_called || ');' ;
     END IF;
 
   END LOOP;
 
--- Create tables 
+-- Create tables
   FOR object IN
-    SELECT TABLE_NAME::text 
-      FROM information_schema.tables 
+    SELECT TABLE_NAME::text
+      FROM information_schema.tables
      WHERE table_schema = quote_ident(source_schema)
        AND table_type = 'BASE TABLE'
 
   LOOP
     buffer := dest_schema || '.' || quote_ident(object);
-    EXECUTE 'CREATE TABLE ' || buffer || ' (LIKE ' || quote_ident(source_schema) || '.' || quote_ident(object) 
+    EXECUTE 'CREATE TABLE ' || buffer || ' (LIKE ' || quote_ident(source_schema) || '.' || quote_ident(object)
         || ' INCLUDING ALL)';
 
-    IF include_recs 
-      THEN 
+    IF include_recs
+      THEN
       -- Insert records from source table
       EXECUTE 'INSERT INTO ' || buffer || ' SELECT * FROM ' || quote_ident(source_schema) || '.' || quote_ident(object) || ';';
     END IF;
- 
+
     FOR column_, default_ IN
-      SELECT column_name::text, 
-             REPLACE(REPLACE(column_default::text, quote_ident(source_schema) || '.', ''), 'nextval(''', 'nextval(''' || dest_schema || '.') 
-        FROM information_schema.COLUMNS 
-       WHERE table_schema = dest_schema 
-         AND TABLE_NAME = object 
+      SELECT column_name::text,
+             REPLACE(REPLACE(column_default::text, quote_ident(source_schema) || '.', ''), 'nextval(''', 'nextval(''' || dest_schema || '.')
+        FROM information_schema.COLUMNS
+       WHERE table_schema = dest_schema
+         AND TABLE_NAME = object
          AND column_default LIKE 'nextval(%::regclass)'
     LOOP
       EXECUTE 'ALTER TABLE ' || buffer || ' ALTER COLUMN ' || column_ || ' SET DEFAULT ' || default_;
@@ -232,8 +232,8 @@ BEGIN
 
 --  add FK constraint
   FOR qry IN
-    SELECT 'ALTER TABLE ' || quote_ident(dest_schema) || '.' || quote_ident(rn.relname) 
-                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' ' 
+    SELECT 'ALTER TABLE ' || quote_ident(dest_schema) || '.' || quote_ident(rn.relname)
+                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' '
                           || REPLACE(REPLACE(pg_get_constraintdef(ct.oid), quote_ident(source_schema) || '.', ''), 'REFERENCES ', 'REFERENCES ' || dest_schema || '.') || ';'
 
       FROM pg_constraint ct
@@ -241,17 +241,17 @@ BEGIN
      WHERE connamespace = src_oid
        AND rn.relkind = 'r'
        AND ct.contype = 'f'
-         
+
     LOOP
       EXECUTE qry;
 
     END LOOP;
 
 
--- Create views 
+-- Create views
   FOR object IN
     SELECT table_name::text,
-           view_definition 
+           view_definition
       FROM information_schema.views
      WHERE table_schema = quote_ident(source_schema)
 
@@ -261,28 +261,28 @@ BEGIN
       FROM information_schema.views
      WHERE table_schema = quote_ident(source_schema)
        AND table_name = quote_ident(object);
-     
+
     EXECUTE 'CREATE OR REPLACE VIEW ' || buffer || ' AS ' || v_def || ';' ;
 
   END LOOP;
 
--- Create functions 
+-- Create functions
   FOR func_oid IN
     SELECT oid
-      FROM pg_proc 
+      FROM pg_proc
      WHERE pronamespace = src_oid
 
-  LOOP      
+  LOOP
     SELECT pg_get_functiondef(func_oid) INTO qry;
     SELECT replace(qry, source_schema, dest_schema) INTO dest_qry;
     EXECUTE dest_qry;
 
   END LOOP;
-  
-  RETURN; 
- 
+
+  RETURN;
+
 END;
- 
+
 $$;
 
 
@@ -298,7 +298,7 @@ CREATE FUNCTION fix_schema_references(schema text) RETURNS void
 
 
 
--- This function will fix 
+-- This function will fix
 -- 1) reference to sequence with using correct namespace
 -- 2) FK constraints  reference with using correct namespace
 -- SAMPLE CALL:
@@ -321,7 +321,7 @@ BEGIN
     FROM pg_namespace
    WHERE nspname = quote_ident(schema);
   IF NOT FOUND
-    THEN 
+    THEN
     RAISE NOTICE 'Target schema % does not exist!', schema;
     RETURN ;
   END IF;
@@ -330,21 +330,21 @@ BEGIN
   RAISE NOTICE '%', 'SET search_path TO ' || schema || ';';
   EXECUTE 'SET search_path TO ' || schema || ';';
 
--- Fix reference to sequence 
+-- Fix reference to sequence
   FOR object IN
-    SELECT TABLE_NAME::text 
-      FROM information_schema.tables 
+    SELECT TABLE_NAME::text
+      FROM information_schema.tables
      WHERE table_schema = quote_ident(schema)
        AND table_type = 'BASE TABLE'
 
   LOOP
     buffer := schema || '.' || quote_ident(object);
     FOR column_, default_ IN
-      SELECT column_name::text, 
-             REPLACE(REPLACE(column_default::text, 'public.', ''), 'nextval(''', 'nextval(''' || schema || '.') 
-        FROM information_schema.COLUMNS 
-       WHERE table_schema = schema 
-         AND TABLE_NAME = object 
+      SELECT column_name::text,
+             REPLACE(REPLACE(column_default::text, 'public.', ''), 'nextval(''', 'nextval(''' || schema || '.')
+        FROM information_schema.COLUMNS
+       WHERE table_schema = schema
+         AND TABLE_NAME = object
          AND column_default LIKE 'nextval(%::regclass)'
     LOOP
       RAISE NOTICE '%', 'ALTER TABLE ' || buffer || ' ALTER COLUMN ' || column_ || ' SET DEFAULT ' || default_;
@@ -356,16 +356,16 @@ BEGIN
 
 --  add FK constraint
   FOR qry IN
-    SELECT 'ALTER TABLE ' || quote_ident(schema) || '.' || quote_ident(rn.relname) 
-													|| ' DROP CONSTRAINT ' || quote_ident(ct.conname) || ', ' 
-                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' ' 
+    SELECT 'ALTER TABLE ' || quote_ident(schema) || '.' || quote_ident(rn.relname)
+													|| ' DROP CONSTRAINT ' || quote_ident(ct.conname) || ', '
+                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' '
                           || overlay(pg_get_constraintdef(ct.oid) placing 'REFERENCES '||schema||'.' from position('REFERENCES' in pg_get_constraintdef(ct.oid)) for 11) || ';'
       FROM pg_constraint ct
       JOIN pg_class rn ON rn.oid = ct.conrelid
      WHERE connamespace = src_oid
        AND rn.relkind = 'r'
        AND ct.contype = 'f'
-         
+
     LOOP
       RAISE NOTICE '%', qry;
       EXECUTE qry;
@@ -373,7 +373,7 @@ BEGIN
     END LOOP;
 
 END;
- 
+
 $$;
 
 
@@ -432,7 +432,7 @@ ALTER FUNCTION public.tours_before_update() OWNER TO postgres;
 CREATE FUNCTION twc_delete_old_token() RETURNS trigger
     LANGUAGE plpgsql
     AS $$BEGIN
-   DELETE FROM "Token" 
+   DELETE FROM "Token"
    WHERE "userID" = NEW."userID"
    AND "realm" = NEW."realm";
    RETURN NEW;
@@ -450,17 +450,17 @@ CREATE FUNCTION user_company_check() RETURNS trigger
     AS $$BEGIN
   if (
     exists (
-	select * 
-	  from "Users" 
-	        left join "Roles" on "Users"."roleID" = "Roles"."id"  
+	select *
+	  from "Users"
+	        left join "Roles" on "Users"."roleID" = "Roles"."id"
 	 where "Users"."id" = new."userID"
 	       and "Roles"."name" = 'customer')
-  )		
+  )
   then
     RAISE EXCEPTION 'Bad user role - customer!';
   end if;
-    
-  RETURN NEW; 
+
+  RETURN NEW;
 END;$$;
 
 
@@ -526,17 +526,17 @@ BEGIN
     FROM pg_namespace
    WHERE nspname = quote_ident(source_schema);
   IF NOT FOUND
-    THEN 
+    THEN
     RAISE NOTICE 'source schema % does not exist!', source_schema;
     RETURN ;
   END IF;
 
   -- Check that dest_schema does not yet exist
-  PERFORM nspname 
+  PERFORM nspname
     FROM pg_namespace
    WHERE nspname = quote_ident(dest_schema);
   IF FOUND
-    THEN 
+    THEN
     RAISE NOTICE 'dest schema % already exists!', dest_schema;
     RETURN ;
   END IF;
@@ -546,67 +546,67 @@ BEGIN
   -- Create sequences
   -- TODO: Find a way to make this sequence's owner is the correct table.
   FOR object IN
-    SELECT sequence_name::text 
+    SELECT sequence_name::text
       FROM information_schema.sequences
      WHERE sequence_schema = quote_ident(source_schema)
   LOOP
     EXECUTE 'CREATE SEQUENCE ' || quote_ident(dest_schema) || '.' || quote_ident(object);
     srctbl := quote_ident(source_schema) || '.' || quote_ident(object);
 
-    EXECUTE 'SELECT last_value, max_value, start_value, increment_by, min_value, cache_value, log_cnt, is_cycled, is_called 
-              FROM ' || quote_ident(source_schema) || '.' || quote_ident(object) || ';' 
-              INTO sq_last_value, sq_max_value, sq_start_value, sq_increment_by, sq_min_value, sq_cache_value, sq_log_cnt, sq_is_cycled, sq_is_called ; 
+    EXECUTE 'SELECT last_value, max_value, start_value, increment_by, min_value, cache_value, log_cnt, is_cycled, is_called
+              FROM ' || quote_ident(source_schema) || '.' || quote_ident(object) || ';'
+              INTO sq_last_value, sq_max_value, sq_start_value, sq_increment_by, sq_min_value, sq_cache_value, sq_log_cnt, sq_is_cycled, sq_is_called ;
 
-    IF sq_is_cycled 
-      THEN 
+    IF sq_is_cycled
+      THEN
         sq_cycled := 'CYCLE';
     ELSE
         sq_cycled := 'NO CYCLE';
     END IF;
 
-    EXECUTE 'ALTER SEQUENCE '   || quote_ident(dest_schema) || '.' || quote_ident(object) 
+    EXECUTE 'ALTER SEQUENCE '   || quote_ident(dest_schema) || '.' || quote_ident(object)
             || ' INCREMENT BY ' || sq_increment_by
-            || ' MINVALUE '     || sq_min_value 
+            || ' MINVALUE '     || sq_min_value
             || ' MAXVALUE '     || sq_max_value
             || ' START WITH '   || sq_start_value
-            || ' RESTART '      || sq_min_value 
-            || ' CACHE '        || sq_cache_value 
+            || ' RESTART '      || sq_min_value
+            || ' CACHE '        || sq_cache_value
             || sq_cycled || ' ;' ;
 
     buffer := quote_ident(dest_schema) || '.' || quote_ident(object);
-    IF include_recs 
+    IF include_recs
         THEN
-            EXECUTE 'SELECT setval( ''' || buffer || ''', ' || sq_last_value || ', ' || sq_is_called || ');' ; 
+            EXECUTE 'SELECT setval( ''' || buffer || ''', ' || sq_last_value || ', ' || sq_is_called || ');' ;
     ELSE
             EXECUTE 'SELECT setval( ''' || buffer || ''', ' || sq_start_value || ', ' || sq_is_called || ');' ;
     END IF;
 
   END LOOP;
 
--- Create tables 
+-- Create tables
   FOR object IN
-    SELECT TABLE_NAME::text 
-      FROM information_schema.tables 
+    SELECT TABLE_NAME::text
+      FROM information_schema.tables
      WHERE table_schema = quote_ident(source_schema)
        AND table_type = 'BASE TABLE'
 
   LOOP
     buffer := dest_schema || '.' || quote_ident(object);
-    EXECUTE 'CREATE TABLE ' || buffer || ' (LIKE ' || quote_ident(source_schema) || '.' || quote_ident(object) 
+    EXECUTE 'CREATE TABLE ' || buffer || ' (LIKE ' || quote_ident(source_schema) || '.' || quote_ident(object)
         || ' INCLUDING ALL)';
 
-    IF include_recs 
-      THEN 
+    IF include_recs
+      THEN
       -- Insert records from source table
       EXECUTE 'INSERT INTO ' || buffer || ' SELECT * FROM ' || quote_ident(source_schema) || '.' || quote_ident(object) || ';';
     END IF;
- 
+
     FOR column_, default_ IN
-      SELECT column_name::text, 
-             REPLACE(REPLACE(column_default::text, quote_ident(source_schema) || '.', ''), 'nextval(''', 'nextval(''' || dest_schema || '.') 
-        FROM information_schema.COLUMNS 
-       WHERE table_schema = dest_schema 
-         AND TABLE_NAME = object 
+      SELECT column_name::text,
+             REPLACE(REPLACE(column_default::text, quote_ident(source_schema) || '.', ''), 'nextval(''', 'nextval(''' || dest_schema || '.')
+        FROM information_schema.COLUMNS
+       WHERE table_schema = dest_schema
+         AND TABLE_NAME = object
          AND column_default LIKE 'nextval(%::regclass)'
     LOOP
       EXECUTE 'ALTER TABLE ' || buffer || ' ALTER COLUMN ' || column_ || ' SET DEFAULT ' || default_;
@@ -616,8 +616,8 @@ BEGIN
 
 --  add FK constraint
   FOR qry IN
-    SELECT 'ALTER TABLE ' || quote_ident(dest_schema) || '.' || quote_ident(rn.relname) 
-                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' ' 
+    SELECT 'ALTER TABLE ' || quote_ident(dest_schema) || '.' || quote_ident(rn.relname)
+                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' '
                           || REPLACE(REPLACE(pg_get_constraintdef(ct.oid), quote_ident(source_schema) || '.', ''), 'REFERENCES ', 'REFERENCES ' || dest_schema || '.') || ';'
 
       FROM pg_constraint ct
@@ -625,17 +625,17 @@ BEGIN
      WHERE connamespace = src_oid
        AND rn.relkind = 'r'
        AND ct.contype = 'f'
-         
+
     LOOP
       EXECUTE qry;
 
     END LOOP;
 
 
--- Create views 
+-- Create views
   FOR object IN
     SELECT table_name::text,
-           view_definition 
+           view_definition
       FROM information_schema.views
      WHERE table_schema = quote_ident(source_schema)
 
@@ -645,28 +645,28 @@ BEGIN
       FROM information_schema.views
      WHERE table_schema = quote_ident(source_schema)
        AND table_name = quote_ident(object);
-     
+
     EXECUTE 'CREATE OR REPLACE VIEW ' || buffer || ' AS ' || v_def || ';' ;
 
   END LOOP;
 
--- Create functions 
+-- Create functions
   FOR func_oid IN
     SELECT oid
-      FROM pg_proc 
+      FROM pg_proc
      WHERE pronamespace = src_oid
 
-  LOOP      
+  LOOP
     SELECT pg_get_functiondef(func_oid) INTO qry;
     SELECT replace(qry, source_schema, dest_schema) INTO dest_qry;
     EXECUTE dest_qry;
 
   END LOOP;
-  
-  RETURN; 
- 
+
+  RETURN;
+
 END;
- 
+
 $$;
 
 
@@ -682,7 +682,7 @@ CREATE FUNCTION fix_schema_references(schema text) RETURNS void
 
 
 
--- This function will fix 
+-- This function will fix
 -- 1) reference to sequence with using correct namespace
 -- 2) FK constraints  reference with using correct namespace
 -- SAMPLE CALL:
@@ -705,7 +705,7 @@ BEGIN
     FROM pg_namespace
    WHERE nspname = quote_ident(schema);
   IF NOT FOUND
-    THEN 
+    THEN
     RAISE NOTICE 'Target schema % does not exist!', schema;
     RETURN ;
   END IF;
@@ -714,21 +714,21 @@ BEGIN
   RAISE NOTICE '%', 'SET search_path TO ' || schema || ';';
   EXECUTE 'SET search_path TO ' || schema || ';';
 
--- Fix reference to sequence 
+-- Fix reference to sequence
   FOR object IN
-    SELECT TABLE_NAME::text 
-      FROM information_schema.tables 
+    SELECT TABLE_NAME::text
+      FROM information_schema.tables
      WHERE table_schema = quote_ident(schema)
        AND table_type = 'BASE TABLE'
 
   LOOP
     buffer := schema || '.' || quote_ident(object);
     FOR column_, default_ IN
-      SELECT column_name::text, 
-             REPLACE(REPLACE(column_default::text, 'sceleton.', ''), 'nextval(''', 'nextval(''' || schema || '.') 
-        FROM information_schema.COLUMNS 
-       WHERE table_schema = schema 
-         AND TABLE_NAME = object 
+      SELECT column_name::text,
+             REPLACE(REPLACE(column_default::text, 'sceleton.', ''), 'nextval(''', 'nextval(''' || schema || '.')
+        FROM information_schema.COLUMNS
+       WHERE table_schema = schema
+         AND TABLE_NAME = object
          AND column_default LIKE 'nextval(%::regclass)'
     LOOP
       RAISE NOTICE '%', 'ALTER TABLE ' || buffer || ' ALTER COLUMN ' || column_ || ' SET DEFAULT ' || default_;
@@ -740,16 +740,16 @@ BEGIN
 
 --  add FK constraint
   FOR qry IN
-    SELECT 'ALTER TABLE ' || quote_ident(schema) || '.' || quote_ident(rn.relname) 
-													|| ' DROP CONSTRAINT ' || quote_ident(ct.conname) || ', ' 
-                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' ' 
+    SELECT 'ALTER TABLE ' || quote_ident(schema) || '.' || quote_ident(rn.relname)
+													|| ' DROP CONSTRAINT ' || quote_ident(ct.conname) || ', '
+                          || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' '
                           || overlay(pg_get_constraintdef(ct.oid) placing 'REFERENCES '||schema||'.' from position('REFERENCES' in pg_get_constraintdef(ct.oid)) for 11) || ';'
       FROM pg_constraint ct
       JOIN pg_class rn ON rn.oid = ct.conrelid
      WHERE connamespace = src_oid
        AND rn.relkind = 'r'
        AND ct.contype = 'f'
-         
+
     LOOP
       RAISE NOTICE '%', qry;
       EXECUTE qry;
@@ -757,7 +757,7 @@ BEGIN
     END LOOP;
 
 END;
- 
+
 $$;
 
 
@@ -835,7 +835,7 @@ CREATE FUNCTION twc_get_token(body character varying, exp character varying) RET
     FROM "Token" t
    where (t."body" = twc_get_token.body)
    and ((now() - t."issuedAt") < (twc_get_token.exp || ' milliseconds')::interval);
-         
+
 END$$;
 
 
@@ -850,17 +850,17 @@ CREATE FUNCTION user_company_check() RETURNS trigger
     AS $$BEGIN
   if (
     exists (
-	select * 
-	  from "Users" 
-	        left join "Roles" on "Users"."roleID" = "Roles"."id"  
+	select *
+	  from "Users"
+	        left join "Roles" on "Users"."roleID" = "Roles"."id"
 	 where "Users"."id" = new."userID"
 	       and "Roles"."name" = 'customer')
-  )		
+  )
   then
     RAISE EXCEPTION 'Bad user role - customer!';
   end if;
-    
-  RETURN NEW; 
+
+  RETURN NEW;
 END;$$;
 
 
@@ -888,7 +888,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: Essences; Type: TABLE; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Essences; Type: TABLE; Schema: public; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Essences" (
@@ -952,7 +952,7 @@ CREATE SEQUENCE "Index_id_seq"
 ALTER TABLE public."Index_id_seq" OWNER TO indaba;
 
 --
--- Name: Languages; Type: TABLE; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Languages; Type: TABLE; Schema: public; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Languages" (
@@ -987,7 +987,7 @@ ALTER SEQUENCE "Languages_id_seq" OWNED BY "Languages".id;
 
 
 --
--- Name: Logs; Type: TABLE; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Logs; Type: TABLE; Schema: public; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Logs" (
@@ -1043,7 +1043,7 @@ CREATE SEQUENCE "Notifications_id_seq"
 ALTER TABLE public."Notifications_id_seq" OWNER TO indaba;
 
 --
--- Name: Notifications; Type: TABLE; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Notifications; Type: TABLE; Schema: public; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Notifications" (
@@ -1079,7 +1079,7 @@ COMMENT ON COLUMN "Notifications"."notifyLevel" IS '0 - none, 1 - alert only, 2 
 
 
 --
--- Name: Rights; Type: TABLE; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Rights; Type: TABLE; Schema: public; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Rights" (
@@ -1128,7 +1128,7 @@ CREATE SEQUENCE role_id_seq
 ALTER TABLE public.role_id_seq OWNER TO indaba;
 
 --
--- Name: Roles; Type: TABLE; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Roles; Type: TABLE; Schema: public; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Roles" (
@@ -1141,7 +1141,7 @@ CREATE TABLE "Roles" (
 ALTER TABLE public."Roles" OWNER TO indaba;
 
 --
--- Name: RolesRights; Type: TABLE; Schema: public; Owner: indaba; Tablespace: 
+-- Name: RolesRights; Type: TABLE; Schema: public; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "RolesRights" (
@@ -1167,7 +1167,7 @@ CREATE SEQUENCE "Subindex_id_seq"
 ALTER TABLE public."Subindex_id_seq" OWNER TO indaba;
 
 --
--- Name: Token; Type: TABLE; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Token; Type: TABLE; Schema: public; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Token" (
@@ -1251,7 +1251,7 @@ CREATE SEQUENCE user_id_seq
 ALTER TABLE public.user_id_seq OWNER TO indaba;
 
 --
--- Name: Users; Type: TABLE; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Users; Type: TABLE; Schema: public; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Users" (
@@ -1360,34 +1360,6 @@ ALTER TABLE public.transportmodel_id_seq OWNER TO indaba;
 SET search_path = sceleton, pg_catalog;
 
 --
--- Name: AccessMatix_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
---
-
-CREATE SEQUENCE "AccessMatix_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE sceleton."AccessMatix_id_seq" OWNER TO indaba;
-
---
--- Name: AccessMatrices; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
---
-
-CREATE TABLE "AccessMatrices" (
-    id integer DEFAULT nextval('"AccessMatix_id_seq"'::regclass) NOT NULL,
-    name character varying(100),
-    description text,
-    default_value smallint
-);
-
-
-ALTER TABLE sceleton."AccessMatrices" OWNER TO indaba;
-
---
 -- Name: AccessPermissions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
 --
 
@@ -1402,11 +1374,10 @@ CREATE SEQUENCE "AccessPermissions_id_seq"
 ALTER TABLE sceleton."AccessPermissions_id_seq" OWNER TO indaba;
 
 --
--- Name: AccessPermissions; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: AccessPermissions; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "AccessPermissions" (
-    "matrixId" integer NOT NULL,
     "roleId" integer NOT NULL,
     "rightId" integer NOT NULL,
     permission smallint,
@@ -1431,7 +1402,7 @@ CREATE SEQUENCE "AnswerAttachments_id_seq"
 ALTER TABLE sceleton."AnswerAttachments_id_seq" OWNER TO indaba;
 
 --
--- Name: AnswerAttachments; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: AnswerAttachments; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "AnswerAttachments" (
@@ -1450,7 +1421,7 @@ CREATE TABLE "AnswerAttachments" (
 ALTER TABLE sceleton."AnswerAttachments" OWNER TO indaba;
 
 --
--- Name: AttachmentAttempts; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: AttachmentAttempts; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "AttachmentAttempts" (
@@ -1465,7 +1436,7 @@ CREATE TABLE "AttachmentAttempts" (
 ALTER TABLE sceleton."AttachmentAttempts" OWNER TO indaba;
 
 --
--- Name: AttachmentLinks; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: AttachmentLinks; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "AttachmentLinks" (
@@ -1478,7 +1449,7 @@ CREATE TABLE "AttachmentLinks" (
 ALTER TABLE sceleton."AttachmentLinks" OWNER TO indaba;
 
 --
--- Name: Attachments; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Attachments; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Attachments" (
@@ -1531,7 +1502,7 @@ CREATE SEQUENCE "Comments_id_seq"
 ALTER TABLE sceleton."Comments_id_seq" OWNER TO indaba;
 
 --
--- Name: Comments; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Comments; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Comments" (
@@ -1573,7 +1544,7 @@ CREATE SEQUENCE "Discussions_id_seq"
 ALTER TABLE sceleton."Discussions_id_seq" OWNER TO indaba;
 
 --
--- Name: Discussions; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Discussions; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Discussions" (
@@ -1626,7 +1597,7 @@ CREATE SEQUENCE "EntityRoles_id_seq"
 ALTER TABLE sceleton."EntityRoles_id_seq" OWNER TO indaba;
 
 --
--- Name: Essences; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Essences; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Essences" (
@@ -1669,7 +1640,7 @@ CREATE SEQUENCE "Groups_id_seq"
 ALTER TABLE sceleton."Groups_id_seq" OWNER TO indaba;
 
 --
--- Name: Groups; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Groups; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Groups" (
@@ -1683,7 +1654,7 @@ CREATE TABLE "Groups" (
 ALTER TABLE sceleton."Groups" OWNER TO indaba;
 
 --
--- Name: IndexQuestionWeights; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: IndexQuestionWeights; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "IndexQuestionWeights" (
@@ -1697,7 +1668,7 @@ CREATE TABLE "IndexQuestionWeights" (
 ALTER TABLE sceleton."IndexQuestionWeights" OWNER TO indaba;
 
 --
--- Name: IndexSubindexWeights; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: IndexSubindexWeights; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "IndexSubindexWeights" (
@@ -1725,7 +1696,7 @@ CREATE SEQUENCE "Index_id_seq"
 ALTER TABLE sceleton."Index_id_seq" OWNER TO indaba;
 
 --
--- Name: Indexes; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Indexes; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Indexes" (
@@ -1768,7 +1739,7 @@ CREATE SEQUENCE "Languages_id_seq"
 ALTER TABLE sceleton."Languages_id_seq" OWNER TO indaba;
 
 --
--- Name: Languages; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Languages; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Languages" (
@@ -1796,7 +1767,7 @@ CREATE SEQUENCE "Logs_id_seq"
 ALTER TABLE sceleton."Logs_id_seq" OWNER TO indaba;
 
 --
--- Name: Logs; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Logs; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Logs" (
@@ -1831,7 +1802,7 @@ CREATE SEQUENCE "Notifications_id_seq"
 ALTER TABLE sceleton."Notifications_id_seq" OWNER TO indaba;
 
 --
--- Name: Notifications; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Notifications; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Notifications" (
@@ -1881,7 +1852,7 @@ CREATE SEQUENCE "Organizations_id_seq"
 ALTER TABLE sceleton."Organizations_id_seq" OWNER TO indaba;
 
 --
--- Name: Organizations; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Organizations; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Organizations" (
@@ -1901,7 +1872,7 @@ CREATE TABLE "Organizations" (
 ALTER TABLE sceleton."Organizations" OWNER TO indaba;
 
 --
--- Name: Policies; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Policies; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Policies" (
@@ -1937,7 +1908,7 @@ ALTER SEQUENCE "Policies_id_seq" OWNED BY "Policies".id;
 
 
 --
--- Name: ProductUOA; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: ProductUOA; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "ProductUOA" (
@@ -1965,7 +1936,7 @@ CREATE SEQUENCE "Products_id_seq"
 ALTER TABLE sceleton."Products_id_seq" OWNER TO indaba;
 
 --
--- Name: Products; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Products; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Products" (
@@ -1997,7 +1968,7 @@ CREATE SEQUENCE "Projects_id_seq"
 ALTER TABLE sceleton."Projects_id_seq" OWNER TO indaba;
 
 --
--- Name: Projects; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Projects; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Projects" (
@@ -2006,7 +1977,6 @@ CREATE TABLE "Projects" (
     "codeName" character varying(100),
     description text,
     created timestamp(0) with time zone DEFAULT now() NOT NULL,
-    "matrixId" integer,
     "startTime" timestamp with time zone,
     status smallint DEFAULT 0 NOT NULL,
     "adminUserId" integer,
@@ -2032,7 +2002,7 @@ CREATE SEQUENCE "Rights_id_seq"
 ALTER TABLE sceleton."Rights_id_seq" OWNER TO indaba;
 
 --
--- Name: Rights; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Rights; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Rights" (
@@ -2060,7 +2030,7 @@ CREATE SEQUENCE role_id_seq
 ALTER TABLE sceleton.role_id_seq OWNER TO indaba;
 
 --
--- Name: Roles; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Roles; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Roles" (
@@ -2073,7 +2043,7 @@ CREATE TABLE "Roles" (
 ALTER TABLE sceleton."Roles" OWNER TO indaba;
 
 --
--- Name: RolesRights; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: RolesRights; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "RolesRights" (
@@ -2085,7 +2055,7 @@ CREATE TABLE "RolesRights" (
 ALTER TABLE sceleton."RolesRights" OWNER TO indaba;
 
 --
--- Name: SubindexWeights; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: SubindexWeights; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "SubindexWeights" (
@@ -2113,7 +2083,7 @@ CREATE SEQUENCE "Subindex_id_seq"
 ALTER TABLE sceleton."Subindex_id_seq" OWNER TO indaba;
 
 --
--- Name: Subindexes; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Subindexes; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Subindexes" (
@@ -2156,7 +2126,7 @@ CREATE SEQUENCE "SurveyAnswers_id_seq"
 ALTER TABLE sceleton."SurveyAnswers_id_seq" OWNER TO indaba;
 
 --
--- Name: SurveyAnswers; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: SurveyAnswers; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "SurveyAnswers" (
@@ -2199,7 +2169,7 @@ CREATE SEQUENCE "surveyQuestionOptions_id_seq"
 ALTER TABLE sceleton."surveyQuestionOptions_id_seq" OWNER TO indaba;
 
 --
--- Name: SurveyQuestionOptions; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: SurveyQuestionOptions; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "SurveyQuestionOptions" (
@@ -2230,7 +2200,7 @@ CREATE SEQUENCE "SurveyQuestions_id_seq"
 ALTER TABLE sceleton."SurveyQuestions_id_seq" OWNER TO indaba;
 
 --
--- Name: SurveyQuestions; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: SurveyQuestions; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "SurveyQuestions" (
@@ -2263,7 +2233,7 @@ CREATE TABLE "SurveyQuestions" (
 ALTER TABLE sceleton."SurveyQuestions" OWNER TO indaba;
 
 --
--- Name: Surveys; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Surveys; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Surveys" (
@@ -2295,7 +2265,7 @@ CREATE SEQUENCE "Tasks_id_seq"
 ALTER TABLE sceleton."Tasks_id_seq" OWNER TO indaba;
 
 --
--- Name: Tasks; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Tasks; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Tasks" (
@@ -2318,7 +2288,7 @@ CREATE TABLE "Tasks" (
 ALTER TABLE sceleton."Tasks" OWNER TO indaba;
 
 --
--- Name: Translations; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Translations; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Translations" (
@@ -2347,7 +2317,7 @@ CREATE SEQUENCE "UnitOfAnalysis_id_seq"
 ALTER TABLE sceleton."UnitOfAnalysis_id_seq" OWNER TO indaba;
 
 --
--- Name: UnitOfAnalysis; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: UnitOfAnalysis; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "UnitOfAnalysis" (
@@ -2520,7 +2490,7 @@ CREATE SEQUENCE "UnitOfAnalysisClassType_id_seq"
 ALTER TABLE sceleton."UnitOfAnalysisClassType_id_seq" OWNER TO indaba;
 
 --
--- Name: UnitOfAnalysisClassType; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: UnitOfAnalysisClassType; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "UnitOfAnalysisClassType" (
@@ -2562,7 +2532,7 @@ CREATE SEQUENCE "UnitOfAnalysisTag_id_seq"
 ALTER TABLE sceleton."UnitOfAnalysisTag_id_seq" OWNER TO indaba;
 
 --
--- Name: UnitOfAnalysisTag; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: UnitOfAnalysisTag; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "UnitOfAnalysisTag" (
@@ -2591,7 +2561,7 @@ CREATE SEQUENCE "UnitOfAnalysisTagLink_id_seq"
 ALTER TABLE sceleton."UnitOfAnalysisTagLink_id_seq" OWNER TO indaba;
 
 --
--- Name: UnitOfAnalysisTagLink; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: UnitOfAnalysisTagLink; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "UnitOfAnalysisTagLink" (
@@ -2618,7 +2588,7 @@ CREATE SEQUENCE "UnitOfAnalysisType_id_seq"
 ALTER TABLE sceleton."UnitOfAnalysisType_id_seq" OWNER TO indaba;
 
 --
--- Name: UnitOfAnalysisType; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: UnitOfAnalysisType; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "UnitOfAnalysisType" (
@@ -2632,7 +2602,7 @@ CREATE TABLE "UnitOfAnalysisType" (
 ALTER TABLE sceleton."UnitOfAnalysisType" OWNER TO indaba;
 
 --
--- Name: UserGroups; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: UserGroups; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "UserGroups" (
@@ -2644,7 +2614,7 @@ CREATE TABLE "UserGroups" (
 ALTER TABLE sceleton."UserGroups" OWNER TO indaba;
 
 --
--- Name: UserRights; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: UserRights; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "UserRights" (
@@ -2657,7 +2627,7 @@ CREATE TABLE "UserRights" (
 ALTER TABLE sceleton."UserRights" OWNER TO indaba;
 
 --
--- Name: UserUOA; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: UserUOA; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "UserUOA" (
@@ -2683,7 +2653,7 @@ CREATE SEQUENCE user_id_seq
 ALTER TABLE sceleton.user_id_seq OWNER TO indaba;
 
 --
--- Name: Users; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Users; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Users" (
@@ -2734,7 +2704,7 @@ CREATE SEQUENCE "Visualizations_id_seq"
 ALTER TABLE sceleton."Visualizations_id_seq" OWNER TO indaba;
 
 --
--- Name: Visualizations; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Visualizations; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Visualizations" (
@@ -2753,7 +2723,7 @@ CREATE TABLE "Visualizations" (
 ALTER TABLE sceleton."Visualizations" OWNER TO indaba;
 
 --
--- Name: WorkflowStepGroups; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: WorkflowStepGroups; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "WorkflowStepGroups" (
@@ -2779,7 +2749,7 @@ CREATE SEQUENCE "WorkflowSteps_id_seq"
 ALTER TABLE sceleton."WorkflowSteps_id_seq" OWNER TO indaba;
 
 --
--- Name: WorkflowSteps; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: WorkflowSteps; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "WorkflowSteps" (
@@ -2818,7 +2788,7 @@ CREATE SEQUENCE "Workflows_id_seq"
 ALTER TABLE sceleton."Workflows_id_seq" OWNER TO indaba;
 
 --
--- Name: Workflows; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Workflows; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE TABLE "Workflows" (
@@ -2995,12 +2965,11 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 34	Rights	Rights	rights	action
 35	RoleRights	RoleRights	role_rights	roleId
 39	Visualizations	Visualizations	visualizations	title
-40	AccessMatrices	AccessMatrices	access_matrices	name
-41	AccessPermissions	AccessPermissions	access_permissions	id
-42	AnswerAttachments	AnswerAttachments	answer_attachments	filename
-43	Token	Token	token	realm
-44	UserUOA	UserUOA	user_uoa	UserId
-45	UserGroups	UserGroups	user_groups	UserId
+40	AccessPermissions	AccessPermissions	access_permissions	id
+41	AnswerAttachments	AnswerAttachments	answer_attachments	filename
+42	Token	Token	token	realm
+43	UserUOA	UserUOA	user_uoa	UserId
+44	UserGroups	UserGroups	user_groups	UserId
 \.
 
 
@@ -3223,26 +3192,10 @@ SELECT pg_catalog.setval('user_id_seq', 360, true);
 SET search_path = sceleton, pg_catalog;
 
 --
--- Name: AccessMatix_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indaba
---
-
-SELECT pg_catalog.setval('"AccessMatix_id_seq"', 8, true);
-
-
---
--- Data for Name: AccessMatrices; Type: TABLE DATA; Schema: sceleton; Owner: indaba
---
-
-COPY "AccessMatrices" (id, name, description, default_value) FROM stdin;
-8	Default	Default access matrix	0
-\.
-
-
---
 -- Data for Name: AccessPermissions; Type: TABLE DATA; Schema: sceleton; Owner: indaba
 --
 
-COPY "AccessPermissions" ("matrixId", "roleId", "rightId", permission, id) FROM stdin;
+COPY "AccessPermissions" ("roleId", "rightId", permission, id) FROM stdin;
 \.
 
 
@@ -3380,14 +3333,13 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 34	Rights	Rights	rights	action
 35	RoleRights	RoleRights	role_rights	roleId
 39	Visualizations	Visualizations	visualizations	title
-40	AccessMatrices	AccessMatrices	access_matrices	name
-41	AccessPermissions	AccessPermissions	access_permissions	id
-42	AnswerAttachments	AnswerAttachments	answer_attachments	filename
-43	Token	Token	token	realm
-44	UserUOA	UserUOA	user_uoa	UserId
-45	UserGroups	UserGroups	user_groups	UserId
-46	Policies	Policies	policies	section
-47	Comments	Comments	comments	id
+40	AccessPermissions	AccessPermissions	access_permissions	id
+41	AnswerAttachments	AnswerAttachments	answer_attachments	filename
+42	Token	Token	token	realm
+43	UserUOA	UserUOA	user_uoa	UserId
+44	UserGroups	UserGroups	user_groups	UserId
+45	Policies	Policies	policies	section
+46	Comments	Comments	comments	id
 \.
 
 
@@ -3551,7 +3503,7 @@ SELECT pg_catalog.setval('"Products_id_seq"', 1, true);
 -- Data for Name: Projects; Type: TABLE DATA; Schema: sceleton; Owner: indaba
 --
 
-COPY "Projects" (id, "organizationId", "codeName", description, created, "matrixId", "startTime", status, "adminUserId", "closeTime", "langId") FROM stdin;
+COPY "Projects" (id, "organizationId", "codeName", description, created, "startTime", status, "adminUserId", "closeTime", "langId") FROM stdin;
 \.
 
 
@@ -3967,7 +3919,7 @@ SELECT pg_catalog.setval('user_id_seq', 1, true);
 SET search_path = public, pg_catalog;
 
 --
--- Name: Entity_pkey; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Entity_pkey; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Essences"
@@ -3975,7 +3927,7 @@ ALTER TABLE ONLY "Essences"
 
 
 --
--- Name: Essences_fileName_key; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Essences_fileName_key; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Essences"
@@ -3983,7 +3935,7 @@ ALTER TABLE ONLY "Essences"
 
 
 --
--- Name: Essences_tableName_key; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Essences_tableName_key; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Essences"
@@ -3991,7 +3943,7 @@ ALTER TABLE ONLY "Essences"
 
 
 --
--- Name: Languages_code_key; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Languages_code_key; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Languages"
@@ -3999,7 +3951,7 @@ ALTER TABLE ONLY "Languages"
 
 
 --
--- Name: Languages_pkey; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Languages_pkey; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Languages"
@@ -4007,7 +3959,7 @@ ALTER TABLE ONLY "Languages"
 
 
 --
--- Name: Logs_pkey; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Logs_pkey; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Logs"
@@ -4015,7 +3967,7 @@ ALTER TABLE ONLY "Logs"
 
 
 --
--- Name: Notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Notifications"
@@ -4023,7 +3975,7 @@ ALTER TABLE ONLY "Notifications"
 
 
 --
--- Name: Rights_pkey; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Rights_pkey; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Rights"
@@ -4031,7 +3983,7 @@ ALTER TABLE ONLY "Rights"
 
 
 --
--- Name: Token_pkey; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Token_pkey; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Token"
@@ -4039,7 +3991,7 @@ ALTER TABLE ONLY "Token"
 
 
 --
--- Name: Users_email_key; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Users_email_key; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Users"
@@ -4047,7 +3999,7 @@ ALTER TABLE ONLY "Users"
 
 
 --
--- Name: id; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace: 
+-- Name: id; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Roles"
@@ -4055,7 +4007,7 @@ ALTER TABLE ONLY "Roles"
 
 
 --
--- Name: roleRight_pkey; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace: 
+-- Name: roleRight_pkey; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "RolesRights"
@@ -4063,7 +4015,7 @@ ALTER TABLE ONLY "RolesRights"
 
 
 --
--- Name: userID; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace: 
+-- Name: userID; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Users"
@@ -4072,24 +4024,17 @@ ALTER TABLE ONLY "Users"
 
 SET search_path = sceleton, pg_catalog;
 
---
--- Name: AccessMatrices_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
---
-
-ALTER TABLE ONLY "AccessMatrices"
-    ADD CONSTRAINT "AccessMatrices_pkey" PRIMARY KEY (id);
-
 
 --
--- Name: AccessPermissions_matrixId_roleId_rightId_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: AccessPermissions_roleId_rightId_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "AccessPermissions"
-    ADD CONSTRAINT "AccessPermissions_matrixId_roleId_rightId_key" UNIQUE ("matrixId", "roleId", "rightId");
+    ADD CONSTRAINT "AccessPermissions_roleId_rightId_key" UNIQUE ("roleId", "rightId");
 
 
 --
--- Name: AccessPermissions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: AccessPermissions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "AccessPermissions"
@@ -4097,7 +4042,7 @@ ALTER TABLE ONLY "AccessPermissions"
 
 
 --
--- Name: AnswerAttachments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: AnswerAttachments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "AnswerAttachments"
@@ -4105,7 +4050,7 @@ ALTER TABLE ONLY "AnswerAttachments"
 
 
 --
--- Name: AttachmentAttempts_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: AttachmentAttempts_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "AttachmentAttempts"
@@ -4113,7 +4058,7 @@ ALTER TABLE ONLY "AttachmentAttempts"
 
 
 --
--- Name: AttachmentLinks_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: AttachmentLinks_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "AttachmentLinks"
@@ -4121,7 +4066,7 @@ ALTER TABLE ONLY "AttachmentLinks"
 
 
 --
--- Name: Attachments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Attachments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Attachments"
@@ -4129,7 +4074,7 @@ ALTER TABLE ONLY "Attachments"
 
 
 --
--- Name: Comments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Comments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Comments"
@@ -4137,7 +4082,7 @@ ALTER TABLE ONLY "Comments"
 
 
 --
--- Name: Discussions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Discussions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Discussions"
@@ -4145,7 +4090,7 @@ ALTER TABLE ONLY "Discussions"
 
 
 --
--- Name: Essences_fileName_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Essences_fileName_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Essences"
@@ -4153,7 +4098,7 @@ ALTER TABLE ONLY "Essences"
 
 
 --
--- Name: Essences_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Essences_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Essences"
@@ -4161,7 +4106,7 @@ ALTER TABLE ONLY "Essences"
 
 
 --
--- Name: Essences_tableName_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Essences_tableName_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Essences"
@@ -4169,7 +4114,7 @@ ALTER TABLE ONLY "Essences"
 
 
 --
--- Name: Groups_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Groups_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Groups"
@@ -4177,7 +4122,7 @@ ALTER TABLE ONLY "Groups"
 
 
 --
--- Name: IndexQuestionWeights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: IndexQuestionWeights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "IndexQuestionWeights"
@@ -4185,7 +4130,7 @@ ALTER TABLE ONLY "IndexQuestionWeights"
 
 
 --
--- Name: IndexSubindexWeights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: IndexSubindexWeights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "IndexSubindexWeights"
@@ -4193,7 +4138,7 @@ ALTER TABLE ONLY "IndexSubindexWeights"
 
 
 --
--- Name: Indexes_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Indexes_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Indexes"
@@ -4201,7 +4146,7 @@ ALTER TABLE ONLY "Indexes"
 
 
 --
--- Name: Languages_code_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Languages_code_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Languages"
@@ -4209,7 +4154,7 @@ ALTER TABLE ONLY "Languages"
 
 
 --
--- Name: Languages_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Languages_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Languages"
@@ -4217,7 +4162,7 @@ ALTER TABLE ONLY "Languages"
 
 
 --
--- Name: Logs_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Logs_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Logs"
@@ -4225,7 +4170,7 @@ ALTER TABLE ONLY "Logs"
 
 
 --
--- Name: Notifications_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Notifications_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Notifications"
@@ -4233,7 +4178,7 @@ ALTER TABLE ONLY "Notifications"
 
 
 --
--- Name: Organizations_adminUserId_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Organizations_adminUserId_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Organizations"
@@ -4241,7 +4186,7 @@ ALTER TABLE ONLY "Organizations"
 
 
 --
--- Name: Organizations_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Organizations_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Organizations"
@@ -4249,7 +4194,7 @@ ALTER TABLE ONLY "Organizations"
 
 
 --
--- Name: Policies_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Policies_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Policies"
@@ -4257,7 +4202,7 @@ ALTER TABLE ONLY "Policies"
 
 
 --
--- Name: ProductUOA_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: ProductUOA_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "ProductUOA"
@@ -4265,7 +4210,7 @@ ALTER TABLE ONLY "ProductUOA"
 
 
 --
--- Name: Products_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Products_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Products"
@@ -4273,7 +4218,7 @@ ALTER TABLE ONLY "Products"
 
 
 --
--- Name: Projects_codeName_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Projects_codeName_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Projects"
@@ -4281,7 +4226,7 @@ ALTER TABLE ONLY "Projects"
 
 
 --
--- Name: Projects_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Projects_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Projects"
@@ -4289,7 +4234,7 @@ ALTER TABLE ONLY "Projects"
 
 
 --
--- Name: Rights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Rights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Rights"
@@ -4297,7 +4242,7 @@ ALTER TABLE ONLY "Rights"
 
 
 --
--- Name: RolesRights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: RolesRights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "RolesRights"
@@ -4305,7 +4250,7 @@ ALTER TABLE ONLY "RolesRights"
 
 
 --
--- Name: Roles_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Roles_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Roles"
@@ -4313,7 +4258,7 @@ ALTER TABLE ONLY "Roles"
 
 
 --
--- Name: SubindexWeights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: SubindexWeights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "SubindexWeights"
@@ -4321,7 +4266,7 @@ ALTER TABLE ONLY "SubindexWeights"
 
 
 --
--- Name: Subindexes_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Subindexes_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Subindexes"
@@ -4329,7 +4274,7 @@ ALTER TABLE ONLY "Subindexes"
 
 
 --
--- Name: SurveyAnswers_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: SurveyAnswers_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "SurveyAnswers"
@@ -4337,7 +4282,7 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
--- Name: SurveyQuestionOptions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: SurveyQuestionOptions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "SurveyQuestionOptions"
@@ -4345,7 +4290,7 @@ ALTER TABLE ONLY "SurveyQuestionOptions"
 
 
 --
--- Name: SurveyQuestions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: SurveyQuestions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "SurveyQuestions"
@@ -4353,7 +4298,7 @@ ALTER TABLE ONLY "SurveyQuestions"
 
 
 --
--- Name: Surveys_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Surveys_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Surveys"
@@ -4361,7 +4306,7 @@ ALTER TABLE ONLY "Surveys"
 
 
 --
--- Name: Tasks_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Tasks_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Tasks"
@@ -4369,7 +4314,7 @@ ALTER TABLE ONLY "Tasks"
 
 
 --
--- Name: Translations_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Translations_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Translations"
@@ -4377,7 +4322,7 @@ ALTER TABLE ONLY "Translations"
 
 
 --
--- Name: UnitOfAnalysisClassType_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: UnitOfAnalysisClassType_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "UnitOfAnalysisClassType"
@@ -4385,7 +4330,7 @@ ALTER TABLE ONLY "UnitOfAnalysisClassType"
 
 
 --
--- Name: UnitOfAnalysisTagLink_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: UnitOfAnalysisTagLink_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "UnitOfAnalysisTagLink"
@@ -4393,7 +4338,7 @@ ALTER TABLE ONLY "UnitOfAnalysisTagLink"
 
 
 --
--- Name: UnitOfAnalysisTagLink_uoaId_uoaTagId_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: UnitOfAnalysisTagLink_uoaId_uoaTagId_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "UnitOfAnalysisTagLink"
@@ -4401,7 +4346,7 @@ ALTER TABLE ONLY "UnitOfAnalysisTagLink"
 
 
 --
--- Name: UnitOfAnalysisTag_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: UnitOfAnalysisTag_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "UnitOfAnalysisTag"
@@ -4409,7 +4354,7 @@ ALTER TABLE ONLY "UnitOfAnalysisTag"
 
 
 --
--- Name: UnitOfAnalysisType_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: UnitOfAnalysisType_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "UnitOfAnalysisType"
@@ -4417,7 +4362,7 @@ ALTER TABLE ONLY "UnitOfAnalysisType"
 
 
 --
--- Name: UnitOfAnalysis_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: UnitOfAnalysis_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "UnitOfAnalysis"
@@ -4425,7 +4370,7 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
--- Name: UserGroups_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: UserGroups_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "UserGroups"
@@ -4433,7 +4378,7 @@ ALTER TABLE ONLY "UserGroups"
 
 
 --
--- Name: UserRights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: UserRights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "UserRights"
@@ -4441,7 +4386,7 @@ ALTER TABLE ONLY "UserRights"
 
 
 --
--- Name: UserUOA_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: UserUOA_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "UserUOA"
@@ -4449,7 +4394,7 @@ ALTER TABLE ONLY "UserUOA"
 
 
 --
--- Name: Users_email_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Users_email_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Users"
@@ -4457,7 +4402,7 @@ ALTER TABLE ONLY "Users"
 
 
 --
--- Name: Users_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Users_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Users"
@@ -4465,7 +4410,7 @@ ALTER TABLE ONLY "Users"
 
 
 --
--- Name: Visualizations_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Visualizations_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Visualizations"
@@ -4473,7 +4418,7 @@ ALTER TABLE ONLY "Visualizations"
 
 
 --
--- Name: WorkflowStepGroups_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: WorkflowStepGroups_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "WorkflowStepGroups"
@@ -4481,7 +4426,7 @@ ALTER TABLE ONLY "WorkflowStepGroups"
 
 
 --
--- Name: WorkflowSteps_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: WorkflowSteps_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "WorkflowSteps"
@@ -4489,7 +4434,7 @@ ALTER TABLE ONLY "WorkflowSteps"
 
 
 --
--- Name: Workflows_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Workflows_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Workflows"
@@ -4497,7 +4442,7 @@ ALTER TABLE ONLY "Workflows"
 
 
 --
--- Name: Workflows_productId_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Workflows_productId_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 ALTER TABLE ONLY "Workflows"
@@ -4507,35 +4452,35 @@ ALTER TABLE ONLY "Workflows"
 SET search_path = public, pg_catalog;
 
 --
--- Name: Essences_upper_idx; Type: INDEX; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Essences_upper_idx; Type: INDEX; Schema: public; Owner: indaba; Tablespace:
 --
 
 CREATE UNIQUE INDEX "Essences_upper_idx" ON "Essences" USING btree (upper((name)::text));
 
 
 --
--- Name: Rights_action_idx; Type: INDEX; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Rights_action_idx; Type: INDEX; Schema: public; Owner: indaba; Tablespace:
 --
 
 CREATE UNIQUE INDEX "Rights_action_idx" ON "Rights" USING btree (action);
 
 
 --
--- Name: Token_body_idx; Type: INDEX; Schema: public; Owner: indaba; Tablespace: 
+-- Name: Token_body_idx; Type: INDEX; Schema: public; Owner: indaba; Tablespace:
 --
 
 CREATE UNIQUE INDEX "Token_body_idx" ON "Token" USING btree (body);
 
 
 --
--- Name: fki_roleID; Type: INDEX; Schema: public; Owner: indaba; Tablespace: 
+-- Name: fki_roleID; Type: INDEX; Schema: public; Owner: indaba; Tablespace:
 --
 
 CREATE INDEX "fki_roleID" ON "Users" USING btree ("roleID");
 
 
 --
--- Name: fki_rolesrights_rightID; Type: INDEX; Schema: public; Owner: indaba; Tablespace: 
+-- Name: fki_rolesrights_rightID; Type: INDEX; Schema: public; Owner: indaba; Tablespace:
 --
 
 CREATE INDEX "fki_rolesrights_rightID" ON "RolesRights" USING btree ("rightID");
@@ -4544,56 +4489,56 @@ CREATE INDEX "fki_rolesrights_rightID" ON "RolesRights" USING btree ("rightID");
 SET search_path = sceleton, pg_catalog;
 
 --
--- Name: Essences_upper_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Essences_upper_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE UNIQUE INDEX "Essences_upper_idx" ON "Essences" USING btree (upper((name)::text));
 
 
 --
--- Name: Indexes_productId_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Indexes_productId_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE INDEX "Indexes_productId_idx" ON "Indexes" USING btree ("productId");
 
 
 --
--- Name: Rights_action_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Rights_action_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE UNIQUE INDEX "Rights_action_idx" ON "Rights" USING btree (action);
 
 
 --
--- Name: RolesRights_rightID_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: RolesRights_rightID_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE INDEX "RolesRights_rightID_idx" ON "RolesRights" USING btree ("rightID");
 
 
 --
--- Name: Subindexes_productId_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Subindexes_productId_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE INDEX "Subindexes_productId_idx" ON "Subindexes" USING btree ("productId");
 
 
 --
--- Name: UnitOfAnalysisTagLink_uoaId_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: UnitOfAnalysisTagLink_uoaId_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE INDEX "UnitOfAnalysisTagLink_uoaId_idx" ON "UnitOfAnalysisTagLink" USING btree ("uoaId");
 
 
 --
--- Name: UnitOfAnalysisTagLink_uoaTagId_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: UnitOfAnalysisTagLink_uoaTagId_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE INDEX "UnitOfAnalysisTagLink_uoaTagId_idx" ON "UnitOfAnalysisTagLink" USING btree ("uoaTagId");
 
 
 --
--- Name: Users_roleID_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace: 
+-- Name: Users_roleID_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
 CREATE INDEX "Users_roleID_idx" ON "Users" USING btree ("roleID");
@@ -4975,14 +4920,6 @@ ALTER TABLE ONLY "Products"
 
 ALTER TABLE ONLY "Products"
     ADD CONSTRAINT "Products_surveyId_fkey" FOREIGN KEY ("surveyId") REFERENCES "Surveys"(id);
-
-
---
--- Name: Projects_accessMatrixId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "Projects"
-    ADD CONSTRAINT "Projects_accessMatrixId_fkey" FOREIGN KEY ("matrixId") REFERENCES "AccessMatrices"(id);
 
 
 --
@@ -5424,4 +5361,3 @@ GRANT ALL ON SCHEMA sceleton TO PUBLIC;
 --
 -- PostgreSQL database dump complete
 --
-

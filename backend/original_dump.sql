@@ -1616,38 +1616,6 @@ ALTER TABLE "Users" OWNER TO indabauser;
 
 SET search_path = sceleton, pg_catalog;
 
---
--- Name: AccessMatrices_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
---
-
-CREATE SEQUENCE "AccessMatrices_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "AccessMatrices_id_seq" OWNER TO indabauser;
-
---
--- Name: AccessMatrices; Type: TABLE; Schema: sceleton; Owner: indabauser
---
-
-CREATE TABLE "AccessMatrices" (
-    id integer DEFAULT nextval('"AccessMatrices_id_seq"'::regclass) NOT NULL,
-    name character varying(100),
-    description text,
-    default_value smallint
-);
-
-
-ALTER TABLE "AccessMatrices" OWNER TO indabauser;
-
---
--- Name: AccessPermissions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
---
-
 CREATE SEQUENCE "AccessPermissions_id_seq"
     START WITH 1
     INCREMENT BY 1
@@ -1664,7 +1632,6 @@ ALTER TABLE "AccessPermissions_id_seq" OWNER TO indabauser;
 
 CREATE TABLE "AccessPermissions" (
     id integer DEFAULT nextval('"AccessPermissions_id_seq"'::regclass) NOT NULL,
-    "matrixId" integer NOT NULL,
     "roleId" integer NOT NULL,
     "rightId" integer NOT NULL,
     permission smallint
@@ -2161,7 +2128,6 @@ CREATE TABLE "Projects" (
     "codeName" character varying(100),
     description text,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    "matrixId" integer,
     "startTime" timestamp with time zone,
     status smallint DEFAULT 0 NOT NULL,
     "adminUserId" integer,
@@ -2703,34 +2669,6 @@ ALTER TABLE "Workflows" OWNER TO indabauser;
 SET search_path = test, pg_catalog;
 
 --
--- Name: AccessMatrices_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
---
-
-CREATE SEQUENCE "AccessMatrices_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "AccessMatrices_id_seq" OWNER TO indabauser;
-
---
--- Name: AccessMatrices; Type: TABLE; Schema: test; Owner: indabauser
---
-
-CREATE TABLE "AccessMatrices" (
-    id integer DEFAULT nextval('"AccessMatrices_id_seq"'::regclass) NOT NULL,
-    name character varying(100),
-    description text,
-    default_value smallint
-);
-
-
-ALTER TABLE "AccessMatrices" OWNER TO indabauser;
-
---
 -- Name: AccessPermissions_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
 --
 
@@ -2750,7 +2688,6 @@ ALTER TABLE "AccessPermissions_id_seq" OWNER TO indabauser;
 
 CREATE TABLE "AccessPermissions" (
     id integer DEFAULT nextval('"AccessPermissions_id_seq"'::regclass) NOT NULL,
-    "matrixId" integer NOT NULL,
     "roleId" integer NOT NULL,
     "rightId" integer NOT NULL,
     permission smallint
@@ -3240,7 +3177,6 @@ CREATE TABLE "Projects" (
     "codeName" character varying(100),
     description text,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    "matrixId" integer,
     "startTime" timestamp with time zone,
     status smallint DEFAULT 0 NOT NULL,
     "adminUserId" integer,
@@ -3853,12 +3789,11 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 34	Rights	Rights	rights	action
 35	RoleRights	RoleRights	role_rights	roleId
 39	Visualizations	Visualizations	visualizations	title
-40	AccessMatrices	AccessMatrices	access_matrices	name
-41	AccessPermissions	AccessPermissions	access_permissions	id
-42	AnswerAttachments	AnswerAttachments	answer_attachments	filename
-43	Token	Token	token	realm
-44	UserUOA	UserUOA	user_uoa	UserId
-45	UserGroups	UserGroups	user_groups	UserId
+40	AccessPermissions	AccessPermissions	access_permissions	id
+41	AnswerAttachments	AnswerAttachments	answer_attachments	filename
+42	Token	Token	token	realm
+43	UserUOA	UserUOA	user_uoa	UserId
+44	UserGroups	UserGroups	user_groups	UserId
 \.
 
 
@@ -4012,26 +3947,10 @@ SELECT pg_catalog.setval('"Users_id_seq"', 357, true);
 SET search_path = sceleton, pg_catalog;
 
 --
--- Data for Name: AccessMatrices; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "AccessMatrices" (id, name, description, default_value) FROM stdin;
-8	Default	Default access matrix	0
-\.
-
-
---
--- Name: AccessMatrices_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"AccessMatrices_id_seq"', 8, true);
-
-
---
 -- Data for Name: AccessPermissions; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
 --
 
-COPY "AccessPermissions" (id, "matrixId", "roleId", "rightId", permission) FROM stdin;
+COPY "AccessPermissions" (id, "roleId", "rightId", permission) FROM stdin;
 \.
 
 
@@ -4136,12 +4055,11 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 34	Rights	Rights	rights	action
 35	RoleRights	RoleRights	role_rights	roleId
 39	Visualizations	Visualizations	visualizations	title
-40	AccessMatrices	AccessMatrices	access_matrices	name
-41	AccessPermissions	AccessPermissions	access_permissions	id
-42	AnswerAttachments	AnswerAttachments	answer_attachments	filename
-43	Token	Token	token	realm
-44	UserUOA	UserUOA	user_uoa	UserId
-45	UserGroups	UserGroups	user_groups	UserId
+40	AccessPermissions	AccessPermissions	access_permissions	id
+41	AnswerAttachments	AnswerAttachments	answer_attachments	filename
+42	Token	Token	token	realm
+43	UserUOA	UserUOA	user_uoa	UserId
+44	UserGroups	UserGroups	user_groups	UserId
 \.
 
 
@@ -4306,7 +4224,7 @@ COPY "ProjectUsers" ("projectId", "userId") FROM stdin;
 -- Data for Name: Projects; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
 --
 
-COPY "Projects" (id, "organizationId", "codeName", description, created, "matrixId", "startTime", status, "adminUserId", "closeTime", "firstActivated", "langId") FROM stdin;
+COPY "Projects" (id, "organizationId", "codeName", description, created, "startTime", status, "adminUserId", "closeTime", "firstActivated", "langId") FROM stdin;
 \.
 
 
@@ -4627,26 +4545,10 @@ SELECT pg_catalog.setval('"Workflows_id_seq"', 1, true);
 SET search_path = test, pg_catalog;
 
 --
--- Data for Name: AccessMatrices; Type: TABLE DATA; Schema: test; Owner: indabauser
---
-
-COPY "AccessMatrices" (id, name, description, default_value) FROM stdin;
-8	Default	Default access matrix	0
-\.
-
-
---
--- Name: AccessMatrices_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"AccessMatrices_id_seq"', 8, true);
-
-
---
 -- Data for Name: AccessPermissions; Type: TABLE DATA; Schema: test; Owner: indabauser
 --
 
-COPY "AccessPermissions" (id, "matrixId", "roleId", "rightId", permission) FROM stdin;
+COPY "AccessPermissions" (id, "roleId", "rightId", permission) FROM stdin;
 \.
 
 
@@ -4751,12 +4653,11 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 34	Rights	Rights	rights	action
 35	RoleRights	RoleRights	role_rights	roleId
 39	Visualizations	Visualizations	visualizations	title
-40	AccessMatrices	AccessMatrices	access_matrices	name
-41	AccessPermissions	AccessPermissions	access_permissions	id
-42	AnswerAttachments	AnswerAttachments	answer_attachments	filename
-43	Token	Token	token	realm
-44	UserUOA	UserUOA	user_uoa	UserId
-45	UserGroups	UserGroups	user_groups	UserId
+40	AccessPermissions	AccessPermissions	access_permissions	id
+41	AnswerAttachments	AnswerAttachments	answer_attachments	filename
+42	Token	Token	token	realm
+43	UserUOA	UserUOA	user_uoa	UserId
+44	UserGroups	UserGroups	user_groups	UserId
 \.
 
 
@@ -4932,7 +4833,7 @@ COPY "ProjectUsers" ("projectId", "userId") FROM stdin;
 -- Data for Name: Projects; Type: TABLE DATA; Schema: test; Owner: indabauser
 --
 
-COPY "Projects" (id, "organizationId", "codeName", description, created, "matrixId", "startTime", status, "adminUserId", "closeTime", "firstActivated", "langId") FROM stdin;
+COPY "Projects" (id, "organizationId", "codeName", description, created, "startTime", status, "adminUserId", "closeTime", "firstActivated", "langId") FROM stdin;
 -- 2	2	Org_2_project	\N	2017-04-11 11:59:50-04	\N	\N	0	\N	\N	\N	\N
 \.
 
@@ -5373,19 +5274,11 @@ ALTER TABLE ONLY "Users"
 SET search_path = sceleton, pg_catalog;
 
 --
--- Name: AccessMatrices AccessMatrices_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "AccessMatrices"
-    ADD CONSTRAINT "AccessMatrices_pkey" PRIMARY KEY (id);
-
-
---
--- Name: AccessPermissions AccessPermissions_matrixId_roleId_rightId_key; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
+-- Name: AccessPermissions AccessPermissions_roleId_rightId_key; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
 ALTER TABLE ONLY "AccessPermissions"
-    ADD CONSTRAINT "AccessPermissions_matrixId_roleId_rightId_key" UNIQUE ("matrixId", "roleId", "rightId");
+    ADD CONSTRAINT "AccessPermissions_roleId_rightId_key" UNIQUE ("roleId", "rightId");
 
 
 --
@@ -5767,19 +5660,11 @@ ALTER TABLE ONLY "Workflows"
 SET search_path = test, pg_catalog;
 
 --
--- Name: AccessMatrices AccessMatrices_pkey; Type: CONSTRAINT; Schema: test; Owner: indabauser
---
-
-ALTER TABLE ONLY "AccessMatrices"
-    ADD CONSTRAINT "AccessMatrices_pkey" PRIMARY KEY (id);
-
-
---
--- Name: AccessPermissions AccessPermissions_matrixId_roleId_rightId_key; Type: CONSTRAINT; Schema: test; Owner: indabauser
+-- Name: AccessPermissions AccessPermissions_roleId_rightId_key; Type: CONSTRAINT; Schema: test; Owner: indabauser
 --
 
 ALTER TABLE ONLY "AccessPermissions"
-    ADD CONSTRAINT "AccessPermissions_matrixId_roleId_rightId_key" UNIQUE ("matrixId", "roleId", "rightId");
+    ADD CONSTRAINT "AccessPermissions_roleId_rightId_key" UNIQUE ("roleId", "rightId");
 
 
 --
@@ -6640,15 +6525,6 @@ ALTER TABLE ONLY "Projects"
 ALTER TABLE ONLY "Projects"
     ADD CONSTRAINT "Projects_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
 
-
---
--- Name: Projects Projects_matrixId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "Projects"
-    ADD CONSTRAINT "Projects_matrixId_fkey" FOREIGN KEY ("matrixId") REFERENCES "AccessMatrices"(id);
-
-
 --
 -- Name: Projects Projects_organizationId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
@@ -7169,15 +7045,6 @@ ALTER TABLE ONLY "Projects"
 
 ALTER TABLE ONLY "Projects"
     ADD CONSTRAINT "Projects_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
-
-
---
--- Name: Projects Projects_matrixId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indabauser
---
-
-ALTER TABLE ONLY "Projects"
-    ADD CONSTRAINT "Projects_matrixId_fkey" FOREIGN KEY ("matrixId") REFERENCES "AccessMatrices"(id);
-
 
 --
 -- Name: Projects Projects_organizationId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indabauser

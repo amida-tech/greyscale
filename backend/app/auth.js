@@ -471,16 +471,12 @@ module.exports = {
                     throw new HttpError(403, 'This user does not have membership on this entity');
                 }
 
-                var Matrix = yield thunkQuery(model.select(model.matrixId).where(model.id.equals(req.params.id))); // TODO subquery
-                Matrix = _.first(Matrix);
-
                 var Permissions = yield thunkQuery(
                     AccessPermission
                     .select(AccessPermission.star())
                     .from(AccessPermission)
                     .where(
-                        AccessPermission.matrixId.equals(Matrix.matrixId)
-                        .and(AccessPermission.roleId.equals(Membership.roleId))
+                        AccessPermission.roleId.equals(Membership.roleId)
                         .and(AccessPermission.rightId.equals(Action.id))
                     )
                 );

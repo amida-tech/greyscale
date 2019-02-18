@@ -1290,7 +1290,7 @@ function* checkProductData(req) {
     var thunkQuery = req.thunkQuery;
     if (!req.params.id) { // create
         if (!req.body.projectId) {
-            throw new HttpError(403, 'Matrix id and Project id fields are required');
+            throw new HttpError(403, 'Project id field is required');
         }
     }
 
