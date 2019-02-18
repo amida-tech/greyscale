@@ -129,27 +129,6 @@ router.route('/:realm/v0.2/survey_answers/:id')
     .put(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ surveyAnswers.update);
 
 //----------------------------------------------------------------------------------------------------------------------
-//    ATTACHMENTS (universal mechanism)
-//----------------------------------------------------------------------------------------------------------------------
-
-var attachments = require('./controllers/attachments');
-
-router.route('/:realm/v0.2/uploads/links/:essenceId/:entityId')
-    .put(authenticate('jwt').always, jsonParser, attachments.links);
-
-router.route('/:realm/v0.2/uploads/:id/ticket')
-    .get(authenticate('jwt').always, attachments.getTicket);
-
-router.route('/:realm/v0.2/uploads/:id/:essenceId/:entityId')
-    .delete(authenticate('jwt').always, attachments.delete);
-
-router.route('/:realm/v0.2/uploads/upload_link')
-    .post(authenticate('jwt').always, jsonParser, attachments.getUploadLink);
-
-router.route('/:realm/v0.2/uploads/success')
-    .post(authenticate('jwt').always, jsonParser, attachments.uploadSuccess);
-
-//----------------------------------------------------------------------------------------------------------------------
 //    ESSENCE_ROLES
 //----------------------------------------------------------------------------------------------------------------------
 var essenceRoles = require('./controllers/essence_roles');

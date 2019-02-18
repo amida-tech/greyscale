@@ -388,26 +388,6 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 43	UserGroups	UserGroups	user_groups	UserId
 \.
 
-
---
--- TOC entry 3807 (class 0 OID 1599751)
--- Dependencies: 211
--- Data for Name: Attachments; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "Attachments" (id, filename, size, mimetype, body, created, owner, "amazonKey") FROM stdin;
-\.
-
-
---
--- TOC entry 3986 (class 0 OID 0)
--- Dependencies: 212
--- Name: Attachments_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"Attachments_id_seq"', 1, false);
-
-
 --
 -- TOC entry 3862 (class 0 OID 1600014)
 -- Dependencies: 266
@@ -1067,25 +1047,6 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 \.
 
 --
--- TOC entry 3924 (class 0 OID 1601742)
--- Dependencies: 409
--- Data for Name: Attachments; Type: TABLE DATA; Schema: test; Owner: indaba
---
-
-COPY "Attachments" (id, filename, size, mimetype, body, created, owner, "amazonKey") FROM stdin;
-\.
-
-
---
--- TOC entry 4024 (class 0 OID 0)
--- Dependencies: 368
--- Name: Attachments_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indaba
---
-
-SELECT pg_catalog.setval('"Attachments_id_seq"', 1, false);
-
-
---
 -- TOC entry 3941 (class 0 OID 1601919)
 -- Dependencies: 426
 -- Data for Name: UnitOfAnalysisType; Type: TABLE DATA; Schema: test; Owner: indaba
@@ -1094,7 +1055,6 @@ SELECT pg_catalog.setval('"Attachments_id_seq"', 1, false);
 COPY "UnitOfAnalysisType" (id, name, description, "langId") FROM stdin;
 1	Country	\N	1
 \.
-
 
 --
 -- TOC entry 3942 (class 0 OID 1601927)

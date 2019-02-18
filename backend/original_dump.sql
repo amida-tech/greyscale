@@ -1641,45 +1641,6 @@ CREATE TABLE "AccessPermissions" (
 ALTER TABLE "AccessPermissions" OWNER TO indabauser;
 
 --
--- Name: Attachments; Type: TABLE; Schema: sceleton; Owner: indabauser
---
-
-CREATE TABLE "Attachments" (
-    id integer NOT NULL,
-    filename character varying,
-    size integer,
-    mimetype character varying,
-    body bytea,
-    created timestamp with time zone,
-    owner integer,
-    "amazonKey" character varying
-);
-
-
-ALTER TABLE "Attachments" OWNER TO indabauser;
-
---
--- Name: Attachments_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
---
-
-CREATE SEQUENCE "Attachments_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "Attachments_id_seq" OWNER TO indabauser;
-
---
--- Name: Attachments_id_seq; Type: SEQUENCE OWNED BY; Schema: sceleton; Owner: indabauser
---
-
-ALTER SEQUENCE "Attachments_id_seq" OWNED BY "Attachments".id;
-
-
---
 -- Name: Discussions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2634,38 +2595,6 @@ CREATE TABLE "AccessPermissions" (
 
 
 ALTER TABLE "AccessPermissions" OWNER TO indabauser;
-
---
--- Name: Attachments_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
---
-
-CREATE SEQUENCE "Attachments_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "Attachments_id_seq" OWNER TO indabauser;
-
---
--- Name: Attachments; Type: TABLE; Schema: test; Owner: indabauser
---
-
-CREATE TABLE "Attachments" (
-    id integer DEFAULT nextval('"Attachments_id_seq"'::regclass) NOT NULL,
-    filename character varying,
-    size integer,
-    mimetype character varying,
-    body bytea,
-    created timestamp with time zone,
-    owner integer,
-    "amazonKey" character varying
-);
-
-
-ALTER TABLE "Attachments" OWNER TO indabauser;
 
 --
 -- Name: Discussions_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
@@ -3625,13 +3554,6 @@ ALTER TABLE ONLY "Rights" ALTER COLUMN id SET DEFAULT nextval('"Rights_id_seq"':
 
 SET search_path = sceleton, pg_catalog;
 
---
--- Name: Attachments id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "Attachments" ALTER COLUMN id SET DEFAULT nextval('"Attachments_id_seq"'::regclass);
-
-
 SET search_path = public, pg_catalog;
 
 --
@@ -3836,21 +3758,6 @@ COPY "AccessPermissions" (id, "roleId", "rightId", permission) FROM stdin;
 --
 
 SELECT pg_catalog.setval('"AccessPermissions_id_seq"', 1, true);
-
---
--- Data for Name: Attachments; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "Attachments" (id, filename, size, mimetype, body, created, owner, "amazonKey") FROM stdin;
-\.
-
-
---
--- Name: Attachments_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"Attachments_id_seq"', 1, false);
-
 
 --
 -- Data for Name: Discussions; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
@@ -4401,21 +4308,6 @@ COPY "AccessPermissions" (id, "roleId", "rightId", permission) FROM stdin;
 --
 
 SELECT pg_catalog.setval('"AccessPermissions_id_seq"', 1, true);
-
---
--- Data for Name: Attachments; Type: TABLE DATA; Schema: test; Owner: indabauser
---
-
-COPY "Attachments" (id, filename, size, mimetype, body, created, owner, "amazonKey") FROM stdin;
-\.
-
-
---
--- Name: Attachments_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"Attachments_id_seq"', 1, false);
-
 
 --
 -- Data for Name: Discussions; Type: TABLE DATA; Schema: test; Owner: indabauser
@@ -5100,14 +4992,6 @@ ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
 
 --
--- Name: Attachments Attachments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "Attachments"
-    ADD CONSTRAINT "Attachments_pkey" PRIMARY KEY (id);
-
-
---
 -- Name: Discussions Discussions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
 
@@ -5459,14 +5343,6 @@ ALTER TABLE ONLY "AccessPermissions"
 
 ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
-
---
--- Name: Attachments Attachments_pkey; Type: CONSTRAINT; Schema: test; Owner: indabauser
---
-
-ALTER TABLE ONLY "Attachments"
-    ADD CONSTRAINT "Attachments_pkey" PRIMARY KEY (id);
-
 
 --
 -- Name: Discussions Discussions_pkey; Type: CONSTRAINT; Schema: test; Owner: indabauser

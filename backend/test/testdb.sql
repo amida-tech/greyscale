@@ -1388,45 +1388,6 @@ CREATE TABLE "AccessPermissions" (
 ALTER TABLE sceleton."AccessPermissions" OWNER TO indaba;
 
 --
--- Name: Attachments; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-CREATE TABLE "Attachments" (
-    id integer NOT NULL,
-    filename character varying,
-    size integer,
-    mimetype character varying,
-    body bytea,
-    created timestamp with time zone,
-    owner integer,
-    "amazonKey" character varying
-);
-
-
-ALTER TABLE sceleton."Attachments" OWNER TO indaba;
-
---
--- Name: Attachments_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
---
-
-CREATE SEQUENCE "Attachments_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE sceleton."Attachments_id_seq" OWNER TO indaba;
-
---
--- Name: Attachments_id_seq; Type: SEQUENCE OWNED BY; Schema: sceleton; Owner: indaba
---
-
-ALTER SEQUENCE "Attachments_id_seq" OWNED BY "Attachments".id;
-
-
---
 -- Name: Comments_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
 --
 
@@ -2084,7 +2045,6 @@ CREATE TABLE "SurveyAnswers" (
     "isResponse" boolean DEFAULT false NOT NULL,
     "isAgree" boolean,
     comments character varying,
-    attachments integer[],
     "answerComment" character varying,
     links character varying[],
     updated timestamp with time zone
@@ -2847,13 +2807,6 @@ SET search_path = sceleton, pg_catalog;
 -- Name: id; Type: DEFAULT; Schema: sceleton; Owner: indaba
 --
 
-ALTER TABLE ONLY "Attachments" ALTER COLUMN id SET DEFAULT nextval('"Attachments_id_seq"'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: sceleton; Owner: indaba
---
-
 ALTER TABLE ONLY "Policies" ALTER COLUMN id SET DEFAULT nextval('"Policies_id_seq"'::regclass);
 
 
@@ -3142,20 +3095,6 @@ COPY "AccessPermissions" ("roleId", "rightId", permission, id) FROM stdin;
 --
 
 SELECT pg_catalog.setval('"AccessPermissions_id_seq"', 1, true);
-
---
--- Data for Name: Attachments; Type: TABLE DATA; Schema: sceleton; Owner: indaba
---
-
-COPY "Attachments" (id, filename, size, mimetype, body, created, owner, "amazonKey") FROM stdin;
-\.
-
-
---
--- Name: Attachments_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indaba
---
-
-SELECT pg_catalog.setval('"Attachments_id_seq"', 1, false);
 
 
 --
@@ -3539,7 +3478,7 @@ SELECT pg_catalog.setval('"SurveyAnswerVersions_id_seq"', 4, true);
 -- Data for Name: SurveyAnswers; Type: TABLE DATA; Schema: sceleton; Owner: indaba
 --
 
-COPY "SurveyAnswers" (id, "questionId", "userId", value, created, "productId", "UOAid", "wfStepId", version, "surveyId", "optionId", "langId", "isResponse", "isAgree", comments, attachments, "answerComment", links, updated) FROM stdin;
+COPY "SurveyAnswers" (id, "questionId", "userId", value, created, "productId", "UOAid", "wfStepId", version, "surveyId", "optionId", "langId", "isResponse", "isAgree", comments, "answerComment", links, updated) FROM stdin;
 \.
 
 
@@ -3944,14 +3883,6 @@ ALTER TABLE ONLY "AccessPermissions"
 
 ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
-
---
--- Name: Attachments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-ALTER TABLE ONLY "Attachments"
-    ADD CONSTRAINT "Attachments_pkey" PRIMARY KEY (id);
-
 
 --
 -- Name: Comments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:

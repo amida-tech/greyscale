@@ -10,7 +10,6 @@ const roles = require('./roles.model');
 const rolesRights = require('./roles-rights.model');
 const token = require('./token.model');
 const accessPermissions = require('./access-permissions.model');
-const attachments = require('./attachments.model');
 const discussions = require('./discussions.model');
 const groups = require('./groups.model');
 const indexQuestionWeights = require('./index-question-weights.model');
@@ -65,7 +64,6 @@ const definePublicTables = function (sequelize, Sequelize) {
 
 const defineSchemaTables = function (sequelize, Sequelize, schema) {
     const AccessPermissions = accessPermissions(sequelize, Sequelize, schema);
-    const Attachments = attachments(sequelize, Sequelize, schema);
     const Discussions = discussions(sequelize, Sequelize, schema);
     const Essences = essences(sequelize, Sequelize, schema);
     const Groups = groups(sequelize, Sequelize, schema);
@@ -107,7 +105,6 @@ const defineSchemaTables = function (sequelize, Sequelize, schema) {
 
     return {
         AccessPermissions,
-        Attachments,
         Discussions,
         Essences,
         Groups,

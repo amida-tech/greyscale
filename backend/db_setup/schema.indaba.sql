@@ -1883,49 +1883,6 @@ CREATE TABLE "AccessPermissions" (
 ALTER TABLE "AccessPermissions" OWNER TO indabauser;
 
 --
--- TOC entry 211 (class 1259 OID 1599751)
--- Name: Attachments; Type: TABLE; Schema: sceleton; Owner: indabauser
---
-
-CREATE TABLE "Attachments" (
-    id integer NOT NULL,
-    filename character varying,
-    size integer,
-    mimetype character varying,
-    body bytea,
-    created timestamp with time zone,
-    owner integer,
-    "amazonKey" character varying
-);
-
-
-ALTER TABLE "Attachments" OWNER TO indabauser;
-
---
--- TOC entry 212 (class 1259 OID 1599757)
--- Name: Attachments_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
---
-
-CREATE SEQUENCE "Attachments_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "Attachments_id_seq" OWNER TO indabauser;
-
---
--- TOC entry 3785 (class 0 OID 0)
--- Dependencies: 212
--- Name: Attachments_id_seq; Type: SEQUENCE OWNED BY; Schema: sceleton; Owner: indabauser
---
-
-ALTER SEQUENCE "Attachments_id_seq" OWNED BY "Attachments".id;
-
-
---
 -- TOC entry 213 (class 1259 OID 1599759)
 -- Name: Discussions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
@@ -3244,45 +3201,6 @@ CREATE TABLE "AccessPermissions" (
 
 
 ALTER TABLE "AccessPermissions" OWNER TO indabauser;
-
---
--- TOC entry 368 (class 1259 OID 1601608)
--- Name: Attachments_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
---
-
-CREATE SEQUENCE "Attachments_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "Attachments_id_seq" OWNER TO indabauser;
-
---
--- TOC entry 409 (class 1259 OID 1601742)
--- Name: Attachments; Type: TABLE; Schema: test; Owner: indaba
---
-
-CREATE TABLE "Attachments" (
-    id integer DEFAULT nextval('"Attachments_id_seq"'::regclass) NOT NULL,
-    filename character varying,
-    size integer,
-    mimetype character varying,
-    body bytea,
-    created timestamp with time zone,
-    owner integer,
-    "amazonKey" character varying
-);
-
-
-ALTER TABLE "Attachments" OWNER TO indabauser;
-
---
--- TOC entry 369 (class 1259 OID 1601610)
--- Name: Discussions_id_seq; Type: SEQUENCE; Schema: test; Owner: indaba
---
 
 CREATE SEQUENCE "Discussions_id_seq"
     START WITH 1
@@ -4612,9 +4530,6 @@ SET search_path = sceleton, pg_catalog;
 -- Name: id; Type: DEFAULT; Schema: sceleton; Owner: indabauser
 --
 
-ALTER TABLE ONLY "Attachments" ALTER COLUMN id SET DEFAULT nextval('"Attachments_id_seq"'::regclass);
-
-
 SET search_path = public, pg_catalog;
 
 --
@@ -4752,15 +4667,6 @@ ALTER TABLE ONLY "AccessPermissions"
 
 ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
-
---
--- TOC entry 3269 (class 2606 OID 1600494)
--- Name: Attachments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "Attachments"
-    ADD CONSTRAINT "Attachments_pkey" PRIMARY KEY (id);
-
 
 --
 -- TOC entry 3271 (class 2606 OID 1600496)
@@ -5176,15 +5082,6 @@ ALTER TABLE ONLY "AccessPermissions"
 
 ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
-
---
--- TOC entry 3389 (class 2606 OID 1601750)
--- Name: Attachments_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "Attachments"
-    ADD CONSTRAINT "Attachments_pkey" PRIMARY KEY (id);
-
 
 --
 -- TOC entry 3385 (class 2606 OID 1601730)
