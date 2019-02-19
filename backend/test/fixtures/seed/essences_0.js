@@ -98,12 +98,6 @@ module.exports = [{
     nameField: 'title',
 }, {
     id: 28,
-    tableName: 'IndexQuestionWeights',
-    name: 'IndexQuestionWeights',
-    fileName: 'index_question_weights',
-    nameField: 'type',
-}, {
-    id: 29,
     tableName: 'IndexSubindexWeights',
     name: 'IndexSubindexWeights',
     fileName: 'index_subindex_weights',

@@ -671,23 +671,6 @@ module.exports = {
                         info: 'Update index for product `' + req.params.id + '`'
                     });
 
-                    // drop all existing weights
-                    yield thunkQuery(IndexQuestionWeight.delete().where(IndexQuestionWeight.indexId.equals(req.body[i].id)), {
-                        'realm': req.param('realm')
-                    });
-                    bologger.log({
-                        req: req,
-                        user: req.user,
-                        action: 'delete',
-                        object: 'IndexQuestionWeights',
-                        entity: null,
-                        entities: {
-                            productId: req.params.id,
-                            indexId: req.body[i].id
-                        },
-                        quantity: 1,
-                        info: 'Drop all existing question weights for index `' + req.body[i].id + '` for product `' + req.params.id + '`'
-                    });
                     yield thunkQuery(IndexSubindexWeight.delete().where(IndexSubindexWeight.indexId.equals(req.body[i].id)), {
                         'realm': req.param('realm')
                     });
@@ -727,30 +710,6 @@ module.exports = {
 
                 // insert weights
                 var weightObj;
-                for (var questionId in req.body[i].questionWeights) {
-                    weightObj = {
-                        indexId: indexId,
-                        questionId: questionId,
-                        weight: req.body[i].questionWeights[questionId].weight,
-                        type: req.body[i].questionWeights[questionId].type,
-                        aggregateType: req.body[i].questionWeights[questionId].aggregateType
-                    };
-                    yield thunkQuery(IndexQuestionWeight.insert(weightObj));
-                    bologger.log({
-                        req: req,
-                        user: req.user,
-                        action: 'insert',
-                        object: 'IndexQuestionWeights',
-                        entity: null,
-                        entities: {
-                            productId: req.params.id,
-                            indexId: indexId,
-                            questionId: questionId
-                        },
-                        quantity: 1,
-                        info: 'Add new question weight for index `' + indexId + '` for question `' + questionId + '` for product `' + req.params.id + '`'
-                    });
-                }
                 for (var subindexId in req.body[i].subindexWeights) {
                     weightObj = {
                         indexId: indexId,
@@ -886,32 +845,6 @@ module.exports = {
                         entity: subindexId,
                         entities: null,
                         info: 'Add new subindex for product `' + req.params.id + '`'
-                    });
-                }
-
-                // insert weights
-                for (var questionId in req.body[i].weights) {
-                    var weightObj = {
-                        subindexId: subindexId,
-                        questionId: questionId,
-                        weight: req.body[i].weights[questionId].weight,
-                        type: req.body[i].weights[questionId].type,
-                        aggregateType: req.body[i].weights[questionId].aggregateType
-                    };
-                    yield thunkQuery(SubindexWeight.insert(weightObj));
-                    bologger.log({
-                        req: req,
-                        user: req.user,
-                        action: 'insert',
-                        object: 'SubindexWeights',
-                        entity: null,
-                        entities: {
-                            productId: req.params.id,
-                            subindexId: subindexId,
-                            questionId: questionId
-                        },
-                        quantity: 1,
-                        info: 'Add new weight for subindex `' + subindexId + '` for question `' + questionId + '` for product `' + req.params.id + '`'
                     });
                 }
             }

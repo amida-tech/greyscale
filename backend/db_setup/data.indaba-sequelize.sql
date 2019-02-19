@@ -49,8 +49,7 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 25	ProductUOA	productUoa	product_uoa	productId
 26	Indexes	Indexes	indexes	title
 27	Subindexes	Subindexes	subindexes	title
-28	IndexQuestionWeights	IndexQuestionWeights	index_question_weights	type
-29	IndexSubindexWeights	IndexSubindexWeights	index_subindex_weights	type
+28	IndexSubindexWeights	IndexSubindexWeights	index_subindex_weights	type
 36	Workflows	Workflows	workflows	name
 37	WorfklowSteps	WorkflowSteps	workflow_steps	title
 38	WorfklowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
@@ -370,8 +369,7 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 25	ProductUOA	productUoa	product_uoa	productId
 26	Indexes	Indexes	indexes	title
 27	Subindexes	Subindexes	subindexes	title
-28	IndexQuestionWeights	IndexQuestionWeights	index_question_weights	type
-29	IndexSubindexWeights	IndexSubindexWeights	index_subindex_weights	type
+28	IndexSubindexWeights	IndexSubindexWeights	index_subindex_weights	type
 36	Workflows	Workflows	workflows	name
 37	WorfklowSteps	WorkflowSteps	workflow_steps	title
 38	WorfklowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
@@ -475,15 +473,6 @@ SELECT pg_catalog.setval('"Groups_id_seq"', 1, true);
 COPY "Indexes" (id, "productId", title, description, divisor) FROM stdin;
 \.
 
-
---
--- TOC entry 3816 (class 0 OID 1599793)
--- Dependencies: 220
--- Data for Name: IndexQuestionWeights; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "IndexQuestionWeights" ("indexId", "questionId", weight, type) FROM stdin;
-\.
 
 
 --
@@ -1028,8 +1017,7 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 25	ProductUOA	productUoa	product_uoa	productId
 26	Indexes	Indexes	indexes	title
 27	Subindexes	Subindexes	subindexes	title
-28	IndexQuestionWeights	IndexQuestionWeights	index_question_weights	type
-29	IndexSubindexWeights	IndexSubindexWeights	index_subindex_weights	type
+28	IndexSubindexWeights	IndexSubindexWeights	index_subindex_weights	type
 36	Workflows	Workflows	workflows	name
 37	WorfklowSteps	WorkflowSteps	workflow_steps	title
 38	WorfklowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
@@ -1136,17 +1124,6 @@ SELECT pg_catalog.setval('"Groups_id_seq"', 3, true);
 
 COPY "Indexes" (id, "productId", title, description, divisor) FROM stdin;
 \.
-
-
---
--- TOC entry 3925 (class 0 OID 1601752)
--- Dependencies: 410
--- Data for Name: IndexQuestionWeights; Type: TABLE DATA; Schema: test; Owner: indaba
---
-
-COPY "IndexQuestionWeights" ("indexId", "questionId", weight, type) FROM stdin;
-\.
-
 
 --
 -- TOC entry 3936 (class 0 OID 1601873)

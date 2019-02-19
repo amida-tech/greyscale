@@ -17,9 +17,6 @@ BEGIN
 
 	DELETE FROM "SubindexWeights" WHERE "questionId" IN (SELECT "id" FROM "SurveyQuestions" WHERE "surveyId" IN (SELECT "id" FROM "Surveys" WHERE "projectId" IN (SELECT "id" FROM "Projects" WHERE "organizationId" <> org_id)));
 
-	DELETE FROM "IndexQuestionWeights" WHERE "questionId" IN (SELECT "id" FROM "SurveyQuestions" WHERE "surveyId" IN (SELECT "id" FROM "Surveys" WHERE "projectId" IN (SELECT "id" FROM "Projects" WHERE "organizationId" <> org_id)));
-	DELETE FROM "IndexQuestionWeights" WHERE "indexId" IN (SELECT "id" FROM "Indexes" WHERE "productId" IN (SELECT "id" FROM "Products" WHERE "projectId" IN (SELECT "id" FROM "Projects" WHERE "organizationId" <> org_id)));
-
 	DELETE FROM "Discussions" WHERE "questionId" IN (SELECT "id" FROM "SurveyQuestions" WHERE "surveyId" IN (SELECT "id" FROM "Surveys" WHERE "projectId" IN (SELECT "id" FROM "Projects" WHERE "organizationId" <> org_id)));
 	DELETE FROM "Discussions" WHERE "taskId" IN (SELECT "id" FROM "Tasks" WHERE "stepId" IN (SELECT "id" FROM "WorkflowSteps" WHERE "workflowId" IN (SELECT "id" FROM "Workflows" WHERE "productId" IN (SELECT "id" FROM "Products" WHERE "projectId" IN (SELECT "id" FROM "Projects" WHERE "organizationId" <> org_id)))));
 
