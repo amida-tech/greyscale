@@ -1554,20 +1554,6 @@ CREATE TABLE "Groups" (
 ALTER TABLE sceleton."Groups" OWNER TO indaba;
 
 --
--- Name: IndexSubindexWeights; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-CREATE TABLE "IndexSubindexWeights" (
-    "indexId" integer NOT NULL,
-    "subindexId" integer NOT NULL,
-    weight numeric NOT NULL,
-    type character varying NOT NULL
-);
-
-
-ALTER TABLE sceleton."IndexSubindexWeights" OWNER TO indaba;
-
---
 -- Name: Index_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
 --
 
@@ -2831,7 +2817,6 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 25	ProductUOA	productUoa	product_uoa	productId
 26	Indexes	Indexes	indexes	title
 27	Subindexes	Subindexes	subindexes	title
-28	IndexSubindexWeights	IndexSubindexWeights	index_subindex_weights	type
 36	Workflows	Workflows	workflows	name
 37	WorfklowSteps	WorkflowSteps	workflow_steps	title
 38	WorfklowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
@@ -3151,7 +3136,6 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 25	ProductUOA	productUoa	product_uoa	productId
 26	Indexes	Indexes	indexes	title
 27	Subindexes	Subindexes	subindexes	title
-28	IndexSubindexWeights	IndexSubindexWeights	index_subindex_weights	type
 36	Workflows	Workflows	workflows	name
 37	WorfklowSteps	WorkflowSteps	workflow_steps	title
 38	WorfklowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
@@ -3184,14 +3168,6 @@ COPY "Groups" (id, title, "organizationId", "langId") FROM stdin;
 --
 
 SELECT pg_catalog.setval('"Groups_id_seq"', 1, true);
-
---
--- Data for Name: IndexSubindexWeights; Type: TABLE DATA; Schema: sceleton; Owner: indaba
---
-
-COPY "IndexSubindexWeights" ("indexId", "subindexId", weight, type) FROM stdin;
-\.
-
 
 --
 -- Name: Index_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indaba
@@ -3907,14 +3883,6 @@ ALTER TABLE ONLY "Groups"
     ADD CONSTRAINT "Groups_pkey" PRIMARY KEY (id);
 
 --
--- Name: IndexSubindexWeights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-ALTER TABLE ONLY "IndexSubindexWeights"
-    ADD CONSTRAINT "IndexSubindexWeights_pkey" PRIMARY KEY ("indexId", "subindexId");
-
-
---
 -- Name: Indexes_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
@@ -4521,22 +4489,6 @@ ALTER TABLE ONLY "Groups"
 
 ALTER TABLE ONLY "Groups"
     ADD CONSTRAINT "Groups_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organizations"(id);
-
---
--- Name: IndexSubindexWeights_indexId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "IndexSubindexWeights"
-    ADD CONSTRAINT "IndexSubindexWeights_indexId_fkey" FOREIGN KEY ("indexId") REFERENCES "Indexes"(id);
-
-
---
--- Name: IndexSubindexWeights_subindexId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "IndexSubindexWeights"
-    ADD CONSTRAINT "IndexSubindexWeights_subindexId_fkey" FOREIGN KEY ("subindexId") REFERENCES "Subindexes"(id);
-
 
 --
 -- Name: Indexes_productId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba

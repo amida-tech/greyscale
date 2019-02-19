@@ -49,7 +49,6 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 25	ProductUOA	productUoa	product_uoa	productId
 26	Indexes	Indexes	indexes	title
 27	Subindexes	Subindexes	subindexes	title
-28	IndexSubindexWeights	IndexSubindexWeights	index_subindex_weights	type
 36	Workflows	Workflows	workflows	name
 37	WorfklowSteps	WorkflowSteps	workflow_steps	title
 38	WorfklowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
@@ -466,7 +465,6 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 25	ProductUOA	productUoa	product_uoa	productId
 26	Indexes	Indexes	indexes	title
 27	Subindexes	Subindexes	subindexes	title
-28	IndexSubindexWeights	IndexSubindexWeights	index_subindex_weights	type
 36	Workflows	Workflows	workflows	name
 37	WorfklowSteps	WorkflowSteps	workflow_steps	title
 38	WorfklowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
@@ -587,17 +585,6 @@ COPY "Indexes" (id, "productId", title, description, divisor) FROM stdin;
 
 COPY "Subindexes" (id, "productId", title, description, divisor) FROM stdin;
 \.
-
-
---
--- TOC entry 3817 (class 0 OID 1599799)
--- Dependencies: 221
--- Data for Name: IndexSubindexWeights; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "IndexSubindexWeights" ("indexId", "subindexId", weight, type) FROM stdin;
-\.
-
 
 --
 -- TOC entry 3991 (class 0 OID 0)
@@ -1175,7 +1162,6 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 25	ProductUOA	productUoa	product_uoa	productId
 26	Indexes	Indexes	indexes	title
 27	Subindexes	Subindexes	subindexes	title
-28	IndexSubindexWeights	IndexSubindexWeights	index_subindex_weights	type
 36	Workflows	Workflows	workflows	name
 37	WorfklowSteps	WorkflowSteps	workflow_steps	title
 38	WorfklowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
@@ -1301,16 +1287,6 @@ COPY "Indexes" (id, "productId", title, description, divisor) FROM stdin;
 --
 
 COPY "Subindexes" (id, "productId", title, description, divisor) FROM stdin;
-\.
-
-
---
--- TOC entry 3959 (class 0 OID 1602096)
--- Dependencies: 444
--- Data for Name: IndexSubindexWeights; Type: TABLE DATA; Schema: test; Owner: indaba
---
-
-COPY "IndexSubindexWeights" ("indexId", "subindexId", weight, type) FROM stdin;
 \.
 
 

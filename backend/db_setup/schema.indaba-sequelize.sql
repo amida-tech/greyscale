@@ -1783,21 +1783,6 @@ CREATE TABLE "Groups" (
 ALTER TABLE "Groups" OWNER TO indabauser;
 
 --
--- TOC entry 221 (class 1259 OID 1599799)
--- Name: IndexSubindexWeights; Type: TABLE; Schema: sceleton; Owner: indabauser
---
-
-CREATE TABLE "IndexSubindexWeights" (
-    "indexId" integer NOT NULL,
-    "subindexId" integer NOT NULL,
-    weight numeric NOT NULL,
-    type character varying NOT NULL
-);
-
-
-ALTER TABLE "IndexSubindexWeights" OWNER TO indabauser;
-
---
 -- TOC entry 222 (class 1259 OID 1599805)
 -- Name: Indexes_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
@@ -2774,21 +2759,6 @@ CREATE TABLE "Groups" (
 
 
 ALTER TABLE "Groups" OWNER TO indabauser;
-
---
--- TOC entry 444 (class 1259 OID 1602096)
--- Name: IndexSubindexWeights; Type: TABLE; Schema: test; Owner: indaba
---
-
-CREATE TABLE "IndexSubindexWeights" (
-    "indexId" integer NOT NULL,
-    "subindexId" integer NOT NULL,
-    weight numeric NOT NULL,
-    type character varying NOT NULL
-);
-
-
-ALTER TABLE "IndexSubindexWeights" OWNER TO indabauser;
 
 --
 -- TOC entry 373 (class 1259 OID 1601618)
@@ -3861,16 +3831,6 @@ ALTER TABLE ONLY "Essences"
 ALTER TABLE ONLY "Groups"
     ADD CONSTRAINT "Groups_pkey" PRIMARY KEY (id);
 
-
---
--- TOC entry 3284 (class 2606 OID 1600508)
--- Name: IndexSubindexWeights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "IndexSubindexWeights"
-    ADD CONSTRAINT "IndexSubindexWeights_pkey" PRIMARY KEY ("indexId", "subindexId");
-
-
 --
 -- TOC entry 3286 (class 2606 OID 1600510)
 -- Name: Indexes_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
@@ -4248,14 +4208,6 @@ ALTER TABLE ONLY "Essences"
 
 ALTER TABLE ONLY "Groups"
     ADD CONSTRAINT "Groups_pkey" PRIMARY KEY (id);
-
---
--- TOC entry 3485 (class 2606 OID 1602103)
--- Name: IndexSubindexWeights_pkey; Type: CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "IndexSubindexWeights"
-    ADD CONSTRAINT "IndexSubindexWeights_pkey" PRIMARY KEY ("indexId", "subindexId");
 
 
 --
@@ -4920,24 +4872,6 @@ ALTER TABLE ONLY "Groups"
     ADD CONSTRAINT "Groups_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organizations"(id);
 
 --
--- TOC entry 3512 (class 2606 OID 1600839)
--- Name: IndexSubindexWeights_indexId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "IndexSubindexWeights"
-    ADD CONSTRAINT "IndexSubindexWeights_indexId_fkey" FOREIGN KEY ("indexId") REFERENCES "Indexes"(id);
-
-
---
--- TOC entry 3511 (class 2606 OID 1600844)
--- Name: IndexSubindexWeights_subindexId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "IndexSubindexWeights"
-    ADD CONSTRAINT "IndexSubindexWeights_subindexId_fkey" FOREIGN KEY ("subindexId") REFERENCES "Subindexes"(id);
-
-
---
 -- TOC entry 3513 (class 2606 OID 1600849)
 -- Name: Indexes_productId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
@@ -5464,24 +5398,6 @@ ALTER TABLE ONLY "Groups"
 
 ALTER TABLE ONLY "Groups"
     ADD CONSTRAINT "Groups_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organizations"(id);
-
---
--- TOC entry 3654 (class 2606 OID 1602181)
--- Name: IndexSubindexWeights_indexId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "IndexSubindexWeights"
-    ADD CONSTRAINT "IndexSubindexWeights_indexId_fkey" FOREIGN KEY ("indexId") REFERENCES "Indexes"(id);
-
-
---
--- TOC entry 3653 (class 2606 OID 1602186)
--- Name: IndexSubindexWeights_subindexId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indaba
---
-
-ALTER TABLE ONLY "IndexSubindexWeights"
-    ADD CONSTRAINT "IndexSubindexWeights_subindexId_fkey" FOREIGN KEY ("subindexId") REFERENCES "Subindexes"(id);
-
 
 --
 -- TOC entry 3615 (class 2606 OID 1602191)

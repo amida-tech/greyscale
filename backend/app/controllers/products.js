@@ -19,8 +19,6 @@ var
     Discussion = require('../models/discussions'),
     Index = require('../models/indexes.js'),
     Subindex = require('../models/subindexes.js'),
-    IndexQuestionWeight = require('../models/index_question_weights.js'),
-    IndexSubindexWeight = require('../models/index_subindex_weights.js'),
     SubindexWeight = require('../models/subindex_weights.js'),
     co = require('co'),
     sql = require('sql'),
@@ -671,23 +669,6 @@ module.exports = {
                         info: 'Update index for product `' + req.params.id + '`'
                     });
 
-                    yield thunkQuery(IndexSubindexWeight.delete().where(IndexSubindexWeight.indexId.equals(req.body[i].id)), {
-                        'realm': req.param('realm')
-                    });
-                    bologger.log({
-                        req: req,
-                        user: req.user,
-                        action: 'delete',
-                        object: 'IndexSubindexWeights',
-                        entity: null,
-                        entities: {
-                            productId: req.params.id,
-                            indexId: req.body[i].id
-                        },
-                        quantity: 1,
-                        info: 'Drop all existing subindex weights for index `' + req.body[i].id + '` for product `' + req.params.id + '`'
-                    });
-
                     indexId = req.body[i].id;
                     res.updated.push(indexId);
                 } else { // create
@@ -705,32 +686,6 @@ module.exports = {
                         object: 'Indexes',
                         entity: indexId,
                         info: 'Add new index for product `' + req.params.id + '`'
-                    });
-                }
-
-                // insert weights
-                var weightObj;
-                for (var subindexId in req.body[i].subindexWeights) {
-                    weightObj = {
-                        indexId: indexId,
-                        subindexId: subindexId,
-                        weight: req.body[i].subindexWeights[subindexId].weight,
-                        type: req.body[i].subindexWeights[subindexId].type
-                    };
-                    yield thunkQuery(IndexSubindexWeight.insert(weightObj));
-                    bologger.log({
-                        req: req,
-                        user: req.user,
-                        action: 'insert',
-                        object: 'IndexSubindexWeights',
-                        entity: null,
-                        entities: {
-                            productId: req.params.id,
-                            indexId: indexId,
-                            subindexId: subindexId
-                        },
-                        quantity: 1,
-                        info: 'Add new subindex weight for index `' + indexId + '` for subindex `' + subindexId + '` for product `' + req.params.id + '`'
                     });
                 }
             }

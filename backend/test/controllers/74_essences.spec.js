@@ -129,11 +129,6 @@ var essencesContent = [{
     fileName: 'subindexes',
     nameField: 'title'
 }, {
-    tableName: 'IndexSubindexWeights',
-    name: 'IndexSubindexWeights',
-    fileName: 'index_subindex_weights',
-    nameField: 'type'
-}, {
     tableName: 'SubindexWeights',
     name: 'SubindexWeights',
     fileName: 'subindex_weights',

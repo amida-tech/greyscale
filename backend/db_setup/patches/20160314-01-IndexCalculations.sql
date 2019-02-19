@@ -1,17 +1,3 @@
--- Name: IndexSubindexWeights; Type: TABLE; Schema: public; Owner: rickards; Tablespace:
---
-
-CREATE TABLE "IndexSubindexWeights" (
-    "indexId" integer NOT NULL,
-    "subindexId" integer NOT NULL,
-    weight numeric NOT NULL,
-    type character varying NOT NULL
-);
-
-
-ALTER TABLE "IndexSubindexWeights" OWNER TO indabauser;
-
---
 -- Name: Index_id_seq; Type: SEQUENCE; Schema: public; Owner: indaba
 --
 
@@ -120,14 +106,6 @@ ALTER TABLE "Visualizations_id_seq" OWNER TO indabauser;
 ALTER SEQUENCE "Visualizations_id_seq" OWNED BY "Visualizations".id;
 
 --
--- Name: IndexSubindexWeight_pkey; Type: CONSTRAINT; Schema: public; Owner: rickards; Tablespace:
---
-
-ALTER TABLE ONLY "IndexSubindexWeights"
-    ADD CONSTRAINT "IndexSubindexWeight_pkey" PRIMARY KEY ("indexId", "subindexId");
-
-
---
 -- Name: Indexes_pkey; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace:
 --
 
@@ -167,22 +145,6 @@ CREATE INDEX "fki_Indexes_productId_fkey" ON "Indexes" USING btree ("productId")
 --
 
 CREATE INDEX "fki_Subindexes_productId_fkey" ON "Subindexes" USING btree ("productId");
-
---
--- Name: IndexSubindexWeights_indexId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rickards
---
-
-ALTER TABLE ONLY "IndexSubindexWeights"
-    ADD CONSTRAINT "IndexSubindexWeights_indexId_fkey" FOREIGN KEY ("indexId") REFERENCES "Indexes"(id);
-
-
---
--- Name: IndexSubindexWeights_subindexId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rickards
---
-
-ALTER TABLE ONLY "IndexSubindexWeights"
-    ADD CONSTRAINT "IndexSubindexWeights_subindexId_fkey" FOREIGN KEY ("subindexId") REFERENCES "Subindexes"(id);
-
 
 --
 -- Name: Indexes_productId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indaba

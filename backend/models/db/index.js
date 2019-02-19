@@ -12,7 +12,6 @@ const token = require('./token.model');
 const accessPermissions = require('./access-permissions.model');
 const discussions = require('./discussions.model');
 const groups = require('./groups.model');
-const indexSubindexWeights = require('./index-subindex-weights.model');
 const indexes = require('./indexes.model');
 const organizations = require('./organizations.model');
 const productUoa = require('./product-uoa.model');
@@ -66,7 +65,6 @@ const defineSchemaTables = function (sequelize, Sequelize, schema) {
     const Discussions = discussions(sequelize, Sequelize, schema);
     const Essences = essences(sequelize, Sequelize, schema);
     const Groups = groups(sequelize, Sequelize, schema);
-    const IndexSubindexWeights = indexSubindexWeights(sequelize, Sequelize, schema);
     const Indexes = indexes(sequelize, Sequelize, schema);
     const Languages = languages(sequelize, Sequelize, schema);
     const Logs = logs(sequelize, Sequelize, schema);
@@ -106,7 +104,6 @@ const defineSchemaTables = function (sequelize, Sequelize, schema) {
         Discussions,
         Essences,
         Groups,
-        IndexSubindexWeights,
         Indexes,
         Languages,
         Logs,

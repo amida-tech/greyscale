@@ -23,7 +23,6 @@ WITH new_values ("tableName","name","fileName","nameField") as (
 ('ProductUOA', 'productUoa', 'product_uoa', 'productId'),
 ('Indexes', 'Indexes', 'indexes', 'title'),
 ('Subindexes', 'Subindexes', 'subindexes', 'title'),
-('IndexSubindexWeights', 'IndexSubindexWeights', 'index_subindex_weights', 'type'),
 ('SubindexWeights', 'SubindexWeights', 'subindex_weights', 'type'),
 ('Translations', 'Translations', 'translations', 'field'),
 ('Roles', 'Roles', 'roles', 'name'),

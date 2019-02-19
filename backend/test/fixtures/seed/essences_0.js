@@ -97,12 +97,6 @@ module.exports = [{
     fileName: 'subindexes',
     nameField: 'title',
 }, {
-    id: 28,
-    tableName: 'IndexSubindexWeights',
-    name: 'IndexSubindexWeights',
-    fileName: 'index_subindex_weights',
-    nameField: 'type',
-}, {
     id: 36,
     tableName: 'Workflows',
     name: 'Workflows',
