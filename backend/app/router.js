@@ -83,51 +83,6 @@ router.route('/:realm/v0.2/projects/:id')
 router.route('/:realm/v0.2/projects/:id/products')
     .get(authenticate('jwt').always, projects.productList);
 
-router.route('/:realm/v0.2/projects/:id/surveys')
-    .get(authenticate('jwt').always, projects.surveyList);
-
-router.route('/:realm/v0.2/projects/survey/:id')
-    .put(authenticate('jwt').always, jsonParser, projects.editSurvey);
-
-//----------------------------------------------------------------------------------------------------------------------
-//    SURVEYS
-//----------------------------------------------------------------------------------------------------------------------
-var surveys = require('./controllers/surveys');
-
-router.route('/:realm/v0.2/surveys')
-    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ surveys.select)
-    .post(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ surveys.insertOne);
-
-router.route('/:realm/v0.2/surveys/:id')
-    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ surveys.selectOne)
-    .put(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ surveys.editOne)
-    .delete(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ surveys.delete);
-
-router.route('/:realm/v0.2/surveys/:id/questions')
-    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ surveys.questions)
-    .post(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ surveys.questionAdd);
-
-router.route('/:realm/v0.2/questions/:id')
-    .put(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ surveys.questionEdit)
-    .delete(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ surveys.questionDelete);
-
-//----------------------------------------------------------------------------------------------------------------------
-//    SURVEY ANSWERS
-//----------------------------------------------------------------------------------------------------------------------
-var surveyAnswers = require('./controllers/survey_answers');
-
-router.route('/:realm/v0.2/survey_answers')
-    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ surveyAnswers.select)
-    .post(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ surveyAnswers.add);
-
-router.route('/:realm/v0.2/survey_answers/:productId/:UOAid')
-    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ surveyAnswers.getByProdUoa);
-
-router.route('/:realm/v0.2/survey_answers/:id')
-    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ surveyAnswers.selectOne)
-    .delete(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ surveyAnswers.delete)
-    .put(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ surveyAnswers.update);
-
 //----------------------------------------------------------------------------------------------------------------------
 //    ESSENCE_ROLES
 //----------------------------------------------------------------------------------------------------------------------

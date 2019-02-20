@@ -11,7 +11,6 @@ var
     Project = require('../models/projects'),
     Workflow = require('../models/workflows'),
     WorkflowStep = require('../models/workflow_steps'),
-    SurveyQuestionOption = require('../models/survey_question_options'),
     ProductUOA = require('../models/product_uoa'),
     Task = require('../models/tasks'),
     UOA = require('../models/uoas'),

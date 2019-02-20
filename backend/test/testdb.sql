@@ -1868,162 +1868,6 @@ CREATE TABLE "RolesRights" (
 
 ALTER TABLE sceleton."RolesRights" OWNER TO indaba;
 
---
--- Name: SurveyAnswerVersions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
---
-
-CREATE SEQUENCE "SurveyAnswerVersions_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE sceleton."SurveyAnswerVersions_id_seq" OWNER TO indaba;
-
---
--- Name: SurveyAnswers_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
---
-
-CREATE SEQUENCE "SurveyAnswers_id_seq"
-    START WITH 1375
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE sceleton."SurveyAnswers_id_seq" OWNER TO indaba;
-
---
--- Name: SurveyAnswers; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-CREATE TABLE "SurveyAnswers" (
-    id integer DEFAULT nextval('"SurveyAnswers_id_seq"'::regclass) NOT NULL,
-    "questionId" integer,
-    "userId" integer,
-    value text,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    "productId" integer,
-    "UOAid" integer,
-    "wfStepId" integer,
-    version integer,
-    "surveyId" integer,
-    "optionId" integer[],
-    "langId" integer,
-    "isResponse" boolean DEFAULT false NOT NULL,
-    "isAgree" boolean,
-    comments character varying,
-    "answerComment" character varying,
-    links character varying[],
-    updated timestamp with time zone
-);
-
-
-ALTER TABLE sceleton."SurveyAnswers" OWNER TO indaba;
-
---
--- Name: surveyQuestionOptions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
---
-
-CREATE SEQUENCE "surveyQuestionOptions_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE sceleton."surveyQuestionOptions_id_seq" OWNER TO indaba;
-
---
--- Name: SurveyQuestionOptions; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-CREATE TABLE "SurveyQuestionOptions" (
-    id integer DEFAULT nextval('"surveyQuestionOptions_id_seq"'::regclass) NOT NULL,
-    "questionId" integer,
-    value character varying,
-    label character varying,
-    skip smallint,
-    "isSelected" boolean DEFAULT false NOT NULL,
-    "langId" integer
-);
-
-
-ALTER TABLE sceleton."SurveyQuestionOptions" OWNER TO indaba;
-
---
--- Name: SurveyQuestions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
---
-
-CREATE SEQUENCE "SurveyQuestions_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE sceleton."SurveyQuestions_id_seq" OWNER TO indaba;
-
---
--- Name: SurveyQuestions; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-CREATE TABLE "SurveyQuestions" (
-    id integer DEFAULT nextval('"SurveyQuestions_id_seq"'::regclass) NOT NULL,
-    "surveyId" integer,
-    type smallint,
-    label character varying,
-    "isRequired" boolean DEFAULT false NOT NULL,
-    "position" integer,
-    description text,
-    skip smallint,
-    size smallint,
-    "minLength" smallint,
-    "maxLength" smallint,
-    "isWordmml" boolean DEFAULT false NOT NULL,
-    "incOtherOpt" boolean DEFAULT false NOT NULL,
-    units character varying,
-    "intOnly" boolean DEFAULT false NOT NULL,
-    value character varying,
-    qid character varying,
-    links text,
-    attachment boolean,
-    "optionNumbering" character varying,
-    "langId" integer,
-    "hasComments" boolean DEFAULT false NOT NULL,
-    "withLinks" boolean DEFAULT false
-);
-
-
-ALTER TABLE sceleton."SurveyQuestions" OWNER TO indaba;
-
---
--- Name: Surveys; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-CREATE TABLE "Surveys" (
-    id integer DEFAULT nextval('"JSON_id_seq"'::regclass) NOT NULL,
-    title character varying,
-    description text,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    "projectId" integer,
-    "isDraft" boolean DEFAULT false NOT NULL,
-    "langId" integer,
-    "policyId" integer
-);
-
-
-ALTER TABLE sceleton."Surveys" OWNER TO indaba;
-
---
--- Name: Tasks_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
---
-
 CREATE SEQUENCE "Tasks_id_seq"
     START WITH 1
     INCREMENT BY 1
@@ -2697,10 +2541,6 @@ SELECT pg_catalog.setval('"Entities_id_seq"', 58, true);
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 58	Comments	Comments	comments	id
 23	WorflowSteps	WorflowSteps	worflowSteps	title
-16	Surveys	Surveys	surveys	title
-17	SurveyQuestions	Survey Questions	survey_questions	label
-18	SurveyQuestionOptions	Survey Question Options	survey_question_options	label
-19	SurveyAnswers	Survey Answers	survey_answers	value
 20	Groups	Groups	groups	title
 21	Organizations	Organizations	organizations	name
 22	Tasks	Tasks	tasks	title
@@ -2997,10 +2837,6 @@ SELECT pg_catalog.setval('"EntityRoles_id_seq"', 1, true);
 
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 23	WorflowSteps	WorflowSteps	worflowSteps	title
-16	Surveys	Surveys	surveys	title
-17	SurveyQuestions	Survey Questions	survey_questions	label
-18	SurveyQuestionOptions	Survey Question Options	survey_question_options	label
-19	SurveyAnswers	Survey Answers	survey_answers	value
 20	Groups	Groups	groups	title
 21	Organizations	Organizations	organizations	name
 22	Tasks	Tasks	tasks	title
@@ -3257,59 +3093,6 @@ COPY "RolesRights" ("roleID", "rightID") FROM stdin;
 \.
 
 --
--- Name: SurveyAnswerVersions_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indaba
---
-
-SELECT pg_catalog.setval('"SurveyAnswerVersions_id_seq"', 4, true);
-
-
---
--- Data for Name: SurveyAnswers; Type: TABLE DATA; Schema: sceleton; Owner: indaba
---
-
-COPY "SurveyAnswers" (id, "questionId", "userId", value, created, "productId", "UOAid", "wfStepId", version, "surveyId", "optionId", "langId", "isResponse", "isAgree", comments, "answerComment", links, updated) FROM stdin;
-\.
-
-
---
--- Name: SurveyAnswers_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indaba
---
-
-SELECT pg_catalog.setval('"SurveyAnswers_id_seq"', 1, true);
-
-
---
--- Data for Name: SurveyQuestionOptions; Type: TABLE DATA; Schema: sceleton; Owner: indaba
---
-
-COPY "SurveyQuestionOptions" (id, "questionId", value, label, skip, "isSelected", "langId") FROM stdin;
-\.
-
-
---
--- Data for Name: SurveyQuestions; Type: TABLE DATA; Schema: sceleton; Owner: indaba
---
-
-COPY "SurveyQuestions" (id, "surveyId", type, label, "isRequired", "position", description, skip, size, "minLength", "maxLength", "isWordmml", "incOtherOpt", units, "intOnly", value, qid, links, attachment, "optionNumbering", "langId", "hasComments", "withLinks") FROM stdin;
-\.
-
-
---
--- Name: SurveyQuestions_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indaba
---
-
-SELECT pg_catalog.setval('"SurveyQuestions_id_seq"', 1, true);
-
-
---
--- Data for Name: Surveys; Type: TABLE DATA; Schema: sceleton; Owner: indaba
---
-
-COPY "Surveys" (id, title, description, created, "projectId", "isDraft", "langId", "policyId") FROM stdin;
-\.
-
-
---
 -- Data for Name: Tasks; Type: TABLE DATA; Schema: sceleton; Owner: indaba
 --
 
@@ -3519,14 +3302,6 @@ SELECT pg_catalog.setval('order_id_seq', 320, true);
 --
 
 SELECT pg_catalog.setval('role_id_seq', 3, true);
-
-
---
--- Name: surveyQuestionOptions_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indaba
---
-
-SELECT pg_catalog.setval('"surveyQuestionOptions_id_seq"', 1, true);
-
 
 --
 -- Name: transport_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indaba
@@ -3830,38 +3605,6 @@ ALTER TABLE ONLY "RolesRights"
 
 ALTER TABLE ONLY "Roles"
     ADD CONSTRAINT "Roles_pkey" PRIMARY KEY (id);
-
---
--- Name: SurveyAnswers_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_pkey" PRIMARY KEY (id);
-
-
---
--- Name: SurveyQuestionOptions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-ALTER TABLE ONLY "SurveyQuestionOptions"
-    ADD CONSTRAINT "SurveyQuestionOptions_pkey" PRIMARY KEY (id);
-
-
---
--- Name: SurveyQuestions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-ALTER TABLE ONLY "SurveyQuestions"
-    ADD CONSTRAINT "SurveyQuestions_pkey" PRIMARY KEY (id);
-
-
---
--- Name: Surveys_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-ALTER TABLE ONLY "Surveys"
-    ADD CONSTRAINT "Surveys_pkey" PRIMARY KEY (id);
-
 
 --
 -- Name: Tasks_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
@@ -4177,62 +3920,6 @@ ALTER TABLE ONLY "RolesRights"
 SET search_path = sceleton, pg_catalog;
 
 --
--- Name: Comments_questionId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "Comments"
-    ADD CONSTRAINT "Comments_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
-
-
---
--- Name: Comments_returnTaskId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "Comments"
-    ADD CONSTRAINT "Comments_returnTaskId_fkey" FOREIGN KEY ("returnTaskId") REFERENCES "Tasks"(id);
-
-
---
--- Name: Comments_stepFromId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "Comments"
-    ADD CONSTRAINT "Comments_stepFromId_fkey" FOREIGN KEY ("stepFromId") REFERENCES "WorkflowSteps"(id);
-
-
---
--- Name: Comments_stepId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "Comments"
-    ADD CONSTRAINT "Comments_stepId_fkey" FOREIGN KEY ("stepId") REFERENCES "WorkflowSteps"(id);
-
-
---
--- Name: Comments_taskId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "Comments"
-    ADD CONSTRAINT "Comments_taskId_fkey" FOREIGN KEY ("taskId") REFERENCES "Tasks"(id);
-
-
---
--- Name: Comments_userFromId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "Comments"
-    ADD CONSTRAINT "Comments_userFromId_fkey" FOREIGN KEY ("userFromId") REFERENCES "Users"(id);
-
-
---
--- Name: Discussions_questionId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "Discussions"
-    ADD CONSTRAINT "Discussions_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
-
-
---
 -- Name: Discussions_returnTaskId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
 --
 
@@ -4390,15 +4077,6 @@ ALTER TABLE ONLY "Products"
 ALTER TABLE ONLY "Products"
     ADD CONSTRAINT "Products_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Projects"(id);
 
-
---
--- Name: Products_surveyId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "Products"
-    ADD CONSTRAINT "Products_surveyId_fkey" FOREIGN KEY ("surveyId") REFERENCES "Surveys"(id);
-
-
 --
 -- Name: Projects_adminUserId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
 --
@@ -4437,102 +4115,6 @@ ALTER TABLE ONLY "Rights"
 
 ALTER TABLE ONLY "RolesRights"
     ADD CONSTRAINT "RolesRights_roleID_fkey" FOREIGN KEY ("roleID") REFERENCES "Roles"(id);
-
---
--- Name: SurveyAnswers_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
-
-
---
--- Name: SurveyAnswers_productId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Products"(id);
-
-
---
--- Name: SurveyAnswers_questionId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
-
-
---
--- Name: SurveyAnswers_surveyId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_surveyId_fkey" FOREIGN KEY ("surveyId") REFERENCES "Surveys"(id);
-
-
---
--- Name: SurveyAnswers_userId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"(id);
-
-
---
--- Name: SurveyAnswers_wfStepId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_wfStepId_fkey" FOREIGN KEY ("wfStepId") REFERENCES "WorkflowSteps"(id);
-
-
---
--- Name: SurveyQuestionOptions_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyQuestionOptions"
-    ADD CONSTRAINT "SurveyQuestionOptions_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
-
-
---
--- Name: SurveyQuestions_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyQuestions"
-    ADD CONSTRAINT "SurveyQuestions_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
-
-
---
--- Name: SurveyQuestions_surveyId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyQuestions"
-    ADD CONSTRAINT "SurveyQuestions_surveyId_fkey" FOREIGN KEY ("surveyId") REFERENCES "Surveys"(id);
-
-
---
--- Name: Surveys_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "Surveys"
-    ADD CONSTRAINT "Surveys_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
-
-
---
--- Name: Surveys_policyId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "Surveys"
-    ADD CONSTRAINT "Surveys_policyId_fkey" FOREIGN KEY ("policyId") REFERENCES "Policies"(id);
-
-
---
--- Name: Surveys_projectId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "Surveys"
-    ADD CONSTRAINT "Surveys_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Projects"(id);
-
 
 --
 -- Name: Tasks_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
@@ -4780,15 +4362,6 @@ ALTER TABLE ONLY "Workflows"
 
 ALTER TABLE ONLY "RolesRights"
     ADD CONSTRAINT "rolesrights_rightID" FOREIGN KEY ("rightID") REFERENCES "Rights"(id);
-
-
---
--- Name: surveyQuestionOptions_questionId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "SurveyQuestionOptions"
-    ADD CONSTRAINT "surveyQuestionOptions_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
 
 --
 -- Name: public; Type: ACL; Schema: -; Owner: postgres

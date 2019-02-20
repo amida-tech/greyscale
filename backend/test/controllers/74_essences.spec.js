@@ -69,26 +69,6 @@ var essencesContent = [{
     fileName: 'users',
     nameField: 'email'
 }, {
-    tableName: 'Surveys',
-    name: 'Surveys',
-    fileName: 'surveys',
-    nameField: 'title'
-}, {
-    tableName: 'SurveyQuestions',
-    name: 'Survey Questions',
-    fileName: 'survey_questions',
-    nameField: 'label'
-}, {
-    tableName: 'SurveyQuestionOptions',
-    name: 'Survey Question Options',
-    fileName: 'survey_question_options',
-    nameField: 'label'
-}, {
-    tableName: 'SurveyAnswers',
-    name: 'Survey Answers',
-    fileName: 'survey_answers',
-    nameField: 'value'
-}, {
     tableName: 'Groups',
     name: 'Groups',
     fileName: 'groups',
