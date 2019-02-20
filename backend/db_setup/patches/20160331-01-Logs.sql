@@ -1,6 +1,0 @@
-ALTER TABLE "Logs"
-DROP CONSTRAINT "Logs_essence_fkey",
-DROP CONSTRAINT "Logs_user_fkey",
-ADD CONSTRAINT "Logs_essence_fkey" FOREIGN KEY ("essence") REFERENCES "Essences" ("id") ON DELETE SET NULL ON UPDATE NO ACTION,
-ADD CONSTRAINT "Logs_user_fkey" FOREIGN KEY ("user") REFERENCES "Users" ("id") ON DELETE SET NULL ON UPDATE NO ACTION;
-
