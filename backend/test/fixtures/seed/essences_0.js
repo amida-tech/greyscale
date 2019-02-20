@@ -2,9 +2,9 @@
 
 module.exports = [{
     id: 23,
-    tableName: 'WorflowSteps',
-    name: 'WorflowSteps',
-    fileName: 'worflowSteps',
+    tableName: 'WorkflowSteps',
+    name: 'WorkflowSteps',
+    fileName: 'workflowSteps',
     nameField: 'title',
 }, {
     id: 20,
@@ -131,18 +131,6 @@ module.exports = [{
     name: 'RoleRights',
     fileName: 'role_rights',
     nameField: 'roleId',
-}, {
-    id: 39,
-    tableName: 'Visualizations',
-    name: 'Visualizations',
-    fileName: 'visualizations',
-    nameField: 'title',
-}, {
-    id: 40,
-    tableName: 'AccessPermissions',
-    name: 'AccessPermissions',
-    fileName: 'access_permissions',
-    nameField: 'id',
 }, {
     id: 41,
     tableName: 'Token',

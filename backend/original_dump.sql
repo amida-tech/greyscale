@@ -1616,30 +1616,6 @@ ALTER TABLE "Users" OWNER TO indabauser;
 
 SET search_path = sceleton, pg_catalog;
 
-CREATE SEQUENCE "AccessPermissions_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "AccessPermissions_id_seq" OWNER TO indabauser;
-
---
--- Name: AccessPermissions; Type: TABLE; Schema: sceleton; Owner: indabauser
---
-
-CREATE TABLE "AccessPermissions" (
-    id integer DEFAULT nextval('"AccessPermissions_id_seq"'::regclass) NOT NULL,
-    "roleId" integer NOT NULL,
-    "rightId" integer NOT NULL,
-    permission smallint
-);
-
-
-ALTER TABLE "AccessPermissions" OWNER TO indabauser;
-
 --
 -- Name: Discussions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
 --
@@ -2353,39 +2329,6 @@ CREATE TABLE "Users" (
 ALTER TABLE "Users" OWNER TO indabauser;
 
 --
--- Name: Visualizations_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indabauser
---
-
-CREATE SEQUENCE "Visualizations_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "Visualizations_id_seq" OWNER TO indabauser;
-
---
--- Name: Visualizations; Type: TABLE; Schema: sceleton; Owner: indabauser
---
-
-CREATE TABLE "Visualizations" (
-    id integer DEFAULT nextval('"Visualizations_id_seq"'::regclass) NOT NULL,
-    title character varying,
-    "productId" integer,
-    "topicIds" integer[],
-    "indexCollection" character varying,
-    "indexId" integer,
-    "visualizationType" character varying,
-    "comparativeTopicId" integer,
-    "organizationId" integer NOT NULL
-);
-
-
-ALTER TABLE "Visualizations" OWNER TO indabauser;
-
---
 -- Name: WorkflowStepGroups; Type: TABLE; Schema: sceleton; Owner: indabauser
 --
 
@@ -2467,34 +2410,6 @@ CREATE TABLE "Workflows" (
 ALTER TABLE "Workflows" OWNER TO indabauser;
 
 SET search_path = test, pg_catalog;
-
---
--- Name: AccessPermissions_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
---
-
-CREATE SEQUENCE "AccessPermissions_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "AccessPermissions_id_seq" OWNER TO indabauser;
-
---
--- Name: AccessPermissions; Type: TABLE; Schema: test; Owner: indabauser
---
-
-CREATE TABLE "AccessPermissions" (
-    id integer DEFAULT nextval('"AccessPermissions_id_seq"'::regclass) NOT NULL,
-    "roleId" integer NOT NULL,
-    "rightId" integer NOT NULL,
-    permission smallint
-);
-
-
-ALTER TABLE "AccessPermissions" OWNER TO indabauser;
 
 --
 -- Name: Discussions_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
@@ -3209,39 +3124,6 @@ CREATE TABLE "Users" (
 ALTER TABLE "Users" OWNER TO indabauser;
 
 --
--- Name: Visualizations_id_seq; Type: SEQUENCE; Schema: test; Owner: indabauser
---
-
-CREATE SEQUENCE "Visualizations_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "Visualizations_id_seq" OWNER TO indabauser;
-
---
--- Name: Visualizations; Type: TABLE; Schema: test; Owner: indabauser
---
-
-CREATE TABLE "Visualizations" (
-    id integer DEFAULT nextval('"Visualizations_id_seq"'::regclass) NOT NULL,
-    title character varying,
-    "productId" integer,
-    "topicIds" integer[],
-    "indexCollection" character varying,
-    "indexId" integer,
-    "visualizationType" character varying,
-    "comparativeTopicId" integer,
-    "organizationId" integer NOT NULL
-);
-
-
-ALTER TABLE "Visualizations" OWNER TO indabauser;
-
---
 -- Name: WorkflowStepGroups; Type: TABLE; Schema: test; Owner: indabauser
 --
 
@@ -3361,7 +3243,7 @@ SET search_path = public, pg_catalog;
 --
 
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
-23	WorflowSteps	WorflowSteps	worflowSteps	title
+23	WorkflowSteps	WorkflowSteps	workflowSteps	title
 20	Groups	Groups	groups	title
 21	Organizations	Organizations	organizations	name
 22	Tasks	Tasks	tasks	title
@@ -3383,8 +3265,6 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 33	Roles	Roles	roles	name
 34	Rights	Rights	rights	action
 35	RoleRights	RoleRights	role_rights	roleId
-39	Visualizations	Visualizations	visualizations	title
-40	AccessPermissions	AccessPermissions	access_permissions	id
 41	Token	Token	token	realm
 42	UserUOA	UserUOA	user_uoa	UserId
 43	UserGroups	UserGroups	user_groups	UserId
@@ -3541,20 +3421,6 @@ SELECT pg_catalog.setval('"Users_id_seq"', 357, true);
 SET search_path = sceleton, pg_catalog;
 
 --
--- Data for Name: AccessPermissions; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "AccessPermissions" (id, "roleId", "rightId", permission) FROM stdin;
-\.
-
-
---
--- Name: AccessPermissions_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"AccessPermissions_id_seq"', 1, true);
-
---
 -- Data for Name: Discussions; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
 --
 
@@ -3574,7 +3440,7 @@ SELECT pg_catalog.setval('"Discussions_id_seq"', 1, true);
 --
 
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
-23	WorflowSteps	WorflowSteps	worflowSteps	title
+23	WorkflowSteps	WorkflowSteps	workflowSteps	title
 20	Groups	Groups	groups	title
 21	Organizations	Organizations	organizations	name
 22	Tasks	Tasks	tasks	title
@@ -3596,8 +3462,6 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 33	Roles	Roles	roles	name
 34	Rights	Rights	rights	action
 35	RoleRights	RoleRights	role_rights	roleId
-39	Visualizations	Visualizations	visualizations	title
-40	AccessPermissions	AccessPermissions	access_permissions	id
 41	Token	Token	token	realm
 42	UserUOA	UserUOA	user_uoa	UserId
 43	UserGroups	UserGroups	user_groups	UserId
@@ -3973,22 +3837,6 @@ COPY "Users" (id, "roleID", email, "firstName", "lastName", password, cell, birt
 
 SELECT pg_catalog.setval('"Users_id_seq"', 1, true);
 
-
---
--- Data for Name: Visualizations; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
---
-
-COPY "Visualizations" (id, title, "productId", "topicIds", "indexCollection", "indexId", "visualizationType", "comparativeTopicId", "organizationId") FROM stdin;
-\.
-
-
---
--- Name: Visualizations_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"Visualizations_id_seq"', 1, true);
-
-
 --
 -- Data for Name: WorkflowStepGroups; Type: TABLE DATA; Schema: sceleton; Owner: indabauser
 --
@@ -4030,20 +3878,6 @@ SELECT pg_catalog.setval('"Workflows_id_seq"', 1, true);
 SET search_path = test, pg_catalog;
 
 --
--- Data for Name: AccessPermissions; Type: TABLE DATA; Schema: test; Owner: indabauser
---
-
-COPY "AccessPermissions" (id, "roleId", "rightId", permission) FROM stdin;
-\.
-
-
---
--- Name: AccessPermissions_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"AccessPermissions_id_seq"', 1, true);
-
---
 -- Data for Name: Discussions; Type: TABLE DATA; Schema: test; Owner: indabauser
 --
 
@@ -4063,7 +3897,7 @@ SELECT pg_catalog.setval('"Discussions_id_seq"', 1, true);
 --
 
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
-23	WorflowSteps	WorflowSteps	worflowSteps	title
+23	WorkflowSteps	WorkflowSteps	workflowSteps	title
 20	Groups	Groups	groups	title
 21	Organizations	Organizations	organizations	name
 22	Tasks	Tasks	tasks	title
@@ -4085,8 +3919,6 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 33	Roles	Roles	roles	name
 34	Rights	Rights	rights	action
 35	RoleRights	RoleRights	role_rights	roleId
-39	Visualizations	Visualizations	visualizations	title
-40	AccessPermissions	AccessPermissions	access_permissions	id
 41	Token	Token	token	realm
 42	UserUOA	UserUOA	user_uoa	UserId
 43	UserGroups	UserGroups	user_groups	UserId
@@ -4482,22 +4314,6 @@ COPY "Users" (id, "roleID", email, "firstName", "lastName", password, cell, birt
 
 SELECT pg_catalog.setval('"Users_id_seq"', 4, true);
 
-
---
--- Data for Name: Visualizations; Type: TABLE DATA; Schema: test; Owner: indabauser
---
-
-COPY "Visualizations" (id, title, "productId", "topicIds", "indexCollection", "indexId", "visualizationType", "comparativeTopicId", "organizationId") FROM stdin;
-\.
-
-
---
--- Name: Visualizations_id_seq; Type: SEQUENCE SET; Schema: test; Owner: indabauser
---
-
-SELECT pg_catalog.setval('"Visualizations_id_seq"', 1, true);
-
-
 --
 -- Data for Name: WorkflowStepGroups; Type: TABLE DATA; Schema: test; Owner: indabauser
 --
@@ -4648,25 +4464,6 @@ ALTER TABLE ONLY "Users"
 
 
 SET search_path = sceleton, pg_catalog;
-
---
--- Name: AccessPermissions AccessPermissions_roleId_rightId_key; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "AccessPermissions"
-    ADD CONSTRAINT "AccessPermissions_roleId_rightId_key" UNIQUE ("roleId", "rightId");
-
-
---
--- Name: AccessPermissions AccessPermissions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "AccessPermissions"
-    ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
-
---
--- Name: Discussions Discussions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
 
 ALTER TABLE ONLY "Discussions"
     ADD CONSTRAINT "Discussions_pkey" PRIMARY KEY (id);
@@ -4917,15 +4714,6 @@ ALTER TABLE ONLY "Users"
 ALTER TABLE ONLY "Users"
     ADD CONSTRAINT "Users_pkey" PRIMARY KEY (id);
 
-
---
--- Name: Visualizations Visualizations_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "Visualizations"
-    ADD CONSTRAINT "Visualizations_pkey" PRIMARY KEY (id);
-
-
 --
 -- Name: WorkflowStepGroups WorkflowStepGroups_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
@@ -4959,21 +4747,6 @@ ALTER TABLE ONLY "Workflows"
 
 
 SET search_path = test, pg_catalog;
-
---
--- Name: AccessPermissions AccessPermissions_roleId_rightId_key; Type: CONSTRAINT; Schema: test; Owner: indabauser
---
-
-ALTER TABLE ONLY "AccessPermissions"
-    ADD CONSTRAINT "AccessPermissions_roleId_rightId_key" UNIQUE ("roleId", "rightId");
-
-
---
--- Name: AccessPermissions AccessPermissions_pkey; Type: CONSTRAINT; Schema: test; Owner: indabauser
---
-
-ALTER TABLE ONLY "AccessPermissions"
-    ADD CONSTRAINT "AccessPermissions_pkey" PRIMARY KEY (id);
 
 --
 -- Name: Discussions Discussions_pkey; Type: CONSTRAINT; Schema: test; Owner: indabauser
@@ -5227,15 +5000,6 @@ ALTER TABLE ONLY "Users"
 
 ALTER TABLE ONLY "Users"
     ADD CONSTRAINT "Users_pkey" PRIMARY KEY (id);
-
-
---
--- Name: Visualizations Visualizations_pkey; Type: CONSTRAINT; Schema: test; Owner: indabauser
---
-
-ALTER TABLE ONLY "Visualizations"
-    ADD CONSTRAINT "Visualizations_pkey" PRIMARY KEY (id);
-
 
 --
 -- Name: WorkflowStepGroups WorkflowStepGroups_pkey; Type: CONSTRAINT; Schema: test; Owner: indabauser
@@ -5892,23 +5656,6 @@ ALTER TABLE ONLY "Users"
 ALTER TABLE ONLY "Users"
     ADD CONSTRAINT "Users_roleID_fkey" FOREIGN KEY ("roleID") REFERENCES "Roles"(id);
 
-
---
--- Name: Visualizations Visualizations_organizationId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "Visualizations"
-    ADD CONSTRAINT "Visualizations_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organizations"(id);
-
-
---
--- Name: Visualizations Visualizations_productId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
---
-
-ALTER TABLE ONLY "Visualizations"
-    ADD CONSTRAINT "Visualizations_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Products"(id);
-
-
 --
 -- Name: WorkflowStepGroups WorkflowStepGroups_groupId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indabauser
 --
@@ -6347,23 +6094,6 @@ ALTER TABLE ONLY "Users"
 
 ALTER TABLE ONLY "Users"
     ADD CONSTRAINT "Users_roleID_fkey" FOREIGN KEY ("roleID") REFERENCES "Roles"(id);
-
-
---
--- Name: Visualizations Visualizations_organizationId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indabauser
---
-
-ALTER TABLE ONLY "Visualizations"
-    ADD CONSTRAINT "Visualizations_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organizations"(id);
-
-
---
--- Name: Visualizations Visualizations_productId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indabauser
---
-
-ALTER TABLE ONLY "Visualizations"
-    ADD CONSTRAINT "Visualizations_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Products"(id);
-
 
 --
 -- Name: WorkflowStepGroups WorkflowStepGroups_groupId_fkey; Type: FK CONSTRAINT; Schema: test; Owner: indabauser

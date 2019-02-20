@@ -84,9 +84,9 @@ var essencesContent = [{
     fileName: 'tasks',
     nameField: 'title'
 }, {
-    tableName: 'WorflowSteps',
-    name: 'WorflowSteps',
-    fileName: 'worflowSteps',
+    tableName: 'WorkflowSteps',
+    name: 'WorkflowSteps',
+    fileName: 'workflowSteps',
     nameField: 'title'
 }, {
     tableName: 'Notifications',
@@ -138,16 +138,6 @@ var essencesContent = [{
     name: 'WorkflowStepGroups',
     fileName: 'workflow_step_groups',
     nameField: 'stepId'
-}, {
-    tableName: 'Visualizations',
-    name: 'Visualizations',
-    fileName: 'visualizations',
-    nameField: 'title'
-}, {
-    tableName: 'AccessPermissions',
-    name: 'AccessPermissions',
-    fileName: 'access_permissions',
-    nameField: 'id'
 }, {
     tableName: 'Token',
     name: 'Token',

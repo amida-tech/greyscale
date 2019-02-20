@@ -52,7 +52,6 @@ var seedSchemaPublic = function (db) {
 
 var seedSchemaCommon = function (db, schema) {
     return Promise.resolve()
-        .then(() => setSequenceValue(db, 'AccessPermissions_id_seq', 1, schema))
         .then(() => setSequenceValue(db, 'Discussions_id_seq', 1, schema))
         .then(() => db[schema].Essences.bulkCreate(essences))
         .then(() => setSequenceValue(db, 'Essences_id_seq', 45, schema))
@@ -69,7 +68,6 @@ var seedSchemaCommon = function (db, schema) {
         .then(() => setSequenceValue(db, 'UnitOfAnalysisTag_id_seq', 1, schema))
         .then(() => db[schema].UnitOfAnalysisType.bulkCreate(unitOfAnalysisTypes))
         .then(() => setSequenceValue(db, 'UnitOfAnalysisType_id_seq', 1, schema))
-        .then(() => setSequenceValue(db, 'Visualizations_id_seq', 1, schema));
 }
 var seedSchema0 = function (db, schema) {
     return Promise.resolve()

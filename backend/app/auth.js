@@ -7,7 +7,6 @@ var passport = require('passport'),
     Project = require('./models/projects'),
     Organization = require('./models/organizations'),
     EssenceRoles = require('./models/essence_roles'),
-    AccessPermission = require('./models/access_permissions'),
     Essences = require('./models/essences'),
     HttpError = require('./error').HttpError,
     util = require('util'),
@@ -425,71 +424,6 @@ module.exports = {
 
     checkAdmin: function (user) {
         return (user.role === config.adminRole || user.role === config.clientRole);
-    },
-
-    checkPermission: function (action) {
-        return function (req, res, next) {
-            var thunkQuery = req.thunkQuery;
-            co(function* () {
-
-                if (req.user.roleID === 1) {
-                    return true;
-                }
-
-                var Action = yield thunkQuery(Right.select(Right.star()).from(Right).where(Right.action.equals(action)));
-                Action = _.first(Action);
-                if (typeof Action === 'undefined') {
-                    return true;
-                }
-
-                var Essence = yield thunkQuery(Essences.select(Essences.star()).from(Essences).where(Essences.id.equals(Action.essenceId)));
-                Essence = _.first(Essence);
-                if (!Essence) {
-                    throw new HttpError(403, 'Essence does not exist: ' + Action.essenceId);
-                }
-
-                var model;
-                try {
-                    model = require('./models/' + Essence.fileName);
-                } catch (err) {
-                    throw new HttpError(403, 'Cannot find model file: ' + Essence.fileName);
-                }
-
-                var Membership = yield thunkQuery(
-                    EssenceRoles
-                    .select(EssenceRoles.roleId)
-                    .from(EssenceRoles)
-                    .where(
-                        EssenceRoles.essenceId.equals(Essence.id)
-                        .and(EssenceRoles.entityId.equals(req.params.id))
-                        .and(EssenceRoles.userId.equals(req.user.id))
-                    )
-                );
-                Membership = _.first(Membership);
-
-                if (!Membership) {
-                    throw new HttpError(403, 'This user does not have membership on this entity');
-                }
-
-                var Permissions = yield thunkQuery(
-                    AccessPermission
-                    .select(AccessPermission.star())
-                    .from(AccessPermission)
-                    .where(
-                        AccessPermission.roleId.equals(Membership.roleId)
-                        .and(AccessPermission.rightId.equals(Action.id))
-                    )
-                );
-                if (!_.first(Permissions)) {
-                    throw new HttpError(401, 'User\'s role has not permission for this action');
-                }
-                return Permissions;
-            }).then(function () {
-                next();
-            }, function (err) {
-                next(err);
-            });
-        };
     },
 
     checkRight: function (action) {

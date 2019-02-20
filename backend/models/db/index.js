@@ -9,7 +9,6 @@ const rights = require('./rights.model');
 const roles = require('./roles.model');
 const rolesRights = require('./roles-rights.model');
 const token = require('./token.model');
-const accessPermissions = require('./access-permissions.model');
 const discussions = require('./discussions.model');
 const groups = require('./groups.model');
 const organizations = require('./organizations.model');
@@ -28,7 +27,6 @@ const userGroups = require('./user-groups.model');
 const userRights = require('./user-rights.model');
 const userUOA = require('./user-uoa.model');
 const users = require('./users.model');
-const visualizations = require('./visualizations.model');
 const workflowStepGroups = require('./workflow-step-groups.model');
 const workflowSteps = require('./workflow-steps.model');
 const workflows = require('./workflows.model');
@@ -58,7 +56,6 @@ const definePublicTables = function (sequelize, Sequelize) {
 };
 
 const defineSchemaTables = function (sequelize, Sequelize, schema) {
-    const AccessPermissions = accessPermissions(sequelize, Sequelize, schema);
     const Discussions = discussions(sequelize, Sequelize, schema);
     const Essences = essences(sequelize, Sequelize, schema);
     const Groups = groups(sequelize, Sequelize, schema);
@@ -85,7 +82,6 @@ const defineSchemaTables = function (sequelize, Sequelize, schema) {
     const UserRights = userRights(sequelize, Sequelize, schema);
     const UserUOA = userUOA(sequelize, Sequelize, schema);
     const Users = users(sequelize, Sequelize, schema);
-    const Visualizations = visualizations(sequelize, Sequelize, schema);
     const WorkflowStepGroups = workflowStepGroups(sequelize, Sequelize, schema);
     const WorkflowSteps = workflowSteps(sequelize, Sequelize, schema);
     const Workflows = workflows(sequelize, Sequelize, schema);
@@ -94,7 +90,6 @@ const defineSchemaTables = function (sequelize, Sequelize, schema) {
     ProjectUsers.removeAttribute('id');
 
     return {
-        AccessPermissions,
         Discussions,
         Essences,
         Groups,
@@ -121,7 +116,6 @@ const defineSchemaTables = function (sequelize, Sequelize, schema) {
         UserRights,
         UserUOA,
         Users,
-        Visualizations,
         WorkflowStepGroups,
         WorkflowSteps,
         Workflows,

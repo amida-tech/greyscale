@@ -143,30 +143,31 @@ router.route('/:realm/v0.2/translations')
     .post(authenticate('jwt').always, jsonParser, translations.insertOne);
 
 router.route('/:realm/v0.2/translations/:essenceId/:entityId/:field/:langId')
-    .delete(authenticate('jwt').always, /*checkPermission('product_delete','products'),*/ translations.delete)
-    .put(authenticate('jwt').always, jsonParser, /*checkPermission('product_delete','products'),*/ translations.editOne);
+    .delete(authenticate('jwt').always, translations.delete)
+    .put(authenticate('jwt').always, jsonParser, translations.editOne);
 
 router.route('/:realm/v0.2/translations/:essenceId')
     .get(authenticate('jwt').always, translations.selectByParams);
 
 router.route('/:realm/v0.2/translations/:essenceId/:entityId')
     .get(authenticate('jwt').always, translations.selectByParams);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    PRODUCTS
 //----------------------------------------------------------------------------------------------------------------------
 var products = require('./controllers/products');
 router.route('/:realm/v0.2/products')
-    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ products.select)
+    .get(authenticate('jwt').always, products.select)
     .post(authenticate('jwt').always, jsonParser, products.insertOne);
 
 router.route('/:realm/v0.2/products/:id')
-    .get(authenticate('jwt').always, /*checkPermission('product_select', 'products'),*/ products.selectOne)
-    .put(authenticate('jwt').always, jsonParser, /*checkPermission('product_update', 'products'),*/ products.updateOne)
-    .delete(authenticate('jwt').always, /*checkPermission('product_delete', 'products'),*/ products.delete);
+    .get(authenticate('jwt').always, products.selectOne)
+    .put(authenticate('jwt').always, jsonParser, products.updateOne)
+    .delete(authenticate('jwt').always, products.delete);
 
 router.route('/:realm/v0.2/products/:id/tasks')
-    .get(authenticate('jwt').always, /*checkPermission('product_select', 'products'),*/ products.tasks)
-    .put(authenticate('jwt').always, jsonParser, /*checkPermission('product_select', 'products'),*/ products.editTasks);
+    .get(authenticate('jwt').always, products.tasks)
+    .put(authenticate('jwt').always, jsonParser, products.editTasks);
 
 router.route('/:realm/v0.2/products/:productId/export.csv')
     .get( authenticate('jwt').always, products.export);
@@ -422,42 +423,6 @@ router.route('/:realm/v0.2/uoataglinks')
 
 router.route('/:realm/v0.2/uoataglinks/:id')
     .delete(authenticate('jwt').always, checkRight('uoataglink_delete_one'), UnitOfAnalysisTagLink.deleteOne);
-
-//----------------------------------------------------------------------------------------------------------------------
-//    Visualizations
-//----------------------------------------------------------------------------------------------------------------------
-var Visualization = require('./controllers/visualizations');
-var ComparativeVisualization = require('./controllers/comparative_visualizations');
-
-router.route('/:realm/v0.2/organizations/:organizationId/visualizations')
-    .get(authenticate('jwt').always, Visualization.select)
-    .post(authenticate('jwt').always, jsonParser, /*checkRight(), */ Visualization.insertOne);
-
-router.route('/:realm/v0.2/organizations/:organizationId/visualizations/:id')
-    .get(authenticate('jwt').always, Visualization.selectOne)
-    .put(authenticate('jwt').always, jsonParser, /*checkRight(), */ Visualization.updateOne)
-    .delete(authenticate('jwt').always, /*checkRight(), */ Visualization.deleteOne);
-
-router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations')
-    .get( /*authenticate('token').always,*/ ComparativeVisualization.select)
-    .post(authenticate('jwt').always, jsonParser, /*checkRight(), */ ComparativeVisualization.insertOne);
-
-router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id')
-    .get( /*authenticate('token').always,*/ ComparativeVisualization.selectOne)
-    .put(authenticate('jwt').always, jsonParser, /*checkRight(), */ ComparativeVisualization.updateOne)
-    .delete(authenticate('jwt').always, /*checkRight(), */ ComparativeVisualization.deleteOne);
-
-router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id/datasets')
-    .get( /*authenticate('token').always,*/ ComparativeVisualization.selectDatasets)
-    .post(authenticate('jwt').always, jsonParser, /*checkRight(), */ ComparativeVisualization.insertDataset);
-
-router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id/datasets/parse')
-    .post(authenticate('jwt').always, jsonParser, /*checkRight(), */ ComparativeVisualization.parseDataset);
-
-router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id/:datasets/:datasetId')
-    .get( /*authenticate('token').always,*/ ComparativeVisualization.selectDataset)
-    .put(authenticate('jwt').always, jsonParser, /*checkRight(), */ ComparativeVisualization.updateDataset)
-    .delete(authenticate('jwt').always, /*checkRight(), */ ComparativeVisualization.deleteDataset);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    LOGS
