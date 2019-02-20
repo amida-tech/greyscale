@@ -213,28 +213,8 @@ router.route('/:realm/v0.2/products/:id/tasks')
     .get(authenticate('jwt').always, /*checkPermission('product_select', 'products'),*/ products.tasks)
     .put(authenticate('jwt').always, jsonParser, /*checkPermission('product_select', 'products'),*/ products.editTasks);
 
-router.route('/:realm/v0.2/products/:id/aggregate')
-    .get( /*authenticate('token').always,*/ products.aggregateIndexes);
-
-router.route('/:realm/v0.2/products/:id/aggregate.csv')
-    .get( /*authenticate('jwt').always,*/ products.aggregateIndexesCsv);
-
-router.route('/:realm/v0.2/products/:id/indexes')
-    .get( /*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.indexes)
-    .put(authenticate('jwt').always, jsonParser, /*checkPermission('product_update', 'products'),*/ products.editIndexes);
-
-router.route('/:realm/v0.2/products/:id/subindexes')
-    .get( /*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.subindexes)
-    .put(authenticate('jwt').always, jsonParser, /*checkPermission('product_update', 'products'),*/ products.editSubindexes);
-
-// router.route('/:realm/v0.2/products/:ticket/export.csv')
-//     .get( /*authenticate('token').always,*/ products.export);
-
 router.route('/:realm/v0.2/products/:productId/export.csv')
     .get( authenticate('jwt').always, products.export);
-
-router.route('/:realm/v0.2/products/:id/export_ticket')
-    .get( /*authenticate('jwt').always,*/ products.getTicket);
 
 router.route('/:realm/v0.2/products/:id/uoa')
     .get(authenticate('jwt').always, checkRight('product_uoa'), products.UOAselect)
@@ -525,19 +505,6 @@ router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizati
     .delete(authenticate('jwt').always, /*checkRight(), */ ComparativeVisualization.deleteDataset);
 
 //----------------------------------------------------------------------------------------------------------------------
-//    Data Export
-//----------------------------------------------------------------------------------------------------------------------
-var DataExport = require('./controllers/data_export');
-
-router.route('/:realm/v0.2/data-api/datasets')
-    .get(DataExport.authenticate, DataExport.select);
-
-router.route('/:realm/v0.2/data-api/datasets/:id')
-    .get(DataExport.authenticate, DataExport.selectOne);
-
-module.exports = router;
-
-//----------------------------------------------------------------------------------------------------------------------
 //    LOGS
 //----------------------------------------------------------------------------------------------------------------------
 var logs = require('./controllers/logs');
@@ -559,3 +526,5 @@ router.route('/:realm/v0.2/system_messages')
 var aws = require('./controllers/aws');
 router.route('/:realm/v0.2/sign-s3')
     .get(authenticate('jwt').always, jsonParser, aws.signS3);
+
+module.exports = router;

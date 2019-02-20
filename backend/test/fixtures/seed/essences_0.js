@@ -85,18 +85,6 @@ module.exports = [{
     fileName: 'product_uoa',
     nameField: 'productId',
 }, {
-    id: 26,
-    tableName: 'Indexes',
-    name: 'Indexes',
-    fileName: 'indexes',
-    nameField: 'title',
-}, {
-    id: 27,
-    tableName: 'Subindexes',
-    name: 'Subindexes',
-    fileName: 'subindexes',
-    nameField: 'title',
-}, {
     id: 36,
     tableName: 'Workflows',
     name: 'Workflows',
@@ -119,12 +107,6 @@ module.exports = [{
     name: 'UnitOfAnalysisTagLink',
     fileName: 'uoataglinks',
     nameField: 'id',
-}, {
-    id: 30,
-    tableName: 'SubindexWeights',
-    name: 'SubindexWeights',
-    fileName: 'subindex_weights',
-    nameField: 'type',
 }, {
     id: 32,
     tableName: 'Translations',

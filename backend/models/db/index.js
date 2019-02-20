@@ -12,15 +12,12 @@ const token = require('./token.model');
 const accessPermissions = require('./access-permissions.model');
 const discussions = require('./discussions.model');
 const groups = require('./groups.model');
-const indexes = require('./indexes.model');
 const organizations = require('./organizations.model');
 const productUoa = require('./product-uoa.model');
 const products = require('./products.model');
 const projectUserGroups = require('./project-user-groups.model');
 const projectUsers = require('./project-users.model');
 const projects = require('./projects.model');
-const subindexWeights = require('./subindex-weights.model');
-const subindexes = require('./subindexes.model');
 const translations = require('./translations.model');
 const unitOfAnalysis = require('./unit-of-analysis.model');
 const unitOfAnalysisClassType = require('./unit-of-analysis-class-type.model');
@@ -65,7 +62,6 @@ const defineSchemaTables = function (sequelize, Sequelize, schema) {
     const Discussions = discussions(sequelize, Sequelize, schema);
     const Essences = essences(sequelize, Sequelize, schema);
     const Groups = groups(sequelize, Sequelize, schema);
-    const Indexes = indexes(sequelize, Sequelize, schema);
     const Languages = languages(sequelize, Sequelize, schema);
     const Logs = logs(sequelize, Sequelize, schema);
     const Notifications = notifications(sequelize, Sequelize, schema);
@@ -78,8 +74,6 @@ const defineSchemaTables = function (sequelize, Sequelize, schema) {
     const Rights = rights(sequelize, Sequelize, schema);
     const Roles = roles(sequelize, Sequelize, schema);
     const RolesRights = rolesRights(sequelize, Sequelize, schema);
-    const SubindexWeights = subindexWeights(sequelize, Sequelize, schema);
-    const Subindexes = subindexes(sequelize, Sequelize, schema);
     const Tasks = tasks(sequelize, Sequelize, schema);
     const Translations = translations(sequelize, Sequelize, schema);
     const UnitOfAnalysis = unitOfAnalysis(sequelize, Sequelize, schema);
@@ -104,7 +98,6 @@ const defineSchemaTables = function (sequelize, Sequelize, schema) {
         Discussions,
         Essences,
         Groups,
-        Indexes,
         Languages,
         Logs,
         Notifications,
@@ -117,8 +110,6 @@ const defineSchemaTables = function (sequelize, Sequelize, schema) {
         Rights,
         Roles,
         RolesRights,
-        SubindexWeights,
-        Subindexes,
         Tasks,
         Translations,
         UnitOfAnalysis,

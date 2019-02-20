@@ -119,21 +119,6 @@ var essencesContent = [{
     fileName: 'product_uoa',
     nameField: 'productId'
 }, {
-    tableName: 'Indexes',
-    name: 'Indexes',
-    fileName: 'indexes',
-    nameField: 'title'
-}, {
-    tableName: 'Subindexes',
-    name: 'Subindexes',
-    fileName: 'subindexes',
-    nameField: 'title'
-}, {
-    tableName: 'SubindexWeights',
-    name: 'SubindexWeights',
-    fileName: 'subindex_weights',
-    nameField: 'type'
-}, {
     tableName: 'UnitOfAnalysisTagLink',
     name: 'UnitOfAnalysisTagLink',
     fileName: 'uoataglinks',

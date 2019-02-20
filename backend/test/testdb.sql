@@ -936,21 +936,6 @@ ALTER TABLE public."Entities_id_seq" OWNER TO indaba;
 
 ALTER SEQUENCE "Entities_id_seq" OWNED BY "Essences".id;
 
-
---
--- Name: Index_id_seq; Type: SEQUENCE; Schema: public; Owner: indaba
---
-
-CREATE SEQUENCE "Index_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public."Index_id_seq" OWNER TO indaba;
-
 --
 -- Name: Languages; Type: TABLE; Schema: public; Owner: indaba; Tablespace:
 --
@@ -1151,20 +1136,6 @@ CREATE TABLE "RolesRights" (
 
 
 ALTER TABLE public."RolesRights" OWNER TO indaba;
-
---
--- Name: Subindex_id_seq; Type: SEQUENCE; Schema: public; Owner: indaba
---
-
-CREATE SEQUENCE "Subindex_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public."Subindex_id_seq" OWNER TO indaba;
 
 --
 -- Name: Token; Type: TABLE; Schema: public; Owner: indaba; Tablespace:
@@ -1554,35 +1525,6 @@ CREATE TABLE "Groups" (
 ALTER TABLE sceleton."Groups" OWNER TO indaba;
 
 --
--- Name: Index_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
---
-
-CREATE SEQUENCE "Index_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE sceleton."Index_id_seq" OWNER TO indaba;
-
---
--- Name: Indexes; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-CREATE TABLE "Indexes" (
-    id integer DEFAULT nextval('"Index_id_seq"'::regclass) NOT NULL,
-    "productId" integer NOT NULL,
-    title character varying,
-    description text,
-    divisor numeric DEFAULT 1 NOT NULL
-);
-
-
-ALTER TABLE sceleton."Indexes" OWNER TO indaba;
-
---
 -- Name: JSON_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
 --
 
@@ -1925,49 +1867,6 @@ CREATE TABLE "RolesRights" (
 
 
 ALTER TABLE sceleton."RolesRights" OWNER TO indaba;
-
---
--- Name: SubindexWeights; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-CREATE TABLE "SubindexWeights" (
-    "subindexId" integer NOT NULL,
-    "questionId" integer NOT NULL,
-    weight numeric NOT NULL,
-    type character varying NOT NULL
-);
-
-
-ALTER TABLE sceleton."SubindexWeights" OWNER TO indaba;
-
---
--- Name: Subindex_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
---
-
-CREATE SEQUENCE "Subindex_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE sceleton."Subindex_id_seq" OWNER TO indaba;
-
---
--- Name: Subindexes; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-CREATE TABLE "Subindexes" (
-    id integer DEFAULT nextval('"Subindex_id_seq"'::regclass) NOT NULL,
-    "productId" integer NOT NULL,
-    title character varying,
-    description text,
-    divisor numeric DEFAULT 1 NOT NULL
-);
-
-
-ALTER TABLE sceleton."Subindexes" OWNER TO indaba;
 
 --
 -- Name: SurveyAnswerVersions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
@@ -2815,13 +2714,10 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 15	Users	Users	users	email
 24	Notifications	notifications	notifications	body
 25	ProductUOA	productUoa	product_uoa	productId
-26	Indexes	Indexes	indexes	title
-27	Subindexes	Subindexes	subindexes	title
 36	Workflows	Workflows	workflows	name
 37	WorfklowSteps	WorkflowSteps	workflow_steps	title
 38	WorfklowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
 31	UnitOfAnalysisTagLink	UnitOfAnalysisTagLink	uoataglinks	id
-30	SubindexWeights	SubindexWeights	subindex_weights	type
 32	Translations	Translations	translations	field
 33	Roles	Roles	roles	name
 34	Rights	Rights	rights	action
@@ -2832,14 +2728,6 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 42	UserUOA	UserUOA	user_uoa	UserId
 43	UserGroups	UserGroups	user_groups	UserId
 \.
-
-
---
--- Name: Index_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indaba
---
-
-SELECT pg_catalog.setval('"Index_id_seq"', 2, true);
-
 
 --
 -- Data for Name: Languages; Type: TABLE DATA; Schema: public; Owner: indaba
@@ -2947,14 +2835,6 @@ COPY "Roles" (id, name, "isSystem") FROM stdin;
 
 COPY "RolesRights" ("roleID", "rightID") FROM stdin;
 \.
-
-
---
--- Name: Subindex_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indaba
---
-
-SELECT pg_catalog.setval('"Subindex_id_seq"', 1, true);
-
 
 --
 -- Data for Name: Token; Type: TABLE DATA; Schema: public; Owner: indaba
@@ -3134,13 +3014,10 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 15	Users	Users	users	email
 24	Notifications	notifications	notifications	body
 25	ProductUOA	productUoa	product_uoa	productId
-26	Indexes	Indexes	indexes	title
-27	Subindexes	Subindexes	subindexes	title
 36	Workflows	Workflows	workflows	name
 37	WorfklowSteps	WorkflowSteps	workflow_steps	title
 38	WorfklowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
 31	UnitOfAnalysisTagLink	UnitOfAnalysisTagLink	uoataglinks	id
-30	SubindexWeights	SubindexWeights	subindex_weights	type
 32	Translations	Translations	translations	field
 33	Roles	Roles	roles	name
 34	Rights	Rights	rights	action
@@ -3168,21 +3045,6 @@ COPY "Groups" (id, title, "organizationId", "langId") FROM stdin;
 --
 
 SELECT pg_catalog.setval('"Groups_id_seq"', 1, true);
-
---
--- Name: Index_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indaba
---
-
-SELECT pg_catalog.setval('"Index_id_seq"', 1, true);
-
-
---
--- Data for Name: Indexes; Type: TABLE DATA; Schema: sceleton; Owner: indaba
---
-
-COPY "Indexes" (id, "productId", title, description, divisor) FROM stdin;
-\.
-
 
 --
 -- Name: JSON_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indaba
@@ -3393,30 +3255,6 @@ COPY "RolesRights" ("roleID", "rightID") FROM stdin;
 2	133
 2	134
 \.
-
-
---
--- Data for Name: SubindexWeights; Type: TABLE DATA; Schema: sceleton; Owner: indaba
---
-
-COPY "SubindexWeights" ("subindexId", "questionId", weight, type) FROM stdin;
-\.
-
-
---
--- Name: Subindex_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indaba
---
-
-SELECT pg_catalog.setval('"Subindex_id_seq"', 1, true);
-
-
---
--- Data for Name: Subindexes; Type: TABLE DATA; Schema: sceleton; Owner: indaba
---
-
-COPY "Subindexes" (id, "productId", title, description, divisor) FROM stdin;
-\.
-
 
 --
 -- Name: SurveyAnswerVersions_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indaba
@@ -3883,14 +3721,6 @@ ALTER TABLE ONLY "Groups"
     ADD CONSTRAINT "Groups_pkey" PRIMARY KEY (id);
 
 --
--- Name: Indexes_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-ALTER TABLE ONLY "Indexes"
-    ADD CONSTRAINT "Indexes_pkey" PRIMARY KEY (id);
-
-
---
 -- Name: Languages_code_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
@@ -4000,23 +3830,6 @@ ALTER TABLE ONLY "RolesRights"
 
 ALTER TABLE ONLY "Roles"
     ADD CONSTRAINT "Roles_pkey" PRIMARY KEY (id);
-
-
---
--- Name: SubindexWeights_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-ALTER TABLE ONLY "SubindexWeights"
-    ADD CONSTRAINT "SubindexWeights_pkey" PRIMARY KEY ("subindexId", "questionId");
-
-
---
--- Name: Subindexes_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-ALTER TABLE ONLY "Subindexes"
-    ADD CONSTRAINT "Subindexes_pkey" PRIMARY KEY (id);
-
 
 --
 -- Name: SurveyAnswers_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
@@ -4239,14 +4052,6 @@ SET search_path = sceleton, pg_catalog;
 
 CREATE UNIQUE INDEX "Essences_upper_idx" ON "Essences" USING btree (upper((name)::text));
 
-
---
--- Name: Indexes_productId_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-CREATE INDEX "Indexes_productId_idx" ON "Indexes" USING btree ("productId");
-
-
 --
 -- Name: Rights_action_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace:
 --
@@ -4259,14 +4064,6 @@ CREATE UNIQUE INDEX "Rights_action_idx" ON "Rights" USING btree (action);
 --
 
 CREATE INDEX "RolesRights_rightID_idx" ON "RolesRights" USING btree ("rightID");
-
-
---
--- Name: Subindexes_productId_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-CREATE INDEX "Subindexes_productId_idx" ON "Subindexes" USING btree ("productId");
-
 
 --
 -- Name: UnitOfAnalysisTagLink_uoaId_idx; Type: INDEX; Schema: sceleton; Owner: indaba; Tablespace:
@@ -4491,14 +4288,6 @@ ALTER TABLE ONLY "Groups"
     ADD CONSTRAINT "Groups_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organizations"(id);
 
 --
--- Name: Indexes_productId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "Indexes"
-    ADD CONSTRAINT "Indexes_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Products"(id);
-
-
---
 -- Name: Logs_essence_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
 --
 
@@ -4648,31 +4437,6 @@ ALTER TABLE ONLY "Rights"
 
 ALTER TABLE ONLY "RolesRights"
     ADD CONSTRAINT "RolesRights_roleID_fkey" FOREIGN KEY ("roleID") REFERENCES "Roles"(id);
-
-
---
--- Name: SubindexWeights_questionId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "SubindexWeights"
-    ADD CONSTRAINT "SubindexWeights_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
-
-
---
--- Name: SubindexWeights_subindexId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "SubindexWeights"
-    ADD CONSTRAINT "SubindexWeights_subindexId_fkey" FOREIGN KEY ("subindexId") REFERENCES "Subindexes"(id);
-
-
---
--- Name: Subindexes_productId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "Subindexes"
-    ADD CONSTRAINT "Subindexes_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Products"(id);
-
 
 --
 -- Name: SurveyAnswers_langId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
