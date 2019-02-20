@@ -3243,7 +3243,6 @@ SET search_path = public, pg_catalog;
 --
 
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
-23	WorkflowSteps	WorkflowSteps	workflowSteps	title
 20	Groups	Groups	groups	title
 21	Organizations	Organizations	organizations	name
 22	Tasks	Tasks	tasks	title
@@ -3258,8 +3257,8 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 24	Notifications	notifications	notifications	body
 25	ProductUOA	productUoa	product_uoa	productId
 36	Workflows	Workflows	workflows	name
-37	WorfklowSteps	WorkflowSteps	workflow_steps	title
-38	WorfklowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
+37	WorkflowSteps	WorkflowSteps	workflow_steps	title
+38	WorkflowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
 31	UnitOfAnalysisTagLink	UnitOfAnalysisTagLink	uoataglinks	id
 32	Translations	Translations	translations	field
 33	Roles	Roles	roles	name
@@ -3440,7 +3439,6 @@ SELECT pg_catalog.setval('"Discussions_id_seq"', 1, true);
 --
 
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
-23	WorkflowSteps	WorkflowSteps	workflowSteps	title
 20	Groups	Groups	groups	title
 21	Organizations	Organizations	organizations	name
 22	Tasks	Tasks	tasks	title
@@ -3455,8 +3453,8 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 24	Notifications	notifications	notifications	body
 25	ProductUOA	productUoa	product_uoa	productId
 36	Workflows	Workflows	workflows	name
-37	WorfklowSteps	WorkflowSteps	workflow_steps	title
-38	WorfklowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
+37	WorkflowSteps	WorkflowSteps	workflow_steps	title
+38	WorkflowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
 31	UnitOfAnalysisTagLink	UnitOfAnalysisTagLink	uoataglinks	id
 32	Translations	Translations	translations	field
 33	Roles	Roles	roles	name
@@ -3897,7 +3895,6 @@ SELECT pg_catalog.setval('"Discussions_id_seq"', 1, true);
 --
 
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
-23	WorkflowSteps	WorkflowSteps	workflowSteps	title
 20	Groups	Groups	groups	title
 21	Organizations	Organizations	organizations	name
 22	Tasks	Tasks	tasks	title
@@ -3912,8 +3909,8 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 24	Notifications	notifications	notifications	body
 25	ProductUOA	productUoa	product_uoa	productId
 36	Workflows	Workflows	workflows	name
-37	WorfklowSteps	WorkflowSteps	workflow_steps	title
-38	WorfklowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
+37	WorkflowSteps	WorkflowSteps	workflow_steps	title
+38	WorkflowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
 31	UnitOfAnalysisTagLink	UnitOfAnalysisTagLink	uoataglinks	id
 32	Translations	Translations	translations	field
 33	Roles	Roles	roles	name

@@ -84,11 +84,6 @@ var essencesContent = [{
     fileName: 'tasks',
     nameField: 'title'
 }, {
-    tableName: 'WorkflowSteps',
-    name: 'WorkflowSteps',
-    fileName: 'workflowSteps',
-    nameField: 'title'
-}, {
     tableName: 'Notifications',
     name: 'notifications',
     fileName: 'notifications',
@@ -129,12 +124,12 @@ var essencesContent = [{
     fileName: 'workflows',
     nameField: 'name'
 }, {
-    tableName: 'WorfklowSteps',
+    tableName: 'WorkflowSteps',
     name: 'WorkflowSteps',
     fileName: 'workflow_steps',
     nameField: 'title'
 }, {
-    tableName: 'WorfklowStepGroups',
+    tableName: 'WorkflowStepGroups',
     name: 'WorkflowStepGroups',
     fileName: 'workflow_step_groups',
     nameField: 'stepId'

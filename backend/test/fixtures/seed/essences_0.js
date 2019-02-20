@@ -1,12 +1,6 @@
 'use strict';
 
 module.exports = [{
-    id: 23,
-    tableName: 'WorkflowSteps',
-    name: 'WorkflowSteps',
-    fileName: 'workflowSteps',
-    nameField: 'title',
-}, {
     id: 20,
     tableName: 'Groups',
     name: 'Groups',
@@ -92,13 +86,13 @@ module.exports = [{
     nameField: 'name',
 }, {
     id: 37,
-    tableName: 'WorfklowSteps',
+    tableName: 'WorkflowSteps',
     name: 'WorkflowSteps',
     fileName: 'workflow_steps',
     nameField: 'title',
 }, {
     id: 38,
-    tableName: 'WorfklowStepGroups',
+    tableName: 'WorkflowStepGroups',
     name: 'WorkflowStepGroups',
     fileName: 'workflow_step_groups',
     nameField: 'stepId',}, {

@@ -1331,48 +1331,6 @@ ALTER TABLE public.transportmodel_id_seq OWNER TO indaba;
 SET search_path = sceleton, pg_catalog;
 
 --
--- Name: Comments_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
---
-
-CREATE SEQUENCE "Comments_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE sceleton."Comments_id_seq" OWNER TO indaba;
-
---
--- Name: Comments; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-CREATE TABLE "Comments" (
-    id integer DEFAULT nextval('"Comments_id_seq"'::regclass) NOT NULL,
-    "taskId" integer NOT NULL,
-    "questionId" integer NOT NULL,
-    "userId" integer,
-    entry text NOT NULL,
-    "isReturn" boolean DEFAULT false NOT NULL,
-    created timestamp(6) with time zone DEFAULT now() NOT NULL,
-    updated timestamp(6) with time zone,
-    "isResolve" boolean DEFAULT false NOT NULL,
-    "order" smallint DEFAULT 1 NOT NULL,
-    "returnTaskId" integer,
-    "userFromId" integer NOT NULL,
-    "stepId" integer NOT NULL,
-    "stepFromId" integer,
-    activated boolean DEFAULT false NOT NULL,
-    tags character varying,
-    range character varying,
-    "commentType" smallint
-);
-
-
-ALTER TABLE sceleton."Comments" OWNER TO indaba;
-
---
 -- Name: Discussions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
 --
 
@@ -2478,8 +2436,6 @@ SELECT pg_catalog.setval('"Entities_id_seq"', 58, true);
 --
 
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
-58	Comments	Comments	comments	id
-23	WorkflowSteps	WorkflowSteps	workflowSteps	title
 20	Groups	Groups	groups	title
 21	Organizations	Organizations	organizations	name
 22	Tasks	Tasks	tasks	title
@@ -2494,8 +2450,8 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 24	Notifications	notifications	notifications	body
 25	ProductUOA	productUoa	product_uoa	productId
 36	Workflows	Workflows	workflows	name
-37	WorfklowSteps	WorkflowSteps	workflow_steps	title
-38	WorfklowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
+37	WorkflowSteps	WorkflowSteps	workflow_steps	title
+38	WorkflowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
 31	UnitOfAnalysisTagLink	UnitOfAnalysisTagLink	uoataglinks	id
 32	Translations	Translations	translations	field
 33	Roles	Roles	roles	name
@@ -2710,21 +2666,6 @@ SELECT pg_catalog.setval('user_id_seq', 360, true);
 SET search_path = sceleton, pg_catalog;
 
 --
--- Data for Name: Comments; Type: TABLE DATA; Schema: sceleton; Owner: indaba
---
-
-COPY "Comments" (id, "taskId", "questionId", "userId", entry, "isReturn", created, updated, "isResolve", "order", "returnTaskId", "userFromId", "stepId", "stepFromId", activated, tags, range, "commentType") FROM stdin;
-\.
-
-
---
--- Name: Comments_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indaba
---
-
-SELECT pg_catalog.setval('"Comments_id_seq"', 1, false);
-
-
---
 -- Data for Name: Discussions; Type: TABLE DATA; Schema: sceleton; Owner: indaba
 --
 
@@ -2758,7 +2699,6 @@ SELECT pg_catalog.setval('"EntityRoles_id_seq"', 1, true);
 --
 
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
-23	WorkflowSteps	WorkflowSteps	workflowSteps	title
 20	Groups	Groups	groups	title
 21	Organizations	Organizations	organizations	name
 22	Tasks	Tasks	tasks	title
@@ -2773,8 +2713,8 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 24	Notifications	notifications	notifications	body
 25	ProductUOA	productUoa	product_uoa	productId
 36	Workflows	Workflows	workflows	name
-37	WorfklowSteps	WorkflowSteps	workflow_steps	title
-38	WorfklowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
+37	WorkflowSteps	WorkflowSteps	workflow_steps	title
+38	WorkflowStepGroups	WorkflowStepGroups	workflow_step_groups	stepId
 31	UnitOfAnalysisTagLink	UnitOfAnalysisTagLink	uoataglinks	id
 32	Translations	Translations	translations	field
 33	Roles	Roles	roles	name
@@ -2784,7 +2724,6 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 42	UserUOA	UserUOA	user_uoa	UserId
 43	UserGroups	UserGroups	user_groups	UserId
 44	Policies	Policies	policies	section
-45	Comments	Comments	comments	id
 \.
 
 
@@ -3335,14 +3274,6 @@ ALTER TABLE ONLY "Users"
 
 
 SET search_path = sceleton, pg_catalog;
-
---
--- Name: Comments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
---
-
-ALTER TABLE ONLY "Comments"
-    ADD CONSTRAINT "Comments_pkey" PRIMARY KEY (id);
-
 
 --
 -- Name: Discussions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
