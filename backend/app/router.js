@@ -287,7 +287,7 @@ router.route('/:realm/v0.2/products/:id/uoa/:uoaid')
     .post(authenticate('jwt').always, jsonParser, checkRight('product_uoa'), products.UOAadd);
 
 router.route('/:realm/v0.2/products/:id/move/:uoaid')
-    .get(authenticate('jwt').always, products.productUOAmove);
+    .put(authenticate('jwt').always, products.productUOAmove);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ORGANIZATIONS
