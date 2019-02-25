@@ -191,7 +191,10 @@ module.exports = {
             tasks = yield * common.getDiscussedTasks(req, tasks, req.user.id);
             tasks = yield * common.getFlagsForTask(req, tasks);
             tasks = yield * common.getCompletenessForTask(req, tasks);
-            return tasks = yield * common.getActiveForTask(req, tasks);
+            tasks = yield * common.getActiveForTask(req, tasks);
+            return tasks = tasks.sort(function (a, b) {
+                return new Date(a.endDate) - new Date(b.endDate);
+            });
         }).then(function (data) {
             res.json(data);
         }, function (err) {
