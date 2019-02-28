@@ -26,16 +26,6 @@ module.exports = function projects(sequelize, Sequelize, schema = 'public') {
             allowNull: false,
             defaultValue: sequelize.literal('now()'),
         },
-        matrixId: {
-            type: Sequelize.INTEGER,
-            references: {
-                model: {
-                    schema,
-                    tableName: 'AccessMatrices',
-                },
-                key: 'id',
-            },
-        },
         startTime: {
             type: Sequelize.DATE,
         },

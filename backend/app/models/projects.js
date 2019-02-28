@@ -6,7 +6,6 @@ var columns = [
     'codeName',
     'description',
     'created',
-    'matrixId',
     'startTime',
     'status',
     'closeTime',

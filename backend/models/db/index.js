@@ -9,25 +9,14 @@ const rights = require('./rights.model');
 const roles = require('./roles.model');
 const rolesRights = require('./roles-rights.model');
 const token = require('./token.model');
-const accessMatrices = require('./access-matrices.model');
-const accessPermissions = require('./access-permissions.model');
-const answerAttachments = require('./answer-attachments.model');
-const attachmentAttempts = require('./attachment-attempts.model');
-const attachmentLinks = require('./attachment-links.model');
-const attachments = require('./attachments.model');
 const discussions = require('./discussions.model');
 const groups = require('./groups.model');
-const indexQuestionWeights = require('./index-question-weights.model');
-const indexSubindexWeights = require('./index-subindex-weights.model');
-const indexes = require('./indexes.model');
 const organizations = require('./organizations.model');
 const productUoa = require('./product-uoa.model');
 const products = require('./products.model');
 const projectUserGroups = require('./project-user-groups.model');
 const projectUsers = require('./project-users.model');
 const projects = require('./projects.model');
-const subindexWeights = require('./subindex-weights.model');
-const subindexes = require('./subindexes.model');
 const translations = require('./translations.model');
 const unitOfAnalysis = require('./unit-of-analysis.model');
 const unitOfAnalysisClassType = require('./unit-of-analysis-class-type.model');
@@ -38,7 +27,6 @@ const userGroups = require('./user-groups.model');
 const userRights = require('./user-rights.model');
 const userUOA = require('./user-uoa.model');
 const users = require('./users.model');
-const visualizations = require('./visualizations.model');
 const workflowStepGroups = require('./workflow-step-groups.model');
 const workflowSteps = require('./workflow-steps.model');
 const workflows = require('./workflows.model');
@@ -68,18 +56,9 @@ const definePublicTables = function (sequelize, Sequelize) {
 };
 
 const defineSchemaTables = function (sequelize, Sequelize, schema) {
-    const AccessMatrices = accessMatrices(sequelize, Sequelize, schema);
-    const AccessPermissions = accessPermissions(sequelize, Sequelize, schema);
-    const AnswerAttachments = answerAttachments(sequelize, Sequelize, schema);
-    const AttachmentAttempts = attachmentAttempts(sequelize, Sequelize, schema);
-    const AttachmentLinks = attachmentLinks(sequelize, Sequelize, schema);
-    const Attachments = attachments(sequelize, Sequelize, schema);
     const Discussions = discussions(sequelize, Sequelize, schema);
     const Essences = essences(sequelize, Sequelize, schema);
     const Groups = groups(sequelize, Sequelize, schema);
-    const IndexQuestionWeights = indexQuestionWeights(sequelize, Sequelize, schema);
-    const IndexSubindexWeights = indexSubindexWeights(sequelize, Sequelize, schema);
-    const Indexes = indexes(sequelize, Sequelize, schema);
     const Languages = languages(sequelize, Sequelize, schema);
     const Logs = logs(sequelize, Sequelize, schema);
     const Notifications = notifications(sequelize, Sequelize, schema);
@@ -92,8 +71,6 @@ const defineSchemaTables = function (sequelize, Sequelize, schema) {
     const Rights = rights(sequelize, Sequelize, schema);
     const Roles = roles(sequelize, Sequelize, schema);
     const RolesRights = rolesRights(sequelize, Sequelize, schema);
-    const SubindexWeights = subindexWeights(sequelize, Sequelize, schema);
-    const Subindexes = subindexes(sequelize, Sequelize, schema);
     const Tasks = tasks(sequelize, Sequelize, schema);
     const Translations = translations(sequelize, Sequelize, schema);
     const UnitOfAnalysis = unitOfAnalysis(sequelize, Sequelize, schema);
@@ -105,7 +82,6 @@ const defineSchemaTables = function (sequelize, Sequelize, schema) {
     const UserRights = userRights(sequelize, Sequelize, schema);
     const UserUOA = userUOA(sequelize, Sequelize, schema);
     const Users = users(sequelize, Sequelize, schema);
-    const Visualizations = visualizations(sequelize, Sequelize, schema);
     const WorkflowStepGroups = workflowStepGroups(sequelize, Sequelize, schema);
     const WorkflowSteps = workflowSteps(sequelize, Sequelize, schema);
     const Workflows = workflows(sequelize, Sequelize, schema);
@@ -114,18 +90,9 @@ const defineSchemaTables = function (sequelize, Sequelize, schema) {
     ProjectUsers.removeAttribute('id');
 
     return {
-        AccessMatrices,
-        AccessPermissions,
-        AnswerAttachments,
-        AttachmentAttempts,
-        AttachmentLinks,
-        Attachments,
         Discussions,
         Essences,
         Groups,
-        IndexQuestionWeights,
-        IndexSubindexWeights,
-        Indexes,
         Languages,
         Logs,
         Notifications,
@@ -138,8 +105,6 @@ const defineSchemaTables = function (sequelize, Sequelize, schema) {
         Rights,
         Roles,
         RolesRights,
-        SubindexWeights,
-        Subindexes,
         Tasks,
         Translations,
         UnitOfAnalysis,
@@ -151,7 +116,6 @@ const defineSchemaTables = function (sequelize, Sequelize, schema) {
         UserRights,
         UserUOA,
         Users,
-        Visualizations,
         WorkflowStepGroups,
         WorkflowSteps,
         Workflows,

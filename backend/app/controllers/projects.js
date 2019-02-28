@@ -11,9 +11,6 @@ var _ = require('underscore'),
     Workflow = require('../models/workflows'),
     WorkflowSteps = require('../models/workflow_steps'),
     WorkflowStepGroup = require('../models/workflow_step_groups'),
-    Survey = require('../models/surveys'),
-    SurveyQuestion = require('../models/survey_questions'),
-    AccessMatrix = require('../models/access_matrices'),
     Organization = require('../models/organizations'),
     Group = require('../models/groups'),
     UserGroup = require('../models/user_groups'),
@@ -513,31 +510,6 @@ module.exports = {
         });
     },
 
-    surveyList: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-        co(function* () {
-            var data = yield thunkQuery(
-                Survey
-                .select(
-                    Survey.star(),
-                    'array_agg(row_to_json("SurveyQuestions".*) ORDER BY "SurveyQuestions"."position") as questions'
-                )
-                .from(
-                    Survey
-                    .leftJoin(SurveyQuestion)
-                    .on(Survey.id.equals(SurveyQuestion.surveyId))
-                )
-                .where(Survey.projectId.equals(req.params.id))
-                .group(Survey.id)
-            );
-            return data;
-        }).then(function (data) {
-            res.json(data);
-        }, function (err) {
-            next(err);
-        });
-    },
-
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -656,25 +628,6 @@ module.exports = {
         }, function (err) {
             next(err);
         });
-    },
-
-    editSurvey: function(req, res, next) {
-        co(function* () {
-            const surveyId = parseInt(req.params.id);
-            if (Number.isNaN(surveyId)) {
-                throw new HttpError(400, 'Survey ID invalid');
-            }
-
-            const productResult = yield req.thunkQuery(
-                Product.select(Product.projectId)
-                .where(Product.surveyId.equals(surveyId))
-            );
-
-            if (productResult.length > 0) {
-                yield common.bumpProjectLastUpdated(req, productResult[0].projectId);
-            }
-        })
-        .then(() => res.status(204).end(), next);
     }
 };
 
@@ -711,13 +664,6 @@ function* checkProjectData(req) {
     if (typeof req.body.status !== 'undefined') {
         if (Project.statuses.indexOf(parseInt(req.body.status)) === -1) {
             throw new HttpError(403, 'Status can be only 1 (active) and 0 (inactive)');
-        }
-    }
-
-    if (req.body.matrixId) {
-        var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
-        if (!_.first(isExistMatrix)) {
-            throw new HttpError(403, 'Matrix with this id does not exist');
         }
     }
 

@@ -6,7 +6,6 @@ module.exports = [{
     codeName: 'Org_2_project',
     description: null,
     created: '2017-04-11 11:59:50-04',
-    matrixId: null,
     startTime: null,
     status: 0,
     adminUserId: null,

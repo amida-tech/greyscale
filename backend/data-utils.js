@@ -12,7 +12,6 @@ const roles = require('./test/fixtures/seed/roles_0');
 const roles1 = require('./test/fixtures/seed/roles_1');
 const tokens = require('./test/fixtures/seed/tokens_0');
 const users = require('./test/fixtures/seed/users_0');
-const accessMatrices = require('./test/fixtures/seed/access-matrices_0');
 const rolesRights = require('./test/fixtures/seed/roles-rights_0');
 const unitOfAnalysisTypes = require('./test/fixtures/seed/unit-of-analysis-type_0');
 const groups = require('./test/fixtures/seed/groups_0');
@@ -53,14 +52,9 @@ var seedSchemaPublic = function (db) {
 
 var seedSchemaCommon = function (db, schema) {
     return Promise.resolve()
-        .then(() => db[schema].AccessMatrices.bulkCreate(accessMatrices))
-        .then(() => setSequenceValue(db, 'AccessMatrices_id_seq', 8, schema))
-        .then(() => setSequenceValue(db, 'AccessPermissions_id_seq', 1, schema))
-        .then(() => setSequenceValue(db, 'AnswerAttachments_id_seq', 1, schema))
         .then(() => setSequenceValue(db, 'Discussions_id_seq', 1, schema))
         .then(() => db[schema].Essences.bulkCreate(essences))
         .then(() => setSequenceValue(db, 'Essences_id_seq', 45, schema))
-        .then(() => setSequenceValue(db, 'Indexes_id_seq', 1, schema))
         .then(() => db[schema].Languages.bulkCreate(languages))
         .then(() => setSequenceValue(db, 'Languages_id_seq', 13, schema))
         .then(() => setSequenceValue(db, 'Logs_id_seq', 1020, schema))
@@ -69,13 +63,11 @@ var seedSchemaCommon = function (db, schema) {
         .then(() => db[schema].Roles.bulkCreate(roles1))
         .then(() => setSequenceValue(db, 'Roles_id_seq', 3, schema))
         .then(() => db[schema].RolesRights.bulkCreate(rolesRights))
-        .then(() => setSequenceValue(db, 'Subindexes_id_seq', 1, schema))
         .then(() => setSequenceValue(db, 'UnitOfAnalysisClassType_id_seq', 1, schema))
         .then(() => setSequenceValue(db, 'UnitOfAnalysisTagLink_id_seq', 1, schema))
         .then(() => setSequenceValue(db, 'UnitOfAnalysisTag_id_seq', 1, schema))
         .then(() => db[schema].UnitOfAnalysisType.bulkCreate(unitOfAnalysisTypes))
         .then(() => setSequenceValue(db, 'UnitOfAnalysisType_id_seq', 1, schema))
-        .then(() => setSequenceValue(db, 'Visualizations_id_seq', 1, schema));
 }
 var seedSchema0 = function (db, schema) {
     return Promise.resolve()
