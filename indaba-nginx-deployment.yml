@@ -1,0 +1,28 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: indaba-nginx
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: indaba-nginx
+    spec:
+      containers:
+      - name: indaba-nginx
+        image: nginx:1.15
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        volumeMounts:
+        - name: indaba-nginx-conf
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+      volumes:
+      - name: indaba-nginx-conf
+        configMap:
+          name: indaba-nginx-conf
+          items:
+          - key: nginx.conf
+            path: nginx.conf
