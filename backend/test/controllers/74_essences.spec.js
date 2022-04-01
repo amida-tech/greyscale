@@ -69,26 +69,6 @@ var essencesContent = [{
     fileName: 'users',
     nameField: 'email'
 }, {
-    tableName: 'Surveys',
-    name: 'Surveys',
-    fileName: 'surveys',
-    nameField: 'title'
-}, {
-    tableName: 'SurveyQuestions',
-    name: 'Survey Questions',
-    fileName: 'survey_questions',
-    nameField: 'label'
-}, {
-    tableName: 'SurveyQuestionOptions',
-    name: 'Survey Question Options',
-    fileName: 'survey_question_options',
-    nameField: 'label'
-}, {
-    tableName: 'SurveyAnswers',
-    name: 'Survey Answers',
-    fileName: 'survey_answers',
-    nameField: 'value'
-}, {
     tableName: 'Groups',
     name: 'Groups',
     fileName: 'groups',
@@ -104,11 +84,6 @@ var essencesContent = [{
     fileName: 'tasks',
     nameField: 'title'
 }, {
-    tableName: 'WorflowSteps',
-    name: 'WorflowSteps',
-    fileName: 'worflowSteps',
-    nameField: 'title'
-}, {
     tableName: 'Notifications',
     name: 'notifications',
     fileName: 'notifications',
@@ -118,31 +93,6 @@ var essencesContent = [{
     name: 'productUoa',
     fileName: 'product_uoa',
     nameField: 'productId'
-}, {
-    tableName: 'Indexes',
-    name: 'Indexes',
-    fileName: 'indexes',
-    nameField: 'title'
-}, {
-    tableName: 'Subindexes',
-    name: 'Subindexes',
-    fileName: 'subindexes',
-    nameField: 'title'
-}, {
-    tableName: 'IndexQuestionWeights',
-    name: 'IndexQuestionWeights',
-    fileName: 'index_question_weights',
-    nameField: 'type'
-}, {
-    tableName: 'IndexSubindexWeights',
-    name: 'IndexSubindexWeights',
-    fileName: 'index_subindex_weights',
-    nameField: 'type'
-}, {
-    tableName: 'SubindexWeights',
-    name: 'SubindexWeights',
-    fileName: 'subindex_weights',
-    nameField: 'type'
 }, {
     tableName: 'UnitOfAnalysisTagLink',
     name: 'UnitOfAnalysisTagLink',
@@ -174,35 +124,15 @@ var essencesContent = [{
     fileName: 'workflows',
     nameField: 'name'
 }, {
-    tableName: 'WorfklowSteps',
+    tableName: 'WorkflowSteps',
     name: 'WorkflowSteps',
     fileName: 'workflow_steps',
     nameField: 'title'
 }, {
-    tableName: 'WorfklowStepGroups',
+    tableName: 'WorkflowStepGroups',
     name: 'WorkflowStepGroups',
     fileName: 'workflow_step_groups',
     nameField: 'stepId'
-}, {
-    tableName: 'Visualizations',
-    name: 'Visualizations',
-    fileName: 'visualizations',
-    nameField: 'title'
-}, {
-    tableName: 'AccessMatrices',
-    name: 'AccessMatrices',
-    fileName: 'access_matrices',
-    nameField: 'name'
-}, {
-    tableName: 'AccessPermissions',
-    name: 'AccessPermissions',
-    fileName: 'access_permissions',
-    nameField: 'id'
-}, {
-    tableName: 'AnswerAttachments',
-    name: 'AnswerAttachments',
-    fileName: 'answer_attachments',
-    nameField: 'filename'
 }, {
     tableName: 'Token',
     name: 'Token',

@@ -1,12 +1,6 @@
 'use strict';
 
 module.exports = [{
-    id: 23,
-    tableName: 'WorflowSteps',
-    name: 'WorflowSteps',
-    fileName: 'worflowSteps',
-    nameField: 'title',
-}, {
     id: 20,
     tableName: 'Groups',
     name: 'Groups',
@@ -85,30 +79,6 @@ module.exports = [{
     fileName: 'product_uoa',
     nameField: 'productId',
 }, {
-    id: 26,
-    tableName: 'Indexes',
-    name: 'Indexes',
-    fileName: 'indexes',
-    nameField: 'title',
-}, {
-    id: 27,
-    tableName: 'Subindexes',
-    name: 'Subindexes',
-    fileName: 'subindexes',
-    nameField: 'title',
-}, {
-    id: 28,
-    tableName: 'IndexQuestionWeights',
-    name: 'IndexQuestionWeights',
-    fileName: 'index_question_weights',
-    nameField: 'type',
-}, {
-    id: 29,
-    tableName: 'IndexSubindexWeights',
-    name: 'IndexSubindexWeights',
-    fileName: 'index_subindex_weights',
-    nameField: 'type',
-}, {
     id: 36,
     tableName: 'Workflows',
     name: 'Workflows',
@@ -116,13 +86,13 @@ module.exports = [{
     nameField: 'name',
 }, {
     id: 37,
-    tableName: 'WorfklowSteps',
+    tableName: 'WorkflowSteps',
     name: 'WorkflowSteps',
     fileName: 'workflow_steps',
     nameField: 'title',
 }, {
     id: 38,
-    tableName: 'WorfklowStepGroups',
+    tableName: 'WorkflowStepGroups',
     name: 'WorkflowStepGroups',
     fileName: 'workflow_step_groups',
     nameField: 'stepId',}, {
@@ -131,12 +101,6 @@ module.exports = [{
     name: 'UnitOfAnalysisTagLink',
     fileName: 'uoataglinks',
     nameField: 'id',
-}, {
-    id: 30,
-    tableName: 'SubindexWeights',
-    name: 'SubindexWeights',
-    fileName: 'subindex_weights',
-    nameField: 'type',
 }, {
     id: 32,
     tableName: 'Translations',
@@ -162,43 +126,19 @@ module.exports = [{
     fileName: 'role_rights',
     nameField: 'roleId',
 }, {
-    id: 39,
-    tableName: 'Visualizations',
-    name: 'Visualizations',
-    fileName: 'visualizations',
-    nameField: 'title',
-}, {
-    id: 40,
-    tableName: 'AccessMatrices',
-    name: 'AccessMatrices',
-    fileName: 'access_matrices',
-    nameField: 'name',
-}, {
     id: 41,
-    tableName: 'AccessPermissions',
-    name: 'AccessPermissions',
-    fileName: 'access_permissions',
-    nameField: 'id',
-}, {
-    id: 42,
-    tableName: 'AnswerAttachments',
-    name: 'AnswerAttachments',
-    fileName: 'answer_attachments',
-    nameField: 'filename',
-}, {
-    id: 43,
     tableName: 'Token',
     name: 'Token',
     fileName: 'token',
     nameField: 'realm',
 }, {
-    id: 44,
+    id: 42,
     tableName: 'UserUOA',
     name: 'UserUOA',
     fileName: 'user_uoa',
     nameField: 'UserId',
 }, {
-    id: 45,
+    id: 43,
     tableName: 'UserGroups',
     name: 'UserGroups',
     fileName: 'user_groups',

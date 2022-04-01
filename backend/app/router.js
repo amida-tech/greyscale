@@ -83,72 +83,6 @@ router.route('/:realm/v0.2/projects/:id')
 router.route('/:realm/v0.2/projects/:id/products')
     .get(authenticate('jwt').always, projects.productList);
 
-router.route('/:realm/v0.2/projects/:id/surveys')
-    .get(authenticate('jwt').always, projects.surveyList);
-
-router.route('/:realm/v0.2/projects/survey/:id')
-    .put(authenticate('jwt').always, jsonParser, projects.editSurvey);
-
-//----------------------------------------------------------------------------------------------------------------------
-//    SURVEYS
-//----------------------------------------------------------------------------------------------------------------------
-var surveys = require('./controllers/surveys');
-
-router.route('/:realm/v0.2/surveys')
-    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ surveys.select)
-    .post(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ surveys.insertOne);
-
-router.route('/:realm/v0.2/surveys/:id')
-    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ surveys.selectOne)
-    .put(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ surveys.editOne)
-    .delete(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ surveys.delete);
-
-router.route('/:realm/v0.2/surveys/:id/questions')
-    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ surveys.questions)
-    .post(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ surveys.questionAdd);
-
-router.route('/:realm/v0.2/questions/:id')
-    .put(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ surveys.questionEdit)
-    .delete(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ surveys.questionDelete);
-
-//----------------------------------------------------------------------------------------------------------------------
-//    SURVEY ANSWERS
-//----------------------------------------------------------------------------------------------------------------------
-var surveyAnswers = require('./controllers/survey_answers');
-
-router.route('/:realm/v0.2/survey_answers')
-    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ surveyAnswers.select)
-    .post(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ surveyAnswers.add);
-
-router.route('/:realm/v0.2/survey_answers/:productId/:UOAid')
-    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ surveyAnswers.getByProdUoa);
-
-router.route('/:realm/v0.2/survey_answers/:id')
-    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ surveyAnswers.selectOne)
-    .delete(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ surveyAnswers.delete)
-    .put(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ surveyAnswers.update);
-
-//----------------------------------------------------------------------------------------------------------------------
-//    ATTACHMENTS (universal mechanism)
-//----------------------------------------------------------------------------------------------------------------------
-
-var attachments = require('./controllers/attachments');
-
-router.route('/:realm/v0.2/uploads/links/:essenceId/:entityId')
-    .put(authenticate('jwt').always, jsonParser, attachments.links);
-
-router.route('/:realm/v0.2/uploads/:id/ticket')
-    .get(authenticate('jwt').always, attachments.getTicket);
-
-router.route('/:realm/v0.2/uploads/:id/:essenceId/:entityId')
-    .delete(authenticate('jwt').always, attachments.delete);
-
-router.route('/:realm/v0.2/uploads/upload_link')
-    .post(authenticate('jwt').always, jsonParser, attachments.getUploadLink);
-
-router.route('/:realm/v0.2/uploads/success')
-    .post(authenticate('jwt').always, jsonParser, attachments.uploadSuccess);
-
 //----------------------------------------------------------------------------------------------------------------------
 //    ESSENCE_ROLES
 //----------------------------------------------------------------------------------------------------------------------
@@ -162,27 +96,6 @@ router.route('/:realm/v0.2/essence_roles/:id')
     .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ essenceRoles.selectOne)
     .put(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ essenceRoles.updateOne)
     .delete(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ essenceRoles.delete);
-
-//----------------------------------------------------------------------------------------------------------------------
-//    ACCESS_MATRICES
-//-----------------------------------------------s-----------------------------------------------------------------------
-var accessMatrices = require('./controllers/access_matrices');
-
-router.route('/:realm/v0.2/access_matrices')
-    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ accessMatrices.select)
-    .post(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ accessMatrices.insertOne);
-
-router.route('/:realm/v0.2/access_matrices/:id/permissions')
-    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ accessMatrices.permissionsSelect);
-
-//----------------------------------------------------------------------------------------------------------------------
-//    ACCESS_PERMISSIONS
-//----------------------------------------------------------------------------------------------------------------------
-router.route('/:realm/v0.2/access_permissions')
-    .post(authenticate('jwt').always, jsonParser, /*checkRight('rights_view_all'),*/ accessMatrices.permissionsInsertOne);
-
-router.route('/:realm/v0.2/access_permissions/:id')
-    .delete(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ accessMatrices.permissionsDeleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    LANGUAGES
@@ -230,53 +143,34 @@ router.route('/:realm/v0.2/translations')
     .post(authenticate('jwt').always, jsonParser, translations.insertOne);
 
 router.route('/:realm/v0.2/translations/:essenceId/:entityId/:field/:langId')
-    .delete(authenticate('jwt').always, /*checkPermission('product_delete','products'),*/ translations.delete)
-    .put(authenticate('jwt').always, jsonParser, /*checkPermission('product_delete','products'),*/ translations.editOne);
+    .delete(authenticate('jwt').always, translations.delete)
+    .put(authenticate('jwt').always, jsonParser, translations.editOne);
 
 router.route('/:realm/v0.2/translations/:essenceId')
     .get(authenticate('jwt').always, translations.selectByParams);
 
 router.route('/:realm/v0.2/translations/:essenceId/:entityId')
     .get(authenticate('jwt').always, translations.selectByParams);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    PRODUCTS
 //----------------------------------------------------------------------------------------------------------------------
 var products = require('./controllers/products');
 router.route('/:realm/v0.2/products')
-    .get(authenticate('jwt').always, /*checkRight('rights_view_all'),*/ products.select)
+    .get(authenticate('jwt').always, products.select)
     .post(authenticate('jwt').always, jsonParser, products.insertOne);
 
 router.route('/:realm/v0.2/products/:id')
-    .get(authenticate('jwt').always, /*checkPermission('product_select', 'products'),*/ products.selectOne)
-    .put(authenticate('jwt').always, jsonParser, /*checkPermission('product_update', 'products'),*/ products.updateOne)
-    .delete(authenticate('jwt').always, /*checkPermission('product_delete', 'products'),*/ products.delete);
+    .get(authenticate('jwt').always, products.selectOne)
+    .put(authenticate('jwt').always, jsonParser, products.updateOne)
+    .delete(authenticate('jwt').always, products.delete);
 
 router.route('/:realm/v0.2/products/:id/tasks')
-    .get(authenticate('jwt').always, /*checkPermission('product_select', 'products'),*/ products.tasks)
-    .put(authenticate('jwt').always, jsonParser, /*checkPermission('product_select', 'products'),*/ products.editTasks);
-
-router.route('/:realm/v0.2/products/:id/aggregate')
-    .get( /*authenticate('token').always,*/ products.aggregateIndexes);
-
-router.route('/:realm/v0.2/products/:id/aggregate.csv')
-    .get( /*authenticate('jwt').always,*/ products.aggregateIndexesCsv);
-
-router.route('/:realm/v0.2/products/:id/indexes')
-    .get( /*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.indexes)
-    .put(authenticate('jwt').always, jsonParser, /*checkPermission('product_update', 'products'),*/ products.editIndexes);
-
-router.route('/:realm/v0.2/products/:id/subindexes')
-    .get( /*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.subindexes)
-    .put(authenticate('jwt').always, jsonParser, /*checkPermission('product_update', 'products'),*/ products.editSubindexes);
-
-// router.route('/:realm/v0.2/products/:ticket/export.csv')
-//     .get( /*authenticate('token').always,*/ products.export);
+    .get(authenticate('jwt').always, products.tasks)
+    .put(authenticate('jwt').always, jsonParser, products.editTasks);
 
 router.route('/:realm/v0.2/products/:productId/export.csv')
     .get( authenticate('jwt').always, products.export);
-
-router.route('/:realm/v0.2/products/:id/export_ticket')
-    .get( /*authenticate('jwt').always,*/ products.getTicket);
 
 router.route('/:realm/v0.2/products/:id/uoa')
     .get(authenticate('jwt').always, checkRight('product_uoa'), products.UOAselect)
@@ -531,55 +425,6 @@ router.route('/:realm/v0.2/uoataglinks/:id')
     .delete(authenticate('jwt').always, checkRight('uoataglink_delete_one'), UnitOfAnalysisTagLink.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
-//    Visualizations
-//----------------------------------------------------------------------------------------------------------------------
-var Visualization = require('./controllers/visualizations');
-var ComparativeVisualization = require('./controllers/comparative_visualizations');
-
-router.route('/:realm/v0.2/organizations/:organizationId/visualizations')
-    .get(authenticate('jwt').always, Visualization.select)
-    .post(authenticate('jwt').always, jsonParser, /*checkRight(), */ Visualization.insertOne);
-
-router.route('/:realm/v0.2/organizations/:organizationId/visualizations/:id')
-    .get(authenticate('jwt').always, Visualization.selectOne)
-    .put(authenticate('jwt').always, jsonParser, /*checkRight(), */ Visualization.updateOne)
-    .delete(authenticate('jwt').always, /*checkRight(), */ Visualization.deleteOne);
-
-router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations')
-    .get( /*authenticate('token').always,*/ ComparativeVisualization.select)
-    .post(authenticate('jwt').always, jsonParser, /*checkRight(), */ ComparativeVisualization.insertOne);
-
-router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id')
-    .get( /*authenticate('token').always,*/ ComparativeVisualization.selectOne)
-    .put(authenticate('jwt').always, jsonParser, /*checkRight(), */ ComparativeVisualization.updateOne)
-    .delete(authenticate('jwt').always, /*checkRight(), */ ComparativeVisualization.deleteOne);
-
-router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id/datasets')
-    .get( /*authenticate('token').always,*/ ComparativeVisualization.selectDatasets)
-    .post(authenticate('jwt').always, jsonParser, /*checkRight(), */ ComparativeVisualization.insertDataset);
-
-router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id/datasets/parse')
-    .post(authenticate('jwt').always, jsonParser, /*checkRight(), */ ComparativeVisualization.parseDataset);
-
-router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id/:datasets/:datasetId')
-    .get( /*authenticate('token').always,*/ ComparativeVisualization.selectDataset)
-    .put(authenticate('jwt').always, jsonParser, /*checkRight(), */ ComparativeVisualization.updateDataset)
-    .delete(authenticate('jwt').always, /*checkRight(), */ ComparativeVisualization.deleteDataset);
-
-//----------------------------------------------------------------------------------------------------------------------
-//    Data Export
-//----------------------------------------------------------------------------------------------------------------------
-var DataExport = require('./controllers/data_export');
-
-router.route('/:realm/v0.2/data-api/datasets')
-    .get(DataExport.authenticate, DataExport.select);
-
-router.route('/:realm/v0.2/data-api/datasets/:id')
-    .get(DataExport.authenticate, DataExport.selectOne);
-
-module.exports = router;
-
-//----------------------------------------------------------------------------------------------------------------------
 //    LOGS
 //----------------------------------------------------------------------------------------------------------------------
 var logs = require('./controllers/logs');
@@ -601,3 +446,5 @@ router.route('/:realm/v0.2/system_messages')
 var aws = require('./controllers/aws');
 router.route('/:realm/v0.2/sign-s3')
     .get(authenticate('jwt').always, jsonParser, aws.signS3);
+
+module.exports = router;

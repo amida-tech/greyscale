@@ -232,7 +232,7 @@ var environments = {
                 password: 'Testadmin12345',
             },
             admin: {
-                email: 'test-admin@mail.net',
+                email: 'test-adm@mail.net',
                 firstName: 'Test',
                 lastName: 'Admin',
                 roleID: 2,

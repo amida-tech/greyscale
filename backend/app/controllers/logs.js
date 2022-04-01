@@ -15,8 +15,6 @@ var
     WorkflowStep = require('../models/workflow_steps'),
     UOA = require('../models/uoas'),
     Task = require('../models/tasks'),
-    Survey = require('../models/surveys'),
-    SurveyQuestion = require('../models/survey_questions'),
     Discussion = require('../models/discussions'),
     Notification = require('../models/notifications'),
     notifications = require('../controllers/notifications'),

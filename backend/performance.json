@@ -24,14 +24,6 @@
         },
         {
           "think": 1
-        },
-        {
-          "post": {
-            "url": "/public/v0.2/survey_answers",
-            "json": {
-              "value": 1
-            }
-          }
         }
       ]
     }
