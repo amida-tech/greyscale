@@ -10,7 +10,7 @@
   "dependencies": {
     "accept-language": "2.0.16",
     "async": "0.9.0",
-    "aws-sdk": "^2.3.16",
+    "aws-sdk": "^2.1162.0",
     "body-parser": "1.9.2",
     "bytes": "^2.3.0",
     "co": "4.0.0 ",
