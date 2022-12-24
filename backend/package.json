@@ -35,7 +35,7 @@
     "nodemailer-smtp-transport": "2.x",
     "passport": "0.2.1",
     "passport-http": "0.2.2",
-    "passport-jwt": "3.0.0",
+    "passport-jwt": "4.0.1",
     "pg": "^7.18.2",
     "pg-escape": "0.2.0",
     "pg-hstore": "^2.3.2",
