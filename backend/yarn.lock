@@ -651,14 +651,6 @@ clone@^1.0.0, clone@^1.0.2:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/clone/-/clone-1.0.4.tgz#da309cc263df15994c688ca902179ca3c7cd7c7e"
 
-cls-bluebird@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/cls-bluebird/-/cls-bluebird-2.1.0.tgz#37ef1e080a8ffb55c2f4164f536f1919e7968aee"
-  integrity sha512-XVb0RPmHQyy35Tz9z34gvtUcBKUK8A/1xkGCyeFc9B0C7Zr5SysgFaswRVdwI5NEMcO+3JKlIDGIOgERSn9NdA==
-  dependencies:
-    is-bluebird "^1.0.2"
-    shimmer "^1.1.0"
-
 co@4.6.0, co@^4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/co/-/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
@@ -1165,6 +1157,13 @@ ecc-jsbn@~0.1.1:
 ecdsa-sig-formatter@1.0.10:
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/ecdsa-sig-formatter/-/ecdsa-sig-formatter-1.0.10.tgz#1c595000f04a8897dfb85000892a0f4c33af86c3"
+  dependencies:
+    safe-buffer "^5.0.1"
+
+ecdsa-sig-formatter@1.0.11:
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/ecdsa-sig-formatter/-/ecdsa-sig-formatter-1.0.11.tgz#ae0f0fa2d85045ef14a817daa3ce9acd0489e5bf"
+  integrity sha512-nagl3RYrbNv6kQkeJIpt6NJZy8twLB/2vtz6yN9Z4vRKHN4/QZJIEbqohALSgwKdnksuY3k5Addp5lg8sVoVcQ==
   dependencies:
     safe-buffer "^5.0.1"
 
@@ -3248,7 +3247,7 @@ jsonpointer@^4.0.0:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/jsonpointer/-/jsonpointer-4.0.1.tgz#4fd92cb34e0e9db3c89c8622ecf51f9b978c6cb9"
 
-jsonwebtoken@^7.0.0, jsonwebtoken@^7.4.1:
+jsonwebtoken@^7.4.1:
   version "7.4.3"
   resolved "https://registry.yarnpkg.com/jsonwebtoken/-/jsonwebtoken-7.4.3.tgz#77f5021de058b605a1783fa1283e99812e645638"
   dependencies:
@@ -3257,6 +3256,16 @@ jsonwebtoken@^7.0.0, jsonwebtoken@^7.4.1:
     lodash.once "^4.0.0"
     ms "^2.0.0"
     xtend "^4.0.1"
+
+jsonwebtoken@^9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/jsonwebtoken/-/jsonwebtoken-9.0.0.tgz#d0faf9ba1cc3a56255fe49c0961a67e520c1926d"
+  integrity sha512-tuGfYXxkQGDPnLJ7SibiQgVgeDgfbPq2k2ICcbgqW8WxWLBAxKQM/ZCu/IT8SOSwmaYl4dpTFCW5xZv7YbbWUw==
+  dependencies:
+    jws "^3.2.2"
+    lodash "^4.17.21"
+    ms "^2.1.1"
+    semver "^7.3.8"
 
 jsprim@^1.2.2:
   version "1.4.1"
@@ -3287,11 +3296,28 @@ jwa@^1.1.5:
     ecdsa-sig-formatter "1.0.10"
     safe-buffer "^5.0.1"
 
+jwa@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/jwa/-/jwa-1.4.1.tgz#743c32985cb9e98655530d53641b66c8645b039a"
+  integrity sha512-qiLX/xhEEFKUAJ6FiBMbes3w9ATzyk5W7Hvzpa/SLYdxNtng+gcurvrI7TbACjIXlsJyr05/S1oUhZrc63evQA==
+  dependencies:
+    buffer-equal-constant-time "1.0.1"
+    ecdsa-sig-formatter "1.0.11"
+    safe-buffer "^5.0.1"
+
 jws@^3.1.4:
   version "3.1.5"
   resolved "https://registry.yarnpkg.com/jws/-/jws-3.1.5.tgz#80d12d05b293d1e841e7cb8b4e69e561adcf834f"
   dependencies:
     jwa "^1.1.5"
+    safe-buffer "^5.0.1"
+
+jws@^3.2.2:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/jws/-/jws-3.2.2.tgz#001099f3639468c9414000e99995fa52fb478304"
+  integrity sha512-YHlZCB6lMTllWDtSPHz/ZXTsi8S00usEV6v1tjq8tOUZzw7DpSDWVXjXDre6ed1w/pd495ODpHZYSdkRTsa0HA==
+  dependencies:
+    jwa "^1.4.1"
     safe-buffer "^5.0.1"
 
 kind-of@^3.0.2, kind-of@^3.0.3, kind-of@^3.2.0:
@@ -3756,7 +3782,7 @@ moment@2.x.x, "moment@>= 2.9.0", moment@latest:
   version "2.22.2"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.22.2.tgz#3c257f9839fc0e93ff53149632239eb90783ff66"
 
-moment@^2.20.0, moment@^2.29.3:
+moment@^2.29.1, moment@^2.29.3:
   version "2.29.4"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
   integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
@@ -3778,7 +3804,7 @@ ms@2.1.2:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
   integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
 
-ms@2.1.3:
+ms@2.1.3, ms@^2.1.1:
   version "2.1.3"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
@@ -4167,11 +4193,12 @@ passport-http@0.2.2:
     passport "~0.1.3"
     pkginfo "0.2.x"
 
-passport-jwt@3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/passport-jwt/-/passport-jwt-3.0.0.tgz#7d9e4ff0fa0522108540ce1fcfa83bbd8faa29c9"
+passport-jwt@4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/passport-jwt/-/passport-jwt-4.0.1.tgz#c443795eff322c38d173faa0a3c481479646ec3d"
+  integrity sha512-UCKMDYhNuGOBE9/9Ycuoyh7vP6jpeTp/+sfMJl7nLff/t6dps+iaeE0hhNkKN8/HZHcJ7lCdOyDxHdDoxoSvdQ==
   dependencies:
-    jsonwebtoken "^7.0.0"
+    jsonwebtoken "^9.0.0"
     passport-strategy "^1.0.0"
 
 passport-strategy@1.x.x, passport-strategy@^1.0.0:
@@ -4850,6 +4877,13 @@ semver@^7.3.5:
   version "7.3.7"
   resolved "https://registry.yarnpkg.com/semver/-/semver-7.3.7.tgz#12c5b649afdbf9049707796e22a4028814ce523f"
   integrity sha512-QlYTucUYOews+WeEujDoEGziz4K6c47V/Bd+LjSSYcA94p+DmINdf7ncaUinThfvZyu13lN9OY1XDxt8C0Tw0g==
+  dependencies:
+    lru-cache "^6.0.0"
+
+semver@^7.3.8:
+  version "7.3.8"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-7.3.8.tgz#07a78feafb3f7b32347d725e33de7e2a2df67798"
+  integrity sha512-NB1ctGL5rlHrPJtFDVIVzTyQylMLu9N9VICA6HSFJo8MCGVTMW6gfpicwKmmK/dAjTOrqu5l63JJOpDSrAis3A==
   dependencies:
     lru-cache "^6.0.0"
 
