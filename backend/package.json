@@ -41,7 +41,7 @@
     "pg-hstore": "^2.3.2",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
-    "sequelize": "6.21.2",
+    "sequelize": "6.29.0",
     "socket.io": "^1.4.5",
     "sql": "0.78.0",
     "superagent": "^1.8.3",
