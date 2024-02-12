@@ -31,7 +31,7 @@
     "mz": "1.1.0",
     "node-uuid": "1.4.1",
     "node-zip": "^1.1.1",
-    "nodemailer": "^2.7.2",
+    "nodemailer": "^4.0.1",
     "nodemailer-smtp-transport": "2.x",
     "passport": "0.2.1",
     "passport-http": "0.2.2",
